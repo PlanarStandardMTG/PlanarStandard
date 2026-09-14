@@ -54,8 +54,5 @@ module.exports = {
     tsPreCompilationDeps: true,
     tsConfig: { fileName: "tsconfig.base.json" },
     enhancedResolveOptions: { exportsFields: ["exports"], conditionNames: ["import", "require", "node", "default"] },
-    reporterOptions: {
-      err: { showMetrics: false },
-    },
   },
 };
