@@ -1,0 +1,17 @@
+{
+  "name": "@ps/web",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "echo \"web: nothing to build yet (see E16.1)\"",
+    "test": "echo \"web: no tests yet\"",
+    "dev": "echo \"web: run E16.1 (Next.js scaffold) first\""
+  },
+  "dependencies": {
+    "@ps/contracts": "workspace:*",
+    "@ps/core": "workspace:*",
+    "@ps/adapters": "workspace:*",
+    "@ps/db": "workspace:*"
+  }
+}
