@@ -1,0 +1,82 @@
+{
+  "capabilities": ["matches"],
+  "matches": [
+    {
+      "rowIndex": 0,
+      "raw": {
+        "Round": "1",
+        "Table": "1",
+        "Player 1": "Zaunus13",
+        "Player 2": "divnyi",
+        "Wins": "2",
+        "Losses": "1",
+        "Draws": "0"
+      },
+      "p1Handle": "Zaunus13",
+      "p2Handle": "divnyi",
+      "result": "p1_win",
+      "round": 1,
+      "tableNumber": 1,
+      "p1Games": 2,
+      "p2Games": 1,
+      "gameDraws": 0
+    },
+    {
+      "rowIndex": 1,
+      "raw": {
+        "Round": "1",
+        "Table": "2",
+        "Player 1": "Reyes, Ana",
+        "Player 2": "BrewMaster",
+        "Wins": "0",
+        "Losses": "2",
+        "Draws": "0"
+      },
+      "p1Handle": "Reyes, Ana",
+      "p2Handle": "BrewMaster",
+      "result": "p2_win",
+      "round": 1,
+      "tableNumber": 2,
+      "p1Games": 0,
+      "p2Games": 2,
+      "gameDraws": 0
+    },
+    {
+      "rowIndex": 2,
+      "raw": {
+        "Round": "1",
+        "Table": "3",
+        "Player 1": "SoloQueue",
+        "Player 2": "-- BYE --",
+        "Wins": "2",
+        "Losses": "0",
+        "Draws": "0"
+      },
+      "p1Handle": "SoloQueue",
+      "result": "bye",
+      "round": 1,
+      "tableNumber": 3
+    },
+    {
+      "rowIndex": 3,
+      "raw": {
+        "Round": "2",
+        "Table": "1",
+        "Player 1": "divnyi",
+        "Player 2": "Reyes, Ana",
+        "Wins": "1",
+        "Losses": "1",
+        "Draws": "1"
+      },
+      "p1Handle": "divnyi",
+      "p2Handle": "Reyes, Ana",
+      "result": "draw",
+      "round": 2,
+      "tableNumber": 1,
+      "p1Games": 1,
+      "p2Games": 1,
+      "gameDraws": 1
+    }
+  ],
+  "issues": []
+}

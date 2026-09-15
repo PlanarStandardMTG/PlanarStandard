@@ -31,7 +31,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E9 | Identity signals and scoring | 4 | E2 | ✅ 9/9 |
 | E10 | Stats primitives | 8 | E2 | ✅ 3/3 |
 | E11 | Reddit transforms | 9 | — | ✅ 6/6 |
-| E12 | Source adapters | 5 | E2 | ⬜ 0/9 |
+| E12 | Source adapters | 5 | E2 | 🚧 4/9 |
 | E13 | Schema, migrations, repositories | 3–5 | E2 | 🚧 3/23 |
 | E14 | RLS and access control | 1 | E13 | ⬜ 0/5 |
 | E15 | Seed data and local dev | 0 | E13 | ⬜ 0/5 |
@@ -302,9 +302,11 @@ Stream F. No dependencies at all. Each is a before/after fixture pair — the sm
 
 Stream D. One file per source, all pure, all fixture-tested. ADR 005, ADR 006.
 
-⬜ **E12.1 — Adapter registry and `detect` dispatch** · M · Deps: E2.4 — try each adapter's `detect`, return the match or an actionable "unrecognized format" error. *AC:* ambiguous matches are reported, not silently resolved by registration order.
-⬜ **E12.2 — `generic-csv`** · L · Deps: E12.1 — manual column mapping, matches or standings. *AC:* the permanent floor: any CSV with player/opponent/result columns imports after mapping; mapping persists to `result_imports.column_mapping`.
-⬜ **E12.3 — `manual-entry`** · M · Deps: E12.1 — structured input → `ParsedEvent`, always available.
+✅ **E12.1 — Adapter registry and `detect` dispatch** · M · Deps: E2.4 — try each adapter's `detect`, return the match or an actionable "unrecognized format" error. *AC:* ambiguous matches are reported, not silently resolved by registration order.
+*Note:* `generic-csv` reads any delimited file, so on `detect` alone it is ambiguous with every CSV source in §9. It is marked `fallback` in the registry and consulted only once no specific adapter has claimed the input — a declared role, not a position in the list, and the ambiguity test asserts the outcome is unchanged with the registry reversed.
+✅ **E12.2 — `generic-csv`** · L · Deps: E12.1 — manual column mapping, matches or standings. *AC:* the permanent floor: any CSV with player/opponent/result columns imports after mapping; mapping persists to `result_imports.column_mapping`.
+*Outstanding:* the adapter reads `RawInput.columnMapping` and the fixture tests round-trip one, but nothing persists it yet — `result_imports` arrives with E13.5.
+✅ **E12.3 — `manual-entry`** · M · Deps: E12.1 — structured input → `ParsedEvent`, always available.
 ⛔ **E12.4 — `melee-csv`** · M · Deps: E12.1 — matches, standings, roster. Priority source. *AC:* real export committed to `fixtures/melee/`; expected `ParsedEvent` JSON asserted.
 *Blocked:* needs a real melee.gg export committed to `fixtures/melee/`.
 ⛔ **E12.5 — `challonge-csv`** · M · Deps: E12.1 — matches, standings, roster.
@@ -312,7 +314,7 @@ Stream D. One file per source, all pure, all fixture-tested. ADR 005, ADR 006.
 ⛔ **E12.6 — `legacy-xlsx`** · M · Deps: E12.1 — standings only, one-time backfill. *AC:* summary sheets ignored; only per-date sheets read.
 *Blocked:* needs the legacy per-date `.xlsx` committed to `fixtures/legacy/`.
 ⬜ **E12.7 — `archetype-map-html`** · L · Deps: E12.1 — decklists from hover text: player, date, both records, full list. One-time backfill.
-⬜ **E12.8 — Capability gating test** · S · Deps: E12.1 — a standings-only `ParsedEvent` cannot produce matches. *AC:* asserts pairings are never inferred from placements.
+✅ **E12.8 — Capability gating test** · S · Deps: E12.1 — a standings-only `ParsedEvent` cannot produce matches. *AC:* asserts pairings are never inferred from placements.
 ⬜ **E12.9 — Adapter authoring guide** · S · Deps: E12.4 — `packages/adapters/README.md`: drop a fixture, write `detect` and `parse`, write expected output.
 
 ---
@@ -633,9 +635,9 @@ can start today, in rough order of how much it unblocks.
 
 **Needs nothing but a sitting**
 
-- E12.1–E12.3, E12.7, E12.8 — adapter registry, `generic-csv`, `manual-entry`, `archetype-map-html`,
-  and the capability-gating test. The 417 real decklists E12.7 reads live in the parent repo's
-  `frontend/public/InteractiveArchetypeMap*.html`.
+- E12.7 — `archetype-map-html`. The registry, `generic-csv` and `manual-entry` are in, so what is
+  left is `detect`, `parse`, and a fixture. The 417 real decklists it reads live in the parent
+  repo's `frontend/public/InteractiveArchetypeMap*.html`.
 - E22.4, E22.6, E22.7 — issue templates, the fourteen ADRs, the module-doc index.
 
 **Waiting on a person, not on code**
@@ -667,7 +669,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 
 | Epic | Stories | Done | Epic | Stories | Done |
 |---|---|---|---|---|---|
-| E1 | 9 | 9 | E12 | 9 | 0 |
+| E1 | 9 | 9 | E12 | 9 | 4 |
 | E2 | 9 | 9 | E13 | 23 | 3 |
 | E3 | 7 | 7 | E14 | 5 | 0 |
 | E4 | 7 | 0 | E15 | 5 | 0 |
@@ -680,4 +682,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E11 | 6 | 6 | E22 | 12 | 2 |
 |  |  |  | E23 | 11 | 11 |
 
-**96 of 219 stories done across 23 epics.**
+**100 of 219 stories done across 23 epics.**

@@ -1,0 +1,46 @@
+{
+  "capabilities": ["standings"],
+  "standings": [
+    {
+      "handle": "Zaunus13",
+      "placement": 1,
+      "matchWins": 4,
+      "matchLosses": 0,
+      "matchDraws": 0,
+      "gameWins": 8,
+      "gameLosses": 2,
+      "dropped": false
+    },
+    {
+      "handle": "divnyi",
+      "placement": 2,
+      "matchWins": 3,
+      "matchLosses": 1,
+      "matchDraws": 0,
+      "gameWins": 7,
+      "gameLosses": 4,
+      "dropped": false
+    },
+    {
+      "handle": "BrewMaster",
+      "placement": 3,
+      "matchWins": 2,
+      "matchLosses": 2,
+      "matchDraws": 0,
+      "gameWins": 5,
+      "gameLosses": 5,
+      "dropped": true
+    },
+    {
+      "handle": "SoloQueue",
+      "placement": 4,
+      "matchWins": 0,
+      "matchLosses": 4,
+      "matchDraws": 0,
+      "gameWins": 1,
+      "gameLosses": 8,
+      "dropped": true
+    }
+  ],
+  "issues": []
+}
