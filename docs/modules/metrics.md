@@ -63,8 +63,33 @@ _Pending — E6.8. `mana-curve`, `color-counts`, `type-counts`, `set-attribution
 
 ## Similarity
 
-_Pending — E7. Weighted Jaccard over maindeck card quantities, basics excluded,
-non-basic lands included, default threshold 0.5._
+_Modules: `core/similarity/deck-vector`, `weighted-jaccard`,
+`build-similarity-graph`, `force-layout` (E7)._
+
+Two decks are compared by **weighted Jaccard** over their maindeck card
+quantities:
+
+```
+similarity = sum(min(a, b)) / sum(max(a, b))
+```
+
+taken over the union of the two decks' cards. Weighted rather than a plain set
+overlap because quantity is a deckbuilding choice: a deck on one copy of a card
+is not the same deck as one on four.
+
+**What counts.** Maindeck only. **Basic lands are excluded** — every green deck
+runs Forests, so counting them makes unrelated mono-colour decks look related.
+**Non-basic lands are included**, because a manabase is a real choice. Cards
+whose names never resolved are excluded.
+
+**Thresholds.** An edge is recorded at **0.5** or above. At **0.85** or above the
+pair is flagged as a possible duplicate submission and shown to a human — never
+merged automatically, since two players can legitimately bring the same netdeck.
+
+**Layout.** The archetype map's coordinates come from a Fruchterman-Reingold
+force layout with a **seeded** random number generator and a fixed iteration
+schedule, so the same data always produces the same map. Changing the iteration
+count changes every coordinate, so it travels with `layout_version`.
 
 ## Ratings
 

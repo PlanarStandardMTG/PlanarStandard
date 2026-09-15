@@ -54,3 +54,16 @@ export { absolutizeLinks } from "./reddit/absolutize-links/index";
 export { imagesToLinks } from "./reddit/images-to-links/index";
 export { expandChartShortcodes } from "./reddit/expand-chart-shortcodes/index";
 export { toRedditMarkdown } from "./reddit/to-reddit-markdown/index";
+
+// similarity — decks to a graph (§8.4)
+export { deckVector, isBasicLand } from "./similarity/deck-vector/index";
+export { sharedCardCount, weightedJaccard } from "./similarity/weighted-jaccard/index";
+export {
+  DEFAULT_THRESHOLD,
+  DUPLICATE_THRESHOLD,
+  buildSimilarityGraph,
+  findDuplicateDecks,
+} from "./similarity/build-similarity-graph/index";
+export type { DeckEntry, GraphOptions } from "./similarity/build-similarity-graph/index";
+export { forceLayout } from "./similarity/force-layout/index";
+export type { LayoutNode, LayoutOptions } from "./similarity/force-layout/index";
