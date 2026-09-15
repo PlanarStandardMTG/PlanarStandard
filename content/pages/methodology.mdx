@@ -1,22 +1,23 @@
-# Metric definitions
-
-**This file is the source for `/methodology`.** Everything between the
-`publish:start` and `publish:end` markers below is copied verbatim into
-`content/pages/methodology.mdx`; a test fails when the two disagree, and
-`pnpm content:sync` resolves it. Blocks after a `publish:omit` marker stay here
-and do not reach the page (E17.12, §19).
-
-Filled in per epic. Sections marked _pending_ land with the story named.
-
+---
+title: Methodology
+navLabel: Methodology
+navOrder: 60
+description: How every number on this site is defined, in the same words the code is documented in.
+published: true
 ---
 
-<!-- publish:start -->
+Every statistic here is derived from event data and recomputable from it. None is
+uploaded, and none is edited by hand.
+
+The definitions below are **published verbatim from the code's own
+documentation**. They are not a summary written afterwards: the file that
+documents the metric modules and the text on this page are checked against each
+other, and the site does not build when they disagree. Changing a definition
+means changing both in the same change.
+
+{/* generated:start docs/modules/metrics.md */}
 
 ## Sample-size guardrails
-
-<!-- publish:omit -->
-_Module: `core/stats/suppress-small-n` (E10.3). Enforced in shared components
-(ADR 012)._
 
 Every user-visible rate on this site is reported with the number of observations
 behind it (`n`) and a 95% Wilson confidence interval. A rate with too few
@@ -50,9 +51,6 @@ suppressed under 20 games, and an archetype row with `n` under 3 collapses to
 95% interval on a 50% rate is still roughly ±13 points (n = 50) and ±26 points
 (n = 10) respectively.
 
-<!-- publish:omit -->
-_The two hide floors come from master plan §24._
-
 ### Labelling
 
 A card win rate is always labelled **"win rate of decks including this card"**,
@@ -64,9 +62,6 @@ to each chart.
 ---
 
 ## Deck metrics
-
-<!-- publish:omit -->
-_Modules: `core/metrics/*` (E6)._
 
 Every figure below is derived and fully recomputable; no statistic is ever
 uploaded or hand-edited (ADR 008).
@@ -150,10 +145,6 @@ the row and the deck are kept either way.
 
 ## Similarity
 
-<!-- publish:omit -->
-_Modules: `core/similarity/deck-vector`, `weighted-jaccard`,
-`build-similarity-graph`, `force-layout` (E7)._
-
 Two decks are compared by **weighted Jaccard** over their maindeck card
 quantities:
 
@@ -179,8 +170,8 @@ force layout with a **seeded** random number generator and a fixed iteration
 schedule, so the same data always produces the same map. Changing the iteration
 count changes every coordinate, so it travels with `layout_version`.
 
-<!-- publish:end -->
+{/* generated:end */}
 
 ## Ratings
 
-See [`ratings.md`](./ratings.md) — the source for `/ratings-explained` (E17.13).
+The rating system has a page of its own: [How ratings work](/ratings-explained).

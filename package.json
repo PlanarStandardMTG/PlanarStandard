@@ -18,7 +18,8 @@
     "db:stop": "supabase stop",
     "db:reset": "pnpm db:setup && supabase db reset",
     "dev": "pnpm --filter web dev",
-    "db:setup": "tsx scripts/db-setup.ts"
+    "db:setup": "tsx scripts/db-setup.ts",
+    "content:sync": "tsx apps/web/lib/info-pages/sync.ts"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.0.0",

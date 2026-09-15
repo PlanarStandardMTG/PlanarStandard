@@ -29,6 +29,9 @@ restate progress here; this file goes stale, that one is maintained.
   **what is needed**, not who owes it.
 - A story that ships with one acceptance criterion genuinely deferred stays ✅ and gets an
   `*Outstanding:*` line naming the deferred check. Do not leave the marker ambiguous instead.
+- A story that shipped in full but not the way the line described gets a `*Note:*` line saying what
+  was done differently and why. That is not the same as an `*Outstanding:*`, and using one for the
+  other hides a real gap or invents one.
 - Adding or splitting a story is fine. **Renumbering an existing one is not** — IDs are already in branch
   names, commit messages, and PR titles.
 - Keep the **What's ready now** section honest when a merge unblocks something. It is the section a new
@@ -73,6 +76,7 @@ order. Match it locally before pushing.
 
 ```bash
 pnpm guard:server-only            # E1.7 — asserts no 'use client' module can reach the service-role key
+pnpm content:sync                 # rewrites the generated regions of content/pages/*.mdx from docs/modules/
 pnpm new:module core/metrics/foo  # scaffolds index.ts, index.test.ts, README.md; the test starts red
 ```
 
@@ -145,6 +149,17 @@ split it. Every module ships `index.ts` (usually under 60 lines), `index.test.ts
   permanently and `raw jsonb` is retained per staged row so parser fixes re-run without the original file.
 - **Any user-visible rate or percentage goes through `suppress-small-n` and shows `n`.** This is a
   merge-blocking checklist item, not a style preference.
+- **An info page is repo MDX; a post is a database row** (§25). `content/pages/*.mdx` describes how
+  the site or format works and is reviewed before it changes; a post is something an ambassador
+  publishes this week without a PR. The split rule decides which, and it is not the same question as
+  a post's `kind`.
+- **A page may only contain Markdown and the components its frontmatter declares.** MDX executes, so
+  `remarkInfoPageWhitelist` refuses raw JSX, brace expressions, and `import` at compile time. MDX's
+  `components` prop cannot do this — it only intercepts Markdown-derived elements, so a literal
+  `<script>` compiles straight past it.
+- **`/methodology` and `/ratings-explained` are generated, not written.** Their bodies come from
+  `docs/modules/metrics.md` and `ratings.md`, between the `publish:start` / `publish:end` markers. Edit
+  the doc, run `pnpm content:sync`, commit both — a test fails when they disagree (§19).
 - **A post's `kind` is who is speaking, not how far through review it is.** `official` is the format —
   B&R notices, season openings, event recaps, at `/news`; `community` is a member under their own
   byline, at `/articles`. That is a different axis from `status` (draft → review → published →

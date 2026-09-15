@@ -1,0 +1,81 @@
+---
+title: Running an event
+navLabel: Organizers
+navOrder: 50
+description: What to do before, during, and — urgently — right after a Planar Standard event.
+published: true
+---
+
+Anyone can run a Planar Standard event. This page is the short version of what to
+do so the results end up counting.
+
+## Export your results the day the event ends
+
+**melee deletes tournament data after roughly 60 days.** Once that window closes
+the event cannot be imported, cannot be rated, and cannot be recovered — not by
+us, and not by melee. This is the single most common way a real event disappears
+from the record.
+
+> Export the moment the last round is certified. Not at the end of the week, not
+> when someone asks. The same day.
+
+Challonge has no comparable window, but the habit is worth keeping either way:
+brackets get deleted, accounts lapse, and an export sitting in a folder costs
+nothing.
+
+## Before the event
+
+- **Announce the pool.** Standard six-set unless you are declaring a custom one,
+  in which case say so in the announcement rather than at the table.
+- **Ask for decklists** at registration. A list collected before round one is
+  worth five collected afterwards, and the metagame pages are built from them.
+- **Decide whether the event is rated** and say so up front. It is rated if the
+  platform will report full pairings.
+
+## What makes an event rated
+
+An event is rated when its export says **who played whom**. Standings alone are
+not enough.
+
+A standings-only import is still worth submitting — it counts toward the metagame
+numbers and the archetype breakdown — but it is marked unrated and contributes
+nothing to the leaderboard. Pairings are never inferred from final placements.
+There is no safe way to do that, and a wrong guess silently corrupts every rating
+that follows.
+
+Byes never move a rating. Elimination rounds count.
+
+## Submitting
+
+Send the export exactly as the platform produced it. Do not clean it up, rename
+columns, or paste it into a new spreadsheet — the importer is written against the
+real file, and a tidied one is a file nobody has tested.
+
+Accepted, in order of preference:
+
+1. **melee** tournament export.
+2. **Challonge** bracket export.
+3. **A CSV** of your own, if you ran the event off-platform. Any readable CSV of
+   pairings and results can be mapped; ask before inventing a format.
+4. **Manual entry**, for small events where a file never existed.
+
+Decklists can come as a folder of text files, pasted by the players themselves,
+or typed in by you. All three paths are optional to the ratings pipeline — a
+missing decklist never blocks a result.
+
+## Re-submitting a corrected export
+
+Send the corrected file and say what changed. A re-import **replaces** the
+previous one wholesale rather than merging into it, so a fixed export is the
+whole fix — there is no leftover state from the bad one.
+
+Every raw file is archived permanently. If a parser turns out to have
+misread something, the fix re-runs against the original bytes without anyone
+needing to find the file again.
+
+## Handles and names
+
+Record whatever handle the platform used. Players who use different handles on
+different platforms are linked afterwards, as a separate mapping — the match
+record keeps the handle that actually played. You do not need to normalise
+anything, and you should not try.

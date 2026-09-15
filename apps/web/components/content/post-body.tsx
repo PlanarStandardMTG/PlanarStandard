@@ -1,7 +1,7 @@
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 
-import { Prose } from "@/components/ui/prose";
+import { PROSE_MARKDOWN_COMPONENTS, Prose } from "@/components/ui/prose";
 
 /**
  * A post body, rendered from Markdown (ADR 001).
@@ -13,7 +13,9 @@ import { Prose } from "@/components/ui/prose";
 export function PostBody({ markdown }: { markdown: string }) {
   return (
     <Prose>
-      <ReactMarkdown remarkPlugins={[remarkGfm]}>{markdown}</ReactMarkdown>
+      <ReactMarkdown remarkPlugins={[remarkGfm]} components={PROSE_MARKDOWN_COMPONENTS}>
+        {markdown}
+      </ReactMarkdown>
     </Prose>
   );
 }

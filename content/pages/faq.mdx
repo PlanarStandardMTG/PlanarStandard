@@ -1,0 +1,98 @@
+---
+title: Frequently asked questions
+navLabel: FAQ
+navOrder: 40
+description: Short answers to the questions the format gets most often.
+published: true
+---
+
+## The format
+
+### Is the six-set pool a rolling window or a fixed list?
+
+A fixed list. It is maintained as data, so it changes when the community changes
+it rather than automatically on a release date. Special events may define their
+own pool without changing the format.
+
+### Are the deckbuilding rules the same as Standard?
+
+Yes: 60-card maindeck minimum, 15-card sideboard maximum, four copies of any card
+by name, basic lands exempt.
+
+### Can I play an un-set card, or a Secret Lair printing?
+
+Yes. Legality is a property of the **oracle card**, and every printing of a legal
+card is playable. If the card is in the pool, your copy is fine whatever set it
+came from.
+
+### Does Foundations ever rotate?
+
+No. It is the format's permanent core set. The other five rotate.
+
+### What is banned?
+
+Bans are announced by the community and published on [Rules & legality](/rules).
+They are stored as data, which is why a B&R announcement takes effect without
+anyone deploying a website.
+
+## Playing
+
+### Where do events happen?
+
+On melee mostly, and on Challonge. Both are announced in the community Discord.
+
+### Do I need a full playset of anything?
+
+Rarely, and never a specific printing. The pool is small and the format is
+deliberately cheap to enter.
+
+### My decklist has a card the validator could not find. Did it reject the list?
+
+No. An unresolved card name keeps the list and flags that one line. The deck is
+still recorded; it is only held out of the card-level statistics until the name
+is fixed.
+
+## The numbers on this site
+
+### Why does a win rate sometimes say "insufficient data" instead of a number?
+
+Because the number would be a lie. A deck that goes 3-0 has not demonstrated a
+100% win rate. Rates below a sample-size floor are withheld rather than shown
+small, and every rate that is shown carries the number of observations behind it
+and a confidence interval. [Methodology](/methodology) has the thresholds.
+
+### What does "win rate of decks including this card" mean?
+
+Exactly that, and not "the card's win rate". A card does not win a game; the deck
+around it does. Strong cards appear in strong decks, so the number describes the
+decks, not the card.
+
+### Why is an event listed but not affecting the leaderboard?
+
+Because it reported standings but not pairings. Ratings need to know who played
+whom, and pairings are never guessed from final placements — guessing would
+corrupt every rating downstream. The event still counts for metagame purposes.
+See [How ratings work](/ratings-explained).
+
+### Can a rating be corrected by hand?
+
+No, and that is deliberate. The whole ladder is replayed from the match record
+whenever anything changes. A rating is a function of the match history and the
+rating settings, and of nothing else.
+
+## Contributing
+
+### Can I write an article?
+
+Yes. Ask in the Discord. Tournament reports, deck primers, and arguments about
+cards are all welcome, and you do not have to be an established name.
+
+### I found a mistake in the data.
+
+Please report it in the Discord. Corrections are recorded with a reason and
+trigger a full recompute, so a fixed result propagates everywhere it should.
+
+### Where is the code?
+
+On [GitHub](https://github.com/planarstandard). Every statistic on this site is
+derived, and the code that derives it is readable.

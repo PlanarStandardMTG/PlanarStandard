@@ -36,7 +36,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E14 | RLS and access control | 1 | E13 | ⬜ 0/5 |
 | E15 | Seed data and local dev | 0 | E13 | ⬜ 0/5 |
 | E16 | Web foundation, auth, dashboard shell | 1 | E13 | 🚧 2/8 |
-| E17 | MDX info pages | 2 | E16 | ⬜ 0/13 |
+| E17 | MDX info pages | 2 | E16 | 🚧 10/13 |
 | E18 | Services | 5–8 | E3–E13 | ⬜ 0/19 |
 | E19 | Chart components | 8 | E2 | ⬜ 0/14 |
 | E20 | Feature slices | 3–10 | E18 | ⬜ 0/19 |
@@ -398,19 +398,26 @@ Phase 1. Stream J. Deploy on day one.
 
 Phase 2. Stream I. Several of these need no code at all.
 
-⬜ **E17.1 — `@next/mdx` wiring with a whitelisted component set** · M · Deps: E16.1 — *AC:* MDX executes, so the allowed component list is explicit and tested.
+✅ **E17.1 — MDX wiring with a whitelisted component set** · M · Deps: E16.1 — *AC:* MDX executes, so the allowed component list is explicit and tested.
+*Note:* not `@next/mdx`. That loader only compiles `.mdx` inside `app/`, and §25 puts these in
+`content/pages/` — `@mdx-js/mdx` is the same pipeline called directly, and one reader then supplies
+both the nav and the body. The whitelist is enforced on the compiled tree by
+`remarkInfoPageWhitelist`, **not** by MDX's `components` prop: that prop only intercepts
+Markdown-derived elements, so a literal `<script>` compiles straight past it.
 ⬜ **E17.2 — `<LegalSets />`** · S · Deps: E17.1, E13.15
 ⬜ **E17.3 — `<Banlist />`** · S · Deps: E17.1, E13.15
 ⬜ **E17.4 — `<Chart />` embed** · M · Deps: E17.1, E19
-⬜ **E17.5 — `/(info)/[...slug]` route and nav generation** · M · Deps: E17.1
-⬜ **E17.6 — Page: about** · S
-⬜ **E17.7 — Page: rules** · M
-⬜ **E17.8 — Page: getting-started** · S
-⬜ **E17.9 — Page: faq** · S
-⬜ **E17.10 — Page: organizers** · M — include the melee 60-day export warning
-⬜ **E17.11 — Page: resources** · S
-⬜ **E17.12 — Page: methodology** · M · Deps: E6.8 — *AC:* metric definitions verbatim from `docs/modules/metrics.md`; a test asserts the two do not drift.
-⬜ **E17.13 — Page: ratings-explained** · M · Deps: E8.4
+✅ **E17.5 — `/(info)/[...slug]` route and nav generation** · M · Deps: E17.1 — pages are prerendered from `generateStaticParams`; the footer nav is generated from frontmatter `navOrder`.
+✅ **E17.6 — Page: about** · S
+✅ **E17.7 — Page: rules** · M
+*Outstanding:* the banlist is prose pointing at Discord until `<Banlist />` (E17.3) can read the format tables.
+✅ **E17.8 — Page: getting-started** · S
+✅ **E17.9 — Page: faq** · S
+✅ **E17.10 — Page: organizers** · M — include the melee 60-day export warning
+✅ **E17.11 — Page: resources** · S
+✅ **E17.12 — Page: methodology** · M · Deps: E6.8 — *AC:* metric definitions verbatim from `docs/modules/metrics.md`; a test asserts the two do not drift.
+The doc carries `publish:start` / `publish:end` / `publish:omit` markers; `pnpm content:sync` rewrites the page's generated region and the test fails when the two disagree.
+✅ **E17.13 — Page: ratings-explained** · M · Deps: E8.4 — published the same way, from `docs/modules/ratings.md`.
 
 ---
 
@@ -548,8 +555,8 @@ can start today, in rough order of how much it unblocks.
   `fixtures/cards/` rather than against the real pool. E4 also unblocks E20.4 and E22.11.
 - **E13.2–E13.12 — the rest of the migrations,** in the Part IV order. `profiles` and the content
   tables are in; everything in E14–E21 waits on the ones that are not.
-- **E17.1 — `@next/mdx` wiring.** Now unblocked by E16.1, and it in turn unblocks thirteen stories
-  that are mostly copy.
+- **E13.15 — `repos/format`.** The last two info-page components, `<LegalSets />` (E17.2) and
+  `<Banlist />` (E17.3), are waiting on it, and the rules page is carrying prose in their place.
 
 **Needs nothing but a sitting**
 
@@ -588,11 +595,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E3 | 7 | 7 | E14 | 5 | 0 |
 | E4 | 7 | 0 | E15 | 5 | 0 |
 | E5 | 6 | 6 | E16 | 8 | 2 |
-| E6 | 8 | 8 | E17 | 13 | 0 |
+| E6 | 8 | 8 | E17 | 13 | 10 |
 | E7 | 5 | 5 | E18 | 19 | 0 |
 | E8 | 6 | 6 | E19 | 14 | 0 |
 | E9 | 9 | 9 | E20 | 19 | 0 |
 | E10 | 3 | 3 | E21 | 6 | 0 |
 | E11 | 6 | 6 | E22 | 12 | 2 |
 
-**75 of 208 stories done across 22 epics.**
+**85 of 208 stories done across 22 epics.**

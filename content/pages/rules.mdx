@@ -1,0 +1,76 @@
+---
+title: Rules & legality
+navLabel: Rules
+navOrder: 20
+description: The legal card pool, the deckbuilding rules, and how rotation works.
+published: true
+---
+
+Planar Standard plays by the ordinary rules of constructed Magic. What differs is
+the card pool and the rotation schedule.
+
+## The card pool
+
+Six sets are legal:
+
+| Code | Role |
+|---|---|
+| `FDN` | Foundations — the permanent core set |
+| `DFT` | rotating |
+| `TDM` | rotating |
+| `EOE` | rotating |
+| `ECL` | rotating |
+| `SOS` | rotating |
+
+This is a **defined list**, not a rolling window computed from release dates. A
+special event may declare its own pool — a single-set gauntlet, a throwback to an
+older season — without that changing the format.
+
+## Deckbuilding
+
+- **Maindeck:** 60 cards minimum, no maximum.
+- **Sideboard:** 15 cards maximum.
+- **Copies:** at most 4 of any card across maindeck and sideboard, counted by
+  name. Basic lands are exempt.
+
+## Legality is about the card, not the printing
+
+A card is legal if **any printing of it appears in a legal set**. Once it is
+legal, **any printing may be played** — promo, Secret Lair, an old core set,
+whatever is in your binder.
+
+So `Llanowar Elves` is legal because it is in Foundations, and the copy you play
+can be the M19 one. A decklist that writes `Llanowar Elves (M19)` is accepted:
+the set code on the line is recorded as provenance and never has to resolve.
+
+This keeps the format cheap to enter, which is most of the point of a small pool.
+Un-set cards and Secret Lair printings are covered by the same rule — the oracle
+card is what is legal, and its printings are all equivalent.
+
+## Bans
+
+Bans are **data, not code**: a Banned & Restricted announcement changes rows that
+an organiser edits, and never requires a site deploy. Bans, pool changes, and
+one-off legal-set exceptions all work this way.
+
+The live banlist will be published on this page directly from those rows, so it
+cannot go stale after an announcement. Until that is wired up, current bans are
+announced in the community Discord and on
+[r/planarMTG](https://www.reddit.com/r/planarMTG/).
+
+## Rotation
+
+Planar Standard is intended to always hold the previous two years of Universes
+Within sets. Rotation coincides with the release of the first Universes Within
+set of each year.
+
+**Foundations does not rotate.** It is the format's core set, and it is what keeps
+the pool from losing its basic effects every year.
+
+## Checking a list
+
+A list can be checked against the pool before an event rather than during it. The
+validator reads card names, resolves them against the legal pool, and reports
+what it could not place — a misspelling, a card outside the pool, or a copy count
+over the limit. Anything it cannot resolve is reported rather than silently
+dropped.

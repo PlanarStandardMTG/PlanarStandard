@@ -11,9 +11,15 @@ pnpm dev             # http://localhost:3000
 
 **Layout.** `app/` is routes only. `components/ui/` holds primitives that know
 nothing about the domain; `components/content/` holds the post components that
-every feed and article page shares; `lib/` holds helpers and the two Supabase
-clients. Feature slices (§11, E20) will move route-owned code out of
-`components/content` as they land.
+every feed and article page shares; `lib/` holds helpers, the two Supabase
+clients, and `info-pages/` — the reader, whitelist, and renderer behind
+`content/pages/*.mdx` (E17). Feature slices (§11, E20) will move route-owned code
+out of `components/content` as they land.
+
+**The two kinds of writing.** Posts are database rows, served dynamically from
+`/news` and `/articles`. Info pages are MDX in the repository's `content/pages/`,
+served statically from `/(info)/[...slug]` at the root of the site. Neither is a
+special case of the other; §25's split rule decides which a document is.
 
 **Gotchas.**
 
@@ -24,6 +30,15 @@ clients. Feature slices (§11, E20) will move route-owned code out of
   sit in an `(index)` route group, so their skeleton cannot reach `[slug]`: once
   a loading boundary flushes the response shell, the status is committed as 200
   and a later `notFound()` renders the not-found body under a 200.
+- Info pages are the exception to `force-dynamic`: their source is files in the
+  repository, so they are prerendered by `generateStaticParams` with
+  `dynamicParams = false`, and an unpublished or unknown slug is a 404 rather
+  than a render. The catch-all sits at the root, so it is also what `/nope` hits.
+- `content/pages/` is read with `fs` at request time — by the footer nav on every
+  route, not only by the info pages. Turbopack traces that statically, so
+  `contentRoot()` is one expression rather than a search, and `next.config.ts`
+  names the directory in `outputFileTracingIncludes`. A candidate-path loop there
+  makes Next ship the whole repository.
 - `lib/supabase/server.ts` uses the anon key and is subject to RLS. Anything that
   needs to write, or to read past a policy, uses `service-role.server.ts` — and
   the `.server.ts` suffix is what `pnpm guard:server-only` keys on.

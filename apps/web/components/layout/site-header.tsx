@@ -10,6 +10,10 @@ import { Container } from "@/components/ui/container";
 const NAV = [
   { href: "/news", label: "News" },
   { href: "/articles", label: "Articles" },
+  // One info page is in the header by editorial choice rather than by
+  // `navOrder`: "what is legal right now" is the question the format gets most.
+  // The full generated list is in the footer.
+  { href: "/rules", label: "Rules" },
   { href: "/meta", label: "Metagame", soon: true },
   { href: "/leaderboard", label: "Leaderboard", soon: true },
 ] as const;

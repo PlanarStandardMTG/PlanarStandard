@@ -1,15 +1,19 @@
-# How ratings work
-
-**This file is the source for `/ratings-explained` (E17.13).** Everything
-between the `publish:start` and `publish:end` markers is copied verbatim into
-`content/pages/ratings-explained.mdx`; a test fails when the two disagree, and
-`pnpm content:sync` resolves it.
-
-Modules: `core/elo/expected-score`, `pick-k`, `apply-match`, `replay` (E8).
-
+---
+title: How ratings work
+navLabel: Ratings
+navOrder: 70
+description: The Elo system behind the leaderboard, what makes a match count, and why ratings are never adjusted by hand.
+published: true
 ---
 
-<!-- publish:start -->
+The leaderboard is an Elo ladder replayed from the match record. Nothing on it is
+entered by hand, and nothing on it can be.
+
+As with the [metric definitions](/methodology), the text below is published
+verbatim from the code's own documentation, and the two are checked against each
+other.
+
+{/* generated:start docs/modules/ratings.md */}
 
 ## The short version
 
@@ -101,4 +105,4 @@ Replay never throws on bad data; it records it. Each run stores what it found:
 
 These are visible per rating run so they get corrected rather than accumulating.
 
-<!-- publish:end -->
+{/* generated:end */}
