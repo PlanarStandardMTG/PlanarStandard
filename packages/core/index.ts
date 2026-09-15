@@ -37,3 +37,10 @@ export type {
 } from "./elo/apply-match/index";
 export { replay } from "./elo/replay/index";
 export type { ReplayOptions } from "./elo/replay/index";
+
+// decklist — text to structured deck (§8.1)
+export { normalizeFaces, normalizeName } from "./decklist/normalize-name/index";
+export { tokenizeLine } from "./decklist/tokenize-line/index";
+export type { LineToken, TokenizeResult } from "./decklist/tokenize-line/index";
+export { detectBoard, hasBoardHeader } from "./decklist/detect-board/index";
+export type { BoardLine } from "./decklist/detect-board/index";
