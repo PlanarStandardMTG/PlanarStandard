@@ -1,0 +1,16 @@
+4 Hallowed Fountain (RNA) 251
+4 Overgrown Tomb (GRN) 253
+2 Negate (STA) 18
+4 Breeding Pool (RNA) 246
+2 Soul-Guide Lantern (BRR) 54
+4 Blood Crypt (RNA) 245
+2 Duress (STA) 29
+2 Spell Pierce (XLN) 81
+4 Steam Vents (GRN) 257
+2 Plains (DMU) 277
+2 Demolition Field (BRO) 260
+4 Sacred Foundry (GRN) 254
+4 Stomping Ground (RNA) 259
+4 Watery Grave (GRN) 259
+3 Duress (MID) 98
+4 Temple Garden (GRN) 258

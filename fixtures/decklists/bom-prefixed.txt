@@ -1,0 +1,40 @@
+﻿1 Authority of the Consuls (FDN) 137
+2 Azorius Guildgate (FDN) 683
+2 Consult the Star Charts (EOE) 51
+4 Day of Judgment (FDN) 140
+2 Demolition Field (FDN) 687
+2 Dispelling Exhale (TDM) 41
+2 Elspeth's Smite (FDN) 493
+3 Emergency Eject (EOE) 14
+1 Essence Scatter (FDN) 153
+1 Fresh Start (TDM) 46
+7 Island (EOE) 270
+1 Marang River Regent / Coil and Catch (TDM) 51
+3 Mazemind Tome (FDN) 676
+1 Mistrise Village (PTDM) 261p
+1 Negate (FDN) 710 *F*
+7 Plains (EOE) 267
+2 Refute (FDN) 48
+3 Ride's End (DFT) 25
+1 Seam Rip (EOE) 34
+1 Secluded Starforge (EOE) 257
+1 Space-Time Anomaly (EOE) 229
+1 Spell Pierce (DFT) 64
+4 Stock Up (DFT) 67
+2 Temple of Enlightenment (FDN) 698
+4 Tranquil Cove (TDM) 270
+1 Ugin, Eye of the Storms (TDM) 1
+
+SIDEBOARD:
+2 Annul (EOE) 46
+1 Beyond the Quiet (EOE) 7
+1 Cathar Commando (FDN) 139
+1 Demolition Field (FDN) 687
+1 Elspeth's Smite (FDN) 493
+1 Into the Roil (FDN) 509
+1 Make Your Move (FDN) 143
+2 Negate (FDN) 710 *F*
+1 Pinnacle Starcage (EOE) 27
+1 Refute (FDN) 48
+2 Soul-Guide Lantern (FDN) 680
+1 Spell Pierce (DFT) 64
