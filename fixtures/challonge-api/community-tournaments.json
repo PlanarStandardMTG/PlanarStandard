@@ -1,0 +1,118 @@
+{
+  "data": [
+    {
+      "id": "16042311",
+      "type": "tournament",
+      "attributes": {
+        "name": "Planar Standard Weekly #41",
+        "tournament_type": "swiss",
+        "url": "ps_weekly_41",
+        "state": "pending",
+        "starts_at": "2026-09-20T19:00:00.000Z",
+        "game_name": "Magic: The Gathering",
+        "participants_count": 24
+      }
+    },
+    {
+      "id": "16042312",
+      "type": "tournament",
+      "attributes": {
+        "name": "Blind Eternities Open",
+        "tournament_type": "double elimination",
+        "url": "https://challonge.com/communities/planarstandardmtg/blind_eternities_open",
+        "state": "underway",
+        "starts_at": "2026-09-15T18:00:00.000Z",
+        "game_name": "Magic: The Gathering",
+        "participants_count": 38
+      }
+    },
+    {
+      "id": "16042313",
+      "type": "tournament",
+      "attributes": {
+        "name": "Season II Championship",
+        "tournament_type": "swiss",
+        "url": "ps_season_ii_champs",
+        "state": "awaiting_review",
+        "starts_at": "2026-09-13T16:00:00.000Z",
+        "game_name": "Magic: The Gathering",
+        "participants_count": 64
+      }
+    },
+    {
+      "id": "16042314",
+      "type": "tournament",
+      "attributes": {
+        "name": "Planar Standard Weekly #40",
+        "tournament_type": "swiss",
+        "url": "ps_weekly_40",
+        "state": "complete",
+        "starts_at": "2026-09-06T19:00:00.000Z",
+        "game_name": "Magic: The Gathering",
+        "participants_count": 0
+      }
+    },
+    {
+      "id": "16042315",
+      "type": "tournament",
+      "attributes": {
+        "name": "Multiverse Cup",
+        "tournament_type": "swiss",
+        "url": "multiverse_cup",
+        "state": "group_stages_underway",
+        "starts_at": "2026-09-14T15:00:00.000Z",
+        "game_name": "Magic: The Gathering",
+        "participants_count": 48
+      }
+    },
+    {
+      "id": "16042316",
+      "type": "tournament",
+      "attributes": {
+        "name": "[TEST] bracket wiring check",
+        "tournament_type": "single elimination",
+        "url": "test_bracket_wiring",
+        "state": "pending",
+        "starts_at": "2026-09-19T12:00:00.000Z",
+        "game_name": "Magic: The Gathering",
+        "participants_count": 4
+      }
+    },
+    {
+      "id": "16042317",
+      "type": "tournament",
+      "attributes": {
+        "name": "Season III Opener",
+        "tournament_type": "swiss",
+        "state": "pending",
+        "participants_count": 0
+      }
+    },
+    {
+      "id": "16042318",
+      "type": "tournament",
+      "attributes": {
+        "name": "Ambassador Invitational",
+        "tournament_type": "round robin",
+        "url": "ambassador_invitational",
+        "state": "seeding",
+        "starts_at": "2026-10-04T17:00:00.000Z",
+        "game_name": "Magic: The Gathering",
+        "participants_count": 16
+      }
+    },
+    {
+      "id": "16042319",
+      "type": "tournament",
+      "attributes": {
+        "tournament_type": "swiss",
+        "url": "unnamed_draft",
+        "state": "pending",
+        "participants_count": 0
+      }
+    }
+  ],
+  "meta": {
+    "count": 9
+  }
+}

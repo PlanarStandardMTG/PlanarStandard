@@ -13,3 +13,4 @@ export type * from "./identity";
 export type * from "./ratings";
 export type * from "./metrics";
 export type * from "./content";
+export type * from "./events";

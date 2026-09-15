@@ -21,7 +21,10 @@ fixtures/
 ├── melee/                             a real melee.gg export (E12.4)
 │   ├── <event>.csv
 │   └── <event>.expected.json
-├── challonge/                         (E12.5)
+├── challonge/                         a bracket export, for the adapter (E12.5)
+├── challonge-api/                     the live calendar payload (E23.2)
+│   ├── community-tournaments.json
+│   └── community-tournaments.expected.json
 ├── legacy-xlsx/                       the per-date spreadsheets (E12.6)
 ├── reddit/                            before/after Markdown pairs (E11)
 │   ├── tables-to-lists.in.md

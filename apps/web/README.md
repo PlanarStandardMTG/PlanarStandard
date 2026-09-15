@@ -12,8 +12,9 @@ pnpm dev             # http://localhost:3000
 **Layout.** `app/` is routes only. `components/ui/` holds primitives that know
 nothing about the domain; `components/content/` holds the post components that
 every feed and article page shares; `lib/` holds helpers, the two Supabase
-clients, and `info-pages/` — the reader, whitelist, and renderer behind
-`content/pages/*.mdx` (E17). Feature slices (§11, E20) will move route-owned code
+clients, `info-pages/` — the reader, whitelist, and renderer behind
+`content/pages/*.mdx` (E17) — and `challonge/` plus `events/`, the read-through
+cache behind `/events` (E23). Feature slices (§11, E20) will move route-owned code
 out of `components/content` as they land.
 
 **The two kinds of writing.** Posts are database rows, served dynamically from
@@ -39,6 +40,17 @@ special case of the other; §25's split rule decides which a document is.
   `contentRoot()` is one expression rather than a search, and `next.config.ts`
   names the directory in `outputFileTracingIncludes`. A candidate-path loop there
   makes Next ship the whole repository.
+- `/events` fetches from a third party during a render, on a budget of 500
+  requests a month. Two things make that safe and neither is obvious from the
+  page: the refresh window is **claimed before the fetch**, in one conditional
+  update, so simultaneous visitors produce one request; and the interval is
+  measured from the last *attempt*, so an outage costs one request per window
+  rather than one per visitor. The arithmetic is in
+  [`docs/modules/events.md`](../../docs/modules/events.md).
+- `CHALLONGE_API_KEY` and `CHALLONGE_COMMUNITY` are production-only secrets, read
+  by `lib/challonge/client.server.ts` and nothing else. Unset, the client returns
+  `not-configured` and `/events` renders from the seed — which is what every
+  contributor sees, and is not a broken state.
 - `lib/supabase/server.ts` uses the anon key and is subject to RLS. Anything that
   needs to write, or to read past a policy, uses `service-role.server.ts` — and
   the `.server.ts` suffix is what `pnpm guard:server-only` keys on.

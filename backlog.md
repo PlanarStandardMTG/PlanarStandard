@@ -42,6 +42,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E20 | Feature slices | 3–10 | E18 | ⬜ 0/19 |
 | E21 | Season II backfill | 7 | E3, E12, E18 | ⬜ 0/6 |
 | E22 | Governance and docs | 0 | — | 🚧 2/12 |
+| E23 | Upcoming events | 2 | E13.1 | ✅ 11/11 |
 
 ---
 
@@ -543,6 +544,78 @@ These four are called out in §22. Write them as early as their dependencies all
 
 ---
 
+## E23 — Upcoming events
+
+New. A read-through cache of the community's Challonge calendar, published as a schedule with a link
+out to each event's own page. The site advertises events; Challonge still runs them, so there is no
+join, no leave, and no account linking — that whole flow from the previous site is deliberately not
+carried over.
+
+Two constraints shape every story below.
+
+- **The credentials are production-only secrets.** `CHALLONGE_API_KEY` and `CHALLONGE_COMMUNITY` live
+  in Vercel and nowhere else. Nothing in `packages/` may read them, no contributor needs them, and
+  every test in this epic runs with none set. Locally the page renders from the seed.
+- **The API budget is 500 requests a month.** That is ~16 a day. The refresh interval is therefore one
+  named constant with the arithmetic written next to it, and the window is claimed *before* the fetch,
+  so an outage costs one request per window rather than one per page view.
+
+✅ **E23.1 — `contracts/events`** · S · Deps: E1.1 — `ExternalEvent`, `ExternalEventState`,
+`EventSource`, `EventSyncState`, `EventSchedule`. A ninth module in the §7 table.
+*AC:* `ExternalEvent` carries no Challonge-shaped field — a second source is a new parser, not a
+contract change.
+
+✅ **E23.2 — `core/events/parse-challonge-events`** · M · Deps: E23.1 — the v2.1 JSON:API list payload
+to `ExternalEvent[]`. Fixture-driven, against `fixtures/challonge-api/`.
+*AC:* `[TEST]` events are dropped; a malformed member is skipped rather than failing the batch; an
+unrecognised `state` still produces an event.
+*Outstanding:* the fixture is shaped from the documented v2.1 schema and from the request the previous
+site made, not captured from a live response — the endpoint needs a key that only production holds.
+Replace it with a real capture the first time anyone holding the key runs the client.
+
+✅ **E23.3 — `core/events/sync-window`** · S · Deps: E23.1 — is a refresh due, and what cutoff does
+the claim compare against.
+*AC:* pure — `now` is an argument, never `Date.now()`; a never-synced source is always due.
+
+✅ **E23.4 — `core/events/event-schedule`** · S · Deps: E23.1 — group and sort cached events for
+display: live first, then upcoming by start, then recent past.
+*AC:* an event with no `startsAt` sorts last within its group rather than being dropped.
+
+✅ **E23.5 — `external_events` and `external_event_syncs`** · M · Deps: E13.1 — the cache table and
+the one-row-per-source sync ledger.
+*AC:* `unique (source, external_id)`; public read policy on the cache, no policy at all on the sync
+ledger; a SQL comment explaining that this table is not `tournaments` (E13.6) and why.
+
+✅ **E23.6 — `repos/events`** · M · Deps: E23.5 — `listCachedEvents`, `getSyncState`,
+`claimSyncWindow`, `replaceEvents`, `recordSyncResult`.
+*AC:* `claimSyncWindow` is a single conditional update, so two concurrent requests produce one fetch;
+`replaceEvents` supersedes wholesale — a since-deleted event leaves the cache.
+
+✅ **E23.7 — Challonge client** · M · Deps: E23.1 — `apps/web/lib/challonge/client.server.ts`,
+paginated, timeout-bounded.
+*AC:* returns a discriminated result, never throws; unset credentials are a `not-configured` result,
+not an error, so a contributor's local site has a working page and an empty one.
+*Outstanding:* verified against the live endpoint only as far as the auth check. The request shape is
+confirmed correct — omitting `Content-Type: application/vnd.api+json` is answered 415, and with it an
+invalid key is answered 401 — but no successful 200 payload has been seen from this code.
+
+✅ **E23.8 — `sync-events` service** · M · Deps: E23.3, E23.6, E23.7 — claim the window, fetch, parse,
+replace, record. A thin coordinator; the decisions belong to E23.2–E23.4.
+*AC:* a failed fetch still serves the cache and still consumes the window.
+
+✅ **E23.9 — `/events` route and cards** · M · Deps: E23.4, E23.8 — the schedule page, an `EventCard`
+that links out, and the header nav item.
+*AC:* every card's primary action is the external event page; the page states how stale the cache is.
+
+✅ **E23.10 — Seed and environment docs** · S · Deps: E23.5 — seed rows across all three states, and
+the two Challonge variables documented in `.env.example` as optional.
+*AC:* `pnpm db:reset && pnpm dev` shows a populated `/events` with no credentials set.
+
+✅ **E23.11 — `docs/modules/events.md`** · S · Deps: E23.8 — the cache policy, the request-budget
+arithmetic, and how to change the interval.
+
+---
+
 ## What's ready now
 
 Every story with no infrastructure dependency is merged: `contracts` plus all eight `core` areas. What
@@ -568,6 +641,10 @@ can start today, in rough order of how much it unblocks.
 **Waiting on a person, not on code**
 
 E12.4, E12.5, E12.6, E22.2, E22.3, E22.8 — each carries a *Blocked:* line naming exactly what it needs.
+
+E23 is merged but only half switched on: `/events` renders from the seed until `CHALLONGE_API_KEY` and
+`CHALLONGE_COMMUNITY` are set in Vercel. Nothing in the repository is waiting on that, and no
+contributor needs the values — see [`docs/modules/events.md`](docs/modules/events.md).
 
 ## Phase 0 merge order
 
@@ -601,5 +678,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E9 | 9 | 9 | E20 | 19 | 0 |
 | E10 | 3 | 3 | E21 | 6 | 0 |
 | E11 | 6 | 6 | E22 | 12 | 2 |
+|  |  |  | E23 | 11 | 11 |
 
-**85 of 208 stories done across 22 epics.**
+**96 of 219 stories done across 23 epics.**

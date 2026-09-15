@@ -1,0 +1,72 @@
+[
+  {
+    "source": "challonge",
+    "externalId": "16042311",
+    "name": "Planar Standard Weekly #41",
+    "url": "https://challonge.com/ps_weekly_41",
+    "state": "scheduled",
+    "startsAt": "2026-09-20T19:00:00.000Z",
+    "participantCount": 24,
+    "structure": "swiss"
+  },
+  {
+    "source": "challonge",
+    "externalId": "16042312",
+    "name": "Blind Eternities Open",
+    "url": "https://challonge.com/communities/planarstandardmtg/blind_eternities_open",
+    "state": "live",
+    "startsAt": "2026-09-15T18:00:00.000Z",
+    "participantCount": 38,
+    "structure": "double elimination"
+  },
+  {
+    "source": "challonge",
+    "externalId": "16042313",
+    "name": "Season II Championship",
+    "url": "https://challonge.com/ps_season_ii_champs",
+    "state": "live",
+    "startsAt": "2026-09-13T16:00:00.000Z",
+    "participantCount": 64,
+    "structure": "swiss"
+  },
+  {
+    "source": "challonge",
+    "externalId": "16042314",
+    "name": "Planar Standard Weekly #40",
+    "url": "https://challonge.com/ps_weekly_40",
+    "state": "complete",
+    "startsAt": "2026-09-06T19:00:00.000Z",
+    "participantCount": 0,
+    "structure": "swiss"
+  },
+  {
+    "source": "challonge",
+    "externalId": "16042315",
+    "name": "Multiverse Cup",
+    "url": "https://challonge.com/multiverse_cup",
+    "state": "live",
+    "startsAt": "2026-09-14T15:00:00.000Z",
+    "participantCount": 48,
+    "structure": "swiss"
+  },
+  {
+    "source": "challonge",
+    "externalId": "16042317",
+    "name": "Season III Opener",
+    "url": null,
+    "state": "scheduled",
+    "startsAt": null,
+    "participantCount": 0,
+    "structure": "swiss"
+  },
+  {
+    "source": "challonge",
+    "externalId": "16042318",
+    "name": "Ambassador Invitational",
+    "url": "https://challonge.com/ambassador_invitational",
+    "state": "scheduled",
+    "startsAt": "2026-10-04T17:00:00.000Z",
+    "participantCount": 16,
+    "structure": "round robin"
+  }
+]

@@ -99,6 +99,11 @@ export { checkCard, copyLimit, isInPool } from "./legality/check-card/index";
 export type { CardUnderTest } from "./legality/check-card/index";
 export { checkDeck } from "./legality/check-deck/index";
 
+// events — an external calendar to a schedule (E23)
+export { parseChallongeEvents } from "./events/parse-challonge-events/index";
+export { EVENT_SYNC_INTERVAL_MS, isSyncDue, syncCutoff } from "./events/sync-window/index";
+export { PAST_EVENT_WINDOW_MS, eventSchedule } from "./events/event-schedule/index";
+
 // metrics — deck to numbers (§8.3)
 export { bucketFor, manaCurve } from "./metrics/mana-curve/index";
 export { colorCounts, colorIdentity } from "./metrics/color-counts/index";

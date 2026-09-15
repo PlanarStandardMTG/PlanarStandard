@@ -14,6 +14,7 @@ const NAV = [
   // `navOrder`: "what is legal right now" is the question the format gets most.
   // The full generated list is in the footer.
   { href: "/rules", label: "Rules" },
+  { href: "/events", label: "Events" },
   { href: "/meta", label: "Metagame", soon: true },
   { href: "/leaderboard", label: "Leaderboard", soon: true },
 ] as const;
