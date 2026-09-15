@@ -1,0 +1,32 @@
+{
+  "capabilities": [
+    "decklists"
+  ],
+  "decklists": [
+    {
+      "handle": "serlupidus",
+      "date": "2025-11-02",
+      "matchRecord": "2-3-0",
+      "gameRecord": "7-7",
+      "decklistText": "4 Bloomvine Regent / Claim Territory (TDM) 136\n4 Caustic Exhale (TDM) 74\n4 Dispelling Exhale (TDM) 41\n4 Disruptive Stormbrood / Petty Revenge (TDM) 178\n4 Dragonback Assault (TDM) 179\n4 Duress (STA) 29\n1 Encroaching Dragonstorm (TDM) 142\n4 Evolving Wilds (ANB) 111\n9 Forest (EOE) 266\n3 Heritage Reclamation (TDM) 145\n7 Island (EOE) 263\n3 Llanowar Elves (FDN) 227\n2 Lumbering Worldwagon (DFT) 168\n1 Maelstrom of the Spirit Dragon (TDM) 260\n4 Marang River Regent / Coil and Catch (TDM) 51\n1 Mountain (EOE) 265\n3 Roiling Dragonstorm (TDM) 55\n4 Sagu Wildling / Roost Seek (TDM) 157\n4 Scavenger Regent / Exude Toxin (TDM) 90\n3 Strategic Betrayal (TDM) 94\n2 Swamp (EOE) 264",
+      "archetypeRaw": "4c Dragons (Midrange)"
+    },
+    {
+      "handle": "Sunsett",
+      "date": "2025-11-15",
+      "matchRecord": "1-2-0",
+      "gameRecord": "2-4",
+      "decklistText": "4 Bleachbone Verge (DFT) 250\n4 Cosmogrand Zenith (EOE) 9\n2 Duress (STA) 29\n2 Feed the Swarm (FDN) 712 *F*\n4 Forest (DMU) 281\n4 Gene Pollinator (EOE) 186\n4 Godless Shrine (EOE) 254\n1 Great Arashin City (TDM) 257\n2 Hollowmurk Siege (TDM) 192\n4 Honor (EOE) 21\n4 Ouroboroid (EOE) 201\n2 Plains (DMU) 277\n4 Sandsteppe Citadel (TDM) 266\n4 Seam Rip (EOE) 34\n4 Severance Priest (TDM) 222\n3 Sinkhole Surveyor (TDM) 93\n4 Skyknight Squire (FDN) 448\n4 Wastewood Verge (DFT) 268\n1 Defend the Rider (DFT) 157\n4 Depressurize (EOE) 95\n2 Duress (STA) 29\n2 Emergency Eject (EOE) 14\n3 Intimidation Tactics (DFT) 92\n1 Pilfer (FDN) 181\n2 Strategic Betrayal (TDM) 94",
+      "archetypeRaw": "Abzan Midrange (Midrange)"
+    },
+    {
+      "handle": "Sunsett",
+      "date": "2025-11-22",
+      "matchRecord": "3-0-0",
+      "gameRecord": "6-1",
+      "decklistText": "4 Bleachbone Verge (DFT) 250\n3 Bulwark Ox (DFT) 7\n4 Cosmogrand Zenith (EOE) 9\n2 Depressurize (EOE) 95\n2 Duress (STA) 29\n4 Forest (DMU) 281\n4 Gene Pollinator (EOE) 186\n4 Godless Shrine (EOE) 254\n1 Great Arashin City (TDM) 257\n2 Hollowmurk Siege (TDM) 192\n4 Honor (EOE) 21\n4 Ouroboroid (EOE) 201\n2 Plains (DMU) 277\n4 Sandsteppe Citadel (TDM) 266\n4 Seam Rip (EOE) 34\n4 Severance Priest (TDM) 222\n4 Skyknight Squire (FDN) 448\n4 Wastewood Verge (DFT) 268\n2 Depressurize (EOE) 95\n2 Duress (STA) 29\n1 Emergency Eject (EOE) 14\n2 Feed the Swarm (FDN) 712 *F*\n3 Intimidation Tactics (DFT) 92\n1 Pilfer (FDN) 181\n2 Strategic Betrayal (TDM) 94\n2 Sunset Saboteur (EOE) 116",
+      "archetypeRaw": "Abzan Midrange (Midrange)"
+    }
+  ],
+  "issues": []
+}

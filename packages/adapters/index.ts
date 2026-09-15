@@ -7,6 +7,7 @@ export { adapterById, defaultRegistry, detectAdapter } from "./registry/index";
 export type { RegisteredAdapter } from "./registry/index";
 
 // Sources
+export { archetypeMapHtml } from "./archetype-map-html/index";
 export { genericCsv } from "./generic-csv/index";
 export { manualEntry } from "./manual-entry/index";
 

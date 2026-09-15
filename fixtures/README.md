@@ -17,7 +17,8 @@ fixtures/
 │   ├── split-card.txt
 │   └── …
 ├── archetype-map/                     the community archetype map (E12.7, E21.1)
-│   └── season-ii-excerpt.html
+│   ├── season-ii-excerpt.html
+│   └── season-ii-excerpt.expected.json
 ├── melee/                             a real melee.gg export (E12.4)
 │   ├── <event>.csv
 │   └── <event>.expected.json

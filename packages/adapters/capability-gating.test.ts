@@ -71,6 +71,25 @@ describe("adapters — capability gating", () => {
     }
   });
 
+  it("does not turn a decklist source into an event with results", () => {
+    const map = defaultRegistry.find((entry) => entry.adapter.id === "archetype-map-html");
+    const parsed = map?.adapter.parse(
+      upload(
+        readFileSync(
+          new URL("../../fixtures/archetype-map/season-ii-excerpt.html", import.meta.url),
+          "utf8",
+        ),
+      ),
+    );
+
+    // Three decklists, each with a record printed on it, and still no matches:
+    // a record says how someone did, never against whom.
+    expect(parsed?.decklists).toHaveLength(3);
+    expect(parsed?.capabilities).toEqual(["decklists"]);
+    expect(parsed?.matches).toBeUndefined();
+    expect(parsed?.standings).toBeUndefined();
+  });
+
   it("keeps a bye out of the pairings a rating would consume", () => {
     const parsed = genericCsv.parse(
       upload("P1,P2,Result\nZaunus13,,\n", {
