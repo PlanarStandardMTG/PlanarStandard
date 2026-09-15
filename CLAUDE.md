@@ -16,8 +16,23 @@ Two documents govern the work and outrank any summary here:
 - **`backlog.md`** — the work, as epics **E1–E22**, each story sized to one sitting with acceptance
   criteria and hard dependencies. Branch names and PR titles use the story ID (e.g. `E5.2`).
 
-The repo is currently at the **E1.1 skeleton** stage: every package installs, builds, lints, and tests
-cleanly, but the packages are empty stubs.
+### Keeping the backlog current
+
+`backlog.md` is the progress record — every story carries a status marker and every epic a tally. Do not
+restate progress here; this file goes stale, that one is maintained.
+
+- **A story's marker flips in the same commit as its work.** A commit that implements `E5.4` and leaves
+  `E5.4` on ⬜ is an incomplete commit, the same way a missing test is.
+- Update the epic's count in the **Epic map** table and in the **Progress** table at the bottom. They are
+  small and hand-maintained on purpose: a wrong tally is visible, a missing one is not.
+- Markers are ✅ done · 🚧 in progress · ⛔ blocked · ⬜ not started. A ⛔ gets a `*Blocked:*` line naming
+  **what is needed**, not who owes it.
+- A story that ships with one acceptance criterion genuinely deferred stays ✅ and gets an
+  `*Outstanding:*` line naming the deferred check. Do not leave the marker ambiguous instead.
+- Adding or splitting a story is fine. **Renumbering an existing one is not** — IDs are already in branch
+  names, commit messages, and PR titles.
+- Keep the **What's ready now** section honest when a merge unblocks something. It is the section a new
+  contributor reads first.
 
 ## Commands
 
@@ -46,11 +61,13 @@ pnpm db:reset                     # migrations + seed
 pnpm dev                          # --filter web dev — a placeholder echo until E16.1
 ```
 
-CI (`.github/workflows/ci.yml`) runs `lint`, `depcruise`, `test`, `build` in that order. Match it locally
-before pushing.
+CI (`.github/workflows/ci.yml`) runs `lint`, `depcruise`, `guard:server-only`, `test`, `build` in that
+order. Match it locally before pushing.
 
-Wired into `package.json` but not implemented yet: `pnpm new:module` (`scripts/new-module.ts` is story
-E1.8).
+```bash
+pnpm guard:server-only            # E1.7 — asserts no 'use client' module can reach the service-role key
+pnpm new:module core/metrics/foo  # scaffolds index.ts, index.test.ts, README.md; the test starts red
+```
 
 ## Architecture: dependencies point left, always
 
