@@ -98,3 +98,14 @@ export type { FormatVersionRows } from "./legality/resolve-format/index";
 export { checkCard, copyLimit, isInPool } from "./legality/check-card/index";
 export type { CardUnderTest } from "./legality/check-card/index";
 export { checkDeck } from "./legality/check-deck/index";
+
+// metrics — deck to numbers (§8.3)
+export { bucketFor, manaCurve } from "./metrics/mana-curve/index";
+export { colorCounts, colorIdentity } from "./metrics/color-counts/index";
+export { typeCounts } from "./metrics/type-counts/index";
+export { attributeCard, setAttribution } from "./metrics/set-attribution/index";
+export { rarityCounts } from "./metrics/rarity-counts/index";
+export { averageMv } from "./metrics/average-mv/index";
+export type { AverageMv } from "./metrics/average-mv/index";
+export { computeDeckMetrics } from "./metrics/compute-deck-metrics/index";
+export type { ComputeOptions } from "./metrics/compute-deck-metrics/index";

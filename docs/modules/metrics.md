@@ -58,8 +58,85 @@ to each chart.
 
 ## Deck metrics
 
-_Pending — E6.8. `mana-curve`, `color-counts`, `type-counts`, `set-attribution`,
-`rarity-counts`, `average-mv`, `compute-deck-metrics`._
+_Modules: `core/metrics/*` (E6). Every figure below is derived and fully
+recomputable; no statistic is ever uploaded or hand-edited (ADR 008)._
+
+All counts are **copy-weighted**: four copies of a card count four times, because
+these describe a deck's composition rather than its card list.
+
+### Mana curve
+
+A histogram of maindeck **non-land** cards by mana value, in buckets **1–6 and
+7+**. Lands are excluded because a curve is about what you are casting; including
+them would put roughly a quarter of every deck in a bucket it does not belong to.
+
+A zero-cost non-land falls in bucket 1 — the bucket list has nowhere else for it.
+There are very few such cards in the pool; if that changes, the fix is a `0`
+bucket rather than a quieter reinterpretation.
+
+### Colour counts
+
+Maindeck cards per colour of **identity**, not of mana cost, so a card with an
+off-colour activated ability counts toward the colour the manabase actually has
+to support.
+
+A two-colour card counts once in **each** of its colours, so **these do not sum
+to the deck size**. Cards with no colour identity count under `C`, which is a
+bucket rather than a sixth colour. **Lands are included**, unlike in the curve: a
+manabase is part of a deck's colour commitment.
+
+### Type counts
+
+Maindeck cards per card type: Land, Creature, Instant, Sorcery, Artifact,
+Enchantment, Planeswalker, Battle.
+
+**A multi-type card is counted under every type it has.** An Artifact Creature
+adds to both, so **these do not sum to the deck size** either. The alternative —
+choosing one "primary" type — needs an arbitrary precedence order and makes "how
+many creatures does this deck run" wrong, which is the question the number is for.
+
+Only the **front face** of a multi-face card is read: that is the side you cast,
+and counting a modal land's back face would double-count the manabase.
+
+### Set attribution
+
+Each card is attributed to the set it is **legal through**, never the set it was
+printed in. `Llanowar Elves (M19)` counts as **FDN**, because M19 is not in the
+pool and FDN is.
+
+This is the one that is easy to get wrong, and the reason it matters: the chart
+this feeds answers "did the new set change anything", which is about which set
+made a card available. A player's choice of printing has nothing to do with it.
+
+**Tiebreak.** A card legal through two sets is attributed to whichever comes
+first in the format's declared legal-set order — `format_legal_sets` as the admin
+entered it. The tiebreak is therefore community-controlled rather than
+alphabetical chance.
+
+### Rarity counts
+
+Maindeck cards by the rarity of the printing **inside the legal pool**. Rarity is
+a property of a printing, not of a card, and the same card can be uncommon in one
+set and rare in another. A player's promo or Secret Lair copy says nothing about
+how available the card is in the format.
+
+A card with pool printings at two rarities takes the **lowest**, which is the one
+that governs how easily it is obtained.
+
+### Average mana value
+
+Three figures: including lands, excluding lands, and the sideboard. All
+copy-weighted. "Average mana value" unqualified normally means the excluding-lands
+figure.
+
+An empty board reports **null**, not zero. A deck with no sideboard has no
+average sideboard mana value, and charting that as 0.0 would be a lie.
+
+### Unresolved cards
+
+The number of **copies** whose card name did not resolve against the dataset. A
+non-zero count excludes the deck from `card_stats` until someone fixes the name
+(E18.10); the row and the deck are kept either way.
 
 ## Similarity
 
