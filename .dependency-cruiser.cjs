@@ -43,6 +43,14 @@ module.exports = {
       to: { path: "^packages/db|^apps" },
     },
     {
+      name: "server-only-stays-out-of-packages",
+      severity: "error",
+      comment:
+        "E1.7 — a `*.server.ts` / `server-only/` module is where SUPABASE_SERVICE_ROLE_KEY lives. packages/ is isomorphic and must never reach one. The 'use client' half of the boundary, which depcruise cannot see, is enforced by scripts/check-server-only.ts.",
+      from: { path: "^packages/" },
+      to: { path: "(\\.server\\.[cm]?[jt]sx?$)|(/server-only/)" },
+    },
+    {
       name: "db-depends-on-contracts-only",
       severity: "error",
       comment: "packages/db depends on contracts only.",

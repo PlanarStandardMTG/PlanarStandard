@@ -29,6 +29,9 @@ jobs:
       - name: Dependency boundaries
         run: pnpm depcruise
 
+      - name: Service-role key is unreachable from any client bundle
+        run: pnpm guard:server-only
+
       - name: Test (no credentials needed — core & adapters run with zero env vars)
         run: pnpm test
 
