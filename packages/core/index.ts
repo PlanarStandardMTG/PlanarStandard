@@ -44,3 +44,5 @@ export { tokenizeLine } from "./decklist/tokenize-line/index";
 export type { LineToken, TokenizeResult } from "./decklist/tokenize-line/index";
 export { detectBoard, hasBoardHeader } from "./decklist/detect-board/index";
 export type { BoardLine } from "./decklist/detect-board/index";
+export { countBoard, parseDecklist } from "./decklist/parse-decklist/index";
+export { parseFilename } from "./decklist/parse-filename/index";
