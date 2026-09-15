@@ -31,7 +31,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E9 | Identity signals and scoring | 4 | E2 | ✅ 9/9 |
 | E10 | Stats primitives | 8 | E2 | ✅ 3/3 |
 | E11 | Reddit transforms | 9 | — | ✅ 6/6 |
-| E12 | Source adapters | 5 | E2 | 🚧 5/9 |
+| E12 | Source adapters | 5 | E2 | 🚧 6/9 |
 | E13 | Schema, migrations, repositories | 3–5 | E2 | 🚧 3/23 |
 | E14 | RLS and access control | 1 | E13 | ⬜ 0/5 |
 | E15 | Seed data and local dev | 0 | E13 | ⬜ 0/5 |
@@ -316,7 +316,8 @@ Stream D. One file per source, all pure, all fixture-tested. ADR 005, ADR 006.
 ✅ **E12.7 — `archetype-map-html`** · L · Deps: E12.1 — decklists from hover text: player, date, both records, full list. One-time backfill.
 *Note:* the hover text sorts all 75 cards alphabetically with no sideboard header, so `decklistText` is one merged board. Which fifteen were the sideboard is not in the file, and E21.1 inherits that.
 ✅ **E12.8 — Capability gating test** · S · Deps: E12.1 — a standings-only `ParsedEvent` cannot produce matches. *AC:* asserts pairings are never inferred from placements.
-⬜ **E12.9 — Adapter authoring guide** · S · Deps: E12.4 — `packages/adapters/README.md`: drop a fixture, write `detect` and `parse`, write expected output.
+✅ **E12.9 — Adapter authoring guide** · S · Deps: E12.4 — `packages/adapters/README.md`: drop a fixture, write `detect` and `parse`, write expected output.
+*Note:* written without E12.4. The dependency existed so the guide would have a worked example; `archetype-map-html` and `generic-csv` are that example, and the four rules it has to teach — omit an empty payload, never infer pairings, a bye has no opponent, do not guess — are all demonstrable without a melee export.
 
 ---
 
@@ -670,7 +671,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 
 | Epic | Stories | Done | Epic | Stories | Done |
 |---|---|---|---|---|---|
-| E1 | 9 | 9 | E12 | 9 | 5 |
+| E1 | 9 | 9 | E12 | 9 | 6 |
 | E2 | 9 | 9 | E13 | 23 | 3 |
 | E3 | 7 | 7 | E14 | 5 | 0 |
 | E4 | 7 | 0 | E15 | 5 | 0 |
@@ -683,4 +684,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E11 | 6 | 6 | E22 | 12 | 2 |
 |  |  |  | E23 | 11 | 11 |
 
-**101 of 219 stories done across 23 epics.**
+**102 of 219 stories done across 23 epics.**
