@@ -1,0 +1,758 @@
+{
+  "oracle": [
+    {
+      "oracleId": "b2a9fb11-9062-5566-5c2c-c3fa8e0fd4e3",
+      "name": "Annul",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "eoe"
+      ]
+    },
+    {
+      "oracleId": "c981ac8a-9c7c-2bf8-b544-723bb6e92dd1",
+      "name": "Authority of the Consuls",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "fdn"
+      ]
+    },
+    {
+      "oracleId": "ed0a4ed3-606e-f566-e4be-99971608b449",
+      "name": "Azorius Guildgate",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "fdn"
+      ]
+    },
+    {
+      "oracleId": "59db355a-cac8-a8ae-1e82-d1a68f80e87d",
+      "name": "Beyond the Quiet",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "eoe"
+      ]
+    },
+    {
+      "oracleId": "96d06026-49f9-30c9-8419-c37183f89199",
+      "name": "Cathar Commando",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "fdn"
+      ]
+    },
+    {
+      "oracleId": "8ba1d5ab-d24e-9454-7c40-a83192badbc8",
+      "name": "Consult the Star Charts",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "eoe"
+      ]
+    },
+    {
+      "oracleId": "492267f6-b794-cf42-de8e-bdb6932791e6",
+      "name": "Day of Judgment",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "fdn"
+      ]
+    },
+    {
+      "oracleId": "cd3d1721-4853-2d08-273c-f1591195f08d",
+      "name": "Demolition Field",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "fdn"
+      ]
+    },
+    {
+      "oracleId": "435347dc-4475-06db-0b5b-fd5b715878e8",
+      "name": "Dispelling Exhale",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "tdm"
+      ]
+    },
+    {
+      "oracleId": "9a42c19c-54da-0a7c-aa4a-66514a6170a8",
+      "name": "Elspeth's Smite",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "fdn"
+      ]
+    },
+    {
+      "oracleId": "7138a3b1-adb1-c691-cac9-de34b090b287",
+      "name": "Emergency Eject",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "eoe"
+      ]
+    },
+    {
+      "oracleId": "51812b11-cdfd-e7ec-b137-50e3bc84e501",
+      "name": "Essence Scatter",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "fdn"
+      ]
+    },
+    {
+      "oracleId": "5f31e154-10c5-7a80-5164-d9b5b29add6e",
+      "name": "Fresh Start",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "tdm"
+      ]
+    },
+    {
+      "oracleId": "f59cb70d-66c0-1e15-e88e-66343e86e02c",
+      "name": "Into the Roil",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "fdn"
+      ]
+    },
+    {
+      "oracleId": "ac0ce97f-bbf9-358c-1945-2118b49eeacc",
+      "name": "Island",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "eoe"
+      ]
+    },
+    {
+      "oracleId": "8214e00a-b386-cd36-d666-77037c724851",
+      "name": "Make Your Move",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "fdn"
+      ]
+    },
+    {
+      "oracleId": "4863a143-8c50-d96a-af58-b473b7396268",
+      "name": "Marang River Regent / Coil and Catch",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "split",
+      "setCodes": [
+        "tdm"
+      ]
+    },
+    {
+      "oracleId": "ffecf549-345e-bc58-f2ca-8aae212208f1",
+      "name": "Mazemind Tome",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "fdn"
+      ]
+    },
+    {
+      "oracleId": "14a9f535-cfb7-b671-c14e-4715c5da602e",
+      "name": "Mistrise Village",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "tdm"
+      ]
+    },
+    {
+      "oracleId": "67d9ebb8-7ad2-c62f-e6b9-de06c8da7fa5",
+      "name": "Negate",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "fdn"
+      ]
+    },
+    {
+      "oracleId": "8cbaa777-67a4-95de-65e9-c54fb695265d",
+      "name": "Pinnacle Starcage",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "eoe"
+      ]
+    },
+    {
+      "oracleId": "b363ecd5-a875-603f-ba96-8080c99ab007",
+      "name": "Plains",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "eoe"
+      ]
+    },
+    {
+      "oracleId": "33e7edb1-19ea-80f7-5641-1e07d4a4b99c",
+      "name": "Refute",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "fdn"
+      ]
+    },
+    {
+      "oracleId": "a8fdc41b-6093-af09-8694-d173aa4b9688",
+      "name": "Ride's End",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "dft"
+      ]
+    },
+    {
+      "oracleId": "21af1ffa-390a-e455-f0ba-55c32c846014",
+      "name": "Seam Rip",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "eoe"
+      ]
+    },
+    {
+      "oracleId": "82853420-e1ae-af83-a0aa-44c851b19a37",
+      "name": "Secluded Starforge",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "eoe"
+      ]
+    },
+    {
+      "oracleId": "09a552a1-b309-f6e7-523c-3089f6eb46da",
+      "name": "Soul-Guide Lantern",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "fdn"
+      ]
+    },
+    {
+      "oracleId": "41dc3258-72b4-38f1-a03b-05f2b46e6319",
+      "name": "Space-Time Anomaly",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "eoe"
+      ]
+    },
+    {
+      "oracleId": "f9090b7c-bdc1-f176-fbe7-801055ff42f0",
+      "name": "Spell Pierce",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "dft"
+      ]
+    },
+    {
+      "oracleId": "8a5cbc91-cb24-e6fd-f84c-94bf1f421325",
+      "name": "Stock Up",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "dft"
+      ]
+    },
+    {
+      "oracleId": "96b31ab8-9562-19dd-4970-b4a2b0843bc8",
+      "name": "Temple of Enlightenment",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "fdn"
+      ]
+    },
+    {
+      "oracleId": "45007ff9-6469-21e5-1070-7ed41293fe6e",
+      "name": "Tranquil Cove",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "tdm"
+      ]
+    },
+    {
+      "oracleId": "5a8b88e3-68c8-9f17-f020-a468ae2058ab",
+      "name": "Ugin, Eye of the Storms",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": [],
+      "typeLine": "Card",
+      "oracleText": null,
+      "layout": "normal",
+      "setCodes": [
+        "tdm"
+      ]
+    }
+  ],
+  "printings": [
+    {
+      "oracleId": "a8fdc41b-6093-af09-8694-d173aa4b9688",
+      "setCode": "dft",
+      "collectorNumber": "25",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "f9090b7c-bdc1-f176-fbe7-801055ff42f0",
+      "setCode": "dft",
+      "collectorNumber": "64",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "8a5cbc91-cb24-e6fd-f84c-94bf1f421325",
+      "setCode": "dft",
+      "collectorNumber": "67",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "7138a3b1-adb1-c691-cac9-de34b090b287",
+      "setCode": "eoe",
+      "collectorNumber": "14",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "41dc3258-72b4-38f1-a03b-05f2b46e6319",
+      "setCode": "eoe",
+      "collectorNumber": "229",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "82853420-e1ae-af83-a0aa-44c851b19a37",
+      "setCode": "eoe",
+      "collectorNumber": "257",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "b363ecd5-a875-603f-ba96-8080c99ab007",
+      "setCode": "eoe",
+      "collectorNumber": "267",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "8cbaa777-67a4-95de-65e9-c54fb695265d",
+      "setCode": "eoe",
+      "collectorNumber": "27",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "ac0ce97f-bbf9-358c-1945-2118b49eeacc",
+      "setCode": "eoe",
+      "collectorNumber": "270",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "21af1ffa-390a-e455-f0ba-55c32c846014",
+      "setCode": "eoe",
+      "collectorNumber": "34",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "b2a9fb11-9062-5566-5c2c-c3fa8e0fd4e3",
+      "setCode": "eoe",
+      "collectorNumber": "46",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "8ba1d5ab-d24e-9454-7c40-a83192badbc8",
+      "setCode": "eoe",
+      "collectorNumber": "51",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "59db355a-cac8-a8ae-1e82-d1a68f80e87d",
+      "setCode": "eoe",
+      "collectorNumber": "7",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "c981ac8a-9c7c-2bf8-b544-723bb6e92dd1",
+      "setCode": "fdn",
+      "collectorNumber": "137",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "96d06026-49f9-30c9-8419-c37183f89199",
+      "setCode": "fdn",
+      "collectorNumber": "139",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "492267f6-b794-cf42-de8e-bdb6932791e6",
+      "setCode": "fdn",
+      "collectorNumber": "140",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "8214e00a-b386-cd36-d666-77037c724851",
+      "setCode": "fdn",
+      "collectorNumber": "143",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "51812b11-cdfd-e7ec-b137-50e3bc84e501",
+      "setCode": "fdn",
+      "collectorNumber": "153",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "33e7edb1-19ea-80f7-5641-1e07d4a4b99c",
+      "setCode": "fdn",
+      "collectorNumber": "48",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "9a42c19c-54da-0a7c-aa4a-66514a6170a8",
+      "setCode": "fdn",
+      "collectorNumber": "493",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "f59cb70d-66c0-1e15-e88e-66343e86e02c",
+      "setCode": "fdn",
+      "collectorNumber": "509",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "ffecf549-345e-bc58-f2ca-8aae212208f1",
+      "setCode": "fdn",
+      "collectorNumber": "676",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "09a552a1-b309-f6e7-523c-3089f6eb46da",
+      "setCode": "fdn",
+      "collectorNumber": "680",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "ed0a4ed3-606e-f566-e4be-99971608b449",
+      "setCode": "fdn",
+      "collectorNumber": "683",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "cd3d1721-4853-2d08-273c-f1591195f08d",
+      "setCode": "fdn",
+      "collectorNumber": "687",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "96b31ab8-9562-19dd-4970-b4a2b0843bc8",
+      "setCode": "fdn",
+      "collectorNumber": "698",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "67d9ebb8-7ad2-c62f-e6b9-de06c8da7fa5",
+      "setCode": "fdn",
+      "collectorNumber": "710",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "14a9f535-cfb7-b671-c14e-4715c5da602e",
+      "setCode": "ptdm",
+      "collectorNumber": "261p",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": true,
+      "digital": false
+    },
+    {
+      "oracleId": "5a8b88e3-68c8-9f17-f020-a468ae2058ab",
+      "setCode": "tdm",
+      "collectorNumber": "1",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "45007ff9-6469-21e5-1070-7ed41293fe6e",
+      "setCode": "tdm",
+      "collectorNumber": "270",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "435347dc-4475-06db-0b5b-fd5b715878e8",
+      "setCode": "tdm",
+      "collectorNumber": "41",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "5f31e154-10c5-7a80-5164-d9b5b29add6e",
+      "setCode": "tdm",
+      "collectorNumber": "46",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "4863a143-8c50-d96a-af58-b473b7396268",
+      "setCode": "tdm",
+      "collectorNumber": "51",
+      "rarity": "common",
+      "imageUris": null,
+      "promo": false,
+      "digital": false
+    }
+  ],
+  "meta": {
+    "bulkUpdatedAt": "2026-08-01T00:00:00Z",
+    "setCodes": [
+      "dft",
+      "ecl",
+      "eoe",
+      "fdn",
+      "sos",
+      "tdm"
+    ],
+    "oracleCardCount": 33,
+    "printingCount": 33,
+    "printingCountBySet": {
+      "dft": 3,
+      "eoe": 10,
+      "fdn": 14,
+      "ptdm": 1,
+      "tdm": 5
+    },
+    "generatedAt": "2026-08-01T00:00:00Z",
+    "attribution": {
+      "source": "Scryfall",
+      "sourceUrl": "https://scryfall.com",
+      "notice": "Card data from Scryfall. Not affiliated with Wizards of the Coast."
+    }
+  }
+}

@@ -88,3 +88,13 @@ export {
   scoreCandidates,
 } from "./identity/score-candidates/index";
 export type { Candidate, ScoreOptions } from "./identity/score-candidates/index";
+
+// legality — deck plus rules to a verdict (§8.2)
+export { buildCardIndex, normalizeSetCode } from "./legality/build-card-index/index";
+export { MAX_CANDIDATES, MIN_CANDIDATE_SCORE, resolveCardName } from "./legality/resolve-card-name/index";
+export type { Resolution, ResolveOptions } from "./legality/resolve-card-name/index";
+export { DEFAULT_CONSTRAINTS, resolveFormat } from "./legality/resolve-format/index";
+export type { FormatVersionRows } from "./legality/resolve-format/index";
+export { checkCard, copyLimit, isInPool } from "./legality/check-card/index";
+export type { CardUnderTest } from "./legality/check-card/index";
+export { checkDeck } from "./legality/check-deck/index";
