@@ -13,8 +13,9 @@ pnpm dev             # http://localhost:3000
 nothing about the domain; `components/content/` holds the post components that
 every feed and article page shares; `lib/` holds helpers, the two Supabase
 clients, `info-pages/` — the reader, whitelist, and renderer behind
-`content/pages/*.mdx` (E17) — and `challonge/` plus `events/`, the read-through
-cache behind `/events` (E23). Feature slices (§11, E20) will move route-owned code
+`content/pages/*.mdx` (E17), `format/`, the one read behind `<LegalSets />` and
+`<Banlist />`, and `challonge/` plus `events/`, the read-through cache behind
+`/events` (E23). Feature slices (§11, E20) will move route-owned code
 out of `components/content` as they land.
 
 **The two kinds of writing.** Posts are database rows, served dynamically from
@@ -31,10 +32,13 @@ special case of the other; §25's split rule decides which a document is.
   sit in an `(index)` route group, so their skeleton cannot reach `[slug]`: once
   a loading boundary flushes the response shell, the status is committed as 200
   and a later `notFound()` renders the not-found body under a 200.
-- Info pages are the exception to `force-dynamic`: their source is files in the
-  repository, so they are prerendered by `generateStaticParams` with
-  `dynamicParams = false`, and an unpublished or unknown slug is a 404 rather
-  than a render. The catch-all sits at the root, so it is also what `/nope` hits.
+- Info pages are `force-dynamic` too, though their bodies are files in the
+  repository: `/rules` declares `<LegalSets />` and `<Banlist />`, which read the
+  `format_*` tables, and a pool or a ban baked at build time is exactly the
+  staleness those rows exist to prevent. `generateStaticParams` still enumerates
+  the pages, so `dynamicParams = false` makes an unpublished or unknown slug a
+  404 rather than a render. The catch-all sits at the root, so it is also what
+  `/nope` hits.
 - `content/pages/` is read with `fs` at request time — by the footer nav on every
   route, not only by the info pages. Turbopack traces that statically, so
   `contentRoot()` is one expression rather than a search, and `next.config.ts`

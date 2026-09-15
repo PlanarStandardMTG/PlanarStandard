@@ -41,4 +41,11 @@ describe("the info-page component whitelist", () => {
     expect(() => scopeFor(["Chart"], registry)).toThrow(UnavailableComponentError);
     expect(() => scopeFor(["Chart"], registry)).toThrow(/E17\.4/);
   });
+
+  it("ships the two format components, so /rules can declare them", () => {
+    expect(Object.keys(scopeFor(["LegalSets", "Banlist"])).sort()).toEqual([
+      "Banlist",
+      "LegalSets",
+    ]);
+  });
 });

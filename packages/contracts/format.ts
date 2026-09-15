@@ -53,6 +53,19 @@ export interface FormatRules {
   readonly constraints: DeckConstraints;
 }
 
+/**
+ * The four `format_*` tables as rows, before `resolve-format` (E5.3) flattens them
+ * into `FormatRules`. This is what `repos/format` returns and what `/rules`
+ * renders; `constraints` is null when a version has no row of its own and the
+ * format's defaults apply.
+ */
+export interface FormatVersionDetail {
+  readonly version: FormatVersion;
+  readonly legalSets: readonly SetCode[];
+  readonly cardRules: readonly FormatCardRule[];
+  readonly constraints: DeckConstraints | null;
+}
+
 interface CardIssueBase {
   readonly kind: "card";
   readonly cardName: string;

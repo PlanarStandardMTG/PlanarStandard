@@ -32,11 +32,11 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E10 | Stats primitives | 8 | E2 | ✅ 3/3 |
 | E11 | Reddit transforms | 9 | — | ✅ 6/6 |
 | E12 | Source adapters | 5 | E2 | 🚧 6/9 |
-| E13 | Schema, migrations, repositories | 3–5 | E2 | 🚧 8/23 |
+| E13 | Schema, migrations, repositories | 3–5 | E2 | 🚧 9/23 |
 | E14 | RLS and access control | 1 | E13 | ⬜ 0/5 |
 | E15 | Seed data and local dev | 0 | E13 | ⬜ 0/5 |
 | E16 | Web foundation, auth, dashboard shell | 1 | E13 | 🚧 2/8 |
-| E17 | MDX info pages | 2 | E16 | 🚧 10/13 |
+| E17 | MDX info pages | 2 | E16 | 🚧 12/13 |
 | E18 | Services | 5–8 | E3–E13 | ⬜ 0/19 |
 | E19 | Chart components | 8 | E2 | ⬜ 0/14 |
 | E20 | Feature slices | 3–10 | E18 | ⬜ 0/19 |
@@ -348,7 +348,8 @@ Stream G. Migrations are numbered and forward-only, created in the order given i
 
 One module per aggregate, narrow intention-revealing functions, never a generic query builder.
 
-⬜ **E13.15 — `repos/format`** · M · Deps: E13.2
+✅ **E13.15 — `repos/format`** · M · Deps: E13.2
+*Note:* returns rows (`FormatVersionDetail`, added to contracts), not `FormatRules` — flattening is `core/legality/resolve-format`'s job and `db` depends on contracts only. A restricted rule is given `limit: 1` here because `format_card_rules` has no column for it.
 ⬜ **E13.16 — `repos/decks`** · M · Deps: E13.7
 ⬜ **E13.17 — `repos/tournaments`** · M · Deps: E13.9
 ⬜ **E13.18 — `repos/results`** · L · Deps: E13.8
@@ -411,13 +412,15 @@ Phase 2. Stream I. Several of these need no code at all.
 both the nav and the body. The whitelist is enforced on the compiled tree by
 `remarkInfoPageWhitelist`, **not** by MDX's `components` prop: that prop only intercepts
 Markdown-derived elements, so a literal `<script>` compiles straight past it.
-⬜ **E17.2 — `<LegalSets />`** · S · Deps: E17.1, E13.15
-⬜ **E17.3 — `<Banlist />`** · S · Deps: E17.1, E13.15
+✅ **E17.2 — `<LegalSets />`** · S · Deps: E17.1, E13.15
+*Outstanding:* set codes only. The names (`FDN` → Foundations) live in `data/cards/`, which E4 fills; the hand-written role column on `/rules` is gone rather than being carried alongside live data it would contradict.
+✅ **E17.3 — `<Banlist />`** · S · Deps: E17.1, E13.15
+*Outstanding:* a rule renders its `oracle_id`, not the card's name — `oracle_id` carries no foreign key by design (§14.1) and the name comes from `data/cards/` at E4. The empty banlist, which is the state today, renders in full.
 ⬜ **E17.4 — `<Chart />` embed** · M · Deps: E17.1, E19
 ✅ **E17.5 — `/(info)/[...slug]` route and nav generation** · M · Deps: E17.1 — pages are prerendered from `generateStaticParams`; the footer nav is generated from frontmatter `navOrder`.
+*Note:* the route became `force-dynamic` at E17.2. `generateStaticParams` still enumerates the pages, so `dynamicParams: false` still 404s an unknown slug, but `/rules` reads the format tables and a pool or a ban baked at build time is the staleness those rows exist to prevent.
 ✅ **E17.6 — Page: about** · S
 ✅ **E17.7 — Page: rules** · M
-*Outstanding:* the banlist is prose pointing at Discord until `<Banlist />` (E17.3) can read the format tables.
 ✅ **E17.8 — Page: getting-started** · S
 ✅ **E17.9 — Page: faq** · S
 ✅ **E17.10 — Page: organizers** · M — include the melee 60-day export warning
@@ -635,10 +638,8 @@ can start today, in rough order of how much it unblocks.
 - **E13.7–E13.12 — the rest of the migrations,** in the Part IV order. `profiles`, content, format,
   archetypes, seasons, tournaments and the identity pair are in; everything in E14–E21 waits on the
   ones that are not. E13.7 (`decks`) and E13.8 (the results ledger) unblock the most.
-- **E13.15 — `repos/format`.** Unblocked now that E13.2 has landed with a seeded pool. The last two
-  info-page components, `<LegalSets />` (E17.2) and `<Banlist />` (E17.3), are waiting on it, and the
-  rules page is carrying prose in their place.
 - **E13.23 — `repos/archetypes`,** and **E13.17 — `repos/tournaments`** once E13.9 lands.
+- **E17.4 — `<Chart />`,** the last thing between E17 and a finished epic. It waits on E19.
 
 **Needs nothing but a sitting**
 
@@ -677,11 +678,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | Epic | Stories | Done | Epic | Stories | Done |
 |---|---|---|---|---|---|
 | E1 | 9 | 9 | E12 | 9 | 6 |
-| E2 | 9 | 9 | E13 | 23 | 8 |
+| E2 | 9 | 9 | E13 | 23 | 9 |
 | E3 | 7 | 7 | E14 | 5 | 0 |
 | E4 | 7 | 0 | E15 | 5 | 0 |
 | E5 | 6 | 6 | E16 | 8 | 2 |
-| E6 | 8 | 8 | E17 | 13 | 10 |
+| E6 | 8 | 8 | E17 | 13 | 12 |
 | E7 | 5 | 5 | E18 | 19 | 0 |
 | E8 | 6 | 6 | E19 | 14 | 0 |
 | E9 | 9 | 9 | E20 | 19 | 0 |
@@ -689,4 +690,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E11 | 6 | 6 | E22 | 12 | 2 |
 |  |  |  | E23 | 11 | 11 |
 
-**107 of 219 stories done across 23 epics.**
+**110 of 219 stories done across 23 epics.**

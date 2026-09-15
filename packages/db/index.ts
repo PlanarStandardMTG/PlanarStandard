@@ -5,4 +5,5 @@
 // never a generic query builder (§10).
 
 export * from "./repos/content/index";
+export * from "./repos/format/index";
 export * from "./repos/events/index";

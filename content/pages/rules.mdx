@@ -4,6 +4,7 @@ navLabel: Rules
 navOrder: 20
 description: The legal card pool, the deckbuilding rules, and how rotation works.
 published: true
+components: [LegalSets, Banlist]
 ---
 
 Planar Standard plays by the ordinary rules of constructed Magic. What differs is
@@ -11,20 +12,15 @@ the card pool and the rotation schedule.
 
 ## The card pool
 
-Six sets are legal:
+<LegalSets />
 
-| Code | Role |
-|---|---|
-| `FDN` | Foundations — the permanent core set |
-| `DFT` | rotating |
-| `TDM` | rotating |
-| `EOE` | rotating |
-| `ECL` | rotating |
-| `SOS` | rotating |
+This is a **defined list**, not a rolling window computed from release dates, and
+it is read from the format version in the database rather than written here — so
+it is right the moment a pool change is announced. `FDN` is Foundations, the
+permanent core set; the rest rotate.
 
-This is a **defined list**, not a rolling window computed from release dates. A
-special event may declare its own pool — a single-set gauntlet, a throwback to an
-older season — without that changing the format.
+A special event may declare its own pool — a single-set gauntlet, a throwback to
+an older season — without that changing the format.
 
 ## Deckbuilding
 
@@ -53,9 +49,9 @@ Bans are **data, not code**: a Banned & Restricted announcement changes rows tha
 an organiser edits, and never requires a site deploy. Bans, pool changes, and
 one-off legal-set exceptions all work this way.
 
-The live banlist will be published on this page directly from those rows, so it
-cannot go stale after an announcement. Until that is wired up, current bans are
-announced in the community Discord and on
+<Banlist />
+
+Announcements are also posted in the community Discord and on
 [r/planarMTG](https://www.reddit.com/r/planarMTG/).
 
 ## Rotation

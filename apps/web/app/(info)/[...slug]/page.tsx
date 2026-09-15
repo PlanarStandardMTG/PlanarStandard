@@ -10,10 +10,16 @@ import { renderInfoPage } from "@/lib/info-pages/render";
  * rest. The `(info)` group keeps them together in the tree without putting a
  * segment in the URL.
  *
- * Static, unlike the post routes — the source is files in the repository, so
- * there is nothing to be dynamic about. `dynamicParams: false` means an
- * unpublished or unknown slug is a 404 rather than a render attempt.
+ * Rendered on demand, like every other data-backed route. The bodies are files
+ * in the repository and would happily be static, but `/rules` declares
+ * `<LegalSets />` and `<Banlist />` (E17.2, E17.3), which read the format tables
+ * — and a pool or a ban baked at build time is exactly the staleness those rows
+ * exist to prevent. It is also what lets CI build this app with no database.
+ *
+ * `generateStaticParams` still enumerates the pages, so `dynamicParams: false`
+ * makes an unpublished or unknown slug a 404 rather than a render attempt.
  */
+export const dynamic = "force-dynamic";
 export const dynamicParams = false;
 
 interface Params {

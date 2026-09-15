@@ -7,12 +7,14 @@ import type {
   FormatCardRule,
   FormatRules,
   FormatVersion,
+  FormatVersionDetail,
   Issue,
   IssueCode,
   LegalityVerdict,
 } from "./format";
 
 const oracleId = (id: string): OracleId => id as OracleId;
+const setCode = (code: string): SetCode => code as SetCode;
 
 const coriSteelCutter = oracleId("2bc5b3f4-5c16-4f1a-9d2e-0a71c8f4b3d9");
 const bloomvineRegent = oracleId("6c1e9d40-7b2a-4f83-8d55-0a9e3c17b4f2");
@@ -266,5 +268,28 @@ describe("format contracts", () => {
 
     expectTypeOf(messages).toExtend<Record<IssueCode, string>>();
     expect(Object.keys(messages)).toHaveLength(8);
+  });
+
+  describe("FormatVersionDetail", () => {
+    it("is the un-flattened form resolve-format takes", () => {
+      const detail: FormatVersionDetail = {
+        version: {
+          id: "22222222-2222-4222-8222-000000000001",
+          name: "Planar Standard",
+          effectiveFrom: "2026-01-21",
+          effectiveTo: null,
+          notesMarkdown: null,
+          isCurrent: true,
+        },
+        legalSets: [setCode("FDN"), setCode("DFT")],
+        cardRules: [],
+        constraints: seasonTwoConstraints,
+      };
+
+      expectTypeOf(detail.legalSets).toEqualTypeOf<readonly SetCode[]>();
+      // Null, not a default: `db` may not import core's DEFAULT_CONSTRAINTS, so a
+      // version with no row of its own says so and the caller resolves it.
+      expectTypeOf(detail.constraints).toEqualTypeOf<DeckConstraints | null>();
+    });
   });
 });

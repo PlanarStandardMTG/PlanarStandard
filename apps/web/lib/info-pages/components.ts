@@ -2,6 +2,9 @@ import type { ComponentType } from "react";
 
 import type { InfoPageComponent } from "@ps/contracts";
 
+import { Banlist } from "@/components/format/banlist";
+import { LegalSets } from "@/components/format/legal-sets";
+
 /**
  * The whitelist. MDX executes, so a page can only reach a component that is
  * listed here *and* declared in its own frontmatter (§25).
@@ -20,8 +23,11 @@ const PROVIDED_BY: Record<InfoPageComponent, string> = {
   Chart: "E17.4",
 };
 
-/** Empty until E17.2–E17.4 land; the mechanism around it is what E17.1 delivers. */
-export const INFO_PAGE_COMPONENT_REGISTRY: InfoPageComponentRegistry = {};
+/** `Chart` is still to come (E17.4); the mechanism around this is what E17.1 delivered. */
+export const INFO_PAGE_COMPONENT_REGISTRY: InfoPageComponentRegistry = {
+  LegalSets,
+  Banlist,
+};
 
 export class UnavailableComponentError extends Error {}
 

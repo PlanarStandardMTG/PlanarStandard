@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { scopeFor } from "./components";
 import { allInfoPages, publishedInfoPages } from "./pages";
 import { publishedBody } from "./published-source";
 import { syncContent } from "./sync";
@@ -17,7 +18,11 @@ describe("content/pages", () => {
   });
 
   it("ships the eight pages §25 names", () => {
-    expect(publishedInfoPages().map((page) => page.href).sort()).toEqual([
+    expect(
+      publishedInfoPages()
+        .map((page) => page.href)
+        .sort(),
+    ).toEqual([
       "/about",
       "/faq",
       "/getting-started",
@@ -29,9 +34,12 @@ describe("content/pages", () => {
     ]);
   });
 
-  it("declares no component that is not built yet", () => {
+  it("declares only components that are built", () => {
+    // A page declaring one that is allowed but not yet implemented throws at
+    // render, so this is the check that keeps that from being a 500 in
+    // production rather than a red test here.
     for (const page of allInfoPages()) {
-      expect(page.frontmatter.components ?? []).toEqual([]);
+      expect(() => scopeFor(page.frontmatter.components), `/${page.slug.join("/")}`).not.toThrow();
     }
   });
 });
