@@ -68,4 +68,4 @@ non-basic lands included, default threshold 0.5._
 
 ## Ratings
 
-_Pending — E8, published at `/ratings-explained` (E17.13)._
+See [`ratings.md`](./ratings.md) — the source for `/ratings-explained` (E17.13).

@@ -21,3 +21,19 @@ export {
   suppressSmallN,
 } from "./stats/suppress-small-n/index";
 export type { SuppressionPolicy } from "./stats/suppress-small-n/index";
+
+// elo — matches to ratings (§8.5)
+export { expectedScore } from "./elo/expected-score/index";
+export { kTier, pickK } from "./elo/pick-k/index";
+export type { KFactorInput, KTier } from "./elo/pick-k/index";
+export { applyMatch } from "./elo/apply-match/index";
+export type {
+  ApplyMatchInput,
+  ApplyResult,
+  MatchUpdate,
+  PlayerSnapshot,
+  SideUpdate,
+  SkipReason,
+} from "./elo/apply-match/index";
+export { replay } from "./elo/replay/index";
+export type { ReplayOptions } from "./elo/replay/index";
