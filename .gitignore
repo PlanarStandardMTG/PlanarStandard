@@ -15,3 +15,6 @@ apps/web/next-env.d.ts
 
 # Playwright MCP scratch output.
 .playwright-mcp/
+
+# graft's local graph cache — regenerable, not committed (run `graft build`).
+/graft/
