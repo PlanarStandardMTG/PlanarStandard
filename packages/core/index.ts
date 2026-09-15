@@ -46,3 +46,11 @@ export { detectBoard, hasBoardHeader } from "./decklist/detect-board/index";
 export type { BoardLine } from "./decklist/detect-board/index";
 export { countBoard, parseDecklist } from "./decklist/parse-decklist/index";
 export { parseFilename } from "./decklist/parse-filename/index";
+
+// reddit — Markdown to Reddit-safe Markdown (§8.8)
+export { tablesToLists } from "./reddit/tables-to-lists/index";
+export { stripHtml } from "./reddit/strip-html/index";
+export { absolutizeLinks } from "./reddit/absolutize-links/index";
+export { imagesToLinks } from "./reddit/images-to-links/index";
+export { expandChartShortcodes } from "./reddit/expand-chart-shortcodes/index";
+export { toRedditMarkdown } from "./reddit/to-reddit-markdown/index";
