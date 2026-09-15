@@ -32,6 +32,8 @@ fixtures/
 │   ├── community-tournaments.json
 │   └── community-tournaments.expected.json
 ├── legacy-xlsx/                       the per-date spreadsheets (E12.6)
+├── identity/                          the handle-normalization parity table (E9.1, E13.5)
+│   └── normalized-handles.json
 ├── reddit/                            before/after Markdown pairs (E11)
 │   ├── tables-to-lists.in.md
 │   └── tables-to-lists.out.md

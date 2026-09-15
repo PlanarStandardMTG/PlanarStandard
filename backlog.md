@@ -32,7 +32,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E10 | Stats primitives | 8 | E2 | ✅ 3/3 |
 | E11 | Reddit transforms | 9 | — | ✅ 6/6 |
 | E12 | Source adapters | 5 | E2 | 🚧 6/9 |
-| E13 | Schema, migrations, repositories | 3–5 | E2 | 🚧 3/23 |
+| E13 | Schema, migrations, repositories | 3–5 | E2 | 🚧 8/23 |
 | E14 | RLS and access control | 1 | E13 | ⬜ 0/5 |
 | E15 | Seed data and local dev | 0 | E13 | ⬜ 0/5 |
 | E16 | Web foundation, auth, dashboard shell | 1 | E13 | 🚧 2/8 |
@@ -263,7 +263,6 @@ Stream C. Entirely pure; `replay` takes matches already resolved to player IDs.
 Stream E. Per the plan, the single best contribution surface: one file, one function, one obvious test.
 
 ✅ **E9.1 — `normalize-handle`** · S · Deps: E2.5 — lowercase, strip non-alphanumerics. *AC:* matches the Postgres generated-column expression exactly; a test asserts parity.
-*Outstanding:* the parity table is pinned by hand; re-assert it against the live generated column at E13.5.
 ✅ **E9.2 — `signals/parenthetical`** · S · Deps: E9.1 — `Zaunus13 (LikoRS)` → explicit pairing, confidence 0.95.
 ✅ **E9.3 — `signals/deck-fingerprint`** · M · Deps: E7.1 — same 75 under two handles across events → 0.90.
 ✅ **E9.4 — `signals/trigram`** · M · Deps: E9.1 — string similarity → 0.60.
@@ -328,11 +327,14 @@ Stream G. Migrations are numbered and forward-only, created in the order given i
 ### Migrations
 
 ✅ **E13.1 — `profiles` and role enum** · S · Deps: E1.1
-⬜ **E13.2 — `format_versions`, `format_legal_sets`, `format_card_rules`, `format_constraints`** · M · Deps: E13.1 — *AC:* includes the no-card-tables note from §14.1 as a SQL comment; `oracle_id` columns carry no FK.
-⬜ **E13.3 — `archetypes`, `archetype_aliases`** · S
-⬜ **E13.4 — `seasons`** · S · Deps: E13.2 — *AC:* single-current partial unique index.
-⬜ **E13.5 — `players`, `player_identities`** · M · Deps: E13.1 — *AC:* generated `normalized` column; `unique (platform, normalized)`.
-⬜ **E13.6 — `tournaments`** · S · Deps: E13.4
+✅ **E13.2 — `format_versions`, `format_legal_sets`, `format_card_rules`, `format_constraints`** · M · Deps: E13.1 — *AC:* includes the no-card-tables note from §14.1 as a SQL comment; `oracle_id` columns carry no FK.
+*Note:* the seed carries no `format_card_rules` rows. The live banlist is announced in Discord and is not in this repository, and an empty banlist is a state `/rules` has to render correctly anyway.
+✅ **E13.3 — `archetypes`, `archetype_aliases`** · S
+✅ **E13.4 — `seasons`** · S · Deps: E13.2 — *AC:* single-current partial unique index.
+✅ **E13.5 — `players`, `player_identities`** · M · Deps: E13.1 — *AC:* generated `normalized` column; `unique (platform, normalized)`.
+*Note:* closes E9.1's outstanding parity check. `fixtures/identity/normalized-handles.json` is read by both `core/identity/normalize-handle`'s test and `packages/db/generated-columns.test.ts`, so the two implementations are asserted against one table instead of against a list typed out twice — neither package has to import the other.
+*Note:* no seed rows. Synthetic handles and pairings are E15.1's job, and inventing a second set here would be the thing that seed has to reconcile with.
+✅ **E13.6 — `tournaments`** · S · Deps: E13.4
 ⬜ **E13.7 — `decks`, `deck_cards`** · M · Deps: E13.3, E13.5, E13.6
 ⬜ **E13.8 — `result_imports`, `staged_matches`, `matches`, `match_corrections`** · L · Deps: E13.6 — *AC:* `unique (tournament_id, content_hash)`; ledger references `player_identities`, never `players`.
 ⬜ **E13.9 — `tournament_entries`** · S · Deps: E13.7, E13.8
@@ -630,10 +632,13 @@ can start today, in rough order of how much it unblocks.
 - **E4.1–E4.7 — the card dataset.** `data/sets.json` is still an empty array, so `build-card-index`,
   `resolve-card-name`, `set-attribution`, and `rarity-counts` are all proven against
   `fixtures/cards/` rather than against the real pool. E4 also unblocks E20.4 and E22.11.
-- **E13.2–E13.12 — the rest of the migrations,** in the Part IV order. `profiles` and the content
-  tables are in; everything in E14–E21 waits on the ones that are not.
-- **E13.15 — `repos/format`.** The last two info-page components, `<LegalSets />` (E17.2) and
-  `<Banlist />` (E17.3), are waiting on it, and the rules page is carrying prose in their place.
+- **E13.7–E13.12 — the rest of the migrations,** in the Part IV order. `profiles`, content, format,
+  archetypes, seasons, tournaments and the identity pair are in; everything in E14–E21 waits on the
+  ones that are not. E13.7 (`decks`) and E13.8 (the results ledger) unblock the most.
+- **E13.15 — `repos/format`.** Unblocked now that E13.2 has landed with a seeded pool. The last two
+  info-page components, `<LegalSets />` (E17.2) and `<Banlist />` (E17.3), are waiting on it, and the
+  rules page is carrying prose in their place.
+- **E13.23 — `repos/archetypes`,** and **E13.17 — `repos/tournaments`** once E13.9 lands.
 
 **Needs nothing but a sitting**
 
@@ -672,7 +677,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | Epic | Stories | Done | Epic | Stories | Done |
 |---|---|---|---|---|---|
 | E1 | 9 | 9 | E12 | 9 | 6 |
-| E2 | 9 | 9 | E13 | 23 | 3 |
+| E2 | 9 | 9 | E13 | 23 | 8 |
 | E3 | 7 | 7 | E14 | 5 | 0 |
 | E4 | 7 | 0 | E15 | 5 | 0 |
 | E5 | 6 | 6 | E16 | 8 | 2 |
@@ -684,4 +689,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E11 | 6 | 6 | E22 | 12 | 2 |
 |  |  |  | E23 | 11 | 11 |
 
-**102 of 219 stories done across 23 epics.**
+**107 of 219 stories done across 23 epics.**

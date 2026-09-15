@@ -1,34 +1,22 @@
+import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 
 import { normalizeHandle } from "./index";
 
 /**
- * Each row is what Postgres produces for
- * `lower(regexp_replace(handle,'[^a-zA-Z0-9]','','g'))` — the generated column
- * on player_identities. Parity with that expression is the acceptance criterion.
+ * The shared parity table. `packages/db/generated-columns.test.ts` reads the same
+ * file and asserts the generated column on `player_identities` against it, which
+ * is how the acceptance criterion is met without either package importing the
+ * other: parity is checked against Postgres itself, not against a list somebody
+ * typed out twice.
  */
-const POSTGRES_PARITY: ReadonlyArray<readonly [handle: string, normalized: string]> = [
-  ["serlupidus", "serlupidus"],
-  ["Sunsett", "sunsett"],
-  ["c0d33", "c0d33"],
-  ["Moss Knight", "mossknight"],
-  ["Flod_Lawjick", "flodlawjick"],
-  ["Solarian_13", "solarian13"],
-  ["Oseoros(Rus)", "oseorosrus"],
-  ["100beep", "100beep"],
-  ["TheOneWhoIsRed", "theonewhoisred"],
-  ["Rasone77", "rasone77"],
-  // Everything outside [a-zA-Z0-9] goes, accents and emoji included.
-  ["Márton", "mrton"],
-  ["player✨", "player"],
-  ["  spaced  out  ", "spacedout"],
-  ["---", ""],
-  ["", ""],
-];
+const POSTGRES_PARITY: ReadonlyArray<{ handle: string; normalized: string }> = JSON.parse(
+  readFileSync(new URL("../../../../fixtures/identity/normalized-handles.json", import.meta.url), "utf8"),
+);
 
 describe("core/identity/normalize-handle", () => {
-  it.each(POSTGRES_PARITY)("normalizes %o the way Postgres does", (handle, expected) => {
-    expect(normalizeHandle(handle)).toBe(expected);
+  it.each(POSTGRES_PARITY)("normalizes $handle the way Postgres does", ({ handle, normalized }) => {
+    expect(normalizeHandle(handle)).toBe(normalized);
   });
 
   it("folds the two real spellings of one handle together", () => {
@@ -43,7 +31,7 @@ describe("core/identity/normalize-handle", () => {
   });
 
   it("is idempotent", () => {
-    for (const [handle] of POSTGRES_PARITY) {
+    for (const { handle } of POSTGRES_PARITY) {
       const once = normalizeHandle(handle);
       expect(normalizeHandle(once)).toBe(once);
     }
