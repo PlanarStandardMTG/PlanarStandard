@@ -1,0 +1,8 @@
+{
+  "//": "Read only by .dependency-cruiser.cjs. Identical to tsconfig.base.json, plus the `@/*` alias that apps/web declares in its own tsconfig — the cruise reads one config for the whole repo, and without the mapping every aliased import in apps/web reports as unresolvable.",
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": { "@/*": ["apps/web/*"] }
+  }
+}

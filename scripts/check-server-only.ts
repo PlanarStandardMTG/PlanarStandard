@@ -55,9 +55,41 @@ function listSourceFiles(root: string): string[] {
   return found;
 }
 
+/**
+ * The nearest ancestor holding a `tsconfig.json` — the root a `@/` alias is
+ * relative to. Found by walking up rather than hard-coded, so a second app needs
+ * no change here.
+ */
+function aliasRoot(fromFile: string): string | null {
+  let dir = dirname(fromFile);
+  while (dir.startsWith(REPO_ROOT)) {
+    try {
+      if (statSync(join(dir, "tsconfig.json")).isFile()) return dir;
+    } catch {
+      // keep walking
+    }
+    const parent = dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return null;
+}
+
 function resolveImport(fromFile: string, specifier: string): string | null {
-  if (!specifier.startsWith(".")) return null; // workspace and npm deps are depcruise's job
-  const base = resolve(dirname(fromFile), specifier);
+  let base: string;
+  if (specifier.startsWith(".")) {
+    base = resolve(dirname(fromFile), specifier);
+  } else if (specifier.startsWith("@/")) {
+    // Next's own convention, and what every import in `apps/web` uses. Missed
+    // here, the guard would pass a client component that imports the key
+    // directly — which is the whole thing it exists to prevent.
+    const root = aliasRoot(fromFile);
+    if (root === null) return null;
+    base = resolve(root, specifier.slice(2));
+  } else {
+    return null; // workspace and npm deps are depcruise's job
+  }
+
   const candidates = [
     base,
     ...SOURCE_EXTENSIONS.map((ext) => base + ext),
@@ -141,18 +173,21 @@ function report(violations: readonly Violation[]): void {
 function selfTest(): number {
   const clean = checkServerOnly(["fixtures/server-only-guard/clean"]);
   const violating = checkServerOnly(["fixtures/server-only-guard/violating"]);
+  const aliased = checkServerOnly(["fixtures/server-only-guard/aliased"]);
   const failures: string[] = [];
   if (clean.length > 0) failures.push(`the clean fixture tripped the guard: ${JSON.stringify(clean)}`);
   if (!violating.some((v) => v.rule === "key-outside-server-only"))
     failures.push("the violating fixture did not trip rule key-outside-server-only");
   if (!violating.some((v) => v.rule === "client-reaches-server-only"))
     failures.push("the violating fixture did not trip rule client-reaches-server-only");
+  if (!aliased.some((v) => v.rule === "client-reaches-server-only"))
+    failures.push("the aliased fixture did not trip rule client-reaches-server-only via a `@/` import");
   if (failures.length > 0) {
     console.error("server-only guard self-test FAILED:");
     for (const failure of failures) console.error(`  ${failure}`);
     return 1;
   }
-  console.log("server-only guard self-test passed (clean fixture clean, violating fixture caught).");
+  console.log("server-only guard self-test passed (clean fixture clean; relative and `@/` violations both caught).");
   return 0;
 }
 

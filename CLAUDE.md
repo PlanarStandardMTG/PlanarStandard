@@ -58,8 +58,15 @@ Full stack (needs Docker):
 ```bash
 pnpm db:start / pnpm db:stop      # supabase start/stop (local)
 pnpm db:reset                     # migrations + seed
-pnpm dev                          # --filter web dev — a placeholder echo until E16.1
+pnpm dev                          # --filter web dev — http://localhost:3000
 ```
+
+`supabase/` is gitignored, so `pnpm db:setup` (run automatically by `db:start` and `db:reset`)
+materialises `config.toml` and a `migrations/` symlink from `packages/db`, which stays the single
+source of truth. Seeds are read in place from `packages/db/seed/*.sql`.
+
+`apps/web` needs `.env.local`; copy `apps/web/.env.example`, which holds the Supabase CLI's published
+local demo keys.
 
 CI (`.github/workflows/ci.yml`) runs `lint`, `depcruise`, `guard:server-only`, `test`, `build` in that
 order. Match it locally before pushing.
@@ -96,10 +103,12 @@ wrong, the design is wrong — don't work around it.
   `repos/<aggregate>` per table group. Depends on contracts only. Repositories expose **narrow,
   intention-revealing functions** (`listRatedTournamentsBySeason`, not `query`); no SQL string escapes
   the module.
-- **`apps/web`** — Next.js. Feature slices own their routes, components, and hooks and **never import
-  from each other**; shared UI goes to `components/ui`. Services are thin coordinators: load via repos,
-  call pure core functions, write via repos. **Business logic in a service is in the wrong place** — it
-  belongs in `core`.
+- **`apps/web`** — Next.js (App Router, Tailwind v4, React 19). Feature slices own their routes,
+  components, and hooks and **never import from each other**; shared UI goes to `components/ui`.
+  Services are thin coordinators: load via repos, call pure core functions, write via repos.
+  **Business logic in a service is in the wrong place** — it belongs in `core`. See
+  `apps/web/README.md` for the two layout rules that are easy to get wrong (`force-dynamic` on
+  content pages, and why feed indexes live in an `(index)` route group).
 - **`apps/jobs`** — scheduled scripts run by GitHub Actions. Never imported by `apps/web`.
 
 ### What a module is (§6)
@@ -136,6 +145,12 @@ split it. Every module ships `index.ts` (usually under 60 lines), `index.test.ts
   permanently and `raw jsonb` is retained per staged row so parser fixes re-run without the original file.
 - **Any user-visible rate or percentage goes through `suppress-small-n` and shows `n`.** This is a
   merge-blocking checklist item, not a style preference.
+- **A post's `kind` is who is speaking, not how far through review it is.** `official` is the format —
+  B&R notices, season openings, event recaps, at `/news`; `community` is a member under their own
+  byline, at `/articles`. That is a different axis from `status` (draft → review → published →
+  archived) and from the §25 split rule, which decides repo-MDX versus database-post in the first
+  place. A slug is unique across both kinds, so each post has exactly one canonical URL and the other
+  kind's prefix 404s.
 - **Seeded RNG in `force-layout`** — the archetype map must be reproducible run to run.
 - **Only `mana-font` and `keyrune`** from the MTG npm ecosystem (ADR 014).
 

@@ -2,14 +2,17 @@
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
     "rootDir": ".",
-    "outDir": "dist"
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "jsx": "preserve",
+    "noEmit": true,
+    "composite": false,
+    "declaration": false,
+    "incremental": true,
+    "allowJs": true,
+    "moduleResolution": "Bundler",
+    "plugins": [{ "name": "next" }],
+    "paths": { "@/*": ["./*"] }
   },
-  "references": [
-    { "path": "../../packages/contracts" },
-    { "path": "../../packages/core" },
-    { "path": "../../packages/adapters" },
-    { "path": "../../packages/db" }
-  ],
-  "include": ["**/*.ts", "**/*.tsx"],
-  "exclude": ["dist", "node_modules", ".next"]
+  "include": ["**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "next-env.d.ts"],
+  "exclude": ["node_modules", ".next", "dist"]
 }

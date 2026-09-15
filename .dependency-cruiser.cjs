@@ -16,8 +16,8 @@ module.exports = {
       comment: "Dependencies point left only. No cycles.",
       // Our own code only: a dependency's internal cycles are not our rule to
       // enforce and not our bug to fix.
-      from: { pathNot: "^node_modules" },
-      to: { circular: true, pathNot: "^node_modules" },
+      from: { pathNot: "(^|/)node_modules/" },
+      to: { circular: true, pathNot: "(^|/)node_modules/" },
     },
     {
       name: "contracts-is-a-leaf",
@@ -34,7 +34,10 @@ module.exports = {
         "packages/core must never import from db, next, react, or @supabase/*. If a function needs data, it takes it as an argument.",
       from: { path: "^packages/core" },
       to: {
-        path: "^packages/(adapters|db)|^apps|^node_modules/(next|react|react-dom|@supabase)",
+        // Matched on the LAST node_modules segment: pnpm resolves `react` to
+        // node_modules/.pnpm/react@19.3.0/node_modules/react/index.js, which an
+        // anchored ^node_modules/react never matches.
+        path: "^packages/(adapters|db)|^apps|(^|/)node_modules/(next|react|react-dom|@supabase)(/|$)",
       },
     },
     {
@@ -59,10 +62,24 @@ module.exports = {
       from: { path: "^packages/db" },
       to: { path: "^packages/(core|adapters)|^apps" },
     },
+    {
+      name: "no-unresolvable",
+      severity: "error",
+      comment:
+        "An import that does not resolve. pnpm only exposes a package's declared dependencies, so this is what a boundary violation usually looks like first: `core` importing `@ps/db` cannot resolve, because `core` does not depend on it. Without this rule the cruise reports no violations and the breakage surfaces later, as a type error.",
+      from: {},
+      to: { couldNotResolve: true },
+    },
   ],
   options: {
     tsPreCompilationDeps: true,
-    tsConfig: { fileName: "tsconfig.base.json" },
+    tsConfig: { fileName: "tsconfig.depcruise.json" },
     enhancedResolveOptions: { exportsFields: ["exports"], conditionNames: ["import", "require", "node", "default"] },
+    // Resolve dependencies so the rules above can see *that* a package is
+    // imported, but stop at the boundary rather than walking its internals.
+    // Without this, cruising `apps/web` means cruising all of Next and React and
+    // running the heap out.
+    doNotFollow: { path: "node_modules" },
+    exclude: { path: "(^|/)(dist|\\.next)/" },
   },
 };

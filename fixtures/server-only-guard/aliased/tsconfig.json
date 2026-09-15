@@ -1,0 +1,1 @@
+{ "//": "Present so the guard can find this fixture's alias root; never compiled.", "compilerOptions": { "paths": { "@/*": ["./*"] } } }

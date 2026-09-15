@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+/*
+ * One palette, defined once. Season names in this format lean on eclipse
+ * imagery, so: ink, parchment, and a single violet accent for anything the
+ * format itself is saying.
+ */
+@theme {
+  --color-ink-50: #f6f6f8;
+  --color-ink-100: #eceded;
+  --color-ink-200: #d5d7db;
+  --color-ink-300: #b0b4bb;
+  --color-ink-400: #848b95;
+  --color-ink-500: #666d79;
+  --color-ink-600: #515762;
+  --color-ink-700: #434751;
+  --color-ink-800: #393c44;
+  --color-ink-900: #24262c;
+  --color-ink-950: #16171b;
+
+  --color-eclipse-400: #a78bfa;
+  --color-eclipse-500: #8b5cf6;
+  --color-eclipse-600: #7c3aed;
+  --color-eclipse-700: #6d28d9;
+
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+body {
+  @apply bg-ink-50 text-ink-900 antialiased;
+}
+
+@media (prefers-color-scheme: dark) {
+  body {
+    @apply bg-ink-950 text-ink-100;
+  }
+}
