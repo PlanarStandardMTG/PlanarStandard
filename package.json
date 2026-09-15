@@ -14,10 +14,11 @@
     "depcruise": "depcruise --config .dependency-cruiser.cjs packages apps",
     "guard:server-only": "tsx scripts/check-server-only.ts",
     "new:module": "tsx scripts/new-module.ts",
-    "db:start": "supabase start",
+    "db:start": "pnpm db:setup && supabase start",
     "db:stop": "supabase stop",
-    "db:reset": "supabase db reset",
-    "dev": "pnpm --filter web dev"
+    "db:reset": "pnpm db:setup && supabase db reset",
+    "dev": "pnpm --filter web dev",
+    "db:setup": "tsx scripts/db-setup.ts"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^8.0.0",

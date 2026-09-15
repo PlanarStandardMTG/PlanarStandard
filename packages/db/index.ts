@@ -1,5 +1,7 @@
 // packages/db — schema, migrations, repositories.
-// migrations/ (numbered, forward-only) and seed/ land here per §10 and §17.
-// Repositories expose narrow, intention-revealing functions — never a
-// generic query builder.
-export {};
+//
+// `migrations/` is numbered and forward-only; `seed/` is loaded by
+// `pnpm db:reset`. Repositories expose narrow, intention-revealing functions —
+// never a generic query builder (§10).
+
+export * from "./repos/content/index";

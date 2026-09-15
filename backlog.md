@@ -32,7 +32,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E10 | Stats primitives | 8 | E2 | ✅ 3/3 |
 | E11 | Reddit transforms | 9 | — | ✅ 6/6 |
 | E12 | Source adapters | 5 | E2 | ⬜ 0/9 |
-| E13 | Schema, migrations, repositories | 3–5 | E2 | ⬜ 0/23 |
+| E13 | Schema, migrations, repositories | 3–5 | E2 | 🚧 3/23 |
 | E14 | RLS and access control | 1 | E13 | ⬜ 0/5 |
 | E15 | Seed data and local dev | 0 | E13 | ⬜ 0/5 |
 | E16 | Web foundation, auth, dashboard shell | 1 | E13 | ⬜ 0/8 |
@@ -322,7 +322,7 @@ Stream G. Migrations are numbered and forward-only, created in the order given i
 
 ### Migrations
 
-⬜ **E13.1 — `profiles` and role enum** · S · Deps: E1.1
+✅ **E13.1 — `profiles` and role enum** · S · Deps: E1.1
 ⬜ **E13.2 — `format_versions`, `format_legal_sets`, `format_card_rules`, `format_constraints`** · M · Deps: E13.1 — *AC:* includes the no-card-tables note from §14.1 as a SQL comment; `oracle_id` columns carry no FK.
 ⬜ **E13.3 — `archetypes`, `archetype_aliases`** · S
 ⬜ **E13.4 — `seasons`** · S · Deps: E13.2 — *AC:* single-current partial unique index.
@@ -334,7 +334,7 @@ Stream G. Migrations are numbered and forward-only, created in the order given i
 ⬜ **E13.10 — `identity_exclusions`, `merge_suggestions`, `player_merges`** · M · Deps: E13.8
 ⬜ **E13.11 — Ratings tables and `leaderboard` view** · M · Deps: E13.10 — `rating_config`, `rating_events`, `player_ratings`, `rating_runs`.
 ⬜ **E13.12 — Derived stats tables** · L · Deps: E13.9 — `deck_metrics`, `card_stats`, `archetype_stats`, `deck_similarity`, `deck_map_layout`, `matchup_stats`. *Split per table if the review gets long.*
-⬜ **E13.13 — `posts`, `post_revisions`** · S · Deps: E13.1
+✅ **E13.13 — `posts`, `post_revisions`** · S · Deps: E13.1
 ⬜ **E13.14 — Index review pass** · S · Deps: E13.12 — every index in Part IV present; `explain` on the leaderboard and card-stats queries recorded in the PR.
 
 ### Repositories
@@ -348,7 +348,7 @@ One module per aggregate, narrow intention-revealing functions, never a generic 
 ⬜ **E13.19 — `repos/identity`** · L · Deps: E13.10
 ⬜ **E13.20 — `repos/ratings`** · M · Deps: E13.11
 ⬜ **E13.21 — `repos/stats`** · L · Deps: E13.12
-⬜ **E13.22 — `repos/content`** · M · Deps: E13.13
+✅ **E13.22 — `repos/content`** · M · Deps: E13.13
 ⬜ **E13.23 — `repos/archetypes`** · S · Deps: E13.3
 
 *AC for each repo story:* exported functions are named for intent (`listRatedTournamentsBySeason`, not `query`); no SQL string escapes the module; a test hits a local Supabase instance.
@@ -581,7 +581,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | Epic | Stories | Done | Epic | Stories | Done |
 |---|---|---|---|---|---|
 | E1 | 9 | 9 | E12 | 9 | 0 |
-| E2 | 9 | 9 | E13 | 23 | 0 |
+| E2 | 9 | 9 | E13 | 23 | 3 |
 | E3 | 7 | 7 | E14 | 5 | 0 |
 | E4 | 7 | 0 | E15 | 5 | 0 |
 | E5 | 6 | 6 | E16 | 8 | 0 |
@@ -592,4 +592,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E10 | 3 | 3 | E21 | 6 | 0 |
 | E11 | 6 | 6 | E22 | 12 | 2 |
 
-**70 of 208 stories done across 22 epics.**
+**73 of 208 stories done across 22 epics.**

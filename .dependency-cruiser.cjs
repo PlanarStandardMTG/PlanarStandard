@@ -14,8 +14,10 @@ module.exports = {
       name: "no-cycles",
       severity: "error",
       comment: "Dependencies point left only. No cycles.",
-      from: {},
-      to: { circular: true },
+      // Our own code only: a dependency's internal cycles are not our rule to
+      // enforce and not our bug to fix.
+      from: { pathNot: "^node_modules" },
+      to: { circular: true, pathNot: "^node_modules" },
     },
     {
       name: "contracts-is-a-leaf",

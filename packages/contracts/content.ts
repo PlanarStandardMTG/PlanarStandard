@@ -21,6 +21,19 @@ export interface Profile {
 
 export type PostStatus = "draft" | "review" | "published" | "archived";
 
+/**
+ * Who a post speaks for.
+ *
+ * `official` is the format speaking — B&R announcements, season openings, event
+ * results. `community` is a member writing under their own name. The line is
+ * editorial, not technical: it decides which feed a post lands in and whether it
+ * carries a byline or the format's name.
+ *
+ * Distinct from the §25 split rule, which is about *where a document lives* —
+ * repo MDX versus database post. Both kinds here are database posts.
+ */
+export type PostKind = "official" | "community";
+
 /** An article written in the site's editor. The body is Markdown (ADR 001). */
 export interface Post {
   readonly id: PostId;
@@ -32,12 +45,31 @@ export interface Post {
   readonly heroImageUrl: string | null;
   readonly tags: readonly string[];
   readonly status: PostStatus;
+  readonly kind: PostKind;
   readonly authorId: ProfileId;
   readonly publishedAt: IsoDateTime | null;
   readonly redditUrl: string | null;
   readonly redditPostedAt: IsoDateTime | null;
   readonly createdAt: IsoDateTime;
   readonly updatedAt: IsoDateTime;
+}
+
+/** Just enough of a `Profile` to render a byline. Feeds do not need the rest. */
+export interface PostAuthor {
+  readonly id: ProfileId;
+  readonly displayName: string;
+  readonly handle: string | null;
+  readonly avatarUrl: string | null;
+}
+
+/**
+ * A post with its author resolved — what every feed and article page renders.
+ *
+ * An `official` post's author is the format's own profile, so a byline needs no
+ * special case for it.
+ */
+export interface PostWithAuthor extends Post {
+  readonly author: PostAuthor;
 }
 
 /** One saved state of a post's title and body. Editors append; nothing edits a revision. */
