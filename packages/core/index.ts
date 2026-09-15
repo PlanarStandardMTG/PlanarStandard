@@ -67,3 +67,24 @@ export {
 export type { DeckEntry, GraphOptions } from "./similarity/build-similarity-graph/index";
 export { forceLayout } from "./similarity/force-layout/index";
 export type { LayoutNode, LayoutOptions } from "./similarity/force-layout/index";
+
+// identity — handles to suggested merges (§8.6)
+export { normalizeHandle } from "./identity/normalize-handle/index";
+export type { HandleObservation, SignalContext, SignalScorer } from "./identity/signals/types";
+export { parenthetical } from "./identity/signals/parenthetical/index";
+export { deckFingerprint } from "./identity/signals/deck-fingerprint/index";
+export { trigram, trigramSimilarity } from "./identity/signals/trigram/index";
+export { containment } from "./identity/signals/containment/index";
+export { temporal } from "./identity/signals/temporal/index";
+export {
+  coAppearanceExclusions,
+  exclusionIndex,
+  exclusionKey,
+} from "./identity/co-appearance-exclusions/index";
+export type { EventRoster } from "./identity/co-appearance-exclusions/index";
+export {
+  DEFAULT_MIN_CONFIDENCE,
+  SIGNALS,
+  scoreCandidates,
+} from "./identity/score-candidates/index";
+export type { Candidate, ScoreOptions } from "./identity/score-candidates/index";
