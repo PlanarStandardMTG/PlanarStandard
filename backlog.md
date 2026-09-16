@@ -32,7 +32,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
 | E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
-| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 19/23 |
+| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 20/23 |
 | E14  | RLS and access control                | 1     | E13          | ⬜ 0/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 2/8   |
@@ -490,7 +490,19 @@ public client is a bug that looks like an event with no rows. Asserted.
 _Note:_ both identity embeds carry an explicit FK hint. `matches` has two foreign keys into
 `player_identities` and PostgREST will not guess between them.
 ⬜ **E13.19 — `repos/identity`** · L · Deps: E13.10
-⬜ **E13.20 — `repos/ratings`** · M · Deps: E13.11
+✅ **E13.20 — `repos/ratings`** · M · Deps: E13.11 — `getRatingConfig`, `getLeaderboard`,
+`getPlayerRating`, `listRatingHistory`, `replaceRatings`, `recordRatingRun`, `listRatingRuns`.
+_Note:_ there is **one** write, and that is the design. `replaceRatings` takes a whole replay and
+replaces everything; no function here moves one player's rating, because ADR 004 says full recompute
+and an API offering both would make the leaderboard depend on call order.
+_Note:_ `getLeaderboard` reads the **view**, not `player_ratings`. Who qualifies is answered in one
+place, and a caller filtering the table by hand is a second answer that eventually disagrees.
+_Note:_ every `numeric` goes through `Number`. PostgREST returns them as JSON numbers until a value
+is wide enough to need a string, and a rating arriving as `"1712.5"` sorts as text and renders as
+text without ever throwing.
+_Note:_ this suite and `repos/results` both write matches, and test files run in parallel while
+`replaceTournamentMatches` clears a whole tournament by design — so they claim different seeded
+events. Sharing one is a foreign-key violation in whichever suite loses the race.
 ⬜ **E13.21 — `repos/stats`** · L · Deps: E13.12
 ✅ **E13.22 — `repos/content`** · M · Deps: E13.13
 ✅ **E13.23 — `repos/archetypes`** · S · Deps: E13.3 — `listArchetypes`, `getArchetype`,
@@ -869,9 +881,12 @@ can start today, in rough order of how much it unblocks.
   written it down.
 - **Every table in Part IV now exists.** E13.1–E13.13 are merged, so nothing in E14–E21 is waiting on
   schema any more. What is left in E13 is three repositories and the index review.
-- **E13.19 — `repos/identity`**, **E13.20 — `repos/ratings`**, **E13.21 — `repos/stats`.** E13.19 is
-  what E18.3 needs to auto-create an identity on a miss; E13.20 is what `core/elo/replay` writes
-  through and `/leaderboard` reads; E13.21 is what every E19 chart reads.
+- **E13.19 — `repos/identity`** and **E13.21 — `repos/stats`,** the last two repositories. E13.19 is
+  what E18.3 needs to auto-create an identity on a miss; E13.21 is what every E19 chart reads. After
+  those, E13 is down to the index review (E13.14).
+- **E18.12 — `recompute-ratings`,** now fully supplied: `listLedgerMatchesBySeason` reads the
+  matches, `core/elo/replay` rates them, `replaceRatings` stores the result and `recordRatingRun`
+  logs it. The service is the four calls in order.
 - **E14.1 and E14.2 — the policy passes,** now that there is a full set of tables to write them
   against. Every migration so far has carried its own read policy and said why in a comment; E14's
   job is to make that a matrix rather than a collection of individual judgements, and E14.5 is the
@@ -933,7 +948,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
 | E1   | 9       | 9    | E12  | 10      | 6    |
-| E2   | 9       | 9    | E13  | 23      | 19   |
+| E2   | 9       | 9    | E13  | 23      | 20   |
 | E3   | 7       | 7    | E14  | 5       | 0    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
 | E5   | 6       | 6    | E16  | 8       | 2    |
@@ -946,4 +961,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 11   |
 |      |         |      | E24  | 7       | 4    |
 
-**128 of 228 stories done across 24 epics.**
+**129 of 228 stories done across 24 epics.**

@@ -1,6 +1,13 @@
 // Ratings are derived from the ledger, so the ledger owns the ids and the result
 // vocabulary; `core/elo` only adds the numbers.
-import type { IsoDate, MatchId, PlayerId, TournamentId } from "./primitives";
+import type {
+  IsoDate,
+  IsoDateTime,
+  MatchId,
+  PlayerId,
+  RatingRunId,
+  TournamentId,
+} from "./primitives";
 import type { MatchResult } from "./results";
 
 /**
@@ -148,3 +155,46 @@ export interface ReplayResult {
    * counted. Feeds `rating_runs.match_count` (E18.12). */
   readonly matchesApplied: number;
 }
+
+/**
+ * One row of the `leaderboard` view.
+ *
+ * The view is the only place the question "who appears on the leaderboard" is
+ * answered — public, unmerged, past provisional, and over the configured match
+ * threshold. A caller reading `player_ratings` directly and filtering by hand is
+ * a second answer to that question, and the two will disagree eventually.
+ */
+export interface LeaderboardRow {
+  readonly id: PlayerId;
+  readonly slug: string;
+  readonly displayName: string;
+  readonly rating: number;
+  readonly peakRating: number;
+  readonly matchesPlayed: number;
+  readonly wins: number;
+  readonly losses: number;
+  readonly draws: number;
+  readonly tournamentsPlayed: number;
+  readonly lastPlayed: IsoDate | null;
+  readonly isActive: boolean;
+}
+
+/**
+ * One `rating_runs` row — the log that answers "why did the leaderboard change".
+ *
+ * `anomalies` is what replay found and did not throw over (E8.5): a recompute
+ * that stopped on the first bad row would leave the site with no ratings at all
+ * rather than with ratings and a list of things to look at.
+ */
+export interface RatingRun {
+  readonly id: RatingRunId;
+  readonly trigger: string;
+  readonly matchCount: number | null;
+  readonly playerCount: number | null;
+  readonly durationMs: number | null;
+  readonly anomalies: readonly RatingAnomaly[];
+  readonly createdAt: IsoDateTime;
+}
+
+/** What a recompute records about itself. Postgres assigns the id and the timestamp. */
+export type NewRatingRun = Omit<RatingRun, "id" | "createdAt">;

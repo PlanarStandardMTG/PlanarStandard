@@ -129,7 +129,11 @@ describe.skipIf(!reachable)("repos/results", () => {
   afterEach(async () => {
     // Matches before identities: the ledger has no cascade from
     // `player_identities`, which is correct — history is not deletable by accident.
-    await service.from("matches").delete().in("tournament_id", [weekly40, showcase]);
+    //
+    // By the imports that created them, not by tournament. Test files run in
+    // parallel and `repos/ratings` writes matches too; clearing a whole
+    // tournament takes another suite's rows with it.
+    if (imports.length > 0) await service.from("matches").delete().in("source_import_id", imports);
     if (imports.length > 0) await service.from("result_imports").delete().in("id", imports);
     if (players.length > 0) await service.from("players").delete().in("id", players);
     imports.length = 0;

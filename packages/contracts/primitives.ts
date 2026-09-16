@@ -49,3 +49,4 @@ export type MatchId = string;
 export type ResultImportId = string;
 export type StagedMatchId = string;
 export type MatchCorrectionId = string;
+export type RatingRunId = string;
