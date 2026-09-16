@@ -2,6 +2,8 @@ import { createServerClient } from "@supabase/ssr";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { cookies } from "next/headers";
 
+import { AUTH_COOKIE_OPTIONS } from "@/lib/auth/cookie-options";
+
 /**
  * The signed-in visitor's client (E16.2).
  *
@@ -25,11 +27,14 @@ export async function createSessionClient(): Promise<SupabaseClient> {
   const store = await cookies();
 
   return createServerClient(url, anonKey, {
+    cookieOptions: AUTH_COOKIE_OPTIONS,
     cookies: {
       getAll: () => store.getAll(),
       setAll: (written) => {
         try {
-          for (const { name, value, options } of written) store.set(name, value, options);
+          for (const { name, value, options } of written) {
+            store.set(name, value, { ...options, ...AUTH_COOKIE_OPTIONS });
+          }
         } catch {
           // A Server Component cannot set cookies — only a route handler, a
           // server action, or middleware can. All three of those paths do set

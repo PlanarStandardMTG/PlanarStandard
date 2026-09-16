@@ -115,6 +115,60 @@ Failures travel as **codes**, not sentences: `?error=invalid-credentials`, never
 link can only ever produce one of our sentences rather than arbitrary text on our
 page over our name.
 
+## What we hold, and who can see it
+
+**We do not store passwords.** A password is read from the form, handed to
+Supabase, and dropped — it is never written to a table of ours, never logged, and
+never leaves the request. Supabase stores a bcrypt hash in
+`auth.users.encrypted_password`, in the `auth` schema, which is **not** one of
+the schemas PostgREST exposes (`public` and `graphql_public` are). There is no
+API path to it.
+
+Anyone can sign up without ever choosing a password at all — the emailed link
+makes an account and confirms the address in one step. That is the shortest path
+onto the site and the one with the least to lose.
+
+| Data                        | Where                | Who can read it            |
+| --------------------------- | -------------------- | -------------------------- |
+| Email address               | `auth.users`         | the person, and service-role |
+| Password hash               | `auth.users`         | nobody through the API     |
+| Provider id, avatar URL     | `auth.users` metadata | copied to `profiles` on first login |
+| Display name, handle, bio   | `profiles`           | **everyone** — these are bylines |
+| Role                        | `profiles`           | everyone; who the organizers are is not a secret |
+| IP address, sign-in events  | `auth.audit_log_entries` | service-role only      |
+
+`profiles` is deliberately public-read and deliberately holds **no email**. The
+split is the whole design: the row that gets attributed to a post carries only
+what a byline needs, and the address stays in the schema nothing can reach.
+
+### The session cookie
+
+`HttpOnly`, `SameSite=lax`, and `Secure` outside development —
+`lib/auth/cookie-options.ts`, applied by both writers. `@supabase/ssr` leaves the
+cookie readable by JavaScript by default, because its *browser* client reads the
+session out of `document.cookie`. We have no browser client, so that access buys
+nothing and costs the difference between an XSS bug and a stolen session. Adding
+a browser client later means giving `httpOnly` up, which is why it is one word in
+one file rather than a default nobody chose.
+
+### What is not done yet
+
+Worth knowing before this handles anyone's data but your own:
+
+- **The RLS matrix is E14 and none of it is merged.** Every migration carries its
+  own policies and says why in a comment, and `repos/profiles` asserts the three
+  that shipped code depends on — but there is no systematic allow-deny test
+  across every table and every role yet. E14.5 is marked a release blocker for
+  exactly this reason.
+- **There is no account deletion, and no export.** `on delete cascade` from
+  `auth.users` means deleting an account does remove the profile, but nothing in
+  the site asks for it and nobody has decided what should happen to a deleted
+  person's posts and results. A ledger that records handles rather than people
+  (ADR 003) makes that easier than it would otherwise be, and it is still a
+  decision nobody has made.
+- **There is no privacy policy**, and one is a writing task, not a coding one.
+- **Email deliverability is unproven in production.** See above.
+
 ## Where the session is kept alive
 
 `apps/web/proxy.ts` — `proxy.ts` and not `middleware.ts`, which Next 16

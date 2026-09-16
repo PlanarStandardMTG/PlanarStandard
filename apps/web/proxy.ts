@@ -1,6 +1,7 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { AUTH_COOKIE_OPTIONS } from "@/lib/auth/cookie-options";
 import { CURRENT_PATH_HEADER } from "@/lib/auth/path-header";
 
 /**
@@ -45,6 +46,7 @@ export async function proxy(request: NextRequest) {
   let response = build();
 
   const supabase = createServerClient(url, anonKey, {
+    cookieOptions: AUTH_COOKIE_OPTIONS,
     cookies: {
       getAll: () => request.cookies.getAll(),
       setAll: (written) => {
@@ -52,7 +54,9 @@ export async function proxy(request: NextRequest) {
         // Rebuilt from the mutated request, so the refreshed cookies reach both
         // this render and the browser.
         response = build();
-        for (const { name, value, options } of written) response.cookies.set(name, value, options);
+        for (const { name, value, options } of written) {
+          response.cookies.set(name, value, { ...options, ...AUTH_COOKIE_OPTIONS });
+        }
       },
     },
   });

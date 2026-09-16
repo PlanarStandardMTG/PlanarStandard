@@ -606,6 +606,10 @@ _Outstanding:_ Discord identity pairing is designed, not built — no story owns
 needs it. Google and Discord are verified against the settings endpoint and the local config, but
 neither has been run against a real provider application; the email flows have been run end to end.
 _Outstanding:_ E14.4 still owns role granting, so promotion is an `update` in the SQL editor.
+_Outstanding:_ no account deletion and no data export, and nobody has decided what should happen to a
+deleted person's posts and results. There is no privacy policy either. Neither blocks the auth work;
+both block handling anybody's data but our own. `docs/modules/auth.md` lists what is held and who can
+read it.
 ✅ **E16.8 — Error, empty, and loading states as shared components** · S · Deps: E16.1
 
 ---
