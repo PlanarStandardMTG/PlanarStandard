@@ -32,7 +32,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
 | E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
-| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 12/23 |
+| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 13/23 |
 | E14  | RLS and access control                | 1     | E13          | ⬜ 0/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 2/8   |
@@ -375,7 +375,20 @@ it in the meantime — private hidden from the anon client but present to servic
 by id, neither listed by a browse query.
 _Note:_ no seed rows, following E13.5. A deck needs a player and a tournament to mean anything, and
 inventing a second synthetic set here is exactly what E15.1 would then have to reconcile with.
-⬜ **E13.8 — `result_imports`, `staged_matches`, `matches`, `match_corrections`** · L · Deps: E13.6 — _AC:_ `unique (tournament_id, content_hash)`; ledger references `player_identities`, never `players`.
+✅ **E13.8 — `result_imports`, `staged_matches`, `matches`, `match_corrections`** · L · Deps: E13.6 — _AC:_ `unique (tournament_id, content_hash)`; ledger references `player_identities`, never `players`.
+_Note:_ two check constraints the §13 DDL does not list, because both are ways the ledger gets quietly
+corrupted rather than loudly broken. `matches_bye_has_no_opponent` — a bye recorded against an
+opponent means a parser invented a pairing (ADR 006). `matches_no_self_pairing` — both sides on one
+identity is a merge `co-appearance-exclusions` should have blocked (E9.7), and rating it hands
+somebody free points against themselves. Both verified rejecting at the database.
+_Note:_ `match_result` had never actually been created — §13 lists it beside `tournament_status`, and
+E13.6 created only the latter. It lands here, with the table that needs it.
+_Note:_ no policy at all on `result_imports` and `staged_matches`: they hold uploaded file paths, raw
+source rows and per-side resolution confidences, which is an operator's workspace rather than
+published record. `matches` and `match_corrections` are public, scoped to the tournament's own
+visibility — "computed from data you can read" is not true if the ledger cannot be read, and a
+correction log only admins can see leaves a moved rating unexplainable to the person it moved.
+Verified: a draft tournament's matches are invisible to anon and present to service-role.
 ⬜ **E13.9 — `tournament_entries`** · S · Deps: E13.7, E13.8
 ⬜ **E13.10 — `identity_exclusions`, `merge_suggestions`, `player_merges`** · M · Deps: E13.8
 ⬜ **E13.11 — Ratings tables and `leaderboard` view** · M · Deps: E13.10 — `rating_config`, `rating_events`, `player_ratings`, `rating_runs`.
@@ -774,11 +787,12 @@ can start today, in rough order of how much it unblocks.
   `set-attribution` and `rarity-counts` can now be proven against it rather than `fixtures/cards/`.
   **E4.7 (the loader) unblocks the most** — E19.13, E20.4 and E22.11 all wait on it. E4.5 moves the
   build to CI; E4.6 sets the size ceiling, for which 10 MB gives ~4x headroom over today's artifact.
-- **E13.8–E13.12 — the rest of the migrations,** in the Part IV order. `profiles`, content, format,
-  archetypes, seasons, tournaments, the identity pair and now `decks` are in; everything in E14–E21
-  waits on the ones that are not. **E13.8 (the results ledger) unblocks the most** — E13.9, E13.10,
-  E14.3 and E18.1–E18.6 all sit behind it, and with E13.9 the home page's podium stops being a
-  placeholder (E24.5).
+- **E13.9–E13.12 — the rest of the migrations,** in the Part IV order. Everything through the results
+  ledger is in; E14–E21 wait on what is not. **E13.9 (`tournament_entries`) is the next one and is
+  small** — it is the last schema between the home page's podium and real data (E24.5), and
+  `repos/tournaments` (E13.17) waits on it too.
+- **E13.18 — `repos/results`,** newly unblocked, and the read/write surface every E18 import story
+  sits on.
 - **E19.13 — `DeckVisualizer`,** now that `repos/decks` can hand it a deck. It takes shaped lines as
   props like every E19 component, so it needs no card data of its own — but see E19.1 first, which
   sets the fixture conventions the other thirteen components inherit.
@@ -833,7 +847,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
 | E1   | 9       | 9    | E12  | 10      | 6    |
-| E2   | 9       | 9    | E13  | 23      | 12   |
+| E2   | 9       | 9    | E13  | 23      | 13   |
 | E3   | 7       | 7    | E14  | 5       | 0    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
 | E5   | 6       | 6    | E16  | 8       | 2    |
@@ -846,4 +860,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 11   |
 |      |         |      | E24  | 7       | 4    |
 
-**121 of 228 stories done across 24 epics.**
+**122 of 228 stories done across 24 epics.**
