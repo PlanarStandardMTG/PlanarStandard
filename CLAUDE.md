@@ -40,7 +40,7 @@ restate progress here; this file goes stale, that one is maintained.
 ## Commands
 
 ```bash
-pnpm install                      # Node >= 20, pnpm 9
+pnpm install                      # Node >= 24, pnpm 9
 pnpm lint                         # eslint . --max-warnings 0 (one root config, no per-package drift)
 pnpm format                       # prettier --write .
 pnpm depcruise                    # dependency boundary enforcement — see below
