@@ -24,6 +24,10 @@ export type Color = "W" | "U" | "B" | "R" | "G";
 /**
  * Scryfall layouts for ordinary cards. Tokens, emblems, art series and the
  * Planechase/Vanguard layouts live in sets the fetch scope never includes.
+ *
+ * `reversible_card` is in scope but never emitted: those rows carry no top-level
+ * `oracle_id`, and every one of them is an alternate printing of a card the pool
+ * already reaches. The prune drops them and asserts that. See `build-card-data/prune`.
  */
 export type Layout =
   | "normal"
@@ -37,6 +41,8 @@ export type Layout =
   | "case"
   | "saga"
   | "adventure"
+  /** Secrets of Strixhaven's split-like layout: two faces, one image, a joined cost. */
+  | "prepare"
   | "mutate"
   | "prototype"
   | "battle"

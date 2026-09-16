@@ -18,3 +18,8 @@ apps/web/next-env.d.ts
 
 # graft's local graph cache — regenerable, not committed (run `graft build`).
 /graft/
+
+# Scryfall bulk downloads. The pruned artifact in data/cards/ is what we commit;
+# the source file is ~75MB gzipped and must never reach a commit.
+data/cards/*.jsonl
+data/cards/*.jsonl.gz

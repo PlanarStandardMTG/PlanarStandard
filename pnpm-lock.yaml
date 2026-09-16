@@ -44,6 +44,10 @@ importers:
       '@ps/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
+    devDependencies:
+      '@types/node':
+        specifier: ^26.5.1
+        version: 26.5.1
 
   apps/web:
     dependencies:

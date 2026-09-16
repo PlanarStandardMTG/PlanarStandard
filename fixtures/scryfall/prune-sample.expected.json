@@ -1,0 +1,283 @@
+{
+  "oracle": [
+    {
+      "oracleId": "1fc31651-70fe-4a58-9b7e-7359510bba51",
+      "name": "Riling Dawnbreaker // Signaling Roar",
+      "manaCost": "{4}{W} // {1}{W}",
+      "manaValue": 5,
+      "colorIdentity": ["W"],
+      "typeLine": "Creature — Dragon // Sorcery — Omen",
+      "oracleText": null,
+      "layout": "adventure",
+      "setCodes": ["tdm"],
+      "faces": [
+        {
+          "name": "Riling Dawnbreaker",
+          "manaCost": "{4}{W}",
+          "manaValue": null,
+          "typeLine": "Creature — Dragon",
+          "oracleText": "Flying, vigilance\nAt the beginning of combat on your turn, another target creature you control gets +1/+0 until end of turn."
+        },
+        {
+          "name": "Signaling Roar",
+          "manaCost": "{1}{W}",
+          "manaValue": null,
+          "typeLine": "Sorcery — Omen",
+          "oracleText": "Create a 2/2 white Soldier creature token. (Then shuffle this card into its owner's library.)"
+        }
+      ]
+    },
+    {
+      "oracleId": "5e316864-d55c-496f-8f46-773567896864",
+      "name": "Broken Wings",
+      "manaCost": "{2}{G}",
+      "manaValue": 3,
+      "colorIdentity": ["G"],
+      "typeLine": "Instant",
+      "oracleText": "Destroy target artifact, enchantment, or creature with flying.",
+      "layout": "normal",
+      "setCodes": ["dft", "fdn"]
+    },
+    {
+      "oracleId": "5f694917-f434-4459-bc86-caf9ac1c80e7",
+      "name": "Awaken the Honored Dead",
+      "manaCost": "{B}{G}{U}",
+      "manaValue": 3,
+      "colorIdentity": ["B", "G", "U"],
+      "typeLine": "Enchantment — Saga",
+      "oracleText": "(As this Saga enters and after your draw step, add a lore counter. Sacrifice after III.)\nI — Destroy target nonland permanent.\nII — Mill three cards.\nIII — You may discard a card. When you do, return target creature or land card from your graveyard to your hand.",
+      "layout": "saga",
+      "setCodes": ["tdm"]
+    },
+    {
+      "oracleId": "60fc89a1-cc6f-4a32-84c3-09abf7a4a1df",
+      "name": "Brigid, Clachan's Heart // Brigid, Doun's Mind",
+      "manaCost": null,
+      "manaValue": 3,
+      "colorIdentity": ["G", "W"],
+      "typeLine": "Legendary Creature — Kithkin Warrior // Legendary Creature — Kithkin Soldier",
+      "oracleText": null,
+      "layout": "transform",
+      "setCodes": ["ecl"],
+      "faces": [
+        {
+          "name": "Brigid, Clachan's Heart",
+          "manaCost": "{2}{W}",
+          "manaValue": null,
+          "typeLine": "Legendary Creature — Kithkin Warrior",
+          "oracleText": "Whenever this creature enters or transforms into Brigid, Clachan's Heart, create a 1/1 green and white Kithkin creature token.\nAt the beginning of your first main phase, you may pay {G}. If you do, transform Brigid."
+        },
+        {
+          "name": "Brigid, Doun's Mind",
+          "manaCost": null,
+          "manaValue": null,
+          "typeLine": "Legendary Creature — Kithkin Soldier",
+          "oracleText": "{T}: Add X {G} or X {W}, where X is the number of other creatures you control.\nAt the beginning of your first main phase, you may pay {W}. If you do, transform Brigid."
+        }
+      ]
+    },
+    {
+      "oracleId": "a15547d0-bbcb-41ee-a9ae-8325a9e7fe1f",
+      "name": "Sire of Seven Deaths",
+      "manaCost": "{7}",
+      "manaValue": 7,
+      "colorIdentity": [],
+      "typeLine": "Creature — Eldrazi",
+      "oracleText": "Reach, first strike\nVigilance, menace\nTrample, lifelink\nWard—Pay 7 life.",
+      "layout": "normal",
+      "setCodes": ["fdn"]
+    },
+    {
+      "oracleId": "bc71ebf6-2056-41f7-be35-b2e5c34afa99",
+      "name": "Plains",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": ["W"],
+      "typeLine": "Basic Land — Plains",
+      "oracleText": "({T}: Add {W}.)",
+      "layout": "normal",
+      "setCodes": ["dft"]
+    },
+    {
+      "oracleId": "d97de156-5a6d-4dc6-953e-d4bad63cbad2",
+      "name": "Elite Interceptor // Rejoinder",
+      "manaCost": "{W} // {1}{W}",
+      "manaValue": 1,
+      "colorIdentity": ["W"],
+      "typeLine": "Creature — Human Wizard // Sorcery",
+      "oracleText": null,
+      "layout": "prepare",
+      "setCodes": ["sos"],
+      "faces": [
+        {
+          "name": "Elite Interceptor",
+          "manaCost": "{W}",
+          "manaValue": null,
+          "typeLine": "Creature — Human Wizard",
+          "oracleText": "This creature enters prepared. (While it's prepared, you may cast a copy of its spell. Doing so unprepares it.)"
+        },
+        {
+          "name": "Rejoinder",
+          "manaCost": "{1}{W}",
+          "manaValue": null,
+          "typeLine": "Sorcery",
+          "oracleText": "You may tap or untap target creature.\nDraw a card."
+        }
+      ]
+    },
+    {
+      "oracleId": "f1750962-a87c-49f6-b731-02ae971ac6ea",
+      "name": "Hallowed Fountain",
+      "manaCost": null,
+      "manaValue": 0,
+      "colorIdentity": ["U", "W"],
+      "typeLine": "Land — Plains Island",
+      "oracleText": "({T}: Add {W} or {U}.)\nAs this land enters, you may pay 2 life. If you don't, it enters tapped.",
+      "layout": "normal",
+      "setCodes": ["ecl"]
+    }
+  ],
+  "printings": [
+    {
+      "oracleId": "5e316864-d55c-496f-8f46-773567896864",
+      "setCode": "dft",
+      "collectorNumber": "156",
+      "rarity": "common",
+      "imageUris": {
+        "small": "https://cards.scryfall.io/small/front/1/d/1d7d5b71-7c1b-4fc2-a5ec-7285e17ffe0f.jpg?1783907872",
+        "normal": "https://cards.scryfall.io/normal/front/1/d/1d7d5b71-7c1b-4fc2-a5ec-7285e17ffe0f.jpg?1783907872",
+        "artCrop": "https://cards.scryfall.io/art_crop/front/1/d/1d7d5b71-7c1b-4fc2-a5ec-7285e17ffe0f.jpg?1783907872"
+      },
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "bc71ebf6-2056-41f7-be35-b2e5c34afa99",
+      "setCode": "dft",
+      "collectorNumber": "272",
+      "rarity": "common",
+      "imageUris": {
+        "small": "https://cards.scryfall.io/small/front/2/d/2d2da8b9-797f-46e8-a15d-a86c7c56dc84.jpg?1783907836",
+        "normal": "https://cards.scryfall.io/normal/front/2/d/2d2da8b9-797f-46e8-a15d-a86c7c56dc84.jpg?1783907836",
+        "artCrop": "https://cards.scryfall.io/art_crop/front/2/d/2d2da8b9-797f-46e8-a15d-a86c7c56dc84.jpg?1783907836"
+      },
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "60fc89a1-cc6f-4a32-84c3-09abf7a4a1df",
+      "setCode": "ecl",
+      "collectorNumber": "7",
+      "rarity": "rare",
+      "imageUris": null,
+      "promo": false,
+      "digital": false,
+      "faceImageUris": [
+        {
+          "small": "https://cards.scryfall.io/small/front/c/b/cb7d5bbb-4f68-4e38-8bb0-a95af21b24c8.jpg?1783904517",
+          "normal": "https://cards.scryfall.io/normal/front/c/b/cb7d5bbb-4f68-4e38-8bb0-a95af21b24c8.jpg?1783904517",
+          "artCrop": "https://cards.scryfall.io/art_crop/front/c/b/cb7d5bbb-4f68-4e38-8bb0-a95af21b24c8.jpg?1783904517"
+        },
+        {
+          "small": "https://cards.scryfall.io/small/back/c/b/cb7d5bbb-4f68-4e38-8bb0-a95af21b24c8.jpg?1783904517",
+          "normal": "https://cards.scryfall.io/normal/back/c/b/cb7d5bbb-4f68-4e38-8bb0-a95af21b24c8.jpg?1783904517",
+          "artCrop": "https://cards.scryfall.io/art_crop/back/c/b/cb7d5bbb-4f68-4e38-8bb0-a95af21b24c8.jpg?1783904517"
+        }
+      ]
+    },
+    {
+      "oracleId": "f1750962-a87c-49f6-b731-02ae971ac6ea",
+      "setCode": "ecl",
+      "collectorNumber": "265",
+      "rarity": "rare",
+      "imageUris": {
+        "small": "https://cards.scryfall.io/small/front/e/0/e056b55f-82ed-4fe0-ab0c-bb20fa4a218a.jpg?1783904394",
+        "normal": "https://cards.scryfall.io/normal/front/e/0/e056b55f-82ed-4fe0-ab0c-bb20fa4a218a.jpg?1783904394",
+        "artCrop": "https://cards.scryfall.io/art_crop/front/e/0/e056b55f-82ed-4fe0-ab0c-bb20fa4a218a.jpg?1783904394"
+      },
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "a15547d0-bbcb-41ee-a9ae-8325a9e7fe1f",
+      "setCode": "fdn",
+      "collectorNumber": "1",
+      "rarity": "mythic",
+      "imageUris": {
+        "small": "https://cards.scryfall.io/small/front/8/d/8d8432a7-1c8a-4cfb-947c-ecf9791063eb.jpg?1783909131",
+        "normal": "https://cards.scryfall.io/normal/front/8/d/8d8432a7-1c8a-4cfb-947c-ecf9791063eb.jpg?1783909131",
+        "artCrop": "https://cards.scryfall.io/art_crop/front/8/d/8d8432a7-1c8a-4cfb-947c-ecf9791063eb.jpg?1783909131"
+      },
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "5e316864-d55c-496f-8f46-773567896864",
+      "setCode": "fdn",
+      "collectorNumber": "214",
+      "rarity": "common",
+      "imageUris": {
+        "small": "https://cards.scryfall.io/small/front/6/1/61f9cbeb-cc9c-4562-be65-8a77053faefe.jpg?1783909061",
+        "normal": "https://cards.scryfall.io/normal/front/6/1/61f9cbeb-cc9c-4562-be65-8a77053faefe.jpg?1783909061",
+        "artCrop": "https://cards.scryfall.io/art_crop/front/6/1/61f9cbeb-cc9c-4562-be65-8a77053faefe.jpg?1783909061"
+      },
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "d97de156-5a6d-4dc6-953e-d4bad63cbad2",
+      "setCode": "sos",
+      "collectorNumber": "12",
+      "rarity": "common",
+      "imageUris": {
+        "small": "https://cards.scryfall.io/small/front/2/9/2970683e-e69c-42cb-a067-34abd56fb42b.jpg?1783903706",
+        "normal": "https://cards.scryfall.io/normal/front/2/9/2970683e-e69c-42cb-a067-34abd56fb42b.jpg?1783903706",
+        "artCrop": "https://cards.scryfall.io/art_crop/front/2/9/2970683e-e69c-42cb-a067-34abd56fb42b.jpg?1783903706"
+      },
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "1fc31651-70fe-4a58-9b7e-7359510bba51",
+      "setCode": "tdm",
+      "collectorNumber": "21",
+      "rarity": "common",
+      "imageUris": {
+        "small": "https://cards.scryfall.io/small/front/3/1/312f7072-3bf8-449f-bfb7-93727ef26c66.jpg?1783907410",
+        "normal": "https://cards.scryfall.io/normal/front/3/1/312f7072-3bf8-449f-bfb7-93727ef26c66.jpg?1783907410",
+        "artCrop": "https://cards.scryfall.io/art_crop/front/3/1/312f7072-3bf8-449f-bfb7-93727ef26c66.jpg?1783907410"
+      },
+      "promo": false,
+      "digital": false
+    },
+    {
+      "oracleId": "5f694917-f434-4459-bc86-caf9ac1c80e7",
+      "setCode": "tdm",
+      "collectorNumber": "170",
+      "rarity": "rare",
+      "imageUris": {
+        "small": "https://cards.scryfall.io/small/front/1/4/14078a49-2230-4ad7-aea0-0c253813c646.jpg?1783907325",
+        "normal": "https://cards.scryfall.io/normal/front/1/4/14078a49-2230-4ad7-aea0-0c253813c646.jpg?1783907325",
+        "artCrop": "https://cards.scryfall.io/art_crop/front/1/4/14078a49-2230-4ad7-aea0-0c253813c646.jpg?1783907325"
+      },
+      "promo": false,
+      "digital": false
+    }
+  ],
+  "printingCountBySet": {
+    "dft": 2,
+    "ecl": 2,
+    "fdn": 2,
+    "sos": 1,
+    "tdm": 2
+  },
+  "stats": {
+    "seen": 10,
+    "kept": 9,
+    "outOfScope": 0,
+    "droppedUnkeyed": 1,
+    "droppedLayout": 0,
+    "droppedMalformed": 0
+  },
+  "unreachableOracleIds": []
+}

@@ -534,18 +534,18 @@ create table tournament_entries (
 
 #### 14.1 Card data is a repo artifact, not a table
 
-The Scryfall all-printings bulk file is hundreds of megabytes — larger than the entire free Postgres tier, and it would be re-imported weekly forever. So card data never enters the database. It is fetched, pruned, and committed to the repo as a generated dataset, and the app reads that.
+The Scryfall `default_cards` bulk file is 75 MB gzipped and about a gigabyte unpacked — larger than the entire free Postgres tier, and it would be re-imported weekly forever. So card data never enters the database. It is fetched, pruned, and committed to the repo as a generated dataset, and the app reads that.
 
 **What the job does** (`apps/jobs/build-card-data.ts`, run by GitHub Actions weekly and on manual dispatch):
 
 1. Read `data/sets.json` — the PR-reviewed list of set codes to include.
-2. Fetch the Scryfall bulk index, take the **all-printings** download URI. Stream-parse it; never `JSON.parse` the whole file.
+2. Fetch the Scryfall bulk index, take the **`default_cards`** entry's `jsonl_download_uri`. That is every printing, English — not `oracle_cards`, which keeps one Scryfall-chosen printing per oracle id and so loses any card reprinted into the pool from an older set, and not `all_cards`, which is the same rows in every language. The payload is gzipped **JSONL**, so reading it is a `readline` loop; never `JSON.parse` the whole file.
 3. Keep only printings whose `set` is in `sets.json`, and the oracle cards those printings belong to.
 4. Keep only the fields the app actually uses. Drop rulings, prices, foreign names, purchase URIs, and every other field — they are the bulk of the payload.
 5. Write `data/cards/oracle.json`, `data/cards/printings.json`, and `data/cards/meta.json` (source bulk timestamp, set list, record counts, job run date).
 6. Open a PR if anything changed. A set release or errata therefore arrives as a reviewable diff rather than a silent mutation.
 
-**Why this stays small.** Pruning to the format's set list is the whole trick. Planar Standard's pool is a handful of sets — roughly a couple of thousand oracle cards — not Magic's thirty-thousand-plus. Field-pruned and scoped this way the dataset is a few megabytes of JSON, which is fine to commit and fine to load.
+**Why this stays small.** Pruning to the format's set list is the whole trick. Planar Standard's pool is a handful of sets — roughly a couple of thousand oracle cards — not Magic's thirty-thousand-plus. Field-pruned and scoped this way the dataset is a few megabytes of JSON, which is fine to commit and fine to load. Measured on the six-set pool: 1,826 oracle cards, 2,916 printings, 2.4 MB.
 
 **Printings outside the pool are not needed.** Decklists reference all sorts of printings (`FIN`, `M19`, `PLST`, promos), but the parser resolves cards **by name**, not by printing. The `(PLST) WOE-273` on a decklist line is kept in `deck_cards.set_code` as provenance and never has to resolve. Legality, set attribution, rarity, and images all come from the card's printing within the legal pool.
 

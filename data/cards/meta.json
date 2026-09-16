@@ -1,0 +1,20 @@
+{
+  "bulkUpdatedAt": "2026-09-15T21:05:31.704+00:00",
+  "setCodes": ["fdn", "dft", "tdm", "eoe", "ecl", "sos"],
+  "oracleCardCount": 1826,
+  "printingCount": 2916,
+  "printingCountBySet": {
+    "dft": 553,
+    "ecl": 403,
+    "eoe": 400,
+    "fdn": 771,
+    "sos": 368,
+    "tdm": 421
+  },
+  "generatedAt": "2026-09-16T01:09:39.415Z",
+  "attribution": {
+    "source": "Scryfall",
+    "sourceUrl": "https://scryfall.com",
+    "notice": "Card data and images courtesy of Scryfall. Magic: The Gathering is © Wizards of the Coast. Scryfall does not endorse this project."
+  }
+}

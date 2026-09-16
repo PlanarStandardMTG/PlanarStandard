@@ -6,9 +6,13 @@
   "main": "index.ts",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "vitest run"
+    "test": "vitest run",
+    "build-card-data": "tsx build-card-data/index.ts"
   },
   "dependencies": {
     "@ps/contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "@types/node": "^26.5.1"
   }
 }

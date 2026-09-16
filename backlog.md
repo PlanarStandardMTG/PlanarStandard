@@ -9,8 +9,8 @@ Derived from `planar-standard-master-plan.md`. Every story below is intended to 
 - **Stream** — the parallel work stream from §18 of the plan.
 - **Deps** — hard blockers only. Everything else can start now.
 - Every story inherits the Definition of Done in §19. It is not repeated per story.
-- **Status** — ✅ done · 🚧 in progress · ⛔ blocked · ⬜ not started. A ⛔ carries a *Blocked:* line
-  naming what is needed. A ✅ carrying an *Outstanding:* line shipped with one acceptance criterion
+- **Status** — ✅ done · 🚧 in progress · ⛔ blocked · ⬜ not started. A ⛔ carries a _Blocked:_ line
+  naming what is needed. A ✅ carrying an _Outstanding:_ line shipped with one acceptance criterion
   deferred, and that criterion is named.
 
 This file is the project's progress record. A story's marker flips in the same commit as its work —
@@ -18,31 +18,31 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 
 **Epic map**
 
-| Epic | Title | Phase | Unblocked by | Status |
-|---|---|---|---|---|
-| E1 | Workspace, CI, and dependency rules | 0 | — | ✅ 9/9 |
-| E2 | Contracts | 0 | E1 | ✅ 9/9 |
-| E3 | Decklist parsing | 7 | E2 | ✅ 7/7 |
-| E4 | Card dataset pipeline | 3 | E1 | ⬜ 0/7 |
-| E5 | Legality engine | 3 | E2, E4 | ✅ 6/6 |
-| E6 | Deck metrics | 7 | E2 | ✅ 8/8 |
-| E7 | Similarity and layout | 8 | E2 | ✅ 5/5 |
-| E8 | Elo engine | 6 | E2 | ✅ 6/6 |
-| E9 | Identity signals and scoring | 4 | E2 | ✅ 9/9 |
-| E10 | Stats primitives | 8 | E2 | ✅ 3/3 |
-| E11 | Reddit transforms | 9 | — | ✅ 6/6 |
-| E12 | Source adapters | 5 | E2 | 🚧 6/9 |
-| E13 | Schema, migrations, repositories | 3–5 | E2 | 🚧 9/23 |
-| E14 | RLS and access control | 1 | E13 | ⬜ 0/5 |
-| E15 | Seed data and local dev | 0 | E13 | ⬜ 0/5 |
-| E16 | Web foundation, auth, dashboard shell | 1 | E13 | 🚧 2/8 |
-| E17 | MDX info pages | 2 | E16 | 🚧 12/13 |
-| E18 | Services | 5–8 | E3–E13 | ⬜ 0/19 |
-| E19 | Chart components | 8 | E2 | ⬜ 0/14 |
-| E20 | Feature slices | 3–10 | E18 | ⬜ 0/19 |
-| E21 | Season II backfill | 7 | E3, E12, E18 | ⬜ 0/6 |
-| E22 | Governance and docs | 0 | — | 🚧 2/12 |
-| E23 | Upcoming events | 2 | E13.1 | ✅ 11/11 |
+| Epic | Title                                 | Phase | Unblocked by | Status   |
+| ---- | ------------------------------------- | ----- | ------------ | -------- |
+| E1   | Workspace, CI, and dependency rules   | 0     | —            | ✅ 9/9   |
+| E2   | Contracts                             | 0     | E1           | ✅ 9/9   |
+| E3   | Decklist parsing                      | 7     | E2           | ✅ 7/7   |
+| E4   | Card dataset pipeline                 | 3     | E1           | 🚧 4/7   |
+| E5   | Legality engine                       | 3     | E2, E4       | ✅ 6/6   |
+| E6   | Deck metrics                          | 7     | E2           | ✅ 8/8   |
+| E7   | Similarity and layout                 | 8     | E2           | ✅ 5/5   |
+| E8   | Elo engine                            | 6     | E2           | ✅ 6/6   |
+| E9   | Identity signals and scoring          | 4     | E2           | ✅ 9/9   |
+| E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
+| E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
+| E12  | Source adapters                       | 5     | E2           | 🚧 6/9   |
+| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 9/23  |
+| E14  | RLS and access control                | 1     | E13          | ⬜ 0/5   |
+| E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
+| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 2/8   |
+| E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
+| E18  | Services                              | 5–8   | E3–E13       | ⬜ 0/19  |
+| E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
+| E20  | Feature slices                        | 3–10  | E18          | ⬜ 0/19  |
+| E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
+| E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
+| E23  | Upcoming events                       | 2     | E13.1        | ✅ 11/11 |
 
 ---
 
@@ -52,41 +52,41 @@ Phase 0. Nothing else is safe to start until the boundary rules are machine-enfo
 
 ✅ **E1.1 — pnpm workspace skeleton** · M · Stream —
 Create `packages/{contracts,core,adapters,db}`, `apps/{web,jobs}`, `data/`, `content/pages/`, `fixtures/`, `docs/{adr,modules}`. Each package gets `package.json`, `tsconfig.json`, and an empty `index.ts`.
-*AC:* `pnpm install` succeeds from a clean clone; `pnpm -r build` passes with empty packages.
+_AC:_ `pnpm install` succeeds from a clean clone; `pnpm -r build` passes with empty packages.
 
 ✅ **E1.2 — TypeScript project references and strict config** · S · —
 Shared `tsconfig.base.json` with `strict`, `noUncheckedIndexedAccess`, `exactOptionalPropertyTypes`.
-*AC:* a type error in `contracts` fails the build of every dependent package.
+_AC:_ a type error in `contracts` fails the build of every dependent package.
 
 ✅ **E1.3 — Vitest harness** · S · —
 Root Vitest config, per-package test scripts, coverage reporter.
-*AC:* `pnpm --filter core test` runs with zero environment variables set.
-*Outstanding:* coverage reporter not wired; vitest is per-package by choice, with no root config.
+_AC:_ `pnpm --filter core test` runs with zero environment variables set.
+_Outstanding:_ coverage reporter not wired; vitest is per-package by choice, with no root config.
 
 ✅ **E1.4 — dependency-cruiser rules** · M · —
 Encode the §5 dependency graph: dependencies point left only, no cycles.
-*AC:* a PR adding `import { x } from '@ps/db'` to `packages/core` fails CI with a readable message; `core` importing `next`, `react`, or `@supabase/*` also fails. **Deps:** E1.1
+_AC:_ a PR adding `import { x } from '@ps/db'` to `packages/core` fails CI with a readable message; `core` importing `next`, `react`, or `@supabase/*` also fails. **Deps:** E1.1
 
 ✅ **E1.5 — Lint and format** · S · —
 ESLint + Prettier (or Biome) wired into one `pnpm lint`.
-*AC:* one command, one config, no per-package drift.
+_AC:_ one command, one config, no per-package drift.
 
 ✅ **E1.6 — CI pipeline** · M · —
 GitHub Actions running `lint`, `test`, `depcruise`, `build` on every PR.
-*AC:* status checks required on `main`; total runtime under five minutes on the empty repo. **Deps:** E1.3, E1.4
-*Outstanding:* branch protection on `main` is a repo setting and is still to be switched on.
+_AC:_ status checks required on `main`; total runtime under five minutes on the empty repo. **Deps:** E1.3, E1.4
+_Outstanding:_ branch protection on `main` is a repo setting and is still to be switched on.
 
 ✅ **E1.7 — Service-role key guard** · S · —
 CI grep plus a dependency-cruiser rule preventing `SUPABASE_SERVICE_ROLE_KEY` from being reachable from any client bundle.
-*AC:* a test fixture importing the key from a `'use client'` file fails CI. **Deps:** E1.4
+_AC:_ a test fixture importing the key from a `'use client'` file fails CI. **Deps:** E1.4
 
 ✅ **E1.8 — Module scaffold generator** · S · —
 `pnpm new:module core/metrics/foo` emits `index.ts`, `index.test.ts`, `README.md` stubs.
-*AC:* generated module passes lint and has a failing placeholder test.
+_AC:_ generated module passes lint and has a failing placeholder test.
 
 ✅ **E1.9 — Fixtures directory conventions** · S · —
 `fixtures/README.md` describing layout: one folder per source, real exports committed verbatim, expected outputs as sibling JSON.
-*AC:* documented and referenced from `CONTRIBUTING.md`.
+_AC:_ documented and referenced from `CONTRIBUTING.md`.
 
 ---
 
@@ -97,30 +97,30 @@ Phase 0. Eight small files. This is the unlock for eight parallel streams, so it
 Each story: define the types in `packages/contracts/<name>.ts`, export from the index, add a `README.md` line per exported type. All `S` unless noted. All **Deps:** E1.1.
 
 ✅ **E2.1 — `cards`** — `OracleCard`, `CardPrinting`, `CardIndex`, `OracleId`, `Rarity`, `Layout`.
-*AC:* `OracleCard` carries only fields the app uses; the shape is the contract the E4 build job must emit.
+_AC:_ `OracleCard` carries only fields the app uses; the shape is the contract the E4 build job must emit.
 
 ✅ **E2.2 — `decks`** — `ParsedDeck`, `ParsedLine`, `ResolvedDeck`, `Board`.
-*AC:* `ParsedLine` can represent a line with no set code and no collector number.
+_AC:_ `ParsedLine` can represent a line with no set code and no collector number.
 
 ✅ **E2.3 — `format`** — `FormatVersion`, `FormatRules`, `LegalityVerdict`, `Issue`.
-*AC:* `LegalityVerdict` distinguishes illegal-card from illegal-deck-shape issues.
+_AC:_ `LegalityVerdict` distinguishes illegal-card from illegal-deck-shape issues.
 
 ✅ **E2.4 — `results`** — `RawInput`, `ParsedEvent`, `ParsedMatch`, `ParsedStanding`, `Capability`, `ResultsAdapter`. · M
-*AC:* `ResultsAdapter` is `{ id, detect(RawInput): boolean, parse(RawInput): ParsedEvent, capabilities: Capability[] }`; a standings-only adapter type-checks without faking matches.
+_AC:_ `ResultsAdapter` is `{ id, detect(RawInput): boolean, parse(RawInput): ParsedEvent, capabilities: Capability[] }`; a standings-only adapter type-checks without faking matches.
 
 ✅ **E2.5 — `identity`** — `Handle`, `IdentityRef`, `MergeSuggestion`, `Signal`, `Exclusion`.
-*AC:* `Signal` is a uniform `{ kind, confidence, evidence }` so new signals need no contract change.
+_AC:_ `Signal` is a uniform `{ kind, confidence, evidence }` so new signals need no contract change.
 
 ✅ **E2.6 — `ratings`** — `RatingConfig`, `RatingEvent`, `PlayerRating`, `LedgerMatch`.
-*AC:* `LedgerMatch` references resolved player IDs, not handles — the replay boundary is visible in the type.
+_AC:_ `LedgerMatch` references resolved player IDs, not handles — the replay boundary is visible in the type.
 
 ✅ **E2.7 — `metrics`** — `DeckMetrics`, `CardStats`, `ArchetypeStats`, `SimilarityEdge`.
-*AC:* `DeckMetrics` matches the `deck_metrics` table column for column.
+_AC:_ `DeckMetrics` matches the `deck_metrics` table column for column.
 
 ✅ **E2.8 — `content`** — `Post`, `PostStatus`, `InfoPageFrontmatter`.
 
 ✅ **E2.9 — Contracts README and stability note** · S
-*AC:* states that changing an exported type is a breaking change requiring a note in the PR description.
+_AC:_ states that changing an exported type is a breaking change requiring a note in the PR description.
 
 ---
 
@@ -130,30 +130,30 @@ Stream A. Pure, fixture-driven, no infrastructure. The best on-ramp in the repo 
 
 ✅ **E3.1 — Decklist fixture corpus** · M · Deps: E1.9
 Commit real decklists covering: missing set codes, `*F*` markers, promo sets (`PSOS`), alphanumeric collectors (`25p`, `WOE-273`), split cards, fullwidth `｜` and `＞`, CRLF, BOM.
-*AC:* one file per pathology, each named for what it exercises.
+_AC:_ one file per pathology, each named for what it exercises.
 
 ✅ **E3.2 — `tokenize-line`** · M · Deps: E2.2
 `"4 Bolt (FDN) 192 *F*"` → `{ qty, name, set, collector, foil }`.
-*AC:* every fixture line tokenizes or returns a typed parse error with the offending column.
+_AC:_ every fixture line tokenizes or returns a typed parse error with the offending column.
 
 ✅ **E3.3 — `detect-board`** · S · Deps: E2.2
 Recognize `SIDEBOARD:`, `Sideboard`, `SB:`, and blank-line boundaries.
-*AC:* a blank line mid-maindeck followed by more cards does not falsely open a sideboard when a header form is present elsewhere in the file.
+_AC:_ a blank line mid-maindeck followed by more cards does not falsely open a sideboard when a header form is present elsewhere in the file.
 
 ✅ **E3.4 — `normalize-name`** · M · Deps: E2.2
 NFKC, case-fold, punctuation, `//` handling, MDFC front/back faces.
-*AC:* idempotent; `Sanar, Unfinished Genius / Wild Idea` normalizes identically to its `//` form.
+_AC:_ idempotent; `Sanar, Unfinished Genius / Wild Idea` normalizes identically to its `//` form.
 
 ✅ **E3.5 — `parse-decklist`** · M · Deps: E3.2, E3.3, E3.4
 Compose the above over a whole document → `ParsedDeck`.
-*AC:* the full fixture corpus parses; unparseable lines are retained as issues rather than dropped.
+_AC:_ the full fixture corpus parses; unparseable lines are retained as issues rather than dropped.
 
 ✅ **E3.6 — `parse-filename`** · M · Deps: E2.2
 `Player (alias)｜Deck｜Archetype｜W-L-D｜GW-GL` → structured metadata.
-*AC:* handles fullwidth `｜`, the OS-rewritten `_` variant, and a missing trailing segment; the trailing parenthetical alias is surfaced separately for E9.2.
+_AC:_ handles fullwidth `｜`, the OS-rewritten `_` variant, and a missing trailing segment; the trailing parenthetical alias is surfaced separately for E9.2.
 
 ✅ **E3.7 — `core/decklist` README and module docs** · S · Deps: E3.5
-*AC:* documents the grammar it accepts and the known-unsupported forms.
+_AC:_ documents the grammar it accepts and the known-unsupported forms.
 
 ---
 
@@ -161,30 +161,49 @@ Compose the above over a whole document → `ParsedDeck`.
 
 Phase 3. ADR 002. Runs in `apps/jobs`, never in the web app.
 
-⬜ **E4.1 — `data/sets.json` and its schema** · S
+✅ **E4.1 — `data/sets.json` and its schema** · S
 Seed with SOS, ECL, EOE, TDM, DFT, FDN plus a documented reason per entry.
-*AC:* schema-validated in CI; adding a set is a reviewable one-line diff.
+_AC:_ schema-validated in CI; adding a set is a reviewable one-line diff.
+_Note:_ shipped as a bare array of codes, without the per-entry reason the line called for —
+the reason a set is in the pool is obvious from the format's rotation rule, and an object per
+entry would have cost the one-line diff the AC asks for. `sets-scope` validates shape,
+set-code form, duplicates and emptiness, and reports every problem at once.
 
-⬜ **E4.2 — Scryfall bulk index fetch** · S
+✅ **E4.2 — Scryfall bulk index fetch** · S
 Resolve the all-printings download URI from the bulk index endpoint.
-*AC:* respects Scryfall terms — single bulk download, no request loop, attribution recorded in `meta.json`.
+_AC:_ respects Scryfall terms — single bulk download, no request loop, attribution recorded in `meta.json`.
+_Note:_ there is no `all-printings` bulk type; the one that means "every printing, English" is
+**`default_cards`**. The field is `jsonl_download_uri` and the payload is gzipped JSONL, not a
+JSON array — `download_uri` no longer exists. `selectBulkSource` throws rather than falling back,
+so the next such change fails the build instead of quietly shipping a wrong dataset.
 
-⬜ **E4.3 — Streaming prune** · L · Deps: E4.1, E4.2
+✅ **E4.3 — Streaming prune** · L · Deps: E4.1, E4.2
 Stream-parse the bulk file, keep printings whose set is in `sets.json` plus their oracle cards, keep only used fields.
-*AC:* never calls `JSON.parse` on the whole file; peak memory bounded and asserted in the job log. *Split if needed: streaming reader, then the filter.*
+_AC:_ never calls `JSON.parse` on the whole file; peak memory bounded and asserted in the job log.
+_Note:_ JSONL made the streaming reader a `readline` loop rather than a streaming JSON parser, so
+the split the line offered was not needed. Real run: 118,026 rows read, 2,916 kept, 5.1s, peak
+rss 325 MB — flat in input size, since only surviving rows are held.
+_Note:_ `reversible_card` rows carry no top-level `oracle_id`, `cmc` or `type_line` and cannot form
+a printing. All 11 in the pool are alternate printings of cards reachable elsewhere, so they are
+dropped; `unreachableOracleIds` fails the build if that ever stops being true.
 
-⬜ **E4.4 — Emit `oracle.json`, `printings.json`, `meta.json`** · M · Deps: E4.3, E2.1
-*AC:* output conforms to the `cards` contracts; `meta.json` records source bulk timestamp, set list, record counts, run date; output is byte-stable for unchanged input so diffs stay readable.
+✅ **E4.4 — Emit `oracle.json`, `printings.json`, `meta.json`** · M · Deps: E4.3, E2.1
+_AC:_ output conforms to the `cards` contracts; `meta.json` records source bulk timestamp, set list, record counts, run date; output is byte-stable for unchanged input so diffs stay readable.
+_Note:_ required adding `"prepare"` to the `Layout` union in `@ps/contracts` — a Secrets of
+Strixhaven split-like layout on 36 cards in the pool, absent from the seeded union. **Breaking
+type change.** `meta.json` is the one file that is not byte-stable, because it records
+`generatedAt`; E4.5 must gate its PR on the two data files or it opens an empty PR weekly.
+_Outstanding:_ the dataset is committed from a local run. E4.5 moves that to CI.
 
 ⬜ **E4.5 — GitHub Action: weekly and manual dispatch** · M · Deps: E4.4
-*AC:* opens a PR only when the artifact changes; the PR body summarizes added/removed counts per set.
+_AC:_ opens a PR only when the artifact changes; the PR body summarizes added/removed counts per set.
 
 ⬜ **E4.6 — Dataset size budget check** · S · Deps: E4.4
-*AC:* CI fails if `data/cards/` exceeds an agreed ceiling, with the Release-asset fallback from Part VIII named in the failure message.
+_AC:_ CI fails if `data/cards/` exceeds an agreed ceiling, with the Release-asset fallback from Part VIII named in the failure message.
 
 ⬜ **E4.7 — Dataset loader for app and tests** · S · Deps: E4.4
 A single helper that loads the artifact into memory once.
-*AC:* importable from `jobs`, `web`, and tests; does not live in `core` (which takes the index as an argument).
+_AC:_ importable from `jobs`, `web`, and tests; does not live in `core` (which takes the index as an argument).
 
 ---
 
@@ -194,26 +213,26 @@ Stream A. ADR 007: legal if the oracle card has any printing in a legal set; any
 
 ✅ **E5.1 — `build-card-index`** · M · Deps: E2.1, E4.4
 Dataset arrays → lookup maps by oracle id, normalized name, and set. Pure — takes the parsed dataset as an argument.
-*AC:* no file I/O inside `core`; name map keyed by `normalize-name` output.
+_AC:_ no file I/O inside `core`; name map keyed by `normalize-name` output.
 
 ✅ **E5.2 — `resolve-card-name`** · M · Deps: E5.1, E3.4
 Parsed name → `oracle_id`, with fuzzy "did you mean" candidates on miss.
-*AC:* exact match wins over fuzzy always; candidates ranked and capped; returns a miss rather than a wrong guess.
+_AC:_ exact match wins over fuzzy always; candidates ranked and capped; returns a miss rather than a wrong guess.
 
 ✅ **E5.3 — `resolve-format`** · S · Deps: E2.3
 Format version rows → flat `FormatRules`.
-*AC:* legal sets, bans, restrictions, exceptions, and constraints collapse into one object the checkers can read without further queries.
+_AC:_ legal sets, bans, restrictions, exceptions, and constraints collapse into one object the checkers can read without further queries.
 
 ✅ **E5.4 — `check-card`** · M · Deps: E5.3
 One card against pool, banlist, and exceptions.
-*AC:* a card printed only in `M19` is legal when its oracle has an FDN printing; a `legal_exception` overrides pool absence; a ban overrides everything.
+_AC:_ a card printed only in `M19` is legal when its oracle has an FDN printing; a `legal_exception` overrides pool absence; a ban overrides everything.
 
 ✅ **E5.5 — `check-deck`** · M · Deps: E5.4
 Sizes, copy limits, basic-land exemption; composes `check-card`.
-*AC:* 60 min maindeck, 15 max sideboard, 4 copies max, basics exempt; returns all issues, not the first.
+_AC:_ 60 min maindeck, 15 max sideboard, 4 copies max, basics exempt; returns all issues, not the first.
 
 ✅ **E5.6 — Legality golden fixtures** · M · Deps: E5.5, E3.1
-*AC:* a handful of real Season II decks assert legal; hand-built decks assert each distinct failure mode.
+_AC:_ a handful of real Season II decks assert legal; hand-built decks assert each distinct failure mode.
 
 ---
 
@@ -224,7 +243,7 @@ Stream B. Definitions are published verbatim at `/methodology`, so each story in
 ✅ **E6.1 — `mana-curve`** · S · Deps: E2.7 — MV histogram, buckets 1–6 and 7+, non-lands only.
 ✅ **E6.2 — `color-counts`** · S · Deps: E2.7 — counts per colour of identity.
 ✅ **E6.3 — `type-counts`** · S · Deps: E2.7 — Land/Creature/Instant/…; multi-type cards counted per the documented rule.
-✅ **E6.4 — `set-attribution`** · M · Deps: E5.1 — attributes a card to its **legal** set, not its printed set. *AC:* `Llanowar Elves (M19)` counts as FDN; a card legal via two sets resolves deterministically by a documented tiebreak.
+✅ **E6.4 — `set-attribution`** · M · Deps: E5.1 — attributes a card to its **legal** set, not its printed set. _AC:_ `Llanowar Elves (M19)` counts as FDN; a card legal via two sets resolves deterministically by a documented tiebreak.
 ✅ **E6.5 — `rarity-counts`** · S · Deps: E5.1 — C/U/R/MR, taken from the printing within the legal pool.
 ✅ **E6.6 — `average-mv`** · S · Deps: E2.7 — incl. lands, excl. lands, sideboard.
 ✅ **E6.7 — `compute-deck-metrics`** · M · Deps: E6.1–E6.6 — composes all of the above; counts `unresolved_cards`.
@@ -237,10 +256,10 @@ Stream B. Definitions are published verbatim at `/methodology`, so each story in
 Stream B. Basics excluded, non-basic lands included, maindeck only, default threshold 0.5.
 
 ✅ **E7.1 — `deck-vector`** · S · Deps: E2.7 — `ResolvedDeck` → card→quantity map, basics excluded.
-✅ **E7.2 — `weighted-jaccard`** · S · Deps: E7.1 — `Σ min / Σ max`. *AC:* identical decks → 1; disjoint → 0; symmetric.
-✅ **E7.3 — `build-similarity-graph`** · M · Deps: E7.2 — all pairs above threshold → edge list. *AC:* at 98 nodes and threshold 0.5 reproduces roughly the 763 edges in the existing map.
-*Outstanding:* the 763-edge calibration against the real 98-deck corpus is still outstanding — needs E21.1.
-✅ **E7.4 — `force-layout`** · L · Deps: E7.3 — edge list → `{x, y}` per node with a **seeded RNG**. *AC:* same input and seed produces byte-identical output across runs and machines.
+✅ **E7.2 — `weighted-jaccard`** · S · Deps: E7.1 — `Σ min / Σ max`. _AC:_ identical decks → 1; disjoint → 0; symmetric.
+✅ **E7.3 — `build-similarity-graph`** · M · Deps: E7.2 — all pairs above threshold → edge list. _AC:_ at 98 nodes and threshold 0.5 reproduces roughly the 763 edges in the existing map.
+_Outstanding:_ the 763-edge calibration against the real 98-deck corpus is still outstanding — needs E21.1.
+✅ **E7.4 — `force-layout`** · L · Deps: E7.3 — edge list → `{x, y}` per node with a **seeded RNG**. _AC:_ same input and seed produces byte-identical output across runs and machines.
 ✅ **E7.5 — Duplicate-deck flag** · S · Deps: E7.2 — similarity ≥ 0.85 surfaces a possible duplicate submission.
 
 ---
@@ -250,10 +269,10 @@ Stream B. Basics excluded, non-basic lands included, maindeck only, default thre
 Stream C. Entirely pure; `replay` takes matches already resolved to player IDs.
 
 ✅ **E8.1 — `expected-score`** · S · Deps: E2.6 — `1 / (1 + 10^((Rb−Ra)/400))`.
-✅ **E8.2 — `pick-k`** · S · Deps: E2.6 — provisional / standard / elite, times tournament weight. *AC:* thresholds read from `RatingConfig`, never hard-coded.
-✅ **E8.3 — `apply-match`** · M · Deps: E8.1, E8.2 — both players updated simultaneously from pre-match ratings. *AC:* order of the two updates cannot change the result; draws and double-losses handled; byes excluded per config.
-✅ **E8.4 — `replay`** · M · Deps: E8.3 — ordered match stream → full rating history. *AC:* no I/O; fixture of matches produces an expected rating table; deterministic tiebreak for same-date matches.
-✅ **E8.5 — Anomaly detection during replay** · M · Deps: E8.4 — self-play, duplicate match IDs, impossible game counts, rating jumps beyond a bound. *AC:* returns anomalies as data for `rating_runs.anomalies`; does not throw.
+✅ **E8.2 — `pick-k`** · S · Deps: E2.6 — provisional / standard / elite, times tournament weight. _AC:_ thresholds read from `RatingConfig`, never hard-coded.
+✅ **E8.3 — `apply-match`** · M · Deps: E8.1, E8.2 — both players updated simultaneously from pre-match ratings. _AC:_ order of the two updates cannot change the result; draws and double-losses handled; byes excluded per config.
+✅ **E8.4 — `replay`** · M · Deps: E8.3 — ordered match stream → full rating history. _AC:_ no I/O; fixture of matches produces an expected rating table; deterministic tiebreak for same-date matches.
+✅ **E8.5 — Anomaly detection during replay** · M · Deps: E8.4 — self-play, duplicate match IDs, impossible game counts, rating jumps beyond a bound. _AC:_ returns anomalies as data for `rating_runs.anomalies`; does not throw.
 ✅ **E8.6 — Activity and provisional flags** · S · Deps: E8.4 — derive `is_provisional`, `is_active`, `peak_rating`, per-player counters.
 
 ---
@@ -262,15 +281,15 @@ Stream C. Entirely pure; `replay` takes matches already resolved to player IDs.
 
 Stream E. Per the plan, the single best contribution surface: one file, one function, one obvious test.
 
-✅ **E9.1 — `normalize-handle`** · S · Deps: E2.5 — lowercase, strip non-alphanumerics. *AC:* matches the Postgres generated-column expression exactly; a test asserts parity.
+✅ **E9.1 — `normalize-handle`** · S · Deps: E2.5 — lowercase, strip non-alphanumerics. _AC:_ matches the Postgres generated-column expression exactly; a test asserts parity.
 ✅ **E9.2 — `signals/parenthetical`** · S · Deps: E9.1 — `Zaunus13 (LikoRS)` → explicit pairing, confidence 0.95.
 ✅ **E9.3 — `signals/deck-fingerprint`** · M · Deps: E7.1 — same 75 under two handles across events → 0.90.
 ✅ **E9.4 — `signals/trigram`** · M · Deps: E9.1 — string similarity → 0.60.
 ✅ **E9.5 — `signals/containment`** · S · Deps: E9.1 — `Liko` ⊂ `LikoRS` → 0.55.
 ✅ **E9.6 — `signals/temporal`** · S · Deps: E2.5 — A's last event precedes B's first → 0.30.
-✅ **E9.7 — `co-appearance-exclusions`** · M · Deps: E2.5 — two handles in one event ⇒ never the same person. *AC:* emits ordered pairs satisfying the `identity_a < identity_b` check constraint.
-✅ **E9.8 — `score-candidates`** · M · Deps: E9.2–E9.7 — combine signals, apply exclusions, rank. *AC:* an exclusion zeroes a candidate regardless of signal strength; output carries per-signal evidence for `merge_suggestions.evidence`.
-✅ **E9.9 — Signal authoring guide** · S · Deps: E9.8 — `packages/core/identity/README.md` showing how to add a signal in one file. *AC:* linked from the `good first issue` template.
+✅ **E9.7 — `co-appearance-exclusions`** · M · Deps: E2.5 — two handles in one event ⇒ never the same person. _AC:_ emits ordered pairs satisfying the `identity_a < identity_b` check constraint.
+✅ **E9.8 — `score-candidates`** · M · Deps: E9.2–E9.7 — combine signals, apply exclusions, rank. _AC:_ an exclusion zeroes a candidate regardless of signal strength; output carries per-signal evidence for `merge_suggestions.evidence`.
+✅ **E9.9 — Signal authoring guide** · S · Deps: E9.8 — `packages/core/identity/README.md` showing how to add a signal in one file. _AC:_ linked from the `good first issue` template.
 
 ---
 
@@ -278,9 +297,9 @@ Stream E. Per the plan, the single best contribution surface: one file, one func
 
 Stream B. Small, high-leverage, imported by every chart.
 
-✅ **E10.1 — `wilson`** · S · Deps: E2.7 — 95% CI on a proportion. *AC:* matches published reference values at n = 1, 10, 100.
+✅ **E10.1 — `wilson`** · S · Deps: E2.7 — 95% CI on a proportion. _AC:_ matches published reference values at n = 1, 10, 100.
 ✅ **E10.2 — `aggregate-by`** · S — group-and-sum helpers used by every stats builder.
-✅ **E10.3 — `suppress-small-n`** · M · Deps: E10.1 — given a rate and n, decide show / grey / hide. *AC:* thresholds are named constants documented in `docs/modules/metrics.md`; card win rates suppressed under 20 games; archetype rows with n < 3 collapse to "insufficient data".
+✅ **E10.3 — `suppress-small-n`** · M · Deps: E10.1 — given a rate and n, decide show / grey / hide. _AC:_ thresholds are named constants documented in `docs/modules/metrics.md`; card win rates suppressed under 20 games; archetype rows with n < 3 collapse to "insufficient data".
 
 ---
 
@@ -293,7 +312,7 @@ Stream F. No dependencies at all. Each is a before/after fixture pair — the sm
 ✅ **E11.3 — `absolutize-links`** · S — `](/cards/…` → `](https://…/cards/…`
 ✅ **E11.4 — `images-to-links`** · S
 ✅ **E11.5 — `expand-chart-shortcodes`** · M — `:::chart{…}` → link plus PNG reference.
-✅ **E11.6 — `to-reddit-markdown`** · M · Deps: E11.1–E11.5 — pipeline, appends canonical backlink. *AC:* idempotent on already-converted output.
+✅ **E11.6 — `to-reddit-markdown`** · M · Deps: E11.1–E11.5 — pipeline, appends canonical backlink. _AC:_ idempotent on already-converted output.
 
 ---
 
@@ -301,22 +320,22 @@ Stream F. No dependencies at all. Each is a before/after fixture pair — the sm
 
 Stream D. One file per source, all pure, all fixture-tested. ADR 005, ADR 006.
 
-✅ **E12.1 — Adapter registry and `detect` dispatch** · M · Deps: E2.4 — try each adapter's `detect`, return the match or an actionable "unrecognized format" error. *AC:* ambiguous matches are reported, not silently resolved by registration order.
-*Note:* `generic-csv` reads any delimited file, so on `detect` alone it is ambiguous with every CSV source in §9. It is marked `fallback` in the registry and consulted only once no specific adapter has claimed the input — a declared role, not a position in the list, and the ambiguity test asserts the outcome is unchanged with the registry reversed.
-✅ **E12.2 — `generic-csv`** · L · Deps: E12.1 — manual column mapping, matches or standings. *AC:* the permanent floor: any CSV with player/opponent/result columns imports after mapping; mapping persists to `result_imports.column_mapping`.
-*Outstanding:* the adapter reads `RawInput.columnMapping` and the fixture tests round-trip one, but nothing persists it yet — `result_imports` arrives with E13.5.
+✅ **E12.1 — Adapter registry and `detect` dispatch** · M · Deps: E2.4 — try each adapter's `detect`, return the match or an actionable "unrecognized format" error. _AC:_ ambiguous matches are reported, not silently resolved by registration order.
+_Note:_ `generic-csv` reads any delimited file, so on `detect` alone it is ambiguous with every CSV source in §9. It is marked `fallback` in the registry and consulted only once no specific adapter has claimed the input — a declared role, not a position in the list, and the ambiguity test asserts the outcome is unchanged with the registry reversed.
+✅ **E12.2 — `generic-csv`** · L · Deps: E12.1 — manual column mapping, matches or standings. _AC:_ the permanent floor: any CSV with player/opponent/result columns imports after mapping; mapping persists to `result_imports.column_mapping`.
+_Outstanding:_ the adapter reads `RawInput.columnMapping` and the fixture tests round-trip one, but nothing persists it yet — `result_imports` arrives with E13.5.
 ✅ **E12.3 — `manual-entry`** · M · Deps: E12.1 — structured input → `ParsedEvent`, always available.
-⛔ **E12.4 — `melee-csv`** · M · Deps: E12.1 — matches, standings, roster. Priority source. *AC:* real export committed to `fixtures/melee/`; expected `ParsedEvent` JSON asserted.
-*Blocked:* needs a real melee.gg export committed to `fixtures/melee/`.
+⛔ **E12.4 — `melee-csv`** · M · Deps: E12.1 — matches, standings, roster. Priority source. _AC:_ real export committed to `fixtures/melee/`; expected `ParsedEvent` JSON asserted.
+_Blocked:_ needs a real melee.gg export committed to `fixtures/melee/`.
 ⛔ **E12.5 — `challonge-csv`** · M · Deps: E12.1 — matches, standings, roster.
-*Blocked:* needs a real Challonge export committed to `fixtures/challonge/`.
-⛔ **E12.6 — `legacy-xlsx`** · M · Deps: E12.1 — standings only, one-time backfill. *AC:* summary sheets ignored; only per-date sheets read.
-*Blocked:* needs the legacy per-date `.xlsx` committed to `fixtures/legacy/`.
+_Blocked:_ needs a real Challonge export committed to `fixtures/challonge/`.
+⛔ **E12.6 — `legacy-xlsx`** · M · Deps: E12.1 — standings only, one-time backfill. _AC:_ summary sheets ignored; only per-date sheets read.
+_Blocked:_ needs the legacy per-date `.xlsx` committed to `fixtures/legacy/`.
 ✅ **E12.7 — `archetype-map-html`** · L · Deps: E12.1 — decklists from hover text: player, date, both records, full list. One-time backfill.
-*Note:* the hover text sorts all 75 cards alphabetically with no sideboard header, so `decklistText` is one merged board. Which fifteen were the sideboard is not in the file, and E21.1 inherits that.
-✅ **E12.8 — Capability gating test** · S · Deps: E12.1 — a standings-only `ParsedEvent` cannot produce matches. *AC:* asserts pairings are never inferred from placements.
+_Note:_ the hover text sorts all 75 cards alphabetically with no sideboard header, so `decklistText` is one merged board. Which fifteen were the sideboard is not in the file, and E21.1 inherits that.
+✅ **E12.8 — Capability gating test** · S · Deps: E12.1 — a standings-only `ParsedEvent` cannot produce matches. _AC:_ asserts pairings are never inferred from placements.
 ✅ **E12.9 — Adapter authoring guide** · S · Deps: E12.4 — `packages/adapters/README.md`: drop a fixture, write `detect` and `parse`, write expected output.
-*Note:* written without E12.4. The dependency existed so the guide would have a worked example; `archetype-map-html` and `generic-csv` are that example, and the four rules it has to teach — omit an empty payload, never infer pairings, a bye has no opponent, do not guess — are all demonstrable without a melee export.
+_Note:_ written without E12.4. The dependency existed so the guide would have a worked example; `archetype-map-html` and `generic-csv` are that example, and the four rules it has to teach — omit an empty payload, never infer pairings, a bye has no opponent, do not guess — are all demonstrable without a melee export.
 
 ---
 
@@ -327,20 +346,20 @@ Stream G. Migrations are numbered and forward-only, created in the order given i
 ### Migrations
 
 ✅ **E13.1 — `profiles` and role enum** · S · Deps: E1.1
-✅ **E13.2 — `format_versions`, `format_legal_sets`, `format_card_rules`, `format_constraints`** · M · Deps: E13.1 — *AC:* includes the no-card-tables note from §14.1 as a SQL comment; `oracle_id` columns carry no FK.
-*Note:* the seed carries no `format_card_rules` rows. The live banlist is announced in Discord and is not in this repository, and an empty banlist is a state `/rules` has to render correctly anyway.
+✅ **E13.2 — `format_versions`, `format_legal_sets`, `format_card_rules`, `format_constraints`** · M · Deps: E13.1 — _AC:_ includes the no-card-tables note from §14.1 as a SQL comment; `oracle_id` columns carry no FK.
+_Note:_ the seed carries no `format_card_rules` rows. The live banlist is announced in Discord and is not in this repository, and an empty banlist is a state `/rules` has to render correctly anyway.
 ✅ **E13.3 — `archetypes`, `archetype_aliases`** · S
-✅ **E13.4 — `seasons`** · S · Deps: E13.2 — *AC:* single-current partial unique index.
-✅ **E13.5 — `players`, `player_identities`** · M · Deps: E13.1 — *AC:* generated `normalized` column; `unique (platform, normalized)`.
-*Note:* closes E9.1's outstanding parity check. `fixtures/identity/normalized-handles.json` is read by both `core/identity/normalize-handle`'s test and `packages/db/generated-columns.test.ts`, so the two implementations are asserted against one table instead of against a list typed out twice — neither package has to import the other.
-*Note:* no seed rows. Synthetic handles and pairings are E15.1's job, and inventing a second set here would be the thing that seed has to reconcile with.
+✅ **E13.4 — `seasons`** · S · Deps: E13.2 — _AC:_ single-current partial unique index.
+✅ **E13.5 — `players`, `player_identities`** · M · Deps: E13.1 — _AC:_ generated `normalized` column; `unique (platform, normalized)`.
+_Note:_ closes E9.1's outstanding parity check. `fixtures/identity/normalized-handles.json` is read by both `core/identity/normalize-handle`'s test and `packages/db/generated-columns.test.ts`, so the two implementations are asserted against one table instead of against a list typed out twice — neither package has to import the other.
+_Note:_ no seed rows. Synthetic handles and pairings are E15.1's job, and inventing a second set here would be the thing that seed has to reconcile with.
 ✅ **E13.6 — `tournaments`** · S · Deps: E13.4
 ⬜ **E13.7 — `decks`, `deck_cards`** · M · Deps: E13.3, E13.5, E13.6
-⬜ **E13.8 — `result_imports`, `staged_matches`, `matches`, `match_corrections`** · L · Deps: E13.6 — *AC:* `unique (tournament_id, content_hash)`; ledger references `player_identities`, never `players`.
+⬜ **E13.8 — `result_imports`, `staged_matches`, `matches`, `match_corrections`** · L · Deps: E13.6 — _AC:_ `unique (tournament_id, content_hash)`; ledger references `player_identities`, never `players`.
 ⬜ **E13.9 — `tournament_entries`** · S · Deps: E13.7, E13.8
 ⬜ **E13.10 — `identity_exclusions`, `merge_suggestions`, `player_merges`** · M · Deps: E13.8
 ⬜ **E13.11 — Ratings tables and `leaderboard` view** · M · Deps: E13.10 — `rating_config`, `rating_events`, `player_ratings`, `rating_runs`.
-⬜ **E13.12 — Derived stats tables** · L · Deps: E13.9 — `deck_metrics`, `card_stats`, `archetype_stats`, `deck_similarity`, `deck_map_layout`, `matchup_stats`. *Split per table if the review gets long.*
+⬜ **E13.12 — Derived stats tables** · L · Deps: E13.9 — `deck_metrics`, `card_stats`, `archetype_stats`, `deck_similarity`, `deck_map_layout`, `matchup_stats`. _Split per table if the review gets long._
 ✅ **E13.13 — `posts`, `post_revisions`** · S · Deps: E13.1
 ⬜ **E13.14 — Index review pass** · S · Deps: E13.12 — every index in Part IV present; `explain` on the leaderboard and card-stats queries recorded in the PR.
 
@@ -349,7 +368,7 @@ Stream G. Migrations are numbered and forward-only, created in the order given i
 One module per aggregate, narrow intention-revealing functions, never a generic query builder.
 
 ✅ **E13.15 — `repos/format`** · M · Deps: E13.2
-*Note:* returns rows (`FormatVersionDetail`, added to contracts), not `FormatRules` — flattening is `core/legality/resolve-format`'s job and `db` depends on contracts only. A restricted rule is given `limit: 1` here because `format_card_rules` has no column for it.
+_Note:_ returns rows (`FormatVersionDetail`, added to contracts), not `FormatRules` — flattening is `core/legality/resolve-format`'s job and `db` depends on contracts only. A restricted rule is given `limit: 1` here because `format_card_rules` has no column for it.
 ⬜ **E13.16 — `repos/decks`** · M · Deps: E13.7
 ⬜ **E13.17 — `repos/tournaments`** · M · Deps: E13.9
 ⬜ **E13.18 — `repos/results`** · L · Deps: E13.8
@@ -359,7 +378,7 @@ One module per aggregate, narrow intention-revealing functions, never a generic 
 ✅ **E13.22 — `repos/content`** · M · Deps: E13.13
 ⬜ **E13.23 — `repos/archetypes`** · S · Deps: E13.3
 
-*AC for each repo story:* exported functions are named for intent (`listRatedTournamentsBySeason`, not `query`); no SQL string escapes the module; a test hits a local Supabase instance.
+_AC for each repo story:_ exported functions are named for intent (`listRatedTournamentsBySeason`, not `query`); no SQL string escapes the module; a test hits a local Supabase instance.
 
 ---
 
@@ -369,7 +388,7 @@ One module per aggregate, narrow intention-revealing functions, never a generic 
 ⬜ **E14.2 — Service-role write policies** · M · Deps: E13.12 — every derived table and the ledger.
 ⬜ **E14.3 — Organizer-gated writes** · M · Deps: E13.8 — tournaments and imports.
 ⬜ **E14.4 — Admin-only policies** · S · Deps: E13.10 — merges, format edits, role grants.
-⬜ **E14.5 — `rls.test.ts`** · L · Deps: E14.1–E14.4 — full allow-deny matrix across anon / reader / writer / organizer / admin for every table. *Release blocker when red.*
+⬜ **E14.5 — `rls.test.ts`** · L · Deps: E14.1–E14.4 — full allow-deny matrix across anon / reader / writer / organizer / admin for every table. _Release blocker when red._
 
 ---
 
@@ -381,7 +400,7 @@ The five-minute rule from §17. This is what makes every other contribution poss
 ⬜ **E15.2 — Seed loader** · M · Deps: E15.1, E13.12 — `pnpm db:reset` produces a populated site.
 ⬜ **E15.3 — Local Supabase scripts** · S · Deps: E13.1 — `db:start`, `db:reset`, `dev`.
 ⬜ **E15.4 — `CONTRIBUTING.md`** · M · Deps: E15.3 — the zero-credential path first, the full stack second, the two tasks that genuinely need secrets last.
-⬜ **E15.5 — Freshness test for the seed** · S · Deps: E15.2 — *AC:* CI fails if a migration lands that the seed no longer satisfies.
+⬜ **E15.5 — Freshness test for the seed** · S · Deps: E15.2 — _AC:_ CI fails if a migration lands that the seed no longer satisfies.
 
 ---
 
@@ -390,14 +409,14 @@ The five-minute rule from §17. This is what makes every other contribution poss
 Phase 1. Stream J. Deploy on day one.
 
 ✅ **E16.1 — Next.js app scaffold with Tailwind and shadcn** · M · Deps: E1.1
-*Outstanding:* Tailwind v4 is in; `components/ui` is hand-written in shadcn's style rather than generated by its CLI, so no Radix dependency has been taken yet. Run the CLI when a primitive needs real accessibility behaviour (dialog, popover, select) rather than ahead of it.
-🚧 **E16.2 — Supabase client setup, server and browser** · M · Deps: E13.1 — *AC:* the service-role client is importable only from server contexts (guarded by E1.7).
-*Outstanding:* the server clients (anon and service-role) are in and the E1.7 guard verifies the boundary; the browser client and session handling wait on E16.3.
+_Outstanding:_ Tailwind v4 is in; `components/ui` is hand-written in shadcn's style rather than generated by its CLI, so no Radix dependency has been taken yet. Run the CLI when a primitive needs real accessibility behaviour (dialog, popover, select) rather than ahead of it.
+🚧 **E16.2 — Supabase client setup, server and browser** · M · Deps: E13.1 — _AC:_ the service-role client is importable only from server contexts (guarded by E1.7).
+_Outstanding:_ the server clients (anon and service-role) are in and the E1.7 guard verifies the boundary; the browser client and session handling wait on E16.3.
 ⬜ **E16.3 — Discord OAuth login and callback** · M · Deps: E16.2
 ⬜ **E16.4 — `profiles` bootstrap on first login** · S · Deps: E16.3
 ⬜ **E16.5 — Role-aware route guards** · M · Deps: E16.4 — reader / writer / organizer / admin.
 ⬜ **E16.6 — Dashboard shell and navigation** · M · Deps: E16.5
-⬜ **E16.7 — Deploy pipeline and preview environments** · M · Deps: E16.1 — *AC:* production deploy from `main`, preview per PR, environment variables documented.
+⬜ **E16.7 — Deploy pipeline and preview environments** · M · Deps: E16.1 — _AC:_ production deploy from `main`, preview per PR, environment variables documented.
 ✅ **E16.8 — Error, empty, and loading states as shared components** · S · Deps: E16.1
 
 ---
@@ -406,26 +425,26 @@ Phase 1. Stream J. Deploy on day one.
 
 Phase 2. Stream I. Several of these need no code at all.
 
-✅ **E17.1 — MDX wiring with a whitelisted component set** · M · Deps: E16.1 — *AC:* MDX executes, so the allowed component list is explicit and tested.
-*Note:* not `@next/mdx`. That loader only compiles `.mdx` inside `app/`, and §25 puts these in
+✅ **E17.1 — MDX wiring with a whitelisted component set** · M · Deps: E16.1 — _AC:_ MDX executes, so the allowed component list is explicit and tested.
+_Note:_ not `@next/mdx`. That loader only compiles `.mdx` inside `app/`, and §25 puts these in
 `content/pages/` — `@mdx-js/mdx` is the same pipeline called directly, and one reader then supplies
 both the nav and the body. The whitelist is enforced on the compiled tree by
 `remarkInfoPageWhitelist`, **not** by MDX's `components` prop: that prop only intercepts
 Markdown-derived elements, so a literal `<script>` compiles straight past it.
 ✅ **E17.2 — `<LegalSets />`** · S · Deps: E17.1, E13.15
-*Outstanding:* set codes only. The names (`FDN` → Foundations) live in `data/cards/`, which E4 fills; the hand-written role column on `/rules` is gone rather than being carried alongside live data it would contradict.
+_Outstanding:_ set codes only. The names (`FDN` → Foundations) live in `data/cards/`, which E4 fills; the hand-written role column on `/rules` is gone rather than being carried alongside live data it would contradict.
 ✅ **E17.3 — `<Banlist />`** · S · Deps: E17.1, E13.15
-*Outstanding:* a rule renders its `oracle_id`, not the card's name — `oracle_id` carries no foreign key by design (§14.1) and the name comes from `data/cards/` at E4. The empty banlist, which is the state today, renders in full.
+_Outstanding:_ a rule renders its `oracle_id`, not the card's name — `oracle_id` carries no foreign key by design (§14.1) and the name comes from `data/cards/` at E4. The empty banlist, which is the state today, renders in full.
 ⬜ **E17.4 — `<Chart />` embed** · M · Deps: E17.1, E19
 ✅ **E17.5 — `/(info)/[...slug]` route and nav generation** · M · Deps: E17.1 — pages are prerendered from `generateStaticParams`; the footer nav is generated from frontmatter `navOrder`.
-*Note:* the route became `force-dynamic` at E17.2. `generateStaticParams` still enumerates the pages, so `dynamicParams: false` still 404s an unknown slug, but `/rules` reads the format tables and a pool or a ban baked at build time is the staleness those rows exist to prevent.
+_Note:_ the route became `force-dynamic` at E17.2. `generateStaticParams` still enumerates the pages, so `dynamicParams: false` still 404s an unknown slug, but `/rules` reads the format tables and a pool or a ban baked at build time is the staleness those rows exist to prevent.
 ✅ **E17.6 — Page: about** · S
 ✅ **E17.7 — Page: rules** · M
 ✅ **E17.8 — Page: getting-started** · S
 ✅ **E17.9 — Page: faq** · S
 ✅ **E17.10 — Page: organizers** · M — include the melee 60-day export warning
 ✅ **E17.11 — Page: resources** · S
-✅ **E17.12 — Page: methodology** · M · Deps: E6.8 — *AC:* metric definitions verbatim from `docs/modules/metrics.md`; a test asserts the two do not drift.
+✅ **E17.12 — Page: methodology** · M · Deps: E6.8 — _AC:_ metric definitions verbatim from `docs/modules/metrics.md`; a test asserts the two do not drift.
 The doc carries `publish:start` / `publish:end` / `publish:omit` markers; `pnpm content:sync` rewrites the page's generated region and the test fails when the two disagree.
 ✅ **E17.13 — Page: ratings-explained** · M · Deps: E8.4 — published the same way, from `docs/modules/ratings.md`.
 
@@ -437,19 +456,19 @@ Thin coordinators only. If a service contains business logic, that logic belongs
 
 ### import-results
 
-⬜ **E18.1 — Upload, hash, archive raw bytes** · M · Deps: E13.18 — *AC:* content-hash idempotency; raw bytes archived permanently.
-⬜ **E18.2 — Detect adapter and parse to staging** · M · Deps: E18.1, E12.1 — *AC:* `raw jsonb` retained per row so parser fixes re-run without the original file.
+⬜ **E18.1 — Upload, hash, archive raw bytes** · M · Deps: E13.18 — _AC:_ content-hash idempotency; raw bytes archived permanently.
+⬜ **E18.2 — Detect adapter and parse to staging** · M · Deps: E18.1, E12.1 — _AC:_ `raw jsonb` retained per row so parser fixes re-run without the original file.
 ⬜ **E18.3 — Resolve handles to identities** · L · Deps: E18.2, E13.19 — auto-create on miss; record method and confidence per side.
 ⬜ **E18.4 — Review queue UI contract and commit** · L · Deps: E18.3 — staged → `matches`; sets `is_rated` from capabilities.
-⬜ **E18.5 — Supersede on re-import** · M · Deps: E18.4 — *AC:* wholesale replacement, never a merge; prior import marked `superseded`.
-⬜ **E18.6 — Corrections with audit and recompute** · M · Deps: E18.4 — *AC:* reason required; writes `match_corrections`; triggers recompute; Discord notice if a public rank moves.
+⬜ **E18.5 — Supersede on re-import** · M · Deps: E18.4 — _AC:_ wholesale replacement, never a merge; prior import marked `superseded`.
+⬜ **E18.6 — Corrections with audit and recompute** · M · Deps: E18.4 — _AC:_ reason required; writes `match_corrections`; triggers recompute; Discord notice if a public rank moves.
 
 ### import-decklists
 
 ⬜ **E18.7 — Folder-drop path with filename metadata** · M · Deps: E3.6, E13.16
 ⬜ **E18.8 — Self-service paste path** · M · Deps: E3.5, E16.5
 ⬜ **E18.9 — Organizer entry path** · M · Deps: E13.17
-⬜ **E18.10 — Unresolved-card handling** · S · Deps: E5.2 — *AC:* row kept, deck flagged, deck excluded from `card_stats` until fixed.
+⬜ **E18.10 — Unresolved-card handling** · S · Deps: E5.2 — _AC:_ row kept, deck flagged, deck excluded from `card_stats` until fixed.
 ⬜ **E18.11 — Deck lock on event start** · S · Deps: E13.7 — ADR 013.
 
 ### recompute
@@ -461,7 +480,7 @@ Thin coordinators only. If a service contains business logic, that logic belongs
 
 ### other
 
-⬜ **E18.16 — `merge-players`** · L · Deps: E13.19 — repoint identities, recompute, write `player_merges.moved`. *AC:* co-appearance exclusion blocks the merge at service level; reversible.
+⬜ **E18.16 — `merge-players`** · L · Deps: E13.19 — repoint identities, recompute, write `player_merges.moved`. _AC:_ co-appearance exclusion blocks the merge at service level; reversible.
 ⬜ **E18.17 — Merge-suggestion generation job** · M · Deps: E9.8, E18.16
 ⬜ **E18.18 — `publish-post`** · M · Deps: E13.22 — status transition plus Discord notify.
 ⬜ **E18.19 — `notify-discord`** · S — webhook wrapper with a no-op mode when the secret is absent.
@@ -484,8 +503,14 @@ Stream H. Each takes already-shaped data as props and renders in Storybook from 
 ⬜ **E19.10 — `ArchetypeMap`** · L · Deps: E7.4 — Canvas, server-computed layout, size = games played, colour = family, `?highlight=` lights every deck running a card.
 ⬜ **E19.11 — `MatchupMatrix`** · M · Deps: E19.2 — heatmap, grouped by family by default.
 ⬜ **E19.12 — `RatingHistory`** · M
-⬜ **E19.13 — `DeckVisualizer`** · M — image grid by type, curve, colours. Hotlinked Scryfall images with attribution.
-⬜ **E19.14 — Chart-rules lint test** · S · Deps: E19.2 — *AC:* asserts every rate-displaying component imports the shared primitive.
+⬜ **E19.13 — `DeckVisualizer`** · M — a text list, not an image grid: count, name and
+mana cost per line, grouped **Spells | Lands | Sideboard**. Lands are listed with an empty cost
+column. Hovering a line shows that one card, uncovered and unmodified; clicking opens its Scryfall
+page in a new tab. _AC:_ no cropped, filtered or overlapped card images anywhere in the component —
+Scryfall's image terms, and the reason this is a list rather than a grid. Takes shaped lines as
+props like every E19 component, so it needs no card data of its own — resolving names against the
+index is E20.6's job.
+⬜ **E19.14 — Chart-rules lint test** · S · Deps: E19.2 — _AC:_ asserts every rate-displaying component imports the shared primitive.
 
 ---
 
@@ -496,7 +521,7 @@ Slices own their routes, components, and hooks; they never import from each othe
 ⬜ **E20.1 — `auth` slice** · M · Deps: E16.3
 ⬜ **E20.2 — `content`: `/articles/*` and MDXEditor** · L · Deps: E18.18
 ⬜ **E20.3 — `content`: "Copy for Reddit" button** · S · Deps: E11.6, E20.2
-⬜ **E20.4 — `cards`: `/cards` browse, filter, sort** · L · Deps: E4.7 — *AC:* filtering happens in-app against the loaded index, not in SQL.
+⬜ **E20.4 — `cards`: `/cards` browse, filter, sort** · L · Deps: E4.7 — _AC:_ filtering happens in-app against the loaded index, not in SQL.
 ⬜ **E20.5 — `cards`: `/cards/[oracleId]` detail** · M · Deps: E19.9, E20.4
 ⬜ **E20.6 — `decks`: `/decks/[id]`** · M · Deps: E19.13
 ⬜ **E20.7 — `decks`: submission flow** · M · Deps: E18.8
@@ -510,7 +535,7 @@ Slices own their routes, components, and hooks; they never import from each othe
 ⬜ **E20.15 — `tournaments`: import dashboard** · L · Deps: E18.4
 ⬜ **E20.16 — `identity-admin`: merge grid** · L · Deps: E18.16
 ⬜ **E20.17 — `identity-admin`: CSV round-trip** · M · Deps: E20.16
-⬜ **E20.18 — `format-admin`: `/dashboard/format`** · L · Deps: E13.15 — *AC:* validates `format_legal_sets` against `data/sets.json` and warns when a selected set is absent from the dataset; bans and exceptions editable without a deploy.
+⬜ **E20.18 — `format-admin`: `/dashboard/format`** · L · Deps: E13.15 — _AC:_ validates `format_legal_sets` against `data/sets.json` and warns when a selected set is absent from the dataset; bans and exceptions editable without a deploy.
 ⬜ **E20.19 — Site search** · M · Deps: E20.4
 
 ---
@@ -520,11 +545,11 @@ Slices own their routes, components, and hooks; they never import from each othe
 A standalone script outside the main app, per the answer to open question 5. Run once, then delete or archive.
 
 ⬜ **E21.1 — Scrape 98 decklists from the archetype map HTML** · L · Deps: E12.7 — player, date, both records, full list from hover text.
-⬜ **E21.2 — Cross-check records against per-date xlsx sheets** · M · Deps: E12.6 — *AC:* summary sheets ignored; mismatches reported, not silently reconciled.
+⬜ **E21.2 — Cross-check records against per-date xlsx sheets** · M · Deps: E12.6 — _AC:_ summary sheets ignored; mismatches reported, not silently reconciled.
 ⬜ **E21.3 — Auto-create identities and mine trailing parentheticals** · M · Deps: E9.2, E18.3
 ⬜ **E21.4 — Build exclusions from co-appearance across all nine events** · S · Deps: E9.7
 ⬜ **E21.5 — Run the suggestion engine and work the queue once** · M · Deps: E18.17, E20.16
-⬜ **E21.6 — Confirm ratings stay empty** · S · Deps: E12.8 — *AC:* no rated tournament exists until an event with real pairings is imported.
+⬜ **E21.6 — Confirm ratings stay empty** · S · Deps: E12.8 — _AC:_ no rated tournament exists until an event with real pairings is imported.
 
 ---
 
@@ -532,12 +557,12 @@ A standalone script outside the main app, per the answer to open question 5. Run
 
 ✅ **E22.1 — Licence decision and file** · S — MIT or Apache-2.0, before the first external PR.
 ⛔ **E22.2 — Contributor Covenant CoC** · S
-*Blocked:* needs a contact address for the enforcement section.
+_Blocked:_ needs a contact address for the enforcement section.
 ⛔ **E22.3 — `CODEOWNERS` per `area:` label** · S
-*Blocked:* needs the GitHub org/team handle for each `area:` label.
+_Blocked:_ needs the GitHub org/team handle for each `area:` label.
 ⬜ **E22.4 — Issue labels and templates** · M — the nine `area:` labels plus `good first issue` templates for: new adapter, new identity signal, new Reddit transform, new decklist edge case, new chart, new MDX page.
 ✅ **E22.5 — PR template encoding the Definition of Done** · S — the §19 checklist verbatim.
-⬜ **E22.6 — ADRs 001–014** · L — one short file each. *Split into three PRs of four or five if review drags.*
+⬜ **E22.6 — ADRs 001–014** · L — one short file each. _Split into three PRs of four or five if review drags._
 ⬜ **E22.7 — `docs/modules/` index** · S — one page per module, linked from each module README.
 
 ### Release-blocker tests
@@ -545,7 +570,7 @@ A standalone script outside the main app, per the answer to open question 5. Run
 These four are called out in §22. Write them as early as their dependencies allow and treat breakage as a release blocker.
 
 ⛔ **E22.8 — `metrics-golden.test.ts`** · L · Deps: E6.7, E21.1 — import the `2026-08-01` decklists, assert computed `deck_metrics` match the existing spreadsheet column for column.
-*Blocked:* needs the community spreadsheet to assert against.
+_Blocked:_ needs the community spreadsheet to assert against.
 ⬜ **E22.9 — `replay-identity.test.ts`** · L · Deps: E18.12, E18.16 — two handles with separate histories produce two ratings; bind them to one player, re-run, assert one merged rating **and that no row in `matches` changed**. Encodes ADR 003 and 004.
 ⬜ **E22.10 — `rls.test.ts`** · see E14.5.
 ⬜ **E22.11 — `dataset-integrity.test.ts`** · M · Deps: E4.4, E13.12 — every `oracle_id` in Postgres exists in `data/cards/`; every set in `format_legal_sets` is present in `data/sets.json`. This replaces the foreign keys the card tables would have provided.
@@ -566,59 +591,59 @@ Two constraints shape every story below.
   in Vercel and nowhere else. Nothing in `packages/` may read them, no contributor needs them, and
   every test in this epic runs with none set. Locally the page renders from the seed.
 - **The API budget is 500 requests a month.** That is ~16 a day. The refresh interval is therefore one
-  named constant with the arithmetic written next to it, and the window is claimed *before* the fetch,
+  named constant with the arithmetic written next to it, and the window is claimed _before_ the fetch,
   so an outage costs one request per window rather than one per page view.
 
 ✅ **E23.1 — `contracts/events`** · S · Deps: E1.1 — `ExternalEvent`, `ExternalEventState`,
 `EventSource`, `EventSyncState`, `EventSchedule`. A ninth module in the §7 table.
-*AC:* `ExternalEvent` carries no Challonge-shaped field — a second source is a new parser, not a
+_AC:_ `ExternalEvent` carries no Challonge-shaped field — a second source is a new parser, not a
 contract change.
 
 ✅ **E23.2 — `core/events/parse-challonge-events`** · M · Deps: E23.1 — the v2.1 JSON:API list payload
 to `ExternalEvent[]`. Fixture-driven, against `fixtures/challonge-api/`.
-*AC:* `[TEST]` events are dropped; a malformed member is skipped rather than failing the batch; an
+_AC:_ `[TEST]` events are dropped; a malformed member is skipped rather than failing the batch; an
 unrecognised `state` still produces an event.
-*Outstanding:* the fixture is shaped from the documented v2.1 schema and from the request the previous
+_Outstanding:_ the fixture is shaped from the documented v2.1 schema and from the request the previous
 site made, not captured from a live response — the endpoint needs a key that only production holds.
 Replace it with a real capture the first time anyone holding the key runs the client.
 
 ✅ **E23.3 — `core/events/sync-window`** · S · Deps: E23.1 — is a refresh due, and what cutoff does
 the claim compare against.
-*AC:* pure — `now` is an argument, never `Date.now()`; a never-synced source is always due.
+_AC:_ pure — `now` is an argument, never `Date.now()`; a never-synced source is always due.
 
 ✅ **E23.4 — `core/events/event-schedule`** · S · Deps: E23.1 — group and sort cached events for
 display: live first, then upcoming by start, then recent past.
-*AC:* an event with no `startsAt` sorts last within its group rather than being dropped.
+_AC:_ an event with no `startsAt` sorts last within its group rather than being dropped.
 
 ✅ **E23.5 — `external_events` and `external_event_syncs`** · M · Deps: E13.1 — the cache table and
 the one-row-per-source sync ledger.
-*AC:* `unique (source, external_id)`; public read policy on the cache, no policy at all on the sync
+_AC:_ `unique (source, external_id)`; public read policy on the cache, no policy at all on the sync
 ledger; a SQL comment explaining that this table is not `tournaments` (E13.6) and why.
 
 ✅ **E23.6 — `repos/events`** · M · Deps: E23.5 — `listCachedEvents`, `getSyncState`,
 `claimSyncWindow`, `replaceEvents`, `recordSyncResult`.
-*AC:* `claimSyncWindow` is a single conditional update, so two concurrent requests produce one fetch;
+_AC:_ `claimSyncWindow` is a single conditional update, so two concurrent requests produce one fetch;
 `replaceEvents` supersedes wholesale — a since-deleted event leaves the cache.
 
 ✅ **E23.7 — Challonge client** · M · Deps: E23.1 — `apps/web/lib/challonge/client.server.ts`,
 paginated, timeout-bounded.
-*AC:* returns a discriminated result, never throws; unset credentials are a `not-configured` result,
+_AC:_ returns a discriminated result, never throws; unset credentials are a `not-configured` result,
 not an error, so a contributor's local site has a working page and an empty one.
-*Outstanding:* verified against the live endpoint only as far as the auth check. The request shape is
+_Outstanding:_ verified against the live endpoint only as far as the auth check. The request shape is
 confirmed correct — omitting `Content-Type: application/vnd.api+json` is answered 415, and with it an
 invalid key is answered 401 — but no successful 200 payload has been seen from this code.
 
 ✅ **E23.8 — `sync-events` service** · M · Deps: E23.3, E23.6, E23.7 — claim the window, fetch, parse,
 replace, record. A thin coordinator; the decisions belong to E23.2–E23.4.
-*AC:* a failed fetch still serves the cache and still consumes the window.
+_AC:_ a failed fetch still serves the cache and still consumes the window.
 
 ✅ **E23.9 — `/events` route and cards** · M · Deps: E23.4, E23.8 — the schedule page, an `EventCard`
 that links out, and the header nav item.
-*AC:* every card's primary action is the external event page; the page states how stale the cache is.
+_AC:_ every card's primary action is the external event page; the page states how stale the cache is.
 
 ✅ **E23.10 — Seed and environment docs** · S · Deps: E23.5 — seed rows across all three states, and
 the two Challonge variables documented in `.env.example` as optional.
-*AC:* `pnpm db:reset && pnpm dev` shows a populated `/events` with no credentials set.
+_AC:_ `pnpm db:reset && pnpm dev` shows a populated `/events` with no credentials set.
 
 ✅ **E23.11 — `docs/modules/events.md`** · S · Deps: E23.8 — the cache policy, the request-budget
 arithmetic, and how to change the interval.
@@ -632,9 +657,11 @@ can start today, in rough order of how much it unblocks.
 
 **Unblocks the most**
 
-- **E4.1–E4.7 — the card dataset.** `data/sets.json` is still an empty array, so `build-card-index`,
-  `resolve-card-name`, `set-attribution`, and `rarity-counts` are all proven against
-  `fixtures/cards/` rather than against the real pool. E4 also unblocks E20.4 and E22.11.
+- **E4.5–E4.7 — finishing the card dataset.** E4.1–E4.4 are merged and `data/cards/` now holds the
+  real pool: 1,826 oracle cards, 2,916 printings, 2.4 MB. `build-card-index`, `resolve-card-name`,
+  `set-attribution` and `rarity-counts` can now be proven against it rather than `fixtures/cards/`.
+  **E4.7 (the loader) unblocks the most** — E19.13, E20.4 and E22.11 all wait on it. E4.5 moves the
+  build to CI; E4.6 sets the size ceiling, for which 10 MB gives ~4x headroom over today's artifact.
 - **E13.7–E13.12 — the rest of the migrations,** in the Part IV order. `profiles`, content, format,
   archetypes, seasons, tournaments and the identity pair are in; everything in E14–E21 waits on the
   ones that are not. E13.7 (`decks`) and E13.8 (the results ledger) unblock the most.
@@ -650,7 +677,7 @@ can start today, in rough order of how much it unblocks.
 
 **Waiting on a person, not on code**
 
-E12.4, E12.5, E12.6, E22.2, E22.3, E22.8 — each carries a *Blocked:* line naming exactly what it needs.
+E12.4, E12.5, E12.6, E22.2, E22.3, E22.8 — each carries a _Blocked:_ line naming exactly what it needs.
 
 E23 is merged but only half switched on: `/events` renders from the seed until `CHALLONGE_API_KEY` and
 `CHALLONGE_COMMUNITY` are set in Vercel. Nothing in the repository is waiting on that, and no
@@ -676,18 +703,18 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 ## Progress
 
 | Epic | Stories | Done | Epic | Stories | Done |
-|---|---|---|---|---|---|
-| E1 | 9 | 9 | E12 | 9 | 6 |
-| E2 | 9 | 9 | E13 | 23 | 9 |
-| E3 | 7 | 7 | E14 | 5 | 0 |
-| E4 | 7 | 0 | E15 | 5 | 0 |
-| E5 | 6 | 6 | E16 | 8 | 2 |
-| E6 | 8 | 8 | E17 | 13 | 12 |
-| E7 | 5 | 5 | E18 | 19 | 0 |
-| E8 | 6 | 6 | E19 | 14 | 0 |
-| E9 | 9 | 9 | E20 | 19 | 0 |
-| E10 | 3 | 3 | E21 | 6 | 0 |
-| E11 | 6 | 6 | E22 | 12 | 2 |
-|  |  |  | E23 | 11 | 11 |
+| ---- | ------- | ---- | ---- | ------- | ---- |
+| E1   | 9       | 9    | E12  | 9       | 6    |
+| E2   | 9       | 9    | E13  | 23      | 9    |
+| E3   | 7       | 7    | E14  | 5       | 0    |
+| E4   | 7       | 4    | E15  | 5       | 0    |
+| E5   | 6       | 6    | E16  | 8       | 2    |
+| E6   | 8       | 8    | E17  | 13      | 12   |
+| E7   | 5       | 5    | E18  | 19      | 0    |
+| E8   | 6       | 6    | E19  | 14      | 0    |
+| E9   | 9       | 9    | E20  | 19      | 0    |
+| E10  | 3       | 3    | E21  | 6       | 0    |
+| E11  | 6       | 6    | E22  | 12      | 2    |
+|      |         |      | E23  | 11      | 11   |
 
-**110 of 219 stories done across 23 epics.**
+**114 of 219 stories done across 23 epics.**
