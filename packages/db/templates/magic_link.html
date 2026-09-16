@@ -6,6 +6,13 @@
     for. Hard-coding a path instead silently drops it and lands everyone on the
     same page.
 
+    RedirectTo is never empty, though: GoTrue falls back to the Site URL when a
+    send has no redirect of its own, or when the one it was given is not on the
+    allow-list. The Site URL carries no query string, so appending "&token_hash"
+    to it produces a dead link. Hence the comparison rather than a truth test —
+    an admin invite from the dashboard and a reset triggered outside the app both
+    land in that branch.
+
     Two whole anchors rather than one with a conditional href: Go's html/template
     refuses to autoescape a URL whose context it cannot work out, and a
     conditional at the very start of an href is exactly that. Nothing in this
@@ -13,25 +20,47 @@
     word "if" between braces here is an action with no argument, and a template
     that fails to parse is not an error anybody sees. GoTrue falls back to its
     own default template and sends that instead.
+
+    GoTrue reads these once, at boot. Editing one locally changes nothing until
+    the auth container is restarted, which looks exactly like an edit that did
+    not work.
   -->
   <body style="font-family: ui-sans-serif, system-ui, sans-serif; line-height: 1.6; color: #1c1b22">
-    <h2 style="font-family: ui-serif, Georgia, serif; font-weight: 600">Sign in to Planar Standard</h2>
+    <h2 style="font-family: ui-serif, Georgia, serif; font-weight: 600">
+      Sign in to Planar Standard
+    </h2>
     <p>Here is the sign-in link you asked for. It expires in an hour.</p>
     <p>
-      {{ if .RedirectTo }}
+      {{ if or (eq .RedirectTo "") (eq .RedirectTo .SiteURL) }}
       <a
-        href="{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=magiclink"
-        style="display: inline-block; background: #1c1b22; color: #fff; padding: 12px 20px; border-radius: 8px; text-decoration: none"
+        href="{{ .SiteURL }}/auth/confirm?next=%2Fprofile&token_hash={{ .TokenHash }}&type=magiclink"
+        style="
+          display: inline-block;
+          background: #1c1b22;
+          color: #fff;
+          padding: 12px 20px;
+          border-radius: 8px;
+          text-decoration: none;
+        "
         >Sign in</a
       >
       {{ else }}
       <a
-        href="{{ .SiteURL }}/auth/confirm?next=%2Fprofile&token_hash={{ .TokenHash }}&type=magiclink"
-        style="display: inline-block; background: #1c1b22; color: #fff; padding: 12px 20px; border-radius: 8px; text-decoration: none"
+        href="{{ .RedirectTo }}&token_hash={{ .TokenHash }}&type=magiclink"
+        style="
+          display: inline-block;
+          background: #1c1b22;
+          color: #fff;
+          padding: 12px 20px;
+          border-radius: 8px;
+          text-decoration: none;
+        "
         >Sign in</a
       >
       {{ end }}
     </p>
-    <p style="color: #6b6a75; font-size: 14px">If you did not ask to sign in, you can ignore this email.</p>
+    <p style="color: #6b6a75; font-size: 14px">
+      If you did not ask to sign in, you can ignore this email.
+    </p>
   </body>
 </html>
