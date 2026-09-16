@@ -47,12 +47,16 @@ export default async function AccountDataPage({
             sign you in and nothing else. It is never shown on the site.
           </li>
           <li>
-            <strong className="text-ink-800 dark:text-ink-200">Your display name, handle, and
-            bio</strong> — these are your byline, and they are public.
+            <strong className="text-ink-800 dark:text-ink-200">
+              Your display name, handle, and bio
+            </strong>{" "}
+            — these are your byline, and they are public.
           </li>
           <li>
-            <strong className="text-ink-800 dark:text-ink-200">Anything you have written or
-            submitted</strong>: articles, decks.
+            <strong className="text-ink-800 dark:text-ink-200">
+              Anything you have written or submitted
+            </strong>
+            : articles, decks.
           </li>
           <li>
             <strong className="text-ink-800 dark:text-ink-200">Sign-in records</strong>, kept by our
@@ -95,11 +99,11 @@ export default async function AccountDataPage({
           <strong className="text-ink-800 dark:text-ink-200">we cannot get any of it back</strong>.
         </p>
         <p className="mt-3 text-sm text-ink-600 dark:text-ink-400">
-          Anything you published stays up with the byline changed to{" "}
-          <em>Deleted member</em> — an article the community is still reading is not removed when
-          its author leaves. Tournament results stay too: they are recorded against the handle you
-          played under rather than against this account, and they came from the organiser&rsquo;s
-          own platform. Download a copy first if you want one.
+          Anything you published stays up with the byline changed to <em>Deleted member</em> — an
+          article the community is still reading is not removed when its author leaves. Tournament
+          results stay too: they are recorded against the handle you played under rather than
+          against this account, and they came from the organiser&rsquo;s own platform. Download a
+          copy first if you want one.
         </p>
 
         <form method="post" action="/auth/erase" className="mt-5 space-y-3">

@@ -25,9 +25,7 @@ export function AuthShell({
     <Container className="py-16">
       <div className="mx-auto max-w-md">
         <h1 className="font-serif text-3xl font-semibold tracking-tight">{title}</h1>
-        {intro !== undefined && (
-          <p className="mt-2 text-ink-600 dark:text-ink-400">{intro}</p>
-        )}
+        {intro !== undefined && <p className="mt-2 text-ink-600 dark:text-ink-400">{intro}</p>}
         {children}
       </div>
     </Container>
@@ -73,9 +71,7 @@ export function Field({
         {label}
       </label>
       <input id={name} name={name} type={type} className={FIELD_CLASS} {...rest} />
-      {hint !== undefined && (
-        <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">{hint}</p>
-      )}
+      {hint !== undefined && <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">{hint}</p>}
     </div>
   );
 }

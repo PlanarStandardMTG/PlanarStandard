@@ -10,12 +10,12 @@ front of information the community already published.
 
 ## Several ways in, none of them required
 
-| Method                 | What it needs                     | Also signs you up |
-| ---------------------- | --------------------------------- | ----------------- |
-| Email and password     | nothing but an address            | via `/signup`     |
-| Emailed sign-in link   | nothing but an address            | **yes**           |
-| Google                 | a Google account                  | yes               |
-| Discord                | a Discord account                 | yes               |
+| Method               | What it needs          | Also signs you up |
+| -------------------- | ---------------------- | ----------------- |
+| Email and password   | nothing but an address | via `/signup`     |
+| Emailed sign-in link | nothing but an address | **yes**           |
+| Google               | a Google account       | yes               |
+| Discord              | a Discord account      | yes               |
 
 **No provider is privileged, and Discord in particular is not.** The format's
 community lives there, but requiring it would turn "read this site" into "join
@@ -95,7 +95,7 @@ Three things about editing them, each of which has already gone wrong once:
 ## What is and is not hidden
 
 **Confirmation is required, and that is load-bearing rather than tidy.** Supabase
-links identities that share an email address. An *unconfirmed* password account
+links identities that share an email address. An _unconfirmed_ password account
 on somebody else's address would sit waiting to be linked to their Google
 sign-in, handing whoever created it a password into the real owner's account.
 Requiring confirmation is what makes "same email" mean "same person".
@@ -128,14 +128,14 @@ Anyone can sign up without ever choosing a password at all — the emailed link
 makes an account and confirms the address in one step. That is the shortest path
 onto the site and the one with the least to lose.
 
-| Data                        | Where                | Who can read it            |
-| --------------------------- | -------------------- | -------------------------- |
-| Email address               | `auth.users`         | the person, and service-role |
-| Password hash               | `auth.users`         | nobody through the API     |
-| Provider id, avatar URL     | `auth.users` metadata | copied to `profiles` on first login |
-| Display name, handle, bio   | `profiles`           | **everyone** — these are bylines |
-| Role                        | `profiles`           | everyone; who the organizers are is not a secret |
-| IP address, sign-in events  | `auth.audit_log_entries` | service-role only      |
+| Data                       | Where                    | Who can read it                                  |
+| -------------------------- | ------------------------ | ------------------------------------------------ |
+| Email address              | `auth.users`             | the person, and service-role                     |
+| Password hash              | `auth.users`             | nobody through the API                           |
+| Provider id, avatar URL    | `auth.users` metadata    | copied to `profiles` on first login              |
+| Display name, handle, bio  | `profiles`               | **everyone** — these are bylines                 |
+| Role                       | `profiles`               | everyone; who the organizers are is not a secret |
+| IP address, sign-in events | `auth.audit_log_entries` | service-role only                                |
 
 `profiles` is deliberately public-read and deliberately holds **no email**. The
 split is the whole design: the row that gets attributed to a post carries only
@@ -145,7 +145,7 @@ what a byline needs, and the address stays in the schema nothing can reach.
 
 `HttpOnly`, `SameSite=lax`, and `Secure` outside development —
 `lib/auth/cookie-options.ts`, applied by both writers. `@supabase/ssr` leaves the
-cookie readable by JavaScript by default, because its *browser* client reads the
+cookie readable by JavaScript by default, because its _browser_ client reads the
 session out of `document.cookie`. We have no browser client, so that access buys
 nothing and costs the difference between an XSS bug and a stolen session. Adding
 a browser client later means giving `httpOnly` up, which is why it is one word in
@@ -169,13 +169,13 @@ Worth knowing before this handles anyone's data but your own:
 `rls.test.ts` in `packages/db` is the allow-deny matrix (E14.5) — 115 assertions
 across real sessions, one per role, and **a release blocker when red**.
 
-| Who                     | May write                                                                 |
-| ----------------------- | ------------------------------------------------------------------------- |
-| anon, reader            | nothing at all                                                            |
-| writer                  | nothing yet — E20.2 adds `posts`                                          |
-| organizer (and admin)   | `tournaments`, `result_imports`, `staged_matches`, `players`, `player_identities`; **insert only** into `matches`, `tournament_entries`, `match_corrections` |
-| admin                   | the format tables, `seasons`, `archetypes`, `rating_config`, identity curation, and role grants |
-| service-role            | everything — it bypasses RLS, which is the point of it                    |
+| Who                   | May write                                                                                                                                                    |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| anon, reader          | nothing at all                                                                                                                                               |
+| writer                | nothing yet — E20.2 adds `posts`                                                                                                                             |
+| organizer (and admin) | `tournaments`, `result_imports`, `staged_matches`, `players`, `player_identities`; **insert only** into `matches`, `tournament_entries`, `match_corrections` |
+| admin                 | the format tables, `seasons`, `archetypes`, `rating_config`, identity curation, and role grants                                                              |
+| service-role          | everything — it bypasses RLS, which is the point of it                                                                                                       |
 
 Three absences are load-bearing, and an absence is invisible, so the matrix
 asserts each one:
@@ -297,26 +297,26 @@ variables named in `supabase.config.toml` before `pnpm db:start`.
 
 ## Modules
 
-| Module                                 | Job                                                    |
-| -------------------------------------- | ------------------------------------------------------ |
-| `core/auth/meets-role`                 | does this role clear that bar                          |
-| `core/auth/profile-handle`             | what a person may call themselves in a URL             |
-| `core/auth/password-policy`            | what we require of a password, mirrored from Supabase  |
-| `db/repos/profiles`                    | read a profile, save a person's own edits              |
-| `db/migrations/0016_profile_bootstrap` | the trigger that makes the row                         |
-| `db/templates/`                        | the four emails, and why they are not the defaults     |
-| `web/proxy.ts`                         | keeps the session alive; decides nothing               |
-| `web/app/auth/*`                       | every route that can change a credential               |
-| `web/lib/supabase/session.ts`          | the cookie-bound client                                |
-| `web/lib/auth/viewer.ts`               | the one place a cookie becomes a person                |
-| `web/lib/auth/guard.ts`                | `requireViewer`, `requireRole`                         |
-| `web/lib/auth/auth-error.ts`           | a failure becomes a code, and a code becomes a sentence |
-| `web/lib/auth/providers.ts`            | the OAuth catalogue                                    |
-| `web/lib/auth/enabled-providers.ts`    | which of them this project actually has                |
-| `web/lib/auth/next-path.ts`            | where it is safe to send somebody afterwards           |
-| `web/lib/auth/current-path.ts`         | what path this render is for                           |
-| `web/lib/auth/dashboard-sections.ts`   | what is behind the dashboard, and who each part is for |
-| `web/lib/account/personal-data.server.ts` | everything we hold about one person, as a file      |
-| `db/migrations/0017_profile_erasure`   | the tombstone, and the trigger behind every delete path |
-| `db/migrations/0018_access_control`    | `has_role`, and every write policy                     |
-| `db/rls.test.ts`                       | the allow-deny matrix — a release blocker when red     |
+| Module                                    | Job                                                     |
+| ----------------------------------------- | ------------------------------------------------------- |
+| `core/auth/meets-role`                    | does this role clear that bar                           |
+| `core/auth/profile-handle`                | what a person may call themselves in a URL              |
+| `core/auth/password-policy`               | what we require of a password, mirrored from Supabase   |
+| `db/repos/profiles`                       | read a profile, save a person's own edits               |
+| `db/migrations/0016_profile_bootstrap`    | the trigger that makes the row                          |
+| `db/templates/`                           | the four emails, and why they are not the defaults      |
+| `web/proxy.ts`                            | keeps the session alive; decides nothing                |
+| `web/app/auth/*`                          | every route that can change a credential                |
+| `web/lib/supabase/session.ts`             | the cookie-bound client                                 |
+| `web/lib/auth/viewer.ts`                  | the one place a cookie becomes a person                 |
+| `web/lib/auth/guard.ts`                   | `requireViewer`, `requireRole`                          |
+| `web/lib/auth/auth-error.ts`              | a failure becomes a code, and a code becomes a sentence |
+| `web/lib/auth/providers.ts`               | the OAuth catalogue                                     |
+| `web/lib/auth/enabled-providers.ts`       | which of them this project actually has                 |
+| `web/lib/auth/next-path.ts`               | where it is safe to send somebody afterwards            |
+| `web/lib/auth/current-path.ts`            | what path this render is for                            |
+| `web/lib/auth/dashboard-sections.ts`      | what is behind the dashboard, and who each part is for  |
+| `web/lib/account/personal-data.server.ts` | everything we hold about one person, as a file          |
+| `db/migrations/0017_profile_erasure`      | the tombstone, and the trigger behind every delete path |
+| `db/migrations/0018_access_control`       | `has_role`, and every write policy                      |
+| `db/rls.test.ts`                          | the allow-deny matrix — a release blocker when red      |

@@ -87,10 +87,7 @@ suite("RLS — the allow-deny matrix", () => {
       // The trigger starts everybody at reader; the grant is the thing being
       // set up, not the thing being tested.
       if (role !== "reader") {
-        const { error: grant } = await service
-          .from("profiles")
-          .update({ role })
-          .eq("user_id", id);
+        const { error: grant } = await service.from("profiles").update({ role }).eq("user_id", id);
         if (grant !== null) throw new Error(`could not grant ${role}: ${grant.message}`);
       }
 

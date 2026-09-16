@@ -109,7 +109,11 @@ export {
 
 // auth — who may do what (§16, E16.5)
 export { ROLE_LADDER, isUserRole, meetsRole, roleRank } from "./auth/meets-role/index";
-export { HANDLE_MAX_LENGTH, HANDLE_MIN_LENGTH, checkProfileHandle } from "./auth/profile-handle/index";
+export {
+  HANDLE_MAX_LENGTH,
+  HANDLE_MIN_LENGTH,
+  checkProfileHandle,
+} from "./auth/profile-handle/index";
 export type { HandleCheck, HandleProblem } from "./auth/profile-handle/index";
 export {
   PASSWORD_MAX_BYTES,

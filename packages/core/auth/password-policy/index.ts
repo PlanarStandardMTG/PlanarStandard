@@ -43,8 +43,7 @@ export function utf8ByteLength(value: string): number {
 }
 
 export type PasswordCheck =
-  | { readonly ok: true }
-  | { readonly ok: false; readonly problem: PasswordProblem };
+  { readonly ok: true } | { readonly ok: false; readonly problem: PasswordProblem };
 
 export function checkPassword(raw: string): PasswordCheck {
   if (raw.trim() === "") return { ok: false, problem: "blank" };

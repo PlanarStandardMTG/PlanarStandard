@@ -228,7 +228,10 @@ suite("repos/profiles", () => {
     expect(await getProfileByUserId(service, transient)).toBeNull();
 
     // The tombstone is correct in production and is litter here.
-    await service.from("profiles").delete().eq("id", profile?.id ?? "");
+    await service
+      .from("profiles")
+      .delete()
+      .eq("id", profile?.id ?? "");
   });
 });
 

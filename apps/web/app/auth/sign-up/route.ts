@@ -39,7 +39,9 @@ export async function POST(request: Request): Promise<never> {
 
   const checked = checkPassword(password);
   if (!checked.ok) {
-    redirect(signUpHref(next, `error=${checked.problem === "too-long" ? "unknown" : "weak-password"}`));
+    redirect(
+      signUpHref(next, `error=${checked.problem === "too-long" ? "unknown" : "weak-password"}`),
+    );
   }
 
   const supabase = await createSessionClient();

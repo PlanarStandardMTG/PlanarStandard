@@ -17,10 +17,7 @@ import { PROFILE_COLUMNS, toProfile, type ProfileRow } from "./rows";
  */
 
 /** One profile by auth id. Null when there is no such person. */
-export async function getProfile(
-  client: SupabaseClient,
-  id: ProfileId,
-): Promise<Profile | null> {
+export async function getProfile(client: SupabaseClient, id: ProfileId): Promise<Profile | null> {
   const { data, error } = await client
     .from("profiles")
     .select(PROFILE_COLUMNS)

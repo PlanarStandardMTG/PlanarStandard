@@ -8,7 +8,7 @@ the normalised value, or `{ ok: false, problem }` with a code — `too-short`,
 `too-long`, `charset`, `reserved`. A code and not a sentence: core holds no
 user-facing copy, and the wording belongs next to the form that shows it.
 
-**Gotchas.** Not `identity/normalize-handle`. That one folds a *platform* handle
+**Gotchas.** Not `identity/normalize-handle`. That one folds a _platform_ handle
 out of a tournament export so two spellings of the same player meet — it
 describes what somebody else wrote. This one constrains what we accept, and the
 two must never be merged: loosening this would let a display name into a URL,

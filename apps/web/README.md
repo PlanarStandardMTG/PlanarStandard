@@ -65,7 +65,7 @@ special case of the other; §25's split rule decides which a document is.
 - **A protected route guards itself.** `await requireRole("admin")` is the first
   statement in the page or layout, and there is no registry of protected routes —
   so a new page under `/dashboard` cannot be left open by forgetting to list it
-  somewhere. Guard in the layout *and* in the page: the call is memoised per
+  somewhere. Guard in the layout _and_ in the page: the call is memoised per
   request, and a page that relies on its parent is one route move from having no
   check. `proxy.ts` refreshes the session and decides nothing. See
   [`docs/modules/auth.md`](../../docs/modules/auth.md).
