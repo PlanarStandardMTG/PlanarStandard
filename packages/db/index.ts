@@ -7,3 +7,4 @@
 export * from "./repos/content/index";
 export * from "./repos/format/index";
 export * from "./repos/events/index";
+export * from "./repos/decks/index";

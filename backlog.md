@@ -32,7 +32,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
 | E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
-| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 10/23 |
+| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 11/23 |
 | E14  | RLS and access control                | 1     | E13          | ⬜ 0/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 2/8   |
@@ -370,7 +370,9 @@ _Note:_ no seed rows. Synthetic handles and pairings are E15.1's job, and invent
 _Note:_ `visibility <> 'private'` is the read policy, so an **unlisted deck is readable**. Unlisted
 means "not in the listings", and a policy that hid it would break the share link that is the whole
 point of the state — filtering a browse page down to `public` is the query's job. E14.1 revisits it
-and E14.5 is where the allow-deny matrix gets asserted; it is verified by hand for now.
+and E14.5 is where the full allow-deny matrix lands; `repos/decks`' tests assert this table's half of
+it in the meantime — private hidden from the anon client but present to service-role, unlisted served
+by id, neither listed by a browse query.
 _Note:_ no seed rows, following E13.5. A deck needs a player and a tournament to mean anything, and
 inventing a second synthetic set here is exactly what E15.1 would then have to reconcile with.
 ⬜ **E13.8 — `result_imports`, `staged_matches`, `matches`, `match_corrections`** · L · Deps: E13.6 — _AC:_ `unique (tournament_id, content_hash)`; ledger references `player_identities`, never `players`.
@@ -387,7 +389,18 @@ One module per aggregate, narrow intention-revealing functions, never a generic 
 
 ✅ **E13.15 — `repos/format`** · M · Deps: E13.2
 _Note:_ returns rows (`FormatVersionDetail`, added to contracts), not `FormatRules` — flattening is `core/legality/resolve-format`'s job and `db` depends on contracts only. A restricted rule is given `limit: 1` here because `format_card_rules` has no column for it.
-⬜ **E13.16 — `repos/decks`** · M · Deps: E13.7
+✅ **E13.16 — `repos/decks`** · M · Deps: E13.7 — `getDeckWithCards`, `listDecksByPlayer`,
+`listPublicDecksBySeason`, `insertDeck`.
+_Note:_ the read policy decides what **may** be read and a listing decides what **is** listed, so
+`listPublicDecksBySeason` filters `visibility = 'public'` itself rather than leaning on RLS, and
+`listDecksByPlayer` deliberately does not. Getting that backwards either leaks every unlisted deck or
+breaks every share link.
+_Note:_ `insertDeck` is not atomic — PostgREST has no transaction across two tables, so it writes the
+deck, writes the cards, and deletes the deck if the cards fail. A `decks` row with no `deck_cards`
+reads as an empty deck everywhere. Genuine atomicity means a `plpgsql` function and an RPC.
+_Note:_ needed `Deck`, `DeckCard` and `DeckWithCards` in contracts, and those could not be written
+until the fourteen row-id aliases moved to `contracts/primitives` — a `Deck` references five ids
+owned by five modules, three of which already import from `decks`, so the type was three cycles.
 ⬜ **E13.17 — `repos/tournaments`** · M · Deps: E13.9
 ⬜ **E13.18 — `repos/results`** · L · Deps: E13.8
 ⬜ **E13.19 — `repos/identity`** · L · Deps: E13.10
@@ -756,8 +769,9 @@ can start today, in rough order of how much it unblocks.
   waits on the ones that are not. **E13.8 (the results ledger) unblocks the most** — E13.9, E13.10,
   E14.3 and E18.1–E18.6 all sit behind it, and with E13.9 the home page's podium stops being a
   placeholder (E24.5).
-- **E13.16 — `repos/decks`,** newly unblocked by E13.7 and the last thing between E19.13/E20.6 and a
-  deck page.
+- **E19.13 — `DeckVisualizer`,** now that `repos/decks` can hand it a deck. It takes shaped lines as
+  props like every E19 component, so it needs no card data of its own — but see E19.1 first, which
+  sets the fixture conventions the other thirteen components inherit.
 - **E13.23 — `repos/archetypes`,** and **E13.17 — `repos/tournaments`** once E13.9 lands.
 - **E17.4 — `<Chart />`,** the last thing between E17 and a finished epic. It waits on E19.
 
@@ -809,7 +823,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
 | E1   | 9       | 9    | E12  | 10      | 6    |
-| E2   | 9       | 9    | E13  | 23      | 10   |
+| E2   | 9       | 9    | E13  | 23      | 11   |
 | E3   | 7       | 7    | E14  | 5       | 0    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
 | E5   | 6       | 6    | E16  | 8       | 2    |
@@ -822,4 +836,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 11   |
 |      |         |      | E24  | 7       | 4    |
 
-**119 of 228 stories done across 24 epics.**
+**120 of 228 stories done across 24 epics.**

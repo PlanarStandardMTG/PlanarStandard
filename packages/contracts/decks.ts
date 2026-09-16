@@ -1,4 +1,14 @@
 import type { OracleId, SetCode } from "./cards";
+import type {
+  ArchetypeId,
+  DeckId,
+  FormatVersionId,
+  IsoDateTime,
+  JsonValue,
+  PlayerId,
+  ProfileId,
+  SeasonId,
+} from "./primitives";
 
 /** The `deck_visibility` enum (§14). */
 export type DeckVisibility = "private" | "unlisted" | "public";
@@ -111,4 +121,73 @@ export interface DecklistFilenameMeta {
   readonly archetype?: string;
   readonly matchRecord?: WinLossDraw;
   readonly gameRecord?: WinLossDraw;
+}
+
+// ── The stored deck ──────────────────────────────────────────────────────────
+// Everything above is a decklist on its way in. What follows is one after it has
+// a row (§14, E13.7).
+
+/** `decks.submitted_via` — how the list reached the site. */
+export type DeckSubmissionRoute = "registration" | "organizer" | "backfill" | "import";
+
+/**
+ * One `decks` row.
+ *
+ * `ownerId` and `playerId` are different questions and usually different
+ * answers: the owner is an account that can edit this, the player is who
+ * registered it. Most decks arrive from an import and have the second and not
+ * the first — identities auto-create and curation is merging, not claiming
+ * (ADR 009).
+ *
+ * `archetypeId` and `archetypeRaw` are both kept, always. An adapter reports the
+ * label the source printed and never resolves it (E12.7), so the raw string is
+ * what lets resolution re-run over a mislabelled deck without going back to a
+ * file nobody kept.
+ */
+export interface Deck {
+  readonly id: DeckId;
+  readonly name: string;
+  readonly ownerId: ProfileId | null;
+  readonly playerId: PlayerId | null;
+  readonly seasonId: SeasonId | null;
+  readonly formatVersionId: FormatVersionId | null;
+  readonly archetypeId: ArchetypeId | null;
+  readonly archetypeRaw: string | null;
+  readonly visibility: DeckVisibility;
+  readonly descriptionMarkdown: string | null;
+  readonly sourceUrl: string | null;
+  /** The decklist exactly as it arrived. A parser fix re-runs from here (§26). */
+  readonly rawImport: string | null;
+  readonly submittedVia: DeckSubmissionRoute | null;
+  /** Set when the event starts (ADR 013). After this, an edit forks rather than overwrites. */
+  readonly lockedAt: IsoDateTime | null;
+  readonly parentDeckId: DeckId | null;
+  /** Null until legality has been checked, which is not the same as false. */
+  readonly isLegal: boolean | null;
+  /** The `LegalityVerdict` that produced `isLegal`, as stored. Null when unchecked. */
+  readonly validation: JsonValue | null;
+  readonly createdAt: IsoDateTime;
+}
+
+/**
+ * One `deck_cards` row.
+ *
+ * `name` is the authority and `oracleId` is the lookup: the parser resolves by
+ * name, never by printing (ADR 007). `oracleId` is null when the name did not
+ * resolve — the row is kept and the deck is flagged (E18.10), because dropping a
+ * line the site could not read is how the record stops being a record.
+ */
+export interface DeckCard {
+  readonly oracleId: OracleId | null;
+  readonly name: string;
+  readonly quantity: number;
+  readonly board: Board;
+  /** Provenance only. `(PLST) WOE-273` is kept as written and never has to resolve. */
+  readonly set: SetCode | null;
+  readonly collector: string | null;
+}
+
+/** A deck with its list — what a deck page renders, and the only read that needs both. */
+export interface DeckWithCards extends Deck {
+  readonly cards: readonly DeckCard[];
 }
