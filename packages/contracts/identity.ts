@@ -1,19 +1,41 @@
-// player_identities, identity_exclusions and merge_suggestions (§12), as the rest of the
-// system refers to them. The ledger references identities, never players (ADR 003), so a
-// merge repoints rows here and leaves `matches` untouched.
+// players, player_identities, identity_exclusions, merge_suggestions and player_merges
+// (§12), as the rest of the system refers to them. The ledger references identities, never
+// players (ADR 003), so a merge repoints rows here and leaves `matches` untouched.
 
 import type {
+  DeckId,
   IdentityId,
   IsoDateTime,
   JsonValue,
   MergeSuggestionId,
   PlayerId,
+  PlayerMergeId,
   ProfileId,
+  TournamentEntryId,
   TournamentId,
 } from "./primitives";
 
 /** The `player_visibility` enum (§12). A hidden player is absent from the leaderboard view. */
 export type PlayerVisibility = "public" | "hidden";
+
+/**
+ * A person, as distinct from the handles they played under. Nothing in the ledger points
+ * here — that is ADR 003, and it is why a merge costs one row rather than a rewrite.
+ */
+export interface Player {
+  readonly id: PlayerId;
+  readonly displayName: string;
+  readonly slug: string;
+  /** Set when somebody signs in and claims the player. Most never do (ADR 009). */
+  readonly profileId: ProfileId | null;
+  readonly visibility: PlayerVisibility;
+  /**
+   * The winner, on the losing side of a merge. The row stays rather than being deleted so
+   * an old link and an old rating_event both still resolve.
+   */
+  readonly mergedInto: PlayerId | null;
+  readonly createdAt: IsoDateTime;
+}
 
 export type IdentityPlatform = "discord" | "challonge" | "melee" | "mtgo" | "arena" | "manual";
 
@@ -106,3 +128,29 @@ export interface MergeSuggestion {
   readonly reviewedBy: ProfileId | null;
   readonly reviewedAt: IsoDateTime | null;
 }
+
+/**
+ * What a merge repointed, recorded so it can be undone (E18.16).
+ *
+ * The three tables that carry a `player_id` and hold something somebody entered. The
+ * rating tables are absent on purpose: they are derived, and a merge is followed by a full
+ * recompute rather than by moving a rating from one player to another (ADR 004).
+ */
+export interface MergeMoves {
+  readonly identities: readonly IdentityId[];
+  readonly entries: readonly TournamentEntryId[];
+  readonly decks: readonly DeckId[];
+}
+
+/** A persisted player_merges row: what was merged, and what moved when it was. */
+export interface PlayerMerge {
+  readonly id: PlayerMergeId;
+  readonly winnerId: PlayerId;
+  readonly loserId: PlayerId;
+  readonly reason: string | null;
+  readonly moved: MergeMoves;
+  readonly mergedBy: ProfileId | null;
+  readonly createdAt: IsoDateTime;
+}
+
+export type NewPlayerMerge = Omit<PlayerMerge, "id" | "createdAt">;

@@ -40,6 +40,7 @@ export type FormatVersionId = string;
 export type IdentityId = string;
 export type PlayerId = string;
 export type MergeSuggestionId = string;
+export type PlayerMergeId = string;
 export type ArchetypeId = string;
 export type AdapterId = string;
 export type SeasonId = string;

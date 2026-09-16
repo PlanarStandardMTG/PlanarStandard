@@ -5,7 +5,10 @@ import type {
   IdentityRef,
   JsonValue,
   MergeCandidate,
+  MergeMoves,
   MergeSuggestion,
+  Player,
+  PlayerMerge,
   Signal,
 } from "./identity";
 
@@ -213,5 +216,52 @@ describe("identity contracts", () => {
     } satisfies MergeSuggestion;
 
     expect(rejected.status).toBe("reviewing");
+  });
+
+  it("keeps a merged-away player resolvable rather than deleting them", () => {
+    const winner = {
+      id: zaunusIdentity.playerId,
+      displayName: "Zaunus13",
+      slug: "zaunus13",
+      profileId: null,
+      visibility: "public",
+      mergedInto: null,
+      createdAt: "2025-05-02T10:00:00Z",
+    } satisfies Player;
+
+    const loser = {
+      ...winner,
+      id: "c3d4e5f6-7081-4923-ab4c-5d6e7f809102",
+      slug: "likors",
+      mergedInto: winner.id,
+    } satisfies Player;
+
+    // The leaderboard reads `merged_into is null`, so the loser is absent from
+    // it while an old link to their page still resolves.
+    expect([winner, loser].filter((player) => player.mergedInto === null)).toEqual([winner]);
+  });
+
+  it("records what a merge moved, and nothing the ledger owns", () => {
+    const moved = {
+      identities: [zaunusIdentity.id],
+      entries: ["5e6f7081-92a3-4b4c-8d5e-6f708192a3b4"],
+      decks: ["7081a2b3-c4d5-4e6f-9081-a2b3c4d5e6f7"],
+    } satisfies MergeMoves;
+
+    const merge = {
+      id: "1f2e3d4c-5b6a-4079-8869-5a4b3c2d1e0f",
+      winnerId: zaunusIdentity.playerId,
+      loserId: "c3d4e5f6-7081-4923-ab4c-5d6e7f809102",
+      reason: "same person, two events",
+      moved,
+      mergedBy: "aa11bb22-cc33-4d44-8e55-ff6677889900",
+      createdAt: "2025-07-19T18:06:00Z",
+    } satisfies PlayerMerge;
+
+    // ADR 003 and ADR 004, as a type: matches are not moved because they point
+    // at identities, and ratings are not moved because they are recomputed.
+    expect(Object.keys(merge.moved)).toEqual(["identities", "entries", "decks"]);
+    expectTypeOf<MergeMoves>().toExtend<JsonValue>();
+    expect(merge.winnerId).not.toBe(merge.loserId);
   });
 });

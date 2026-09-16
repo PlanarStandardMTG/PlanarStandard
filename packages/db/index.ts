@@ -13,3 +13,4 @@ export * from "./repos/archetypes/index";
 export * from "./repos/tournaments/index";
 export * from "./repos/results/index";
 export * from "./repos/ratings/index";
+export * from "./repos/identity/index";

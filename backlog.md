@@ -32,7 +32,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
 | E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
-| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 20/23 |
+| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 21/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 5/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 11/12 |
@@ -491,7 +491,20 @@ have RLS on with **no policy**, so the anon client reads them as empty with no e
 public client is a bug that looks like an event with no rows. Asserted.
 _Note:_ both identity embeds carry an explicit FK hint. `matches` has two foreign keys into
 `player_identities` and PostgREST will not guess between them.
-⬜ **E13.19 — `repos/identity`** · L · Deps: E13.10
+✅ **E13.19 — `repos/identity`** · L · Deps: E13.10 — `getPlayerBySlug`, `getPlayer`,
+`findIdentityByNormalizedHandle`, `listIdentitiesByPlayer`, `createPlayerWithIdentity`,
+`addIdentity`, `listExclusions`, `recordExclusions`, `listPendingMergeSuggestions`,
+`replaceMergeSuggestions`, `reviewMergeSuggestion`, `repointPlayerRows`, `markPlayerMerged`,
+`recordPlayerMerge`, `listPlayerMerges`.
+_Note:_ the lookup takes the **normalized** handle, not the raw one. `normalized` is a generated
+column and `packages/db` may not import `core/identity/normalize-handle` to produce it — the
+dependency rule points the other way — so the caller normalizes and the two are held to
+`fixtures/identity/normalized-handles.json` by `generated-columns.test.ts`.
+_Note:_ `repointPlayerRows` moves identities, entries and decks and returns what it moved, which is
+what `recordPlayerMerge` persists and what makes E18.16's undo possible. It does not touch `matches`
+(ADR 003) or the rating tables (ADR 004, recompute rather than move).
+_Note:_ adds `Player`, `MergeMoves`, `PlayerMerge` and `NewPlayerMerge` to `@ps/contracts` — the
+`players` and `player_merges` rows had no contract type before this.
 ✅ **E13.20 — `repos/ratings`** · M · Deps: E13.11 — `getRatingConfig`, `getLeaderboard`,
 `getPlayerRating`, `listRatingHistory`, `replaceRatings`, `recordRatingRun`, `listRatingRuns`.
 _Note:_ there is **one** write, and that is the design. `replaceRatings` takes a whole replay and
@@ -531,7 +544,7 @@ turned out to be the better arrangement — the policy and the reason for it are
 story closed by being asserted rather than implemented: `rls.test.ts` now names all 23 public tables.
 ✅ **E14.2 — Service-role write policies** · M · Deps: E13.12 — every derived table and the ledger.
 _Note:_ also nothing to write, and for a sharper reason — **service-role bypasses RLS entirely**, so a
-policy granting it writes would be decoration. What actually protects a derived table is that *no*
+policy granting it writes would be decoration. What actually protects a derived table is that _no_
 write policy exists for anon or authenticated, so ADR 008's "a derived statistic is never uploaded"
 holds by absence. An absence is invisible, so E14.5 asserts it: nine derived tables refuse an insert
 from an admin, the highest role there is.
@@ -550,7 +563,7 @@ _Note:_ 115 assertions over real sessions, one per role. Writes are probed with 
 judged only on whether **42501** came back — a not-null or foreign-key complaint means the policy let
 it through, which is the thing being measured, and it avoids building a valid row for two dozen tables
 whose columns are not under test. Two traps found while writing it, both now commented: asking for the
-row back with `.select()` adds a `RETURNING`, and with one Postgres evaluates the policy *before* the
+row back with `.select()` adds a `RETURNING`, and with one Postgres evaluates the policy _before_ the
 not-null constraint — which made the probe report refusals that never happened. And a read that returns
 nothing is indistinguishable from an empty table, so denials are only asserted where rows exist to be
 hidden.
@@ -993,32 +1006,27 @@ can start today, in rough order of how much it unblocks.
   `set-attribution` and `rarity-counts` can now be proven against it rather than `fixtures/cards/`.
   **E4.7 (the loader) unblocks the most** — E19.13, E20.4 and E22.11 all wait on it. E4.5 moves the
   build to CI; E4.6 sets the size ceiling, for which 10 MB gives ~4x headroom over today's artifact.
-- **E13.10–E13.12 — the rest of the migrations,** in the Part IV order. Everything through
-  `tournament_entries` is in, which is every table the site currently reads. E13.10 (the identity
-  trio) unblocks E13.11 and E13.19; E13.12 (derived stats) unblocks E13.21 and most of E19.
-- **E18.1–E18.5 — the import pipeline.** `repos/results` is in, so the whole chain — upload, detect,
-  stage, resolve, review, commit, supersede — now has its storage. E18.1 needs one more decision
-  first: where archived raw bytes live. Supabase Storage is the obvious answer and nothing has
-  written it down.
+- **E18.1–E18.5 — the import pipeline.** `repos/results` and `repos/identity` are both in, so the
+  whole chain — upload, detect, stage, resolve, review, commit, supersede — now has its storage, and
+  E18.3 has the `findIdentityByNormalizedHandle` / `createPlayerWithIdentity` pair it needs to
+  auto-create on a miss. E18.1 needs one more decision first: where archived raw bytes live. Supabase
+  Storage is the obvious answer and nothing has written it down.
+- **E18.16 — `merge-players`,** now that `repointPlayerRows`, `markPlayerMerged` and
+  `recordPlayerMerge` exist. The reversibility its acceptance criterion asks for is the `moved` the
+  repoint returns; what the service adds is the exclusion check and the recompute.
 - **Every table in Part IV now exists.** E13.1–E13.13 are merged, so nothing in E14–E21 is waiting on
-  schema any more. What is left in E13 is three repositories and the index review.
-- **E13.19 — `repos/identity`** and **E13.21 — `repos/stats`,** the last two repositories. E13.19 is
-  what E18.3 needs to auto-create an identity on a miss; E13.21 is what every E19 chart reads. After
-  those, E13 is down to the index review (E13.14).
+  schema any more. What is left in E13 is one repository and the index review.
+- **E13.21 — `repos/stats`,** the last repository, and what every E19 chart reads. After it, E13 is
+  down to the index review (E13.14).
 - **E18.12 — `recompute-ratings`,** now fully supplied: `listLedgerMatchesBySeason` reads the
   matches, `core/elo/replay` rates them, `replaceRatings` stores the result and `recordRatingRun`
   logs it. The service is the four calls in order.
-- **E14.1 and E14.2 — the policy passes,** now that there is a full set of tables to write them
-  against. Every migration so far has carried its own read policy and said why in a comment; E14's
-  job is to make that a matrix rather than a collection of individual judgements, and E14.5 is the
-  release blocker that asserts it.
 - **E24.5 — the real podium — now waits on one thing only.** Its schema is all in; what is missing is
   something to _write_ an entry, which is E18.4. The query itself could be written today and would
   correctly return nothing.
 - **E19.13 — `DeckVisualizer`,** now that `repos/decks` can hand it a deck. It takes shaped lines as
   props like every E19 component, so it needs no card data of its own — but see E19.1 first, which
   sets the fixture conventions the other thirteen components inherit.
-- **E13.17 — `repos/tournaments`,** once E13.9 lands.
 - **E17.4 — `<Chart />`,** the last thing between E17 and a finished epic. It waits on E19.
 
 **Needs nothing but a sitting**
@@ -1081,7 +1089,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
 | E1   | 9       | 9    | E12  | 10      | 6    |
-| E2   | 9       | 9    | E13  | 23      | 20   |
+| E2   | 9       | 9    | E13  | 23      | 21   |
 | E3   | 7       | 7    | E14  | 5       | 5    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
 | E5   | 6       | 6    | E16  | 12      | 11   |
@@ -1094,4 +1102,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**146 of 233 stories done across 24 epics.**
+**147 of 233 stories done across 24 epics.**
