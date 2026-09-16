@@ -155,19 +155,51 @@ one file rather than a default nobody chose.
 
 Worth knowing before this handles anyone's data but your own:
 
-- **The RLS matrix is E14 and none of it is merged.** Every migration carries its
-  own policies and says why in a comment, and `repos/profiles` asserts the three
-  that shipped code depends on — but there is no systematic allow-deny test
-  across every table and every role yet. E14.5 is marked a release blocker for
-  exactly this reason.
-- **There is no account deletion, and no export.** `on delete cascade` from
-  `auth.users` means deleting an account does remove the profile, but nothing in
-  the site asks for it and nobody has decided what should happen to a deleted
-  person's posts and results. A ledger that records handles rather than people
-  (ADR 003) makes that easier than it would otherwise be, and it is still a
-  decision nobody has made.
-- **There is no privacy policy**, and one is a writing task, not a coding one.
-- **Email deliverability is unproven in production.** See above.
+- **Email deliverability is unproven in production.** See above — this is the
+  one that will bite first.
+- **`posts`, `post_revisions` and `decks` take no writes from anybody**, not even
+  an admin. Their write paths are E20.2 and E20.7, and a policy written before
+  the flow exists is a guess. The matrix asserts the current refusal, so adding
+  one has to be deliberate.
+- **Nothing expires.** Sign-in records are kept on Supabase's own schedule and we
+  do not prune anything ourselves.
+
+## Access control, table by table
+
+`rls.test.ts` in `packages/db` is the allow-deny matrix (E14.5) — 115 assertions
+across real sessions, one per role, and **a release blocker when red**.
+
+| Who                     | May write                                                                 |
+| ----------------------- | ------------------------------------------------------------------------- |
+| anon, reader            | nothing at all                                                            |
+| writer                  | nothing yet — E20.2 adds `posts`                                          |
+| organizer (and admin)   | `tournaments`, `result_imports`, `staged_matches`, `players`, `player_identities`; **insert only** into `matches`, `tournament_entries`, `match_corrections` |
+| admin                   | the format tables, `seasons`, `archetypes`, `rating_config`, identity curation, and role grants |
+| service-role            | everything — it bypasses RLS, which is the point of it                    |
+
+Three absences are load-bearing, and an absence is invisible, so the matrix
+asserts each one:
+
+- **Derived tables take no writes from anybody**, admin included. Every `*_stats`,
+  `deck_metrics`, `deck_similarity`, `player_ratings`, `rating_events` and
+  `rating_runs` is recomputed wholesale by a job running as service-role. ADR 008
+  says a derived statistic is never uploaded; a policy here would be the way to
+  upload one.
+- **Nobody may delete from the ledger.** An organizer can append a match and
+  never remove one. Re-importing supersedes wholesale, as service-role — an
+  organizer who could delete a match by hand could quietly move a rating.
+- **`external_event_syncs` has no policy at all, including for reads.** It is the
+  calendar request budget, and it is the server's.
+
+The role check is `public.has_role(required)`, which is `security definer` — so a
+policy on `profiles` that reads `profiles` does not recurse — and `stable`, so
+the planner calls it once per statement rather than once per row.
+
+**The ladder therefore exists twice**: in `core/auth/meets-role` for the route
+guards, and in `has_role` for the policies. A guard cannot ask Postgres and a
+policy cannot ask TypeScript, so both are pinned to
+`fixtures/auth/role-ladder.json` and both test suites read it — the same
+arrangement `normalize-handle` uses, and for the same reason.
 
 ## Where the session is kept alive
 
@@ -284,3 +316,7 @@ variables named in `supabase.config.toml` before `pnpm db:start`.
 | `web/lib/auth/next-path.ts`            | where it is safe to send somebody afterwards           |
 | `web/lib/auth/current-path.ts`         | what path this render is for                           |
 | `web/lib/auth/dashboard-sections.ts`   | what is behind the dashboard, and who each part is for |
+| `web/lib/account/personal-data.server.ts` | everything we hold about one person, as a file      |
+| `db/migrations/0017_profile_erasure`   | the tombstone, and the trigger behind every delete path |
+| `db/migrations/0018_access_control`    | `has_role`, and every write policy                     |
+| `db/rls.test.ts`                       | the allow-deny matrix — a release blocker when red     |

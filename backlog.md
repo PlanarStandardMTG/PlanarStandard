@@ -33,7 +33,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
 | E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 20/23 |
-| E14  | RLS and access control                | 1     | E13          | ⬜ 0/5   |
+| E14  | RLS and access control                | 1     | E13          | ✅ 5/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 11/12 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
@@ -525,11 +525,38 @@ _AC for each repo story:_ exported functions are named for intent (`listRatedTou
 
 ## E14 — RLS and access control
 
-⬜ **E14.1 — Public-read policies** · M · Deps: E13.12 — `format_*`, `archetypes`, derived stats, `leaderboard` view, public decks, published posts.
-⬜ **E14.2 — Service-role write policies** · M · Deps: E13.12 — every derived table and the ledger.
-⬜ **E14.3 — Organizer-gated writes** · M · Deps: E13.8 — tournaments and imports.
-⬜ **E14.4 — Admin-only policies** · S · Deps: E13.10 — merges, format edits, role grants.
-⬜ **E14.5 — `rls.test.ts`** · L · Deps: E14.1–E14.4 — full allow-deny matrix across anon / reader / writer / organizer / admin for every table. _Release blocker when red._
+✅ **E14.1 — Public-read policies** · M · Deps: E13.12 — `format_*`, `archetypes`, derived stats, `leaderboard` view, public decks, published posts.
+_Note:_ nothing to write. Every table shipped its own read policy with the migration that created it, which
+turned out to be the better arrangement — the policy and the reason for it are in the same file. This
+story closed by being asserted rather than implemented: `rls.test.ts` now names all 23 public tables.
+✅ **E14.2 — Service-role write policies** · M · Deps: E13.12 — every derived table and the ledger.
+_Note:_ also nothing to write, and for a sharper reason — **service-role bypasses RLS entirely**, so a
+policy granting it writes would be decoration. What actually protects a derived table is that *no*
+write policy exists for anon or authenticated, so ADR 008's "a derived statistic is never uploaded"
+holds by absence. An absence is invisible, so E14.5 asserts it: nine derived tables refuse an insert
+from an admin, the highest role there is.
+✅ **E14.3 — Organizer-gated writes** · M · Deps: E13.8 — tournaments and imports.
+_Note:_ `tournaments`, `result_imports`, `staged_matches`, `players`, `player_identities` for all; the
+ledger (`matches`, `tournament_entries`, `match_corrections`) **insert-only**. No delete for anybody:
+re-importing supersedes wholesale as service-role, and an organizer who could delete a match by hand
+could quietly move a rating (ADR 004, ADR 006).
+✅ **E14.4 — Admin-only policies** · S · Deps: E13.10 — merges, format edits, role grants.
+_Note:_ role grants work by permissive policies being ORed — an admin has both `profiles_self_update`
+and `profiles_admin_update`, so an admin may change a role while everybody else still may not change
+their own. `has_role` is `security definer` so that a policy on `profiles` reading `profiles` does not
+recurse, and `stable` so the planner calls it once a statement rather than once a row.
+✅ **E14.5 — `rls.test.ts`** · L · Deps: E14.1–E14.4 — full allow-deny matrix across anon / reader / writer / organizer / admin for every table. _Release blocker when red._
+_Note:_ 115 assertions over real sessions, one per role. Writes are probed with an empty insert and
+judged only on whether **42501** came back — a not-null or foreign-key complaint means the policy let
+it through, which is the thing being measured, and it avoids building a valid row for two dozen tables
+whose columns are not under test. Two traps found while writing it, both now commented: asking for the
+row back with `.select()` adds a `RETURNING`, and with one Postgres evaluates the policy *before* the
+not-null constraint — which made the probe report refusals that never happened. And a read that returns
+nothing is indistinguishable from an empty table, so denials are only asserted where rows exist to be
+hidden.
+_Outstanding:_ `posts`, `post_revisions` and `decks` still take no writes from anybody. Their write
+paths are E20.2 and E20.7, and a policy written now would be a guess at a flow that does not exist —
+the matrix asserts the current refusal so that adding one is a deliberate change.
 
 ---
 
@@ -1016,10 +1043,11 @@ for one in a line — E18.8 (the self-service paste path), E20.2 (article author
 import dashboard), E20.16 and E20.18 (the two admin slices). Each of those is a page under
 `/dashboard` that calls `requireRole` and fills in one entry in `lib/auth/dashboard-sections.ts`.
 
-Two things to do *before* the admin slices. **E14.4** makes role grants a policy rather than an
-`update` in the SQL editor — until it lands there is no way to promote anybody from inside the site.
-And production needs **real SMTP**: two of the four ways in are an email, and so is every password
-reset. See [`docs/modules/auth.md`](docs/modules/auth.md).
+**E14 is complete**, so the admin slices have their access control waiting for them: an admin can edit
+the format tables and grant roles, an organizer can create tournaments and import results, and
+`rls.test.ts` is the release blocker that says so. Production still needs **real SMTP** — two of the
+four ways in are an email, and so is every password reset. See
+[`docs/modules/auth.md`](docs/modules/auth.md).
 
 **E12.10 is what is left of melee.gg.** E23.12 took the tournament _listing_, so an event run there
 shows up on the schedule; E12.10 wants the _results_ — match history, standings, decklists — so it can
@@ -1054,7 +1082,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | ---- | ------- | ---- | ---- | ------- | ---- |
 | E1   | 9       | 9    | E12  | 10      | 6    |
 | E2   | 9       | 9    | E13  | 23      | 20   |
-| E3   | 7       | 7    | E14  | 5       | 0    |
+| E3   | 7       | 7    | E14  | 5       | 5    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
 | E5   | 6       | 6    | E16  | 12      | 11   |
 | E6   | 8       | 8    | E17  | 13      | 12   |
@@ -1066,4 +1094,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**141 of 233 stories done across 24 epics.**
+**146 of 233 stories done across 24 epics.**

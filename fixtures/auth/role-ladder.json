@@ -1,0 +1,82 @@
+[
+  {
+    "actual": "reader",
+    "required": "reader",
+    "meets": true
+  },
+  {
+    "actual": "reader",
+    "required": "writer",
+    "meets": false
+  },
+  {
+    "actual": "reader",
+    "required": "organizer",
+    "meets": false
+  },
+  {
+    "actual": "reader",
+    "required": "admin",
+    "meets": false
+  },
+  {
+    "actual": "writer",
+    "required": "reader",
+    "meets": true
+  },
+  {
+    "actual": "writer",
+    "required": "writer",
+    "meets": true
+  },
+  {
+    "actual": "writer",
+    "required": "organizer",
+    "meets": false
+  },
+  {
+    "actual": "writer",
+    "required": "admin",
+    "meets": false
+  },
+  {
+    "actual": "organizer",
+    "required": "reader",
+    "meets": true
+  },
+  {
+    "actual": "organizer",
+    "required": "writer",
+    "meets": true
+  },
+  {
+    "actual": "organizer",
+    "required": "organizer",
+    "meets": true
+  },
+  {
+    "actual": "organizer",
+    "required": "admin",
+    "meets": false
+  },
+  {
+    "actual": "admin",
+    "required": "reader",
+    "meets": true
+  },
+  {
+    "actual": "admin",
+    "required": "writer",
+    "meets": true
+  },
+  {
+    "actual": "admin",
+    "required": "organizer",
+    "meets": true
+  },
+  {
+    "actual": "admin",
+    "required": "admin",
+    "meets": true
+  }
+]

@@ -1,7 +1,27 @@
+import { readFileSync } from "node:fs";
+
 import type { UserRole } from "@ps/contracts";
 import { describe, expect, it } from "vitest";
 
 import { ROLE_LADDER, isUserRole, meetsRole, roleRank } from "./index";
+
+/**
+ * The same table `packages/db`'s `rls.test.ts` reads.
+ *
+ * The ladder exists twice and has to — a route guard cannot ask Postgres and an
+ * RLS policy cannot ask TypeScript. Neither package may import the other, so
+ * both are pinned to this file instead (the arrangement `normalize-handle`
+ * already uses).
+ */
+interface LadderPair {
+  readonly actual: UserRole;
+  readonly required: UserRole;
+  readonly meets: boolean;
+}
+
+const PAIRS = JSON.parse(
+  readFileSync(new URL("../../../../fixtures/auth/role-ladder.json", import.meta.url), "utf8"),
+) as readonly LadderPair[];
 
 describe("meetsRole", () => {
   it("lets a role clear its own bar", () => {
@@ -29,6 +49,14 @@ describe("meetsRole", () => {
   it("lets an admin do anything", () => {
     for (const required of ROLE_LADDER) {
       expect(meetsRole("admin", required)).toBe(true);
+    }
+  });
+
+  it("agrees with the table the database is held to", () => {
+    expect(PAIRS).toHaveLength(ROLE_LADDER.length ** 2);
+
+    for (const pair of PAIRS) {
+      expect(meetsRole(pair.actual, pair.required)).toBe(pair.meets);
     }
   });
 

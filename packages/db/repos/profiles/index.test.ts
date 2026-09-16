@@ -65,7 +65,12 @@ suite("repos/profiles", () => {
   });
 
   afterAll(async () => {
-    if (userId !== "") await service.auth.admin.deleteUser(userId);
+    if (userId !== "") {
+      await service.auth.admin.deleteUser(userId);
+      // The tombstone erasure leaves behind (E16.10) is correct in production
+      // and is litter here.
+      await service.from("profiles").delete().eq("id", userId);
+    }
   });
 
   it("creates a profile the moment the auth user exists", async () => {
@@ -157,8 +162,10 @@ suite("repos/profiles", () => {
     });
 
     afterAll(async () => {
-      if (ownerId !== "") await service.auth.admin.deleteUser(ownerId);
-      if (neighbourId !== "") await service.auth.admin.deleteUser(neighbourId);
+      for (const id of [ownerId, neighbourId].filter((value) => value !== "")) {
+        await service.auth.admin.deleteUser(id);
+        await service.from("profiles").delete().eq("id", id);
+      }
     });
 
     it("lets a person edit their own profile", async () => {
@@ -219,6 +226,9 @@ suite("repos/profiles", () => {
     expect(tombstone?.deletedAt).not.toBeNull();
     // And nothing links it to an account any more.
     expect(await getProfileByUserId(service, transient)).toBeNull();
+
+    // The tombstone is correct in production and is litter here.
+    await service.from("profiles").delete().eq("id", profile?.id ?? "");
   });
 });
 
@@ -269,7 +279,11 @@ suite("erase_own_profile", () => {
   });
 
   afterAll(async () => {
-    if (bystanderId !== "") await service.auth.admin.deleteUser(bystanderId);
+    if (bystanderId !== "") {
+      await service.auth.admin.deleteUser(bystanderId);
+      await service.from("profiles").delete().eq("id", bystanderId);
+    }
+    if (subjectProfileId !== "") await service.from("profiles").delete().eq("id", subjectProfileId);
   });
 
   it("refuses to let anyone choose whose account is erased", async () => {
