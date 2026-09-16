@@ -81,8 +81,25 @@ describe("content contracts", () => {
       bio: null,
       role: "organizer",
       createdAt: "2026-02-01T00:00:00.000Z",
+      deletedAt: null,
     } satisfies Profile;
     expectTypeOf(organizer).toExtend<Profile>();
+  });
+
+  it("lets a profile outlive the account it was made from", () => {
+    // A tombstone (E16.10). Still a `Profile`, so every byline and foreign key
+    // still resolves — and nothing on it identifies anybody.
+    const erased = {
+      id: "9b8c7d6e-5f40-4312-8a19-0c1d2e3f4a5b",
+      displayName: "Deleted member",
+      handle: null,
+      avatarUrl: null,
+      bio: null,
+      role: "reader",
+      createdAt: "2026-02-01T00:00:00.000Z",
+      deletedAt: "2026-09-16T00:00:00.000Z",
+    } satisfies Profile;
+    expectTypeOf(erased).toExtend<Profile>();
   });
 
   it("gives nav generation a label, an order, and a published flag per info page", () => {

@@ -25,6 +25,7 @@ const RESERVED = new Set([
   "forgot-password",
   "oauth",
   "password",
+  "privacy",
   "signup",
   "cards",
   "dashboard",

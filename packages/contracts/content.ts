@@ -13,6 +13,16 @@ export interface Profile {
   readonly bio: string | null;
   readonly role: UserRole;
   readonly createdAt: IsoDateTime;
+  /**
+   * When the person asked to be erased, or null for everybody else.
+   *
+   * A profile outlives the account it was made from: eight tables reference it
+   * and two of those columns are `not null`, so erasure clears the identifying
+   * fields and severs the account rather than deleting the row. A profile with
+   * this set is a tombstone — it still resolves a foreign key and still carries
+   * a byline, and there is no longer a person behind it (E16.10).
+   */
+  readonly deletedAt: IsoDateTime | null;
 }
 
 export type PostStatus = "draft" | "review" | "published" | "archived";

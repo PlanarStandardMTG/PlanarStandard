@@ -1,7 +1,16 @@
-import type { Deck, DeckCard, DeckId, DeckWithCards, PlayerId, SeasonId } from "@ps/contracts";
+import type {
+  Deck,
+  DeckCard,
+  DeckId,
+  DeckWithCards,
+  PlayerId,
+  ProfileId,
+  SeasonId,
+} from "@ps/contracts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import {
+  DECK_COLUMNS,
   DECK_SUMMARY_COLUMNS,
   DECK_WITH_CARDS_COLUMNS,
   toDeck,
@@ -150,4 +159,25 @@ export async function insertDeck(
   const stored = await getDeckWithCards(serviceClient, deckId);
   if (stored === null) throw new Error("insertDeck wrote a deck it could not read back");
   return stored;
+}
+
+/**
+ * Every deck one person owns, at any visibility (E16.11).
+ *
+ * Like `listPostsByAuthor`, this exists for the data export and is not a feed:
+ * a private deck is still the owner's data and still has to be handed over when
+ * they ask for it.
+ */
+export async function listDecksByOwner(
+  client: SupabaseClient,
+  ownerId: ProfileId,
+): Promise<readonly Deck[]> {
+  const { data, error } = await client
+    .from("decks")
+    .select(DECK_COLUMNS)
+    .eq("owner_id", ownerId)
+    .order("created_at", { ascending: false });
+
+  if (error !== null) throw new Error(`listDecksByOwner failed: ${error.message}`);
+  return (data as unknown as DeckRow[]).map(toDeck);
 }

@@ -1,5 +1,5 @@
-import type { Profile, ProfileId } from "@ps/contracts";
-import { getProfile } from "@ps/db";
+import type { Profile } from "@ps/contracts";
+import { getProfileByUserId } from "@ps/db";
 import { cache } from "react";
 
 import { createSessionClient } from "@/lib/supabase/session";
@@ -39,11 +39,12 @@ export const currentViewer = cache(async (): Promise<Viewer | null> => {
   const { data, error } = await supabase.auth.getUser();
   if (error !== null || data.user === null) return null;
 
-  // Created by migration 0016's trigger, so this is never null for a real user.
-  // If it ever is, the honest outcome is a 500 rather than a redirect back to a
-  // login the visitor has already completed — that loops forever and tells them
-  // nothing.
-  const profile = await getProfile(supabase, data.user.id as ProfileId);
+  // By `user_id`, not `id`: since erasure a profile outlives its account, and a
+  // tombstone has no `user_id` at all (E16.10). Created by migration 0016's
+  // trigger, so this is never null for a real user — and if it ever is, the
+  // honest outcome is a 500 rather than a redirect back to a login the visitor
+  // has already completed, which loops forever and tells them nothing.
+  const profile = await getProfileByUserId(supabase, data.user.id);
   if (profile === null) {
     throw new Error(
       `signed-in user ${data.user.id} has no profile row — migration 0016 should have created one`,

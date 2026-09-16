@@ -17,7 +17,11 @@ describe("content/pages", () => {
     expect(new Set(orders).size).toBe(orders.length);
   });
 
-  it("ships the eight pages §25 names", () => {
+  it("ships the eight pages §25 names, plus the privacy notice", () => {
+    // `/privacy` is not in §25's list because §25 predates the site holding
+    // anybody's data (E16.12). It is an info page by the same split rule: it
+    // describes how the site works, and it should not be editable without a
+    // review.
     expect(
       publishedInfoPages()
         .map((page) => page.href)
@@ -28,6 +32,7 @@ describe("content/pages", () => {
       "/getting-started",
       "/methodology",
       "/organizers",
+      "/privacy",
       "/ratings-explained",
       "/resources",
       "/rules",

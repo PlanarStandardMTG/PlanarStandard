@@ -79,3 +79,40 @@ export async function updateProfile(
   if (error !== null) throw new Error(`updateProfile failed: ${error.message}`);
   return toProfile(data as unknown as ProfileRow);
 }
+
+/**
+ * The profile behind an auth account (E16.10).
+ *
+ * Not `getProfile`. Since erasure, `profiles.id` is the profile's own identity
+ * and `user_id` is the live link to an account — a tombstone keeps the first and
+ * has none of the second. Looking somebody up by the id in their token has to go
+ * through `user_id`, or an erased profile would answer for an account that no
+ * longer exists.
+ */
+export async function getProfileByUserId(
+  client: SupabaseClient,
+  userId: string,
+): Promise<Profile | null> {
+  const { data, error } = await client
+    .from("profiles")
+    .select(PROFILE_COLUMNS)
+    .eq("user_id", userId)
+    .maybeSingle();
+
+  if (error !== null) throw new Error(`getProfileByUserId failed: ${error.message}`);
+  return data === null ? null : toProfile(data as unknown as ProfileRow);
+}
+
+/**
+ * Erase the caller, irreversibly.
+ *
+ * Runs under the caller's own client, and the function it calls takes no
+ * argument — the subject is `auth.uid()`, read from the token inside the
+ * database. There is nothing here to point at somebody else, which is the
+ * property worth having: it holds whether or not the route handler above is
+ * correct.
+ */
+export async function eraseOwnProfile(client: SupabaseClient): Promise<void> {
+  const { error } = await client.rpc("erase_own_profile");
+  if (error !== null) throw new Error(`eraseOwnProfile failed: ${error.message}`);
+}

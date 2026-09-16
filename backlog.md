@@ -35,7 +35,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 20/23 |
 | E14  | RLS and access control                | 1     | E13          | ⬜ 0/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
-| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 8/9   |
+| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 11/12 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | ⬜ 0/19  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
@@ -586,6 +586,31 @@ lists `/meta`: the shape is worth advertising to the people who will use it. The
 `writer`, the lowest rung with anything to do here, and each section will guard itself again at what
 it actually needs, because a layout cannot express "organizer here, admin there".
 ⬜ **E16.7 — Deploy pipeline and preview environments** · M · Deps: E16.1 — _AC:_ production deploy from `main`, preview per PR, environment variables documented.
+✅ **E16.10 — Account deletion** · M · Deps: E16.9 — _AC:_ erasure removes every identifying field and
+the account itself, in one transaction, and cannot be aimed at anybody else.
+_Note:_ the profile is **not** deleted — eight tables reference it and two of those columns are
+`not null`, so the schema will not allow it, and an article the community still reads is not the
+leaving member's to withdraw. It becomes a tombstone: identifying fields cleared, `user_id` severed,
+byline reads "Deleted member". The regulation asks for erasure of personal data, not of rows.
+_Note:_ the scrub is a `before delete` trigger on `auth.users`, not a step in the erase function, so
+**every** deletion route erases — including an admin deleting a row from Supabase Studio, which would
+otherwise sever the link and leave the name sitting there. `before` and not `after` because
+`user_id` is `on delete set null` and an after-trigger could no longer find the profile.
+_Note:_ `erase_profile(uuid)` is revoked from `anon` and `authenticated` **by name**. Supabase's
+default privileges grant execute on every new `public` function to both, and `revoke ... from public`
+does not remove those — it was callable by any signed-in user with any uuid until this was fixed, and
+`repos/profiles` now asserts it is not.
+✅ **E16.11 — Data export** · S · Deps: E16.10 — _AC:_ one JSON download covering Articles 15 and 20.
+_Note:_ read through the person's own client rather than service-role — every query is one they are
+entitled to make, so RLS is a second opinion rather than an obstacle. Includes unpublished drafts: a
+draft nobody else can see is still theirs. `notHeldHere` names what is held elsewhere and how to ask,
+because a right of access is only honoured if you can tell what is missing.
+✅ **E16.12 — Privacy notice** · S · Deps: E16.11 — `content/pages/privacy.mdx`, UK and EU GDPR.
+_Note:_ an info page by §25's split rule even though §25 predates the site holding anybody's data —
+it describes how the site works and should not change without a review. States the lawful bases
+(contract for the account, legitimate interests for abuse prevention), the processors, retention, and
+what deletion does not remove. **No consent banner:** the one cookie is the session, which is
+strictly necessary, and there is no analytics or advertising to consent to.
 ✅ **E16.9 — Email, magic link, and Google sign-in** · L · Deps: E16.5 — four ways in, none required;
 email confirmation; password reset. _AC:_ a contributor can sign up, sign in, and reset a password
 with no external account registered anywhere.
@@ -606,10 +631,7 @@ _Outstanding:_ Discord identity pairing is designed, not built — no story owns
 needs it. Google and Discord are verified against the settings endpoint and the local config, but
 neither has been run against a real provider application; the email flows have been run end to end.
 _Outstanding:_ E14.4 still owns role granting, so promotion is an `update` in the SQL editor.
-_Outstanding:_ no account deletion and no data export, and nobody has decided what should happen to a
-deleted person's posts and results. There is no privacy policy either. Neither blocks the auth work;
-both block handling anybody's data but our own. `docs/modules/auth.md` lists what is held and who can
-read it.
+_Note:_ account deletion, data export and the privacy notice landed as E16.10–E16.12.
 ✅ **E16.8 — Error, empty, and loading states as shared components** · S · Deps: E16.1
 
 ---
@@ -1034,7 +1056,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E2   | 9       | 9    | E13  | 23      | 20   |
 | E3   | 7       | 7    | E14  | 5       | 0    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
-| E5   | 6       | 6    | E16  | 9       | 8    |
+| E5   | 6       | 6    | E16  | 12      | 11   |
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 19      | 0    |
 | E8   | 6       | 6    | E19  | 14      | 0    |
@@ -1044,4 +1066,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**138 of 230 stories done across 24 epics.**
+**141 of 233 stories done across 24 epics.**

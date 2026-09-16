@@ -1,7 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
-import { getProfile, getProfileByHandle, updateProfile } from "./index";
+import {
+  eraseOwnProfile,
+  getProfile,
+  getProfileByHandle,
+  getProfileByUserId,
+  updateProfile,
+} from "./index";
 
 /**
  * Runs against a local Supabase with the seed loaded (`pnpm db:reset`).
@@ -189,15 +195,123 @@ suite("repos/profiles", () => {
     expect(await getProfile(anon, "00000000-0000-0000-0000-000000000000")).toBeNull();
   });
 
-  it("removes the profile with the account", async () => {
+  it("scrubs the profile when the account is deleted by any route", async () => {
+    // Deleted straight through the admin API, the way Supabase Studio does it —
+    // not through `erase_own_profile`. The trigger is what makes every route
+    // erase rather than just the one the site offers, and an admin deleting a
+    // row by hand is the route most likely to leave a name behind.
     const { data } = await service.auth.admin.createUser({
       email: `cascade-${Date.now()}@example.test`,
       email_confirm: true,
+      user_metadata: { full_name: "Briefly Here" },
     });
     const transient = data.user?.id ?? "";
+    const profile = await getProfileByUserId(service, transient);
+    expect(profile?.displayName).toBe("Briefly Here");
 
-    expect(await getProfile(anon, transient)).not.toBeNull();
     await service.auth.admin.deleteUser(transient);
-    expect(await getProfile(anon, transient)).toBeNull();
+
+    // The row survives: eight tables reference `profiles` and two of those
+    // columns are `not null`, so deleting it is not something the schema allows.
+    const tombstone = await getProfile(anon, profile?.id ?? "");
+    expect(tombstone).not.toBeNull();
+    expect(tombstone?.displayName).toBe("Deleted member");
+    expect(tombstone?.deletedAt).not.toBeNull();
+    // And nothing links it to an account any more.
+    expect(await getProfileByUserId(service, transient)).toBeNull();
+  });
+});
+
+/**
+ * Erasure (E16.10). The property under test is not "the row went away" — it did
+ * not, and must not: eight tables reference `profiles` and two of those columns
+ * are `not null`. It is that nothing identifying survives, that the account is
+ * genuinely gone, and that nobody can aim any of it at anybody else.
+ */
+suite("erase_own_profile", () => {
+  const password = "erasure-test-password";
+  let subjectId = "";
+  let subjectProfileId = "";
+  let subject = anon;
+  let bystanderId = "";
+
+  beforeAll(async () => {
+    const created = await service.auth.admin.createUser({
+      email: `erasure-${Date.now()}@example.test`,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name: "Departing Member" },
+    });
+    subjectId = created.data.user?.id ?? "";
+
+    const other = await service.auth.admin.createUser({
+      email: `bystander-${Date.now()}@example.test`,
+      email_confirm: true,
+      user_metadata: { full_name: "Still Here" },
+    });
+    bystanderId = other.data.user?.id ?? "";
+
+    const profile = await getProfileByUserId(service, subjectId);
+    subjectProfileId = profile?.id ?? "";
+
+    await updateProfile(service, subjectProfileId, {
+      displayName: "Departing Member",
+      handle: `departing${Date.now()}`,
+      bio: "Something personal.",
+    });
+
+    subject = createClient(url, anonKey, { auth: { persistSession: false } });
+    const { error } = await subject.auth.signInWithPassword({
+      email: created.data.user?.email ?? "",
+      password,
+    });
+    if (error !== null) throw new Error(`could not sign in: ${error.message}`);
+  });
+
+  afterAll(async () => {
+    if (bystanderId !== "") await service.auth.admin.deleteUser(bystanderId);
+  });
+
+  it("refuses to let anyone choose whose account is erased", async () => {
+    // `erase_profile(uuid)` is the one that takes a subject, and no client-facing
+    // role may execute it. Supabase grants execute to `anon` and `authenticated`
+    // on every new function in `public` by default, so this is asserting a
+    // revoke that has to be written by hand and is easy to leave out.
+    const { error } = await subject.rpc("erase_profile", { p_user_id: bystanderId });
+    expect(error).not.toBeNull();
+
+    const bystander = await getProfileByUserId(service, bystanderId);
+    expect(bystander?.displayName).toBe("Still Here");
+    expect(bystander?.deletedAt).toBeNull();
+  });
+
+  it("refuses a signed-out caller", async () => {
+    const { error } = await anon.rpc("erase_own_profile");
+    expect(error).not.toBeNull();
+  });
+
+  it("clears every identifying field and severs the account", async () => {
+    await eraseOwnProfile(subject);
+
+    const tombstone = await getProfile(anon, subjectProfileId);
+    expect(tombstone).not.toBeNull();
+    expect(tombstone?.displayName).toBe("Deleted member");
+    expect(tombstone?.handle).toBeNull();
+    expect(tombstone?.bio).toBeNull();
+    expect(tombstone?.avatarUrl).toBeNull();
+    expect(tombstone?.deletedAt).not.toBeNull();
+
+    // The account itself, with the email and the password hash on it.
+    const { data } = await service.auth.admin.getUserById(subjectId);
+    expect(data.user).toBeNull();
+  });
+
+  it("leaves no way to find the tombstone from the account it came from", async () => {
+    expect(await getProfileByUserId(service, subjectId)).toBeNull();
+  });
+
+  it("does not take the bystander with it", async () => {
+    const bystander = await getProfileByUserId(service, bystanderId);
+    expect(bystander?.displayName).toBe("Still Here");
   });
 });

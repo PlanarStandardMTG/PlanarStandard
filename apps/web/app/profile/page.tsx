@@ -114,6 +114,18 @@ export default async function ProfilePage({
               — including if you have only ever signed in with a link or a provider.
             </span>
           </p>
+          <p className="mt-2 text-sm">
+            <Link
+              href="/account/data"
+              className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
+            >
+              Your data
+            </Link>
+            <span className="text-ink-500 dark:text-ink-400">
+              {" "}
+              — what we hold, how to take a copy, and how to delete your account.
+            </span>
+          </p>
         </Card>
 
         <Card className="mt-6 p-6">

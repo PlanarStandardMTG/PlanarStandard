@@ -9,9 +9,11 @@ export interface ProfileRow {
   readonly bio: string | null;
   readonly role: UserRole;
   readonly created_at: string;
+  readonly deleted_at: string | null;
 }
 
-export const PROFILE_COLUMNS = "id, display_name, handle, avatar_url, bio, role, created_at";
+export const PROFILE_COLUMNS =
+  "id, display_name, handle, avatar_url, bio, role, created_at, deleted_at";
 
 export function toProfile(row: ProfileRow): Profile {
   return {
@@ -22,5 +24,6 @@ export function toProfile(row: ProfileRow): Profile {
     bio: row.bio,
     role: row.role,
     createdAt: row.created_at,
+    deletedAt: row.deleted_at,
   };
 }

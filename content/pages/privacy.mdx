@@ -1,0 +1,138 @@
+---
+title: Privacy
+navLabel: Privacy
+navOrder: 90
+description: What this site holds about you, why, for how long, and how to get rid of it.
+published: true
+components: []
+---
+
+This site is run by volunteers for the Planar Standard community. It is not a
+business, it sells nothing, and it has no advertising and no analytics. What
+follows is everything it knows about you and what you can do about it.
+
+It is written to satisfy the UK GDPR and the EU GDPR. If something here is wrong
+or unclear, that is a bug — please
+[open an issue](https://github.com/planarstandard) or say so in
+[the Discord](https://discord.gg/eeYH9XMCjT).
+
+## You do not need an account
+
+Every page of results, every rating, every article and every card is readable
+without signing in, and reading is not logged against you. An account exists so
+that you can **write** — publish an article, run an event, submit a deck. If you
+never do those things you never have to give us anything.
+
+## What we hold, if you do have an account
+
+| What                                    | Why                                   |
+| --------------------------------------- | ------------------------------------- |
+| Your email address                       | to sign you in, and to email you a link when you ask for one |
+| A hash of your password, if you set one  | to check your password without storing it |
+| Your provider account, if you used one   | so Google or Discord can vouch for you |
+| Your display name, handle, bio, picture  | your byline on anything you write     |
+| What you write and submit                | it is the site                        |
+| Sign-in times and IP addresses           | kept by our authentication provider, to stop abuse |
+
+**We never see your password.** It is checked against a one-way hash, which
+cannot be turned back into what you typed. If you sign in with an emailed link
+or with Google or Discord, there is no password at all.
+
+Your display name, handle and bio are **public** — they appear next to anything
+you publish, which is the point of them. Your email address is never shown on the
+site.
+
+### Tournament results are different
+
+Results are recorded against the **handle you played under** on the organiser's
+platform, not against your account here. They arrive already published from
+Challonge or melee.gg. That is a deliberate design decision — it means the
+competitive record does not depend on anybody having an account, and it means an
+account can be deleted without the record of a tournament falling apart.
+
+If you want a handle separated from your account, or a result corrected, ask.
+
+## Why we are allowed to hold it
+
+For your account and the things you publish, the lawful basis is **performance of
+a contract**: you asked for an account so that you could use the site, and we
+cannot give you one without holding an email address to sign you in.
+
+For sign-in records and rate limiting, the basis is **legitimate interests** —
+specifically, keeping the site from being abused. That is a narrow interest and
+the data is a narrow set.
+
+We do not rely on consent for anything, because we do not do anything that would
+need it. There is nothing to opt out of.
+
+## Cookies
+
+One cookie, set only when you sign in, holding your session. It is marked
+`HttpOnly`, so scripts cannot read it, and `Secure`, so it is never sent over an
+unencrypted connection.
+
+That cookie is **strictly necessary** — it is what signing in means — so there is
+no consent banner, because there is nothing to consent to. There are no
+analytics, advertising, or third-party tracking cookies on this site.
+
+## Who else sees it
+
+- **Supabase** stores the database and runs authentication.
+- **Vercel** serves the site.
+- **An email provider** delivers your sign-in and password-reset messages.
+
+Each of these processes data on our instructions and for no purpose of their own.
+Nothing is sold, and nothing is shared with anybody else.
+
+Some of them run servers outside the UK and EU. Where that happens the transfer
+relies on the provider's standard contractual clauses.
+
+## How long we keep it
+
+Your account and what you write stay until you delete them. Sign-in records are
+kept by our authentication provider on its own retention schedule, which is
+measured in weeks, not years.
+
+Published articles and tournament results are kept indefinitely — they are the
+community's record of what happened.
+
+## What you can do
+
+Signed in, from **[your data](/account/data)**:
+
+- **See it and take a copy.** One JSON file with your profile, your articles
+  including drafts nobody else can see, and your decks. That is the right of
+  access and the right to portability in one button.
+- **Correct it.** Your name, handle and bio are editable from
+  [your profile](/profile) at any time.
+- **Delete it.** This removes your email address, your password, every connected
+  provider, and your name, handle, bio and picture. It cannot be undone.
+
+You also have the right to object to processing, to ask us to restrict it, and to
+complain to a regulator — in the UK the
+[ICO](https://ico.org.uk/make-a-complaint/), or your own supervisory authority in
+the EU. We would rather you told us first.
+
+### What deleting does not remove
+
+Anything you published **stays up, with your name replaced** by "Deleted member".
+An article the community is still reading is not withdrawn because its author
+left, and the audit trail behind a rating correction is not ours to erase either.
+Once your name is off it, what remains identifies nobody.
+
+Tournament results stay for the same reason, and because they were published by
+the organiser rather than by us.
+
+If you think something specific should go, ask — this is a volunteer project, not
+a wall.
+
+## Children
+
+The site is not aimed at children and we do not knowingly hold data about anyone
+under 13. If you think we do, tell us and it will be removed.
+
+## Changes
+
+This page lives in the site's repository and changes through a pull request, so
+its history is public and every edit is reviewable. Material changes will be
+announced in the Discord.

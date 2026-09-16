@@ -1,4 +1,4 @@
-import type { PostKind, PostWithAuthor } from "@ps/contracts";
+import type { PostKind, PostWithAuthor, ProfileId } from "@ps/contracts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { POST_COLUMNS, toPostWithAuthor, type PostRow } from "./rows";
@@ -80,4 +80,26 @@ export async function listPublishedPostSlugs(
 
   if (error !== null) throw new Error(`listPublishedPostSlugs failed: ${error.message}`);
   return data as { slug: string; kind: PostKind }[];
+}
+
+/**
+ * Everything one person has written, at any status (E16.11).
+ *
+ * The only read here that is not published-only, and deliberately so: this
+ * answers a subject access request, where a draft somebody never finished is
+ * still theirs and still has to be handed over. It is never a feed — the caller
+ * is the export, and the author id comes from the session rather than a route.
+ */
+export async function listPostsByAuthor(
+  client: SupabaseClient,
+  authorId: ProfileId,
+): Promise<readonly PostWithAuthor[]> {
+  const { data, error } = await client
+    .from("posts")
+    .select(POST_COLUMNS)
+    .eq("author_id", authorId)
+    .order("created_at", { ascending: false });
+
+  if (error !== null) throw new Error(`listPostsByAuthor failed: ${error.message}`);
+  return (data as unknown as PostRow[]).map(toPostWithAuthor);
 }
