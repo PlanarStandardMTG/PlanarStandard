@@ -44,4 +44,5 @@ export type ArchetypeId = string;
 export type AdapterId = string;
 export type SeasonId = string;
 export type TournamentId = string;
+export type TournamentEntryId = string;
 export type MatchId = string;

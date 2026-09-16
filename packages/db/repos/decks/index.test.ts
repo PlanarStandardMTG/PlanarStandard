@@ -17,9 +17,11 @@ import {
  * `repos/events`: `db` is the one package allowed to need infrastructure, and
  * the zero-credential promise only holds if a missing instance is a skip.
  *
- * Every deck this suite writes is deleted afterwards. `decks` has no seed rows
- * (E13.7), so the table is empty on a fresh reset and these are the only rows in
- * it — which is what lets the listing assertions be exact rather than "contains".
+ * Every deck this suite writes is deleted afterwards, **by id**. A blanket
+ * delete would be shorter and is a trap: vitest runs test files in parallel, so
+ * a suite that clears a whole table clears it out from under whoever else is
+ * using it. `decks` has no seed rows (E13.7) and nothing else writes one today,
+ * which makes the blanket version work right up until something does.
  */
 const url = process.env["SUPABASE_URL"] ?? "http://127.0.0.1:54321";
 const anonKey =
@@ -71,16 +73,29 @@ const card = (over: Partial<DeckCard> & { name: string }): DeckCard => ({
   ...over,
 });
 
-async function dropAllDecks(): Promise<void> {
-  await service.from("decks").delete().not("id", "is", null);
+/** Ids this suite created, so the cleanup can name them rather than the table. */
+const created: string[] = [];
+
+/** `insertDeck`, remembering what it made. Every test writes through this. */
+async function write(
+  newDeck: NewDeck,
+  cards: readonly DeckCard[],
+): Promise<Awaited<ReturnType<typeof insertDeck>>> {
+  const stored = await insertDeck(service, newDeck, cards);
+  created.push(stored.id);
+  return stored;
 }
 
 describe.skipIf(!reachable)("repos/decks", () => {
-  afterEach(dropAllDecks);
+  afterEach(async () => {
+    if (created.length === 0) return;
+    // `deck_cards` cascades from `decks`, so the list goes with it.
+    await service.from("decks").delete().in("id", created);
+    created.length = 0;
+  });
 
   it("reads back what was written, mapped to the contract", async () => {
-    const stored = await insertDeck(
-      service,
+    const stored = await write(
       deck({
         name: "Zenith Abzan",
         archetypeRaw: "Abzan Midrange (Midrange)",
@@ -119,7 +134,7 @@ describe.skipIf(!reachable)("repos/decks", () => {
   it("keeps a card whose name did not resolve", async () => {
     // E18.10: the row survives with a null oracle_id and the deck is flagged.
     // Dropping the line would make the deck read as 59 cards and legal.
-    const stored = await insertDeck(service, deck({ name: "Typo", isLegal: false }), [
+    const stored = await write(deck({ name: "Typo", isLegal: false }), [
       card({ name: "Llanowar Elfs", quantity: 4 }),
     ]);
 
@@ -129,7 +144,7 @@ describe.skipIf(!reachable)("repos/decks", () => {
   });
 
   it("orders the list maindeck, sideboard, command zone, then by name", async () => {
-    const stored = await insertDeck(service, deck({ name: "Ordered" }), [
+    const stored = await write(deck({ name: "Ordered" }), [
       card({ name: "Duress", board: "side" }),
       card({ name: "Ouroboroid" }),
       card({ name: "Bloomvine Regent" }),
@@ -163,8 +178,8 @@ describe.skipIf(!reachable)("repos/decks", () => {
       .single();
     const playerId = (data as { id: string }).id as PlayerId;
 
-    await insertDeck(service, deck({ name: "Listed", playerId }), []);
-    await insertDeck(service, deck({ name: "Unlisted", playerId, visibility: "unlisted" }), []);
+    await write(deck({ name: "Listed", playerId }), []);
+    await write(deck({ name: "Unlisted", playerId, visibility: "unlisted" }), []);
 
     const theirs = await listDecksByPlayer(client, playerId);
     expect(theirs.map((d) => d.name).sort()).toEqual(["Listed", "Unlisted"]);
@@ -173,20 +188,18 @@ describe.skipIf(!reachable)("repos/decks", () => {
   });
 
   it("leaves unlisted and private decks out of a browse listing", async () => {
-    await insertDeck(service, deck({ name: "Public" }), []);
-    await insertDeck(service, deck({ name: "Unlisted", visibility: "unlisted" }), []);
-    await insertDeck(service, deck({ name: "Private", visibility: "private" }), []);
+    await write(deck({ name: "Public" }), []);
+    await write(deck({ name: "Unlisted", visibility: "unlisted" }), []);
+    await write(deck({ name: "Private", visibility: "private" }), []);
 
     const browsable = await listPublicDecksBySeason(client, SEASON_II, 10);
     expect(browsable.map((d) => d.name)).toEqual(["Public"]);
   });
 
   it("still serves an unlisted deck by id, because that is what unlisted means", async () => {
-    const unlisted = await insertDeck(
-      service,
-      deck({ name: "Shared by link", visibility: "unlisted" }),
-      [card({ name: "Duress" })],
-    );
+    const unlisted = await write(deck({ name: "Shared by link", visibility: "unlisted" }), [
+      card({ name: "Duress" }),
+    ]);
 
     const fetched = await getDeckWithCards(client, unlisted.id);
     expect(fetched?.name).toBe("Shared by link");
@@ -194,7 +207,7 @@ describe.skipIf(!reachable)("repos/decks", () => {
   });
 
   it("hides a private deck and its cards from the public client", async () => {
-    const priv = await insertDeck(service, deck({ name: "Mine", visibility: "private" }), [
+    const priv = await write(deck({ name: "Mine", visibility: "private" }), [
       card({ name: "Duress" }),
     ]);
 

@@ -3,7 +3,18 @@
 
 import type { Color } from "./cards";
 import type { WinLossDraw } from "./decks";
-import type { AdapterId, DeckId, IsoDate } from "./primitives";
+import type {
+  AdapterId,
+  ArchetypeId,
+  DeckId,
+  FormatVersionId,
+  IsoDate,
+  IsoDateTime,
+  PlayerId,
+  SeasonId,
+  TournamentEntryId,
+  TournamentId,
+} from "./primitives";
 
 /**
  * What a parse can yield. Gating is load-bearing (ADR 006): Elo consumes
@@ -204,6 +215,69 @@ export type AdapterDetection =
       readonly candidates: readonly ResultsAdapter[];
       readonly issue: ParseIssue;
     };
+
+// ── The ledger's own rows ────────────────────────────────────────────────────
+
+/**
+ * A `seasons` row. The unit every leaderboard and metagame report is scoped to.
+ *
+ * It names the format version it was played under, so a mid-season B&R change
+ * does not rewrite what was legal in week one.
+ */
+export interface Season {
+  readonly id: SeasonId;
+  readonly name: string;
+  readonly ordinal: number;
+  readonly startsOn: IsoDate;
+  readonly endsOn: IsoDate | null;
+  readonly formatVersionId: FormatVersionId | null;
+  readonly isCurrent: boolean;
+}
+
+/** A `tournaments` row — the site's own record of an event that happened (§13). */
+export interface Tournament {
+  readonly id: TournamentId;
+  readonly name: string;
+  /** The URL key. Unique, and what `/tournaments/[slug]` reads. */
+  readonly slug: string;
+  readonly eventDate: IsoDate;
+  readonly seasonId: SeasonId | null;
+  readonly formatVersionId: FormatVersionId | null;
+  readonly platform: string | null;
+  readonly externalUrl: string | null;
+  readonly structure: string | null;
+  readonly rounds: number | null;
+  readonly playerCount: number | null;
+  /** What this event is worth to a rating. A championship weighs more without a second model (§12). */
+  readonly weight: number;
+  /** False until an import brings pairings. A standings-only event stays unrated (ADR 006). */
+  readonly isRated: boolean;
+  readonly status: TournamentStatus;
+  readonly createdAt: IsoDateTime;
+}
+
+/**
+ * A `tournament_entries` row — one person's event.
+ *
+ * Keyed by `playerId`, not by identity: an entry is a resolved standing and a
+ * person finishes once. `matches` is the table that keeps handles (ADR 003).
+ */
+export interface TournamentEntry {
+  readonly id: TournamentEntryId;
+  readonly tournamentId: TournamentId;
+  readonly playerId: PlayerId;
+  /** Null when nobody registered a list — every standings-only import (ADR 006). */
+  readonly deckId: DeckId | null;
+  readonly archetypeId: ArchetypeId | null;
+  /** Null when the source reported no standings: a matches-only import knows who played, not who won. */
+  readonly placement: number | null;
+  readonly record: WinLossDraw;
+  readonly gameWins: number;
+  readonly gameLosses: number;
+  readonly dropped: boolean;
+  /** Why there is no deck, in the organiser's words. Absent-for-a-reason is not absent-and-chaseable. */
+  readonly deckMissingReason: string | null;
+}
 
 // ── The read side ────────────────────────────────────────────────────────────
 // Everything above describes results on their way in. What follows is one view

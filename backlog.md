@@ -32,7 +32,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
 | E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
-| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 14/23 |
+| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 15/23 |
 | E14  | RLS and access control                | 1     | E13          | ⬜ 0/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 2/8   |
@@ -421,7 +421,19 @@ reads as an empty deck everywhere. Genuine atomicity means a `plpgsql` function 
 _Note:_ needed `Deck`, `DeckCard` and `DeckWithCards` in contracts, and those could not be written
 until the fourteen row-id aliases moved to `contracts/primitives` — a `Deck` references five ids
 owned by five modules, three of which already import from `decks`, so the type was three cycles.
-⬜ **E13.17 — `repos/tournaments`** · M · Deps: E13.9
+✅ **E13.17 — `repos/tournaments`** · M · Deps: E13.9 — `getTournamentBySlug`,
+`listTournamentsBySeason`, `listRatedTournamentsBySeason`, `getLatestTournamentWithResults`,
+`listTournamentEntries`.
+_Note:_ `listRatedTournamentsBySeason` returns **oldest first, and the order is the contract**. Elo is
+path-dependent, so a descending sort would not fail anything — it would quietly produce a different
+leaderboard (ADR 004, E8.4). Ties break on slug so two events on one date replay reproducibly.
+_Note:_ `getLatestTournamentWithResults` is the read E24.5 needs, written now and correctly returning
+the seeded `planar-standard-weekly-40`. It excludes `archived` deliberately: somebody took that event
+down, and resurfacing it on the home page would undo that.
+_Note:_ writing this suite exposed a cross-file hazard in two earlier ones. Vitest runs test files in
+parallel, so a suite that clears a whole table clears it out from under whoever else is using it —
+this one's `vitest-%` cleanup was deleting `generated-columns.test.ts`'s fixture player mid-run. Both
+this suite and `repos/decks` now delete by the ids they created.
 ⬜ **E13.18 — `repos/results`** · L · Deps: E13.8
 ⬜ **E13.19 — `repos/identity`** · L · Deps: E13.10
 ⬜ **E13.20 — `repos/ratings`** · M · Deps: E13.11
@@ -797,8 +809,8 @@ can start today, in rough order of how much it unblocks.
 - **E13.10–E13.12 — the rest of the migrations,** in the Part IV order. Everything through
   `tournament_entries` is in, which is every table the site currently reads. E13.10 (the identity
   trio) unblocks E13.11 and E13.19; E13.12 (derived stats) unblocks E13.21 and most of E19.
-- **E13.17 — `repos/tournaments`** and **E13.18 — `repos/results`,** both newly unblocked. E13.18 is
-  the read/write surface every E18 import story sits on.
+- **E13.18 — `repos/results`,** the read/write surface every E18 import story sits on, and the last
+  repository between here and E18.1.
 - **E24.5 — the real podium — now waits on one thing only.** Its schema is all in; what is missing is
   something to _write_ an entry, which is E18.4. The query itself could be written today and would
   correctly return nothing.
@@ -856,7 +868,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
 | E1   | 9       | 9    | E12  | 10      | 6    |
-| E2   | 9       | 9    | E13  | 23      | 14   |
+| E2   | 9       | 9    | E13  | 23      | 15   |
 | E3   | 7       | 7    | E14  | 5       | 0    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
 | E5   | 6       | 6    | E16  | 8       | 2    |
@@ -869,4 +881,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 11   |
 |      |         |      | E24  | 7       | 4    |
 
-**123 of 228 stories done across 24 epics.**
+**124 of 228 stories done across 24 epics.**
