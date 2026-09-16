@@ -32,7 +32,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
 | E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
-| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 22/23 |
+| E13  | Schema, migrations, repositories      | 3–5   | E2           | ✅ 23/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 5/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 11/12 |
@@ -444,7 +444,15 @@ _Note:_ every rate is stored next to its `n` — `win_rate` beside `game_wins`/`
 passed through `suppress-small-n` or explained to a reader, which is a merge-blocking requirement
 rather than a preference.
 ✅ **E13.13 — `posts`, `post_revisions`** · S · Deps: E13.1
-⬜ **E13.14 — Index review pass** · S · Deps: E13.12 — every index in Part IV present; `explain` on the leaderboard and card-stats queries recorded in the PR.
+✅ **E13.14 — Index review pass** · S · Deps: E13.12 — every index in Part IV present; `explain` on the leaderboard and card-stats queries recorded in the PR.
+_Note:_ the plans are in [`docs/modules/indexes.md`](docs/modules/indexes.md) rather than only in the
+PR, along with what each of the 32 indexes serves and the volume they were measured at. A PR
+description is not somewhere the next person looks.
+_Note:_ two sequential scans were measured and left alone — `matchup_stats` filtered from either side
+of its ordered pair, and `posts` by author. Both tables are small by construction, and the page says
+at what size to revisit each.
+_Note:_ `indexes.test.ts` holds the doc's table and the migrations to the same set, so a new index
+that nobody documents fails rather than drifting.
 
 ### Repositories
 
@@ -1024,8 +1032,8 @@ can start today, in rough order of how much it unblocks.
 - **E18.16 — `merge-players`,** now that `repointPlayerRows`, `markPlayerMerged` and
   `recordPlayerMerge` exist. The reversibility its acceptance criterion asks for is the `moved` the
   repoint returns; what the service adds is the exclusion check and the recompute.
-- **E13 is down to one story.** Every table in Part IV exists, every repository is written, and what
-  is left is the index review (E13.14). Nothing in E14–E21 is waiting on schema or on storage.
+- **E13 is complete.** Every table in Part IV exists, every repository is written, and the indexes are
+  reviewed. Nothing in E14–E21 is waiting on schema or on storage any more.
 - **E19 can start.** `repos/stats` is in, so every chart in the epic has something to read — but see
   E19.1 first, which sets the fixture conventions the other thirteen components inherit.
 - **E18.12 — `recompute-ratings`,** now fully supplied: `listLedgerMatchesBySeason` reads the
@@ -1099,7 +1107,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
 | E1   | 9       | 9    | E12  | 10      | 6    |
-| E2   | 9       | 9    | E13  | 23      | 22   |
+| E2   | 9       | 9    | E13  | 23      | 23   |
 | E3   | 7       | 7    | E14  | 5       | 5    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
 | E5   | 6       | 6    | E16  | 12      | 11   |
@@ -1112,4 +1120,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**148 of 233 stories done across 24 epics.**
+**149 of 233 stories done across 24 epics.**
