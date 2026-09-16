@@ -32,7 +32,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
 | E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
-| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 18/23 |
+| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 19/23 |
 | E14  | RLS and access control                | 1     | E13          | ⬜ 0/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 2/8   |
@@ -426,7 +426,21 @@ can check is a rating nobody trusts, and `/ratings-explained` publishes the thre
 `rating_config` has to be readable or the page describes something invisible.
 _Note:_ verified that raising `min_matches_for_leaderboard` drops a player off the leaderboard with
 no deploy — the same "authority is data, not code" property the format tables have.
-⬜ **E13.12 — Derived stats tables** · L · Deps: E13.9 — `deck_metrics`, `card_stats`, `archetype_stats`, `deck_similarity`, `deck_map_layout`, `matchup_stats`. _Split per table if the review gets long._
+✅ **E13.12 — Derived stats tables** · L · Deps: E13.9 — `deck_metrics`, `card_stats`,
+`archetype_stats`, `deck_similarity`, `deck_map_layout`, `matchup_stats`.
+_Note:_ the RLS splits three and three. `card_stats`, `archetype_stats` and `matchup_stats` are
+aggregates and are public outright — they are the numbers the footer promises you can read. The other
+three name individual decks and follow that deck's visibility instead: a private deck's mana curve,
+or its dot on the map, discloses that the deck exists and roughly what is in it. `deck_similarity`
+needs **both** ends public, not either, since an edge joins two decks. Verified: an edge touching a
+private deck is invisible to anon and present to postgres.
+_Note:_ `card_stats.board` allows two values where `deck_cards.board` allows three. The command zone
+is not part of the inclusion statistics the site publishes, and a `command` row would quietly widen
+every "played in N% of decks" number. Verified rejecting.
+_Note:_ every rate is stored next to its `n` — `win_rate` beside `game_wins`/`game_losses`,
+`inclusion_rate` beside `decks_including`. A rate stored without the count it came from cannot be
+passed through `suppress-small-n` or explained to a reader, which is a merge-blocking requirement
+rather than a preference.
 ✅ **E13.13 — `posts`, `post_revisions`** · S · Deps: E13.1
 ⬜ **E13.14 — Index review pass** · S · Deps: E13.12 — every index in Part IV present; `explain` on the leaderboard and card-stats queries recorded in the PR.
 
@@ -853,11 +867,15 @@ can start today, in rough order of how much it unblocks.
   stage, resolve, review, commit, supersede — now has its storage. E18.1 needs one more decision
   first: where archived raw bytes live. Supabase Storage is the obvious answer and nothing has
   written it down.
-- **E13.12 — the derived stats tables,** the last migration in Part IV and the one E19 mostly waits
-  on. Six tables; split the review if it runs long.
-- **E13.19 — `repos/identity`** and **E13.20 — `repos/ratings`,** both unblocked. E13.19 is what
-  E18.3 needs to auto-create an identity on a miss; E13.20 is what `core/elo/replay` writes through,
-  and `/leaderboard` (E20.12) reads.
+- **Every table in Part IV now exists.** E13.1–E13.13 are merged, so nothing in E14–E21 is waiting on
+  schema any more. What is left in E13 is three repositories and the index review.
+- **E13.19 — `repos/identity`**, **E13.20 — `repos/ratings`**, **E13.21 — `repos/stats`.** E13.19 is
+  what E18.3 needs to auto-create an identity on a miss; E13.20 is what `core/elo/replay` writes
+  through and `/leaderboard` reads; E13.21 is what every E19 chart reads.
+- **E14.1 and E14.2 — the policy passes,** now that there is a full set of tables to write them
+  against. Every migration so far has carried its own read policy and said why in a comment; E14's
+  job is to make that a matrix rather than a collection of individual judgements, and E14.5 is the
+  release blocker that asserts it.
 - **E24.5 — the real podium — now waits on one thing only.** Its schema is all in; what is missing is
   something to _write_ an entry, which is E18.4. The query itself could be written today and would
   correctly return nothing.
@@ -915,7 +933,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
 | E1   | 9       | 9    | E12  | 10      | 6    |
-| E2   | 9       | 9    | E13  | 23      | 18   |
+| E2   | 9       | 9    | E13  | 23      | 19   |
 | E3   | 7       | 7    | E14  | 5       | 0    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
 | E5   | 6       | 6    | E16  | 8       | 2    |
@@ -928,4 +946,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 11   |
 |      |         |      | E24  | 7       | 4    |
 
-**127 of 228 stories done across 24 epics.**
+**128 of 228 stories done across 24 epics.**
