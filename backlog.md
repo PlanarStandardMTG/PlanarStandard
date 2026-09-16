@@ -32,7 +32,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
 | E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
-| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 16/23 |
+| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 17/23 |
 | E14  | RLS and access control                | 1     | E13          | ⬜ 0/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 2/8   |
@@ -397,7 +397,20 @@ An entry is a resolved standing, and a person cannot finish fourth and ninth at 
 merge that would collide here is a merge that must be refused. E18.16 checks it first and gives a
 readable error; this catches it if the service ever forgets. Verified rejecting at the database,
 along with `placement > 0`.
-⬜ **E13.10 — `identity_exclusions`, `merge_suggestions`, `player_merges`** · M · Deps: E13.8
+✅ **E13.10 — `identity_exclusions`, `merge_suggestions`, `player_merges`** · M · Deps: E13.8
+_Note:_ `check (identity_a < identity_b)` now exists, which `core/identity/co-appearance-exclusions`
+has been citing in a comment since E9.7 — it emits ordered pairs _because of_ this constraint, and
+the constraint was not there. The orders agree: core sorts the canonical lowercase hyphenated text
+and Postgres compares the 16 bytes, which for that spelling is the same order.
+_Note:_ `merge_suggestions` gets the same ordered-pair check, which §12 does not specify. Without it
+`unique (player_a, player_b)` does not mean what it reads as — (A,B) and (B,A) would be two rows and
+an admin would review the same pair twice. `player_merges` gets `winner_id <> loser_id` for a similar
+reason: a self-merge is a no-op that leaves an audit row claiming a merge happened.
+_Note:_ **no read policy on any of the three**, which is where this differs from `match_corrections`.
+A correction is about an event's data, and is public so a rating that moved can be explained to the
+person it moved. These are assertions about _people_ — that two handles are one person, or that
+somebody suspected they were — and `players.visibility = 'hidden'` exists because not everyone wants
+to be listed at all. Publishing a merge would route around that. Admin access is E14.4.
 ⬜ **E13.11 — Ratings tables and `leaderboard` view** · M · Deps: E13.10 — `rating_config`, `rating_events`, `player_ratings`, `rating_runs`.
 ⬜ **E13.12 — Derived stats tables** · L · Deps: E13.9 — `deck_metrics`, `card_stats`, `archetype_stats`, `deck_similarity`, `deck_map_layout`, `matchup_stats`. _Split per table if the review gets long._
 ✅ **E13.13 — `posts`, `post_revisions`** · S · Deps: E13.1
@@ -826,7 +839,11 @@ can start today, in rough order of how much it unblocks.
   stage, resolve, review, commit, supersede — now has its storage. E18.1 needs one more decision
   first: where archived raw bytes live. Supabase Storage is the obvious answer and nothing has
   written it down.
-- **E13.10 — the identity trio,** which E18.3 needs to auto-create an identity on a miss.
+- **E13.11 — ratings tables and the `leaderboard` view,** newly unblocked, and the last migration
+  before E13.12's derived stats. `core/elo` has been finished since E8; this is the storage it
+  writes to.
+- **E13.19 — `repos/identity`,** also newly unblocked, and what E18.3 needs to auto-create an
+  identity on a miss.
 - **E24.5 — the real podium — now waits on one thing only.** Its schema is all in; what is missing is
   something to _write_ an entry, which is E18.4. The query itself could be written today and would
   correctly return nothing.
@@ -884,7 +901,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
 | E1   | 9       | 9    | E12  | 10      | 6    |
-| E2   | 9       | 9    | E13  | 23      | 16   |
+| E2   | 9       | 9    | E13  | 23      | 17   |
 | E3   | 7       | 7    | E14  | 5       | 0    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
 | E5   | 6       | 6    | E16  | 8       | 2    |
@@ -897,4 +914,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 11   |
 |      |         |      | E24  | 7       | 4    |
 
-**125 of 228 stories done across 24 epics.**
+**126 of 228 stories done across 24 epics.**
