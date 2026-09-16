@@ -320,6 +320,21 @@ max_frequency = "5s"
 # Use an external OAuth provider. The full list of providers are: `apple`, `azure`, `bitbucket`,
 # `discord`, `facebook`, `github`, `gitlab`, `google`, `keycloak`, `linkedin_oidc`, `notion`, `twitch`,
 # `twitter`, `x`, `slack`, `spotify`, `workos`, `zoom`.
+# Discord is the only way in (E16.3). Local sign-in needs a Discord application
+# of your own: https://discord.com/developers/applications, with
+# http://127.0.0.1:54321/auth/v1/callback as a redirect URI. Export the two
+# variables below before `pnpm db:start` and they are picked up here.
+#
+# No contributor needs this. Everything on the site is readable signed out, and
+# only work on the auth flow itself requires an account — §17 counts Discord
+# login as one of two tasks in the repository that need real credentials.
+[auth.external.discord]
+enabled = true
+client_id = "env(SUPABASE_AUTH_EXTERNAL_DISCORD_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_EXTERNAL_DISCORD_SECRET)"
+redirect_uri = ""
+url = ""
+
 [auth.external.apple]
 enabled = false
 client_id = ""

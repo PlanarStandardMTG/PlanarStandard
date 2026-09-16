@@ -7,6 +7,12 @@
 -- `profiles.id` references `auth.users`, so the users have to exist first. These
 -- are local-only rows with a throwaway password; nothing here reaches a
 -- deployed environment.
+--
+-- Creating those users fires migration 0016's trigger, so each of these already
+-- has a profile by the time the second statement runs. The upsert below is that
+-- trigger working, not a collision to route around: it makes the default row
+-- into a specific person, and it sets the one thing the trigger will not — the
+-- role. Every writer and organizer the seeded site needs comes from here.
 
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password,
@@ -71,4 +77,10 @@ insert into profiles (id, display_name, handle, avatar_url, bio, role) values
     null,
     'Aggro apologist.',
     'writer'
-  );
+  )
+on conflict (id) do update set
+  display_name = excluded.display_name,
+  handle       = excluded.handle,
+  avatar_url   = excluded.avatar_url,
+  bio          = excluded.bio,
+  role         = excluded.role;

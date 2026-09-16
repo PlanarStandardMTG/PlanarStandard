@@ -4,6 +4,7 @@
 // `pnpm db:reset`. Repositories expose narrow, intention-revealing functions —
 // never a generic query builder (§10).
 
+export * from "./repos/profiles/index";
 export * from "./repos/content/index";
 export * from "./repos/format/index";
 export * from "./repos/events/index";
