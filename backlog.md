@@ -32,7 +32,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
 | E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
-| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 11/23 |
+| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 12/23 |
 | E14  | RLS and access control                | 1     | E13          | ⬜ 0/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 2/8   |
@@ -407,7 +407,17 @@ owned by five modules, three of which already import from `decks`, so the type w
 ⬜ **E13.20 — `repos/ratings`** · M · Deps: E13.11
 ⬜ **E13.21 — `repos/stats`** · L · Deps: E13.12
 ✅ **E13.22 — `repos/content`** · M · Deps: E13.13
-⬜ **E13.23 — `repos/archetypes`** · S · Deps: E13.3
+✅ **E13.23 — `repos/archetypes`** · S · Deps: E13.3 — `listArchetypes`, `getArchetype`,
+`findArchetypeByAlias`.
+_Note:_ the lookup tries aliases first, then the archetype's own **name** — a name is obviously a
+spelling of itself and the vocabulary does not register it as an alias. The alias path ignores
+punctuation, spacing and case; the name path only case, because `archetypes.name` has no normalized
+column. A null result is a normal answer: the deck keeps its `archetype_raw` until somebody adds the
+alias, and re-resolving then fixes every deck that ever carried it.
+_Note:_ `normalizeAlias` duplicates the `archetype_aliases.normalized` generated column, because `db`
+depends on contracts only and cannot import `core`. Drift would not fail — it would silently stop
+matching — so the suite asserts the two against every seeded alias, the arrangement
+`normalize-handle` already has with `generated-columns.test.ts`.
 
 _AC for each repo story:_ exported functions are named for intent (`listRatedTournamentsBySeason`, not `query`); no SQL string escapes the module; a test hits a local Supabase instance.
 
@@ -772,7 +782,7 @@ can start today, in rough order of how much it unblocks.
 - **E19.13 — `DeckVisualizer`,** now that `repos/decks` can hand it a deck. It takes shaped lines as
   props like every E19 component, so it needs no card data of its own — but see E19.1 first, which
   sets the fixture conventions the other thirteen components inherit.
-- **E13.23 — `repos/archetypes`,** and **E13.17 — `repos/tournaments`** once E13.9 lands.
+- **E13.17 — `repos/tournaments`,** once E13.9 lands.
 - **E17.4 — `<Chart />`,** the last thing between E17 and a finished epic. It waits on E19.
 
 **Needs nothing but a sitting**
@@ -823,7 +833,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
 | E1   | 9       | 9    | E12  | 10      | 6    |
-| E2   | 9       | 9    | E13  | 23      | 11   |
+| E2   | 9       | 9    | E13  | 23      | 12   |
 | E3   | 7       | 7    | E14  | 5       | 0    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
 | E5   | 6       | 6    | E16  | 8       | 2    |
@@ -836,4 +846,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 11   |
 |      |         |      | E24  | 7       | 4    |
 
-**120 of 228 stories done across 24 epics.**
+**121 of 228 stories done across 24 epics.**

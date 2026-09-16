@@ -15,6 +15,38 @@ import type {
  */
 export type ArchetypeSupertype = "aggro" | "midrange" | "control" | "combo" | "other";
 
+/**
+ * One `archetypes` row — the vocabulary every statistic below is grouped by.
+ *
+ * Here rather than in a module of its own because an archetype is what metrics
+ * are *about*: nothing else in the system reads this table, and a tenth §7
+ * module for five fields would be a heavier thing to carry than this paragraph.
+ *
+ * Names are data, so the community can rename "Dimir Midrange" to "Dimir
+ * Control" mid-season without a deploy, and every deck that ever carried the old
+ * label keeps pointing at the same row.
+ */
+export interface Archetype {
+  readonly id: ArchetypeId;
+  readonly name: string;
+  readonly supertype: ArchetypeSupertype;
+  readonly colorIdentity: readonly Color[];
+  readonly descriptionMarkdown: string | null;
+  /** "Azorius Control" under "Control" tiers a report without duplicating either row. */
+  readonly parentId: ArchetypeId | null;
+  readonly isActive: boolean;
+}
+
+/**
+ * An archetype with every other spelling the sources use for it.
+ *
+ * An adapter reports `archetypeRaw` exactly as the source printed it and never
+ * resolves it (E12.7); these are what resolve it afterwards.
+ */
+export interface ArchetypeWithAliases extends Archetype {
+  readonly aliases: readonly string[];
+}
+
 /** Buckets 1–6 and 7+, non-lands only (§8.3). Keys are strings: the column is jsonb. */
 export type MvBucket = "1" | "2" | "3" | "4" | "5" | "6" | "7+";
 export type MvBuckets = Readonly<Record<MvBucket, number>>;
