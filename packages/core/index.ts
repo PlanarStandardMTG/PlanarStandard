@@ -98,6 +98,7 @@ export { checkDeck } from "./legality/check-deck/index";
 
 // events — an external calendar to a schedule (E23)
 export { parseChallongeEvents } from "./events/parse-challonge-events/index";
+export { parseMeleeEvents } from "./events/parse-melee-events/index";
 export { EVENT_SYNC_INTERVAL_MS, isSyncDue, syncCutoff } from "./events/sync-window/index";
 export {
   PAST_EVENT_WINDOW_MS,

@@ -1,3 +1,5 @@
+import type { CalendarFetch } from "@/lib/events/calendar-fetch";
+
 /**
  * The only module in the repo that talks to Challonge (E23.7).
  *
@@ -17,12 +19,6 @@ const REQUEST_TIMEOUT_MS = 8000;
 /** Pages of the tournaments list. 50 × 4 is far more events than the community runs at once. */
 const PAGE_SIZE = 50;
 const MAX_PAGES = 4;
-
-export type ChallongeFetch =
-  | { readonly status: "ok"; readonly payload: unknown }
-  /** No key configured. Every contributor's machine, and not a failure. */
-  | { readonly status: "not-configured" }
-  | { readonly status: "failed"; readonly error: string };
 
 interface ChallongeCredentials {
   readonly apiKey: string;
@@ -50,7 +46,7 @@ export function isChallongeConfigured(): boolean {
  * a reason for the site to be. Pages are concatenated into one JSON:API-shaped
  * envelope so the parser sees exactly the shape the fixture holds.
  */
-export async function fetchCommunityTournaments(): Promise<ChallongeFetch> {
+export async function fetchCommunityTournaments(): Promise<CalendarFetch> {
   const creds = credentials();
   if (creds === null) return { status: "not-configured" };
 
@@ -70,7 +66,7 @@ export async function fetchCommunityTournaments(): Promise<ChallongeFetch> {
   return { status: "ok", payload: { data: members } };
 }
 
-async function fetchPage(creds: ChallongeCredentials, page: number): Promise<ChallongeFetch> {
+async function fetchPage(creds: ChallongeCredentials, page: number): Promise<CalendarFetch> {
   const url =
     `${API_BASE}/communities/${encodeURIComponent(creds.community)}/tournaments.json` +
     `?page=${page}&per_page=${PAGE_SIZE}`;

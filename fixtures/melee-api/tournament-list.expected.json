@@ -1,0 +1,42 @@
+[
+  {
+    "source": "melee",
+    "externalId": "442716",
+    "name": "Mid-Month Madness #2 - White Elephant",
+    "url": "https://melee.gg/Tournament/View/442716",
+    "state": "complete",
+    "startsAt": "2026-07-19T18:24:33Z",
+    "participantCount": 0,
+    "structure": "swiss"
+  },
+  {
+    "source": "melee",
+    "externalId": "448894",
+    "name": "Mid-Month Madness #3 - Planar Standard Artisan",
+    "url": "https://melee.gg/Tournament/View/448894",
+    "state": "complete",
+    "startsAt": "2026-08-16T18:48:08Z",
+    "participantCount": 0,
+    "structure": "swiss"
+  },
+  {
+    "source": "melee",
+    "externalId": "450268",
+    "name": "Monthly Championship Series - September 2026",
+    "url": "https://melee.gg/Tournament/View/450268",
+    "state": "complete",
+    "startsAt": "2026-09-05T19:59:02Z",
+    "participantCount": 0,
+    "structure": "swiss + top 8 playoffs"
+  },
+  {
+    "source": "melee",
+    "externalId": "465247",
+    "name": "Legality Fracture #1",
+    "url": "https://melee.gg/Tournament/View/465247",
+    "state": "scheduled",
+    "startsAt": null,
+    "participantCount": 0,
+    "structure": "swiss"
+  }
+]

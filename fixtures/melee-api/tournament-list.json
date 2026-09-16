@@ -1,0 +1,387 @@
+{
+  "StatusCode": 200,
+  "IgnoreCache": false,
+  "Page": 1,
+  "PageSize": 25,
+  "RecordsFiltered": 6,
+  "RecordsTotal": 6,
+  "Content": [
+    {
+      "ID": 442716,
+      "Guid": "e32473fc-c25e-4cc0-83c8-b722c565c866",
+      "Name": "Mid-Month Madness #2 - White Elephant",
+      "CurrentPhaseId": 447695,
+      "Formats": ["Standard"],
+      "OrganizationId": 18712,
+      "OrganizationName": "Planar Standard Official",
+      "SearchTags": ["Standard", "MagicTheGathering", "MTGA"],
+      "BrandImageSource": "https://cdn.melee.gg/userphotos/brandimages/276bae95-0fef-4382-9438-a35a891afb25.jpg",
+      "TimerState": null,
+      "TimerStateDescription": null,
+      "TimerEnd": null,
+      "Game": "MagicTheGathering",
+      "TournamentType": 0,
+      "TournamentTypeDescription": "MTG Arena",
+      "Status": 4,
+      "StatusDescription": "Ended",
+      "LastPairDateTime": "2026-07-19T18:24:33Z",
+      "Phases": [
+        {
+          "ID": 447695,
+          "Guid": "146e3317-1ce1-451a-be51-c8d19cd3c2b1",
+          "Name": "Swiss Phase",
+          "FormatId": "0c751de2-e65d-4666-83a2-ad08f96882d6",
+          "Format": "Standard",
+          "SortOrder": 1,
+          "Rounds": [
+            {
+              "ID": 1567376,
+              "Guid": "43cbb377-63ec-4db6-bc86-d2ba322edbef",
+              "Name": "Round 1",
+              "SortOrder": 1
+            },
+            {
+              "ID": 1567377,
+              "Guid": "b5849700-a3d7-4312-986b-e40aa158cb41",
+              "Name": "Round 2",
+              "SortOrder": 2
+            },
+            {
+              "ID": 1567378,
+              "Guid": "c8ddc441-e7ec-4d88-ae0d-7197992f36e4",
+              "Name": "Round 3",
+              "SortOrder": 3
+            },
+            {
+              "ID": 1567379,
+              "Guid": "18527994-ec98-45b1-8840-12fed812a52a",
+              "Name": "Round 4",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ID": 448894,
+      "Guid": "82873cb4-281e-41ce-a69f-dccf5d0fa35b",
+      "Name": "Mid-Month Madness #3 - Planar Standard Artisan",
+      "CurrentPhaseId": 454385,
+      "Formats": ["Standard"],
+      "OrganizationId": 18712,
+      "OrganizationName": "Planar Standard Official",
+      "SearchTags": ["Standard", "MagicTheGathering", "MTGA"],
+      "BrandImageSource": "https://cdn.melee.gg/userphotos/brandimages/893bdecd-9abb-4c37-8c41-762e9268b338.jpg",
+      "TimerState": null,
+      "TimerStateDescription": null,
+      "TimerEnd": null,
+      "Game": "MagicTheGathering",
+      "TournamentType": 0,
+      "TournamentTypeDescription": "MTG Arena",
+      "Status": 4,
+      "StatusDescription": "Ended",
+      "LastPairDateTime": "2026-08-16T18:48:08Z",
+      "Phases": [
+        {
+          "ID": 454385,
+          "Guid": "b77414f5-ccc6-4a01-9bd8-629fd7a94e8a",
+          "Name": "Swiss Phase",
+          "FormatId": "0c751de2-e65d-4666-83a2-ad08f96882d6",
+          "Format": "Standard",
+          "SortOrder": 1,
+          "Rounds": [
+            {
+              "ID": 1591572,
+              "Guid": "ad945986-d4c0-46b9-9b43-9ac84e3e6c20",
+              "Name": "Round 1",
+              "SortOrder": 1
+            },
+            {
+              "ID": 1591573,
+              "Guid": "e4a415b0-60c1-4097-872a-c3446c14531e",
+              "Name": "Round 2",
+              "SortOrder": 2
+            },
+            {
+              "ID": 1591574,
+              "Guid": "c2ca7824-917b-4d76-84f5-ae2a5dde1dc3",
+              "Name": "Round 3",
+              "SortOrder": 3
+            },
+            {
+              "ID": 1591575,
+              "Guid": "93716f2a-89b4-4a1a-9d60-e152c490916a",
+              "Name": "Round 4",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ID": 450185,
+      "Guid": "2c089ddb-b3ac-470a-b427-90c87297ecd6",
+      "Name": "test",
+      "CurrentPhaseId": null,
+      "Formats": ["Standard"],
+      "OrganizationId": 18712,
+      "OrganizationName": "Planar Standard Official",
+      "SearchTags": ["MagicTheGathering", "MTGA"],
+      "BrandImageSource": "https://cdn.melee.gg/images/blankbrandimage.png",
+      "TimerState": null,
+      "TimerStateDescription": null,
+      "TimerEnd": null,
+      "Game": "MagicTheGathering",
+      "TournamentType": 0,
+      "TournamentTypeDescription": "MTG Arena",
+      "Status": 3,
+      "StatusDescription": "Canceled",
+      "LastPairDateTime": null,
+      "Phases": [
+        {
+          "ID": 455764,
+          "Guid": "94556d9a-b62e-4b4e-a748-d547515b233f",
+          "Name": "Swiss Phase",
+          "FormatId": "0c751de2-e65d-4666-83a2-ad08f96882d6",
+          "Format": "Standard",
+          "SortOrder": 1,
+          "Rounds": [
+            {
+              "ID": 1596190,
+              "Guid": "476a949d-1e92-4b1f-9791-49fef4bf118b",
+              "Name": "Round 1",
+              "SortOrder": 1
+            },
+            {
+              "ID": 1596191,
+              "Guid": "2e09b700-bdca-4e6a-b32d-3ca5200398d1",
+              "Name": "Round 2",
+              "SortOrder": 2
+            },
+            {
+              "ID": 1596192,
+              "Guid": "38eebc25-4f39-4932-ace2-3860f0212511",
+              "Name": "Round 3",
+              "SortOrder": 3
+            },
+            {
+              "ID": 1596193,
+              "Guid": "bb90cd43-609d-4e85-b7f0-64ea7e12e108",
+              "Name": "Round 4",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ID": 450268,
+      "Guid": "5f100d5c-c97c-4096-9c34-9bcb4ae6d96d",
+      "Name": "Monthly Championship Series - September 2026",
+      "CurrentPhaseId": 455852,
+      "Formats": ["Standard"],
+      "OrganizationId": 18712,
+      "OrganizationName": "Planar Standard Official",
+      "SearchTags": ["Standard", "MagicTheGathering", "MTGA"],
+      "BrandImageSource": "https://cdn.melee.gg/userphotos/brandimages/c1895c13-c5d0-4990-9b7f-b202132656e4.jpg",
+      "TimerState": null,
+      "TimerStateDescription": null,
+      "TimerEnd": null,
+      "Game": "MagicTheGathering",
+      "TournamentType": 0,
+      "TournamentTypeDescription": "MTG Arena",
+      "Status": 4,
+      "StatusDescription": "Ended",
+      "LastPairDateTime": "2026-09-05T19:59:02Z",
+      "Phases": [
+        {
+          "ID": 455851,
+          "Guid": "7b303c1f-bc0f-43a4-91c8-9a928a57dbf7",
+          "Name": "Swiss Phase",
+          "FormatId": "0c751de2-e65d-4666-83a2-ad08f96882d6",
+          "Format": "Standard",
+          "SortOrder": 1,
+          "Rounds": [
+            {
+              "ID": 1596493,
+              "Guid": "65b358ff-026e-476f-9b4d-9acebd9b9107",
+              "Name": "Round 1",
+              "SortOrder": 1
+            },
+            {
+              "ID": 1596494,
+              "Guid": "086fad15-230f-4f24-a295-eb1fc7239151",
+              "Name": "Round 2",
+              "SortOrder": 2
+            },
+            {
+              "ID": 1596495,
+              "Guid": "cf0a2b73-6bd7-402c-8d4e-83e2630f7be7",
+              "Name": "Round 3",
+              "SortOrder": 3
+            },
+            {
+              "ID": 1596496,
+              "Guid": "cf71875a-d06a-42b5-8634-3c1c2c9278f7",
+              "Name": "Round 4",
+              "SortOrder": 4
+            },
+            {
+              "ID": 1596497,
+              "Guid": "a8f41829-8efe-454c-a509-9a9e853951eb",
+              "Name": "Round 5",
+              "SortOrder": 5
+            }
+          ]
+        },
+        {
+          "ID": 455852,
+          "Guid": "d8a02631-0bf0-4392-b729-cdab95b2ea56",
+          "Name": "Top 8 Playoffs",
+          "FormatId": "0c751de2-e65d-4666-83a2-ad08f96882d6",
+          "Format": "Standard",
+          "SortOrder": 2,
+          "Rounds": [
+            {
+              "ID": 1596498,
+              "Guid": "ad591aac-5d2f-42a8-b098-4255e749c490",
+              "Name": "Quarterfinals",
+              "SortOrder": 6
+            },
+            {
+              "ID": 1596499,
+              "Guid": "baceb6a2-eae5-41b8-988c-cb0c594faa43",
+              "Name": "Semifinals",
+              "SortOrder": 7
+            },
+            {
+              "ID": 1596500,
+              "Guid": "98e3d9ba-945b-41cc-a4c0-02607dfb00b9",
+              "Name": "Finals",
+              "SortOrder": 8
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ID": 465247,
+      "Guid": "63b70966-f718-4f27-b6ed-cb0dbfe50af3",
+      "Name": "Legality Fracture #1 ",
+      "CurrentPhaseId": null,
+      "Formats": ["Free-form"],
+      "OrganizationId": 18712,
+      "OrganizationName": "Planar Standard Official",
+      "SearchTags": ["FreeForm", "MagicTheGathering", "MTGA"],
+      "BrandImageSource": "https://cdn.melee.gg/userphotos/brandimages/abef515e-1c3e-4ae8-9d34-38aa31cdfb3a.jpg",
+      "TimerState": null,
+      "TimerStateDescription": null,
+      "TimerEnd": null,
+      "Game": "MagicTheGathering",
+      "TournamentType": 0,
+      "TournamentTypeDescription": "MTG Arena",
+      "Status": 1,
+      "StatusDescription": "Registration",
+      "LastPairDateTime": null,
+      "Phases": [
+        {
+          "ID": 471868,
+          "Guid": "37c8b985-281d-465d-8d3d-cbf8afcfb6a4",
+          "Name": "Swiss Phase",
+          "FormatId": "2a0c90de-da42-4919-bc4a-66d5adfe480b",
+          "Format": "Free-form",
+          "SortOrder": 1,
+          "Rounds": [
+            {
+              "ID": 1652378,
+              "Guid": "0cddf90b-404b-4df5-8d65-c8907dd3d0a9",
+              "Name": "Round 1",
+              "SortOrder": 1
+            },
+            {
+              "ID": 1652379,
+              "Guid": "be7928c9-dc97-457e-a50f-b69f82034846",
+              "Name": "Round 2",
+              "SortOrder": 2
+            },
+            {
+              "ID": 1652380,
+              "Guid": "fd0e1d81-b882-4a7f-b513-ae4d426ad8d0",
+              "Name": "Round 3",
+              "SortOrder": 3
+            },
+            {
+              "ID": 1652381,
+              "Guid": "faaa521b-3a1f-4c88-b39a-b77896f3c07c",
+              "Name": "Round 4",
+              "SortOrder": 4
+            },
+            {
+              "ID": 1652382,
+              "Guid": "3347550f-80f3-4baf-a878-22a65de2d866",
+              "Name": "Round 5",
+              "SortOrder": 5
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "ID": 467208,
+      "Guid": "8c974feb-b66d-4af7-b14a-11455aefddd3",
+      "Name": "Planar Standard Test",
+      "CurrentPhaseId": null,
+      "Formats": ["Planar Standard"],
+      "OrganizationId": 18712,
+      "OrganizationName": "Planar Standard Official",
+      "SearchTags": ["MagicTheGathering", "MTGA"],
+      "BrandImageSource": "https://cdn.melee.gg/images/blankbrandimage.png",
+      "TimerState": null,
+      "TimerStateDescription": null,
+      "TimerEnd": null,
+      "Game": "MagicTheGathering",
+      "TournamentType": 0,
+      "TournamentTypeDescription": "MTG Arena",
+      "Status": 3,
+      "StatusDescription": "Canceled",
+      "LastPairDateTime": null,
+      "Phases": [
+        {
+          "ID": 474012,
+          "Guid": "8411081c-0c91-4aa1-a683-528209fd3e1d",
+          "Name": "Swiss Phase",
+          "FormatId": "7e5cce17-3de2-4edb-9745-3ca8ed83df10",
+          "Format": "Planar Standard",
+          "SortOrder": 1,
+          "Rounds": [
+            {
+              "ID": 1659856,
+              "Guid": "2654ef6f-50dc-44b3-9f9b-37cbbffd75ea",
+              "Name": "Round 1",
+              "SortOrder": 1
+            },
+            {
+              "ID": 1659857,
+              "Guid": "6cd8e8e5-c3f8-4d19-846c-7cb58f0cc7e0",
+              "Name": "Round 2",
+              "SortOrder": 2
+            },
+            {
+              "ID": 1659858,
+              "Guid": "dbf71ada-dd1e-4c90-91dd-cb4ac09444e6",
+              "Name": "Round 3",
+              "SortOrder": 3
+            },
+            {
+              "ID": 1659859,
+              "Guid": "8e884b23-1843-4f12-ae1f-e6b8fdc5e92e",
+              "Name": "Round 4",
+              "SortOrder": 4
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "HasMore": false
+}

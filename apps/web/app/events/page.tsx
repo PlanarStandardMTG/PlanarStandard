@@ -1,8 +1,10 @@
+import type { EventSyncState } from "@ps/contracts";
 import type { Metadata } from "next";
 
 import { EventGroup } from "@/components/events/event-group";
 import { Container } from "@/components/ui/container";
 import { EmptyState, ErrorState } from "@/components/ui/states";
+import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";
 import { loadEvents } from "@/lib/events/sync-events.server";
 import { formatTimeAgo } from "@/lib/format-date";
 import { load } from "@/lib/load";
@@ -42,7 +44,7 @@ export default async function EventsPage() {
         <EmptyState title="No events on the calendar">
           {events.value.configured
             ? "Nothing is scheduled right now. Organisers post new brackets a week or two ahead."
-            : "This site has no Challonge credentials configured, so nothing is being fetched. Run `pnpm db:reset` for seed events."}
+            : "This site has no calendar credentials configured, so nothing is being fetched. Run `pnpm db:reset` for seed events."}
         </EmptyState>
       ) : (
         <>
@@ -51,7 +53,7 @@ export default async function EventsPage() {
           <EventGroup title="Recently finished" events={events.value.schedule.past} />
 
           <p className="mt-10 border-t border-ink-200 pt-4 text-xs text-ink-500 dark:border-ink-800 dark:text-ink-400">
-            {freshness(events.value.sync, now)}
+            {freshness(events.value.syncs, now)}
           </p>
         </>
       )}
@@ -66,12 +68,19 @@ export default async function EventsPage() {
  * wrong, and a visitor who can see how stale it is knows to click through rather
  * than trust the participant count.
  *
- * Challonge by name, though the schedule itself is source-agnostic, because it
- * is the only calendar the site fetches. When a second one is wired up this
- * needs a ledger row per source rather than a second sentence (E23.12).
+ * One clause per calendar, because the two are refreshed independently and can
+ * be hours apart — a single "refreshed 5 minutes ago" over a schedule where
+ * melee.gg last answered yesterday would be the useful half of the truth.
  */
-function freshness(sync: { lastSucceededAt: string | null } | null, now: Date): string {
-  if (sync === null) return "Showing locally seeded events.";
-  if (sync.lastSucceededAt === null) return "Not yet refreshed from Challonge.";
-  return `Refreshed from Challonge ${formatTimeAgo(sync.lastSucceededAt, now)}. Check the event page for anything time-critical.`;
+function freshness(syncs: readonly EventSyncState[], now: Date): string {
+  if (syncs.length === 0) return "Showing locally seeded events.";
+
+  const clauses = syncs.map((sync) => {
+    const label = EVENT_SOURCE_LABELS[sync.source];
+    return sync.lastSucceededAt === null
+      ? `${label} (not yet)`
+      : `${label} ${formatTimeAgo(sync.lastSucceededAt, now)}`;
+  });
+
+  return `Refreshed from ${clauses.join(" · ")}. Check the event page for anything time-critical.`;
 }

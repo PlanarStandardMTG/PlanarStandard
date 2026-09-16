@@ -42,7 +42,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E20  | Feature slices                        | 3–10  | E18          | ⬜ 0/19  |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
-| E23  | Upcoming events                       | 2     | E13.1        | 🚧 11/12 |
+| E23  | Upcoming events                       | 2     | E13.1        | ✅ 12/12 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 4/7   |
 
 ---
@@ -344,7 +344,9 @@ different adapter from E12.4, not a replacement for it — `melee-csv` reads a f
 downloaded and needs no credentials, and it stays the path for anyone who cannot call the API.
 _AC:_ a captured API response committed to `fixtures/melee-api/` and the expected `ParsedEvent`
 asserted against it; the adapter stays pure, so fetching belongs to the caller and `RawInput.bytes`
-is the response body.
+is the response body. That directory already holds E23.12's `tournament-list.json`, so name the
+capture for its endpoint and leave the calendar's alone — one vendor API, one directory, one file per
+endpoint.
 _Blocked:_ needs API access — a documented endpoint list and whatever credential it wants. Until then
 neither the payload shape nor the pagination is known, and guessing produces a fixture that has to be
 thrown away.
@@ -719,16 +721,17 @@ _Blocked:_ needs the community spreadsheet to assert against.
 
 ## E23 — Upcoming events
 
-New. A read-through cache of the community's Challonge calendar, published as a schedule with a link
-out to each event's own page. The site advertises events; Challonge still runs them, so there is no
-join, no leave, and no account linking — that whole flow from the previous site is deliberately not
-carried over.
+New. A read-through cache of the community's calendars — Challonge and melee.gg — published as one
+schedule with a link out to each event's own page. The site advertises events; the platforms still run
+them, so there is no join, no leave, and no account linking — that whole flow from the previous site
+is deliberately not carried over.
 
 Two constraints shape every story below.
 
-- **The credentials are production-only secrets.** `CHALLONGE_API_KEY` and `CHALLONGE_COMMUNITY` live
-  in Vercel and nowhere else. Nothing in `packages/` may read them, no contributor needs them, and
-  every test in this epic runs with none set. Locally the page renders from the seed.
+- **The credentials are production-only secrets.** `CHALLONGE_API_KEY`, `CHALLONGE_COMMUNITY`,
+  `MELEE_CLIENT_ID` and `MELEE_CLIENT_SECRET` live in Vercel and nowhere else. Nothing in `packages/`
+  may read them, no contributor needs them, and every test in this epic runs with none set. Locally
+  the page renders from the seed.
 - **The API budget is 500 requests a month.** That is ~16 a day. The refresh interval is therefore one
   named constant with the arithmetic written next to it, and the window is claimed _before_ the fetch,
   so an outage costs one request per window rather than one per page view.
@@ -787,7 +790,7 @@ _AC:_ `pnpm db:reset && pnpm dev` shows a populated `/events` with no credential
 ✅ **E23.11 — `docs/modules/events.md`** · S · Deps: E23.8 — the cache policy, the request-budget
 arithmetic, and how to change the interval.
 
-⛔ **E23.12 — melee.gg as a second calendar** · M · Deps: E23.6 — a client and a parser for melee.gg's
+✅ **E23.12 — melee.gg as a second calendar** · M · Deps: E23.6 — a client and a parser for melee.gg's
 tournament listing, so an event run there appears on `/events` and in the home page's next-event tile
 alongside the Challonge ones.
 _AC:_ a `melee` row in `external_event_syncs` with its own interval and its own budget arithmetic —
@@ -795,9 +798,16 @@ the claim is per-source already, so one platform's outage must not spend the oth
 parser maps melee's states onto the same three `ExternalEventState` values; `/events` names both
 sources in its freshness line rather than saying "Challonge" for a schedule that is no longer only
 Challonge.
-_Blocked:_ needs melee.gg API access and its listing endpoint. `EventSource`, the cache, the
-schedule, the repository read and both pages are already source-agnostic and seeded with melee rows
-(E24.3), so this story is the client and the parser and nothing else.
+_Note:_ the prediction held — the client, the parser and one row in `CALENDARS` were the whole story,
+plus migration 0015 for the ledger row. Two things the listing payload forced, both recorded in
+`parse-melee-events/README.md`: it carries **no scheduled start time**, so `LastPairDateTime` stands in
+(within a round of the truth for a finished event, null for one still in registration), and a
+cancelled tournament is dropped rather than mapped to `complete`. `MELEE_CLIENT_ID` and
+`MELEE_CLIENT_SECRET` are sent as basic auth; a calendar with no credentials is filtered out before
+anything is claimed, so setting one platform and not the other is a working configuration.
+_Outstanding:_ pagination past the first page is unexercised — the organisation has six tournaments
+and `HasMore` has never been true, so the `page`/`pageSize` parameter names are inferred from the
+fields the response echoes back.
 
 ---
 
@@ -829,9 +839,9 @@ _AC:_ `EventSource` is a union rather than a single value; the page-facing read 
 `core/events/event-schedule` gains `upcomingEvents`/`nextEvent` and neither looks at `source`; the
 platform is a label beside the link, never a heading, a filter or a sort key; the seed carries
 melee.gg rows so a one-source regression is visible locally.
-_Note:_ the refresh stays per-source and Challonge-only. A ledger row is the right to spend a
-request against a budget, and inventing melee's before its client exists would claim a budget
-against nothing — that row arrives with E23.12.
+_Note:_ the refresh stays per-source and, at the time, Challonge-only. A ledger row is the right to
+spend a request against a budget, and inventing melee's before its client existed would have claimed a
+budget against nothing — E23.12 added that row, in migration 0015, alongside the client that spends it.
 
 ✅ **E24.4 — `EventPodium`** · M · Deps: E24.1 — the top four decks of the most recent event with
 results: placement, handle, archetype, colour identity, record, and three cards that say what the
@@ -911,16 +921,15 @@ can start today, in rough order of how much it unblocks.
 
 E12.4, E12.5, E12.6, E22.2, E22.3, E22.8 — each carries a _Blocked:_ line naming exactly what it needs.
 
-E23 is merged but only half switched on: `/events` renders from the seed until `CHALLONGE_API_KEY` and
-`CHALLONGE_COMMUNITY` are set in Vercel. Nothing in the repository is waiting on that, and no
-contributor needs the values — see [`docs/modules/events.md`](docs/modules/events.md).
+E23 is complete, and both calendars are live: `/events` and the home page fetch Challonge and
+melee.gg independently, each against its own ledger row, and render from the seed anywhere the
+credentials are unset. See [`docs/modules/events.md`](docs/modules/events.md).
 
-**The two melee.gg stories are the same blocker twice.** E23.12 wants the tournament _listing_ so an
-event run there shows up on the schedule; E12.10 wants the _results_ — match history, standings,
-decklists — so it can be imported. Everything on this side of both is already built and
-source-agnostic: the cache, the schedule, the repository read, `/events` and the home page all
-handle a melee event today, and the seed carries two so a regression is visible. What is missing is
-the endpoint list and whatever credential it takes.
+**E12.10 is what is left of melee.gg.** E23.12 took the tournament _listing_, so an event run there
+shows up on the schedule; E12.10 wants the _results_ — match history, standings, decklists — so it can
+be imported. The listing endpoint answered to `MELEE_CLIENT_ID` and `MELEE_CLIENT_SECRET` over basic
+auth, so the credential question is settled; what is still missing is the endpoint list for everything
+under a single tournament.
 
 **The home page shows one thing it does not have.** The top-four-decks section runs on a hand-written
 podium (E24.4's _Outstanding:_ line) and says so on the page. E24.5 is the swap, and it is the
@@ -958,7 +967,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E9   | 9       | 9    | E20  | 19      | 0    |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
-|      |         |      | E23  | 12      | 11   |
+|      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**129 of 228 stories done across 24 epics.**
+**130 of 228 stories done across 24 epics.**

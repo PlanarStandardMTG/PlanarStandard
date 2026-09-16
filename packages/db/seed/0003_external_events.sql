@@ -4,10 +4,10 @@
 -- home page's next-event tile are populated on a fresh clone with no credentials
 -- — which is the only way most contributors will ever see either (E23.10).
 --
--- Two of them are on melee.gg. Nothing fetches that calendar yet (E23.12), and
--- the rows are here anyway: the cache, the schedule and the page are all
--- source-agnostic, and a seed holding one source would let that quietly stop
--- being true.
+-- Two of them are on melee.gg, which the site now fetches for itself (E23.12).
+-- They stay invented rather than being replaced with the real listing: a seed is
+-- what a contributor with no credentials sees, and it has to keep working when
+-- the organisation's melee.gg calendar is empty between seasons.
 --
 -- Dates are relative to `now()` rather than fixed. A seed with hard-coded dates
 -- shows an empty "upcoming" section to anyone who resets their database a month
@@ -30,11 +30,16 @@ insert into external_events (source, external_id, name, url, state, starts_at, p
 -- past the refresh interval means a local site with credentials set will fetch
 -- on first view rather than sitting on the seed.
 --
--- Only Challonge has a row. A ledger row is the right to spend a request, and
--- nothing fetches melee.gg yet — inventing one now would claim a budget against
--- a client that does not exist. E23.12 adds it with the client.
+-- Both calendars have a row now: 0003 creates Challonge's and 0015 creates
+-- melee.gg's, each arriving with the client that spends it.
 update external_event_syncs
    set last_attempted_at = now() - interval '1 day',
        last_succeeded_at = now() - interval '1 day',
        event_count = 6
  where source = 'challonge';
+
+update external_event_syncs
+   set last_attempted_at = now() - interval '1 day',
+       last_succeeded_at = now() - interval '1 day',
+       event_count = 2
+ where source = 'melee';
