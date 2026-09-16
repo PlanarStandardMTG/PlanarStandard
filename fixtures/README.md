@@ -69,25 +69,25 @@ pairings anywhere in it.
 `InteractiveArchetypeMap.html` — 417 real decklists across 35 events, which is
 where every pathology in `decklists/` was actually observed:
 
-| Fixture | What it exercises |
-|---|---|
-| `missing-set-code.txt` | no set code and no collector number — 321 real lines do this |
-| `alphanumeric-collector.txt` | `11p`, `72s`, `KLD-5`, `M19-54`, `ml233`, `9★` |
-| `split-card.txt` | `Marang River Regent / Coil and Catch`, with and without a printing |
-| `foil-marker.txt` | trailing `*F*`, including on a promo printing |
-| `lowercase-set-code.txt` | `(fdn)`, `(tdm)` — the exporter did not upper-case |
-| `out-of-pool-printing.txt` | legal cards printed in STA, GRN, RNA, DMU… (ADR 007) |
-| `promo-set.txt` | `PSOS`, `PECL`, `PFDN`, `PZEN` promo printings |
-| `sideboard-*.txt` | `SIDEBOARD:` / `Sideboard` / `SB:` / a blank-line boundary |
-| `crlf-line-endings.txt` | CRLF |
-| `bom-prefixed.txt` | a UTF-8 byte-order mark |
-| `real-deck-azorius-control.txt` | one complete real list, main and sideboard |
-| `filenames.txt` | `Player (alias)｜Deck｜Archetype｜W-L-D｜GW-GL`, the `_` the OS rewrote it to, the fullwidth `＞`, and a missing trailing segment |
+| Fixture                         | What it exercises                                                                                                                 |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `missing-set-code.txt`          | no set code and no collector number — 321 real lines do this                                                                      |
+| `alphanumeric-collector.txt`    | `11p`, `72s`, `KLD-5`, `M19-54`, `ml233`, `9★`                                                                                    |
+| `split-card.txt`                | `Marang River Regent / Coil and Catch`, with and without a printing                                                               |
+| `foil-marker.txt`               | trailing `*F*`, including on a promo printing                                                                                     |
+| `lowercase-set-code.txt`        | `(fdn)`, `(tdm)` — the exporter did not upper-case                                                                                |
+| `out-of-pool-printing.txt`      | legal cards printed in STA, GRN, RNA, DMU… (ADR 007)                                                                              |
+| `promo-set.txt`                 | `PSOS`, `PECL`, `PFDN`, `PZEN` promo printings                                                                                    |
+| `sideboard-*.txt`               | `SIDEBOARD:` / `Sideboard` / `SB:` / a blank-line boundary                                                                        |
+| `crlf-line-endings.txt`         | CRLF                                                                                                                              |
+| `bom-prefixed.txt`              | a UTF-8 byte-order mark                                                                                                           |
+| `real-deck-azorius-control.txt` | one complete real list, main and sideboard                                                                                        |
+| `filenames.txt`                 | `Player (alias)｜Deck｜Archetype｜W-L-D｜GW-GL`, the `_` the OS rewrote it to, the fullwidth `＞`, and a missing trailing segment |
 
 ## Adding one
 
 1. Drop the real file in the right folder under a name that says what it exercises.
-2. Write the `.expected.json` by hand, from what the parser *should* say.
+2. Write the `.expected.json` by hand, from what the parser _should_ say.
 3. Point a test at the pair.
 
 That is the entire contribution. See `CONTRIBUTING.md`.
