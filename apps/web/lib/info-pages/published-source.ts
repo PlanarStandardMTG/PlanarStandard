@@ -37,13 +37,21 @@ export function publishedBody(markdown: string): string {
   const region = markdown.slice(start + PUBLISH_START.length, end);
   const kept: string[] = [];
   let omitting = false;
+  // Prettier separates the marker from the block it omits with a blank line, so
+  // only a blank line *after* the block has begun can close one.
+  let omittedAnyLine = false;
   for (const line of region.split("\n")) {
     if (line.trim() === PUBLISH_OMIT) {
       omitting = true;
+      omittedAnyLine = false;
       continue;
     }
     if (omitting) {
-      if (line.trim() === "") omitting = false;
+      if (line.trim() === "") {
+        if (omittedAnyLine) omitting = false;
+        continue;
+      }
+      omittedAnyLine = true;
       continue;
     }
     kept.push(line);
@@ -62,13 +70,21 @@ export function readGeneratedRegion(mdx: string): GeneratedRegion | null {
   const lines = mdx.split("\n");
   const startIndex = lines.findIndex((line) => GENERATED_START.test(line.trim()));
   if (startIndex === -1) return null;
-  const endIndex = lines.findIndex((line, index) => index > startIndex && line.trim() === GENERATED_END);
+  const endIndex = lines.findIndex(
+    (line, index) => index > startIndex && line.trim() === GENERATED_END,
+  );
   if (endIndex === -1) throw new ContentSyncError(`missing ${GENERATED_END}`);
 
   const source = GENERATED_START.exec(lines[startIndex]?.trim() ?? "")?.[1];
   if (source === undefined) throw new ContentSyncError("generated:start has no source path");
 
-  return { source, body: lines.slice(startIndex + 1, endIndex).join("\n").trim() };
+  return {
+    source,
+    body: lines
+      .slice(startIndex + 1, endIndex)
+      .join("\n")
+      .trim(),
+  };
 }
 
 /** The same page with its generated region replaced. Everything outside it is untouched. */
@@ -76,7 +92,9 @@ export function writeGeneratedRegion(mdx: string, body: string): string {
   const lines = mdx.split("\n");
   const startIndex = lines.findIndex((line) => GENERATED_START.test(line.trim()));
   if (startIndex === -1) throw new ContentSyncError("page has no generated region");
-  const endIndex = lines.findIndex((line, index) => index > startIndex && line.trim() === GENERATED_END);
+  const endIndex = lines.findIndex(
+    (line, index) => index > startIndex && line.trim() === GENERATED_END,
+  );
   if (endIndex === -1) throw new ContentSyncError(`missing ${GENERATED_END}`);
 
   return [...lines.slice(0, startIndex + 1), "", body, "", ...lines.slice(endIndex)].join("\n");

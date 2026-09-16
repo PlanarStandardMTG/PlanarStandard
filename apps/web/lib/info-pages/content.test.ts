@@ -76,4 +76,19 @@ describe("published definitions do not drift (E17.12)", () => {
     );
     expect(body).toBe("The definition.");
   });
+
+  it("omits the note even when a formatter puts a blank line after the marker", () => {
+    const body = publishedBody(
+      [
+        "<!-- publish:start -->",
+        "<!-- publish:omit -->",
+        "",
+        "_Module: core/whatever._",
+        "",
+        "The definition.",
+        "<!-- publish:end -->",
+      ].join("\n"),
+    );
+    expect(body).toBe("The definition.");
+  });
 });
