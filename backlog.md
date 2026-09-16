@@ -32,7 +32,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
 | E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
-| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 21/23 |
+| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 22/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 5/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 11/12 |
@@ -518,7 +518,17 @@ text without ever throwing.
 _Note:_ this suite and `repos/results` both write matches, and test files run in parallel while
 `replaceTournamentMatches` clears a whole tournament by design — so they claim different seeded
 events. Sharing one is a foreign-key violation in whichever suite loses the race.
-⬜ **E13.21 — `repos/stats`** · L · Deps: E13.12
+✅ **E13.21 — `repos/stats`** · L · Deps: E13.12 — `getDeckMetrics`, `listDeckMetrics`,
+`upsertDeckMetrics`, `listCardStats`, `getCardStats`, `replaceCardStats`, `listArchetypeStats`,
+`replaceArchetypeStats`, `listMatchupStats`, `listMatchupsForArchetype`, `replaceMatchupStats`,
+`listSimilarityEdges`, `replaceSimilarityEdges`, `listLayoutPoints`, `replaceLayout`.
+_Note:_ every write replaces a **season** wholesale rather than updating a row, for the reason
+`replaceRatings` does (ADR 004). Seasons are replaced independently, because they are — recomputing
+Season II must not clear Season I. `upsertDeckMetrics` is the exception and is keyed by deck, since a
+deck's metrics depend only on that deck.
+_Note:_ nothing here suppresses anything. A stored rate comes back with the `n` it came from and the
+caller renders the pair through `core/stats/suppress-small-n` (ADR 012, E10.3) — suppressing at this
+layer would hand the UI a missing rate with no way to say why.
 ✅ **E13.22 — `repos/content`** · M · Deps: E13.13
 ✅ **E13.23 — `repos/archetypes`** · S · Deps: E13.3 — `listArchetypes`, `getArchetype`,
 `findArchetypeByAlias`.
@@ -1014,10 +1024,10 @@ can start today, in rough order of how much it unblocks.
 - **E18.16 — `merge-players`,** now that `repointPlayerRows`, `markPlayerMerged` and
   `recordPlayerMerge` exist. The reversibility its acceptance criterion asks for is the `moved` the
   repoint returns; what the service adds is the exclusion check and the recompute.
-- **Every table in Part IV now exists.** E13.1–E13.13 are merged, so nothing in E14–E21 is waiting on
-  schema any more. What is left in E13 is one repository and the index review.
-- **E13.21 — `repos/stats`,** the last repository, and what every E19 chart reads. After it, E13 is
-  down to the index review (E13.14).
+- **E13 is down to one story.** Every table in Part IV exists, every repository is written, and what
+  is left is the index review (E13.14). Nothing in E14–E21 is waiting on schema or on storage.
+- **E19 can start.** `repos/stats` is in, so every chart in the epic has something to read — but see
+  E19.1 first, which sets the fixture conventions the other thirteen components inherit.
 - **E18.12 — `recompute-ratings`,** now fully supplied: `listLedgerMatchesBySeason` reads the
   matches, `core/elo/replay` rates them, `replaceRatings` stores the result and `recordRatingRun`
   logs it. The service is the four calls in order.
@@ -1089,7 +1099,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
 | E1   | 9       | 9    | E12  | 10      | 6    |
-| E2   | 9       | 9    | E13  | 23      | 21   |
+| E2   | 9       | 9    | E13  | 23      | 22   |
 | E3   | 7       | 7    | E14  | 5       | 5    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
 | E5   | 6       | 6    | E16  | 12      | 11   |
@@ -1102,4 +1112,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**147 of 233 stories done across 24 epics.**
+**148 of 233 stories done across 24 epics.**
