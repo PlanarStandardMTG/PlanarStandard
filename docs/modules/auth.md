@@ -92,6 +92,62 @@ Three things about editing them, each of which has already gone wrong once:
   its own default and sends that instead, which is how a working-looking flow
   ends up with an unreadable fragment in the URL.
 
+## Configuring a deployment
+
+**`packages/db/supabase.config.toml` configures the local container and nothing
+else.** A hosted project is configured in its dashboard, and none of the values
+below are in this repository. Every one of them has a local default that works,
+so a misconfigured deployment does not fail at boot — it fails the first time
+somebody tries to sign in, which is the worst moment to find out.
+
+Under **Authentication → URL Configuration**:
+
+1. **Site URL** — the canonical address of the deployment, e.g.
+   `https://planarstandard.vercel.app`. This is the fallback GoTrue puts in an
+   email when it has nothing better, so while it still says `http://localhost:3000`
+   every emailed link points at the visitor's own machine.
+2. **Redirect URLs** — add `https://<your-domain>/**`. The app asks for
+   `/auth/confirm?next=…`, and a redirect that is not on this list is **not an
+   error**: GoTrue silently substitutes the Site URL, so the symptom of a missing
+   entry is identical to the symptom of a wrong Site URL. Keep
+   `http://localhost:3000/**` and `http://127.0.0.1:3000/**` for local work.
+
+Under **Authentication → Email Templates**, paste the four bodies from
+`packages/db/templates/`. The defaults link to Supabase's own verify endpoint,
+which lands the browser on the Site URL carrying a `code` — see below for what
+that looks like. The defaults are also PKCE-bound, so a link opened on a phone
+after being requested on a laptop cannot work.
+
+Under **Authentication → Providers**, add Google or Discord if you want them. The
+callback is `https://<project>.supabase.co/auth/v1/callback`. Neither is required
+and the sign-in page only shows buttons for the providers a project actually has.
+
+In **Vercel**, set `NEXT_PUBLIC_SITE_URL` to the canonical site. Without it every
+link is built from the hostname that served the request, so a magic link
+requested from a preview deployment points back at that preview — a URL the
+allow-list rejects, and one nobody meant to share.
+
+Finally, the first admin, over SQL — there is no bootstrap screen, deliberately:
+
+```sql
+update profiles set role = 'admin'
+where user_id = (select id from auth.users where email = '…');
+```
+
+### When a sign-in link lands on the wrong page
+
+A `?code=` in the address bar and no session is the signature of a project still
+on the default email templates: the link goes to Supabase's verify endpoint,
+which redirects to the Site URL with the credential in the query string, and
+there is nothing at the site root to spend it.
+
+`proxy.ts` catches that and forwards the request to `/auth/confirm`, which
+exchanges the credential and redirects to a clean URL — so the flow completes and
+the code does not survive into the address bar or into browser history. It is a
+safety net and not a substitute for the templates: a PKCE `code` still only works
+in the browser that asked for it, which is exactly what the token-hash form
+avoids.
+
 ## What is and is not hidden
 
 **Confirmation is required, and that is load-bearing rather than tidy.** Supabase
@@ -157,6 +213,10 @@ Worth knowing before this handles anyone's data but your own:
 
 - **Email deliverability is unproven in production.** See above — this is the
   one that will bite first.
+- **The hosted project's URL configuration is not in this repository.** It is
+  four settings in a dashboard, they have working local defaults, and getting one
+  wrong breaks sign-in in a way nothing here can catch. See _Configuring a
+  deployment_.
 - **`posts`, `post_revisions` and `decks` take no writes from anybody**, not even
   an admin. Their write paths are E20.2 and E20.7, and a policy written before
   the flow exists is a guess. The matrix asserts the current refusal, so adding

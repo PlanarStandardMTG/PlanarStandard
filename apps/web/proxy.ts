@@ -3,6 +3,7 @@ import { NextResponse, type NextRequest } from "next/server";
 
 import { AUTH_COOKIE_OPTIONS } from "@/lib/auth/cookie-options";
 import { CURRENT_PATH_HEADER } from "@/lib/auth/path-header";
+import { strayCredentialTarget } from "@/lib/auth/stray-credential";
 
 /**
  * Keeps the session alive (E16.2).
@@ -15,6 +16,13 @@ import { CURRENT_PATH_HEADER } from "@/lib/auth/path-header";
  * without this a signed-in visitor is quietly signed out mid-visit. Calling
  * `getUser` here refreshes the token when it needs it and writes the new cookies
  * onto the response.
+ *
+ * It also catches a sign-in credential that landed on the wrong page, which
+ * happens whenever a project's email templates are the Supabase defaults: those
+ * link to Supabase's own verify endpoint, which drops the browser on the Site
+ * URL with a `code` in the query string and nothing there to spend it. Routing
+ * is not authorization — the request is forwarded to `/auth/confirm`, which
+ * decides whether the credential is any good.
  *
  * **This is not the authorization boundary, and must not become one.** It
  * refreshes a session and nothing more. Who may see what is decided by
@@ -30,6 +38,10 @@ export async function proxy(request: NextRequest) {
   // Always `set`, never append: whatever the browser sent under this name is
   // overwritten here, so it cannot be used to aim the post-login redirect.
   const currentPath = request.nextUrl.pathname + request.nextUrl.search;
+
+  // Before anything else: a credential in the query string is not a page view.
+  const stray = strayCredentialTarget(request.nextUrl);
+  if (stray !== null) return NextResponse.redirect(new URL(stray, request.nextUrl.origin));
 
   const build = () => {
     const headers = new Headers(request.headers);

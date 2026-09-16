@@ -1,12 +1,24 @@
 /**
- * The public origin of the site, as the browser that made this request sees it.
+ * The public origin to build emailed and OAuth links from.
  *
- * OAuth needs an absolute callback URL, and behind Vercel's proxy `request.url`
- * is the internal address rather than the one the visitor typed. Getting this
- * wrong sends people to a host Supabase's redirect allow-list will reject, and
- * it only shows up in production — localhost has no proxy in front of it.
+ * Three sources, in order, and the order is the fix for two different bugs.
+ *
+ * `NEXT_PUBLIC_SITE_URL` wins when it is set. Vercel gives every deployment its
+ * own hostname, so without this a magic link requested from a preview deploy
+ * points back at that preview — a URL Supabase's allow-list rejects and nobody
+ * meant to share. Set it to the canonical site and every link is canonical
+ * wherever it was built.
+ *
+ * `x-forwarded-host` is next, because behind Vercel's proxy `request.url` is the
+ * internal address rather than the one the visitor typed.
+ *
+ * `request.url` last, which is what local development uses and what a plain
+ * Node server would see.
  */
 export function originOf(request: Request): string {
+  const configured = process.env["NEXT_PUBLIC_SITE_URL"];
+  if (configured !== undefined && configured !== "") return configured.replace(/\/+$/, "");
+
   const url = new URL(request.url);
   const forwardedHost = request.headers.get("x-forwarded-host");
 

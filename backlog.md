@@ -657,6 +657,10 @@ lists `/meta`: the shape is worth advertising to the people who will use it. The
 `writer`, the lowest rung with anything to do here, and each section will guard itself again at what
 it actually needs, because a layout cannot express "organizer here, admin there".
 ⬜ **E16.7 — Deploy pipeline and preview environments** · M · Deps: E16.1 — _AC:_ production deploy from `main`, preview per PR, environment variables documented.
+*Blocked:* needs the hosted Supabase project's URL configuration, which is a dashboard setting and not
+a file in this repository. The four settings and why each one fails silently are written up under
+*Configuring a deployment* in [`docs/modules/auth.md`](docs/modules/auth.md); what is left for this
+story is making the preview environments work against them.
 ✅ **E16.10 — Account deletion** · M · Deps: E16.9 — _AC:_ erasure removes every identifying field and
 the account itself, in one transaction, and cannot be aimed at anybody else.
 _Note:_ the profile is **not** deleted — eight tables reference it and two of those columns are
