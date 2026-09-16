@@ -8,7 +8,7 @@ matching — is pure, takes its data as arguments, and tests with nothing but
 ## The zero-credential path
 
 ```bash
-pnpm install                     # Node >= 24, pnpm 9
+pnpm install                     # Node >= 24, pnpm 12
 pnpm --filter core test          # no env vars, no Docker, no account
 pnpm --filter adapters test      # same
 ```
