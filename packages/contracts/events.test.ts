@@ -71,7 +71,23 @@ describe("events contracts", () => {
     expectTypeOf(empty).toExtend<EventSchedule>();
   });
 
-  it("names one source today and stays a union", () => {
-    expectTypeOf<"challonge">().toExtend<EventSource>();
+  it("names every calendar the site caches, and nothing about how results arrive", () => {
+    expectTypeOf<EventSource>().toEqualTypeOf<"challonge" | "melee">();
+  });
+
+  it("describes a melee.gg event with the same fields as a Challonge one", () => {
+    const melee = {
+      id: "b7e4f2a1-3c8d-4f56-9e0a-1b2c3d4e5f60",
+      source: "melee",
+      externalId: "289410",
+      name: "Planar Standard Showdown",
+      url: "https://melee.gg/Tournament/View/289410",
+      state: "scheduled",
+      startsAt: "2026-09-27T18:00:00.000Z",
+      participantCount: 64,
+      structure: "swiss",
+      fetchedAt: "2026-09-15T11:05:00.000Z",
+    } satisfies ExternalEvent;
+    expectTypeOf(melee).toExtend<ExternalEvent>();
   });
 });

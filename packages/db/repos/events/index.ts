@@ -39,6 +39,26 @@ export async function listCachedEvents(
   return (data as unknown as ExternalEventRow[]).map(toExternalEvent);
 }
 
+/**
+ * Every cached event, whatever calendar it came from.
+ *
+ * The site's view of what is on is not per-platform: an organiser running on
+ * melee.gg and one running on Challonge are advertising the same format, and a
+ * visitor asking what is next does not care which. `listCachedEvents` stays for
+ * the refresh, which is necessarily scoped to the source being refreshed.
+ */
+export async function listAllCachedEvents(
+  client: SupabaseClient,
+): Promise<readonly ExternalEvent[]> {
+  const { data, error } = await client
+    .from("external_events")
+    .select(EVENT_COLUMNS)
+    .order("starts_at", { ascending: false, nullsFirst: false });
+
+  if (error !== null) throw new Error(`listAllCachedEvents failed: ${error.message}`);
+  return (data as unknown as ExternalEventRow[]).map(toExternalEvent);
+}
+
 /** When this source was last fetched. Null when the ledger row is somehow missing. */
 export async function getSyncState(
   client: SupabaseClient,

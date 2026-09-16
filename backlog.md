@@ -31,7 +31,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E9   | Identity signals and scoring          | 4     | E2           | ✅ 9/9   |
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
-| E12  | Source adapters                       | 5     | E2           | 🚧 6/9   |
+| E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 9/23  |
 | E14  | RLS and access control                | 1     | E13          | ⬜ 0/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
@@ -42,7 +42,8 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E20  | Feature slices                        | 3–10  | E18          | ⬜ 0/19  |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
-| E23  | Upcoming events                       | 2     | E13.1        | ✅ 11/11 |
+| E23  | Upcoming events                       | 2     | E13.1        | 🚧 11/12 |
+| E24  | Home page                             | 2     | E16.1        | 🚧 4/7   |
 
 ---
 
@@ -336,6 +337,17 @@ _Note:_ the hover text sorts all 75 cards alphabetically with no sideboard heade
 ✅ **E12.8 — Capability gating test** · S · Deps: E12.1 — a standings-only `ParsedEvent` cannot produce matches. _AC:_ asserts pairings are never inferred from placements.
 ✅ **E12.9 — Adapter authoring guide** · S · Deps: E12.4 — `packages/adapters/README.md`: drop a fixture, write `detect` and `parse`, write expected output.
 _Note:_ written without E12.4. The dependency existed so the guide would have a worked example; `archetype-map-html` and `generic-csv` are that example, and the four rules it has to teach — omit an empty payload, never infer pairings, a bye has no opponent, do not guess — are all demonstrable without a melee export.
+
+⛔ **E12.10 — `melee-api`** · L · Deps: E12.1 — the same event's results straight from melee.gg's
+API rather than from an export: match history, standings, roster, and a decklist per player. A
+different adapter from E12.4, not a replacement for it — `melee-csv` reads a file an organiser
+downloaded and needs no credentials, and it stays the path for anyone who cannot call the API.
+_AC:_ a captured API response committed to `fixtures/melee-api/` and the expected `ParsedEvent`
+asserted against it; the adapter stays pure, so fetching belongs to the caller and `RawInput.bytes`
+is the response body.
+_Blocked:_ needs API access — a documented endpoint list and whatever credential it wants. Until then
+neither the payload shape nor the pagination is known, and guessing produces a fixture that has to be
+thrown away.
 
 ---
 
@@ -648,6 +660,77 @@ _AC:_ `pnpm db:reset && pnpm dev` shows a populated `/events` with no credential
 ✅ **E23.11 — `docs/modules/events.md`** · S · Deps: E23.8 — the cache policy, the request-budget
 arithmetic, and how to change the interval.
 
+⛔ **E23.12 — melee.gg as a second calendar** · M · Deps: E23.6 — a client and a parser for melee.gg's
+tournament listing, so an event run there appears on `/events` and in the home page's next-event tile
+alongside the Challonge ones.
+_AC:_ a `melee` row in `external_event_syncs` with its own interval and its own budget arithmetic —
+the claim is per-source already, so one platform's outage must not spend the other's window; the
+parser maps melee's states onto the same three `ExternalEventState` values; `/events` names both
+sources in its freshness line rather than saying "Challonge" for a schedule that is no longer only
+Challonge.
+_Blocked:_ needs melee.gg API access and its listing endpoint. `EventSource`, the cache, the
+schedule, the repository read and both pages are already source-agnostic and seeded with melee rows
+(E24.3), so this story is the client and the parser and nothing else.
+
+---
+
+## E24 — Home page
+
+Phase 2. Stream J. The site had a home page from E16.1 — a heading and one post feed — and no story
+describing it, so nothing recorded what it was for. It is for three questions: what has the format
+announced, what can I enter next, and what won the last event.
+
+Three regions in a grid, each loaded independently: a failure in one renders an error in that tile
+and leaves the others alone.
+
+✅ **E24.1 — Grid layout and the page's four regions** · M · Deps: E16.1 — a lead tile two columns
+wide, the event tile beside it, the podium spanning both below, and the community feed under that.
+_AC:_ the two top tiles are the same height at every width they sit side by side at; the grid
+collapses to one column on a phone; each region loads through its own `load()` so one failure does
+not blank the page.
+
+✅ **E24.2 — `LatestNewsPanel`** · S · Deps: E24.1 — the newest announcement at full size with its
+excerpt, the three behind it as dated lines.
+_AC:_ not `PostList` — a feed renders every post at one weight, which is what `/news` wants and the
+opposite of what a lead tile wants; the tile is `official` posts only, so nothing appears twice on
+a page that also carries the community feed.
+
+✅ **E24.3 — `NextEventPanel`, and the calendar stops being Challonge-shaped** · M · Deps: E23.4,
+E24.1 — the one event to turn up to next, with the two after it listed beneath.
+_AC:_ `EventSource` is a union rather than a single value; the page-facing read is
+`listAllCachedEvents`, so an event from any calendar competes for the tile on its date alone;
+`core/events/event-schedule` gains `upcomingEvents`/`nextEvent` and neither looks at `source`; the
+platform is a label beside the link, never a heading, a filter or a sort key; the seed carries
+melee.gg rows so a one-source regression is visible locally.
+_Note:_ the refresh stays per-source and Challonge-only. A ledger row is the right to spend a
+request against a budget, and inventing melee's before its client exists would claim a budget
+against nothing — that row arrives with E23.12.
+
+✅ **E24.4 — `EventPodium`** · M · Deps: E24.1 — the top four decks of the most recent event with
+results: placement, handle, archetype, colour identity, record, and three cards that say what the
+deck is.
+_AC:_ `PodiumFinish` renders with every field past the handle missing, because a standings-only
+import produces exactly that (ADR 006); no tile links anywhere until there is somewhere to link to.
+_Outstanding:_ **the finishers are stand-in data.** `apps/web/lib/podium/sample-podium.ts` holds a
+hand-written podium for the seeded `planar-standard-weekly-40`, and the section renders a "Sample
+data" badge and says so in prose. The event, the handles, the archetypes and every card named are
+real Season II material; the placements and records are invented. E24.5 replaces the loader body.
+
+⬜ **E24.5 — Podium from the results ledger** · M · Deps: E13.7, E13.9, E18.4 — replace
+`loadLatestPodium`'s body with the real read: the newest `tournaments` row whose status is
+`results_imported` or `verified`, joined to its entries and their decks.
+_AC:_ `sample` becomes false and the badge and the note disappear with it; an event whose import
+brought standings and no decks still renders a podium, with the deck fields empty; `null` when no
+event has results yet, and the section is absent rather than empty.
+
+⬜ **E24.6 — Podium tiles link to the deck** · S · Deps: E19.13, E20.6 — `deckId` is already on the
+contract and already null-safe. _AC:_ a finish with no deck stays unlinked rather than linking to a
+404, which is the state every standings-only import leaves.
+
+⬜ **E24.7 — Metagame tile** · M · Deps: E19.3, E20.8 — the fourth thing the home page should
+answer, once there is a metagame to show: what the field currently looks like. Left unscoped
+deliberately — the shape of it depends on what `MetaShare` turns out to read well at tile size.
+
 ---
 
 ## What's ready now
@@ -683,6 +766,17 @@ E23 is merged but only half switched on: `/events` renders from the seed until `
 `CHALLONGE_COMMUNITY` are set in Vercel. Nothing in the repository is waiting on that, and no
 contributor needs the values — see [`docs/modules/events.md`](docs/modules/events.md).
 
+**The two melee.gg stories are the same blocker twice.** E23.12 wants the tournament _listing_ so an
+event run there shows up on the schedule; E12.10 wants the _results_ — match history, standings,
+decklists — so it can be imported. Everything on this side of both is already built and
+source-agnostic: the cache, the schedule, the repository read, `/events` and the home page all
+handle a melee event today, and the seed carries two so a regression is visible. What is missing is
+the endpoint list and whatever credential it takes.
+
+**The home page shows one thing it does not have.** The top-four-decks section runs on a hand-written
+podium (E24.4's _Outstanding:_ line) and says so on the page. E24.5 is the swap, and it is the
+clearest reason to want E13.7 and E13.8 finished.
+
 ## Phase 0 merge order
 
 The ordering originally suggested for the first ten merges, kept for reference:
@@ -704,7 +798,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
-| E1   | 9       | 9    | E12  | 9       | 6    |
+| E1   | 9       | 9    | E12  | 10      | 6    |
 | E2   | 9       | 9    | E13  | 23      | 9    |
 | E3   | 7       | 7    | E14  | 5       | 0    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
@@ -715,6 +809,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E9   | 9       | 9    | E20  | 19      | 0    |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
-|      |         |      | E23  | 11      | 11   |
+|      |         |      | E23  | 12      | 11   |
+|      |         |      | E24  | 7       | 4    |
 
-**114 of 219 stories done across 23 epics.**
+**118 of 228 stories done across 24 epics.**

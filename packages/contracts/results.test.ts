@@ -3,11 +3,13 @@ import type {
   AdapterDetection,
   Capability,
   ColumnMapping,
+  EventPodium,
   ParsedDecklistEntry,
   ParsedEvent,
   ParsedMatch,
   ParsedRosterEntry,
   ParsedStanding,
+  PodiumFinish,
   RawInput,
   ResultsAdapter,
 } from "./results";
@@ -290,5 +292,54 @@ describe("results contracts", () => {
     expect(unrecognized.outcome === "unrecognized" && unrecognized.issue.code).toBe(
       "unrecognized_format",
     );
+  });
+});
+
+describe("podium contracts", () => {
+  it("describes a finisher whose deck the site holds in full", () => {
+    const winner = {
+      placement: 1,
+      handle: "Sunsett",
+      archetype: "Abzan Midrange",
+      deckName: "Zenith Abzan",
+      deckId: "0b4c2f19-6d8e-4a31-9f02-7c5b3a1d8e64",
+      record: { wins: 5, losses: 0, draws: 0 },
+      colors: ["W", "B", "G"],
+      keyCards: ["Cosmogrand Zenith", "Ouroboroid", "Severance Priest"],
+    } satisfies PodiumFinish;
+
+    expectTypeOf(winner).toExtend<PodiumFinish>();
+  });
+
+  it("describes a finisher a standings-only import produced, with no deck at all", () => {
+    // ADR 006: the source reported placements and nothing else. Everything past
+    // the handle is absent, and the row is still a podium row.
+    const standingsOnly = {
+      placement: 2,
+      handle: "divnyi",
+      archetype: null,
+      deckName: null,
+      deckId: null,
+      record: null,
+      colors: [],
+      keyCards: [],
+    } satisfies PodiumFinish;
+
+    expectTypeOf(standingsOnly).toExtend<PodiumFinish>();
+  });
+
+  it("keys an event by the slug its URL uses, not by an id nothing links to", () => {
+    const podium = {
+      name: "Planar Standard Weekly #40",
+      slug: "planar-standard-weekly-40",
+      date: "2026-08-22",
+      platform: "Challonge",
+      externalUrl: "https://challonge.com/ps_weekly_40",
+      playerCount: 31,
+      finishes: [],
+    } satisfies EventPodium;
+
+    expectTypeOf(podium.slug).toEqualTypeOf<string>();
+    expect(podium.finishes).toEqual([]);
   });
 });

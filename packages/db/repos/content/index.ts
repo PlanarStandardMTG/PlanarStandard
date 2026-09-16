@@ -15,7 +15,14 @@ import { POST_COLUMNS, toPostWithAuthor, type PostRow } from "./rows";
  * policy is optional.
  */
 
-/** Newest published posts of either kind — the home page feed. */
+/**
+ * Newest published posts of either kind — one combined feed.
+ *
+ * Nothing calls this today: the home page went to two kind-scoped reads at E24.2
+ * so that a post could not appear in both the news tile and the community list.
+ * Kept because a combined feed is a reasonable thing to want again, and because
+ * it is the read the RLS test for "published only" exercises most directly.
+ */
 export async function listRecentPublishedPosts(
   client: SupabaseClient,
   limit: number,

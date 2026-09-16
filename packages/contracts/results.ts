@@ -1,6 +1,8 @@
 // Ingestion contracts (§9, §13, §26). An adapter is pure: RawInput in,
 // ParsedEvent out. No platform is special (ADR 005).
 
+import type { Color } from "./cards";
+import type { DeckId, WinLossDraw } from "./decks";
 import type { IsoDate } from "./primitives";
 
 /** `result_imports.adapter_id`. Persisted, so it outlives a rename. */
@@ -211,3 +213,52 @@ export type AdapterDetection =
       readonly candidates: readonly ResultsAdapter[];
       readonly issue: ParseIssue;
     };
+
+// ── The read side ────────────────────────────────────────────────────────────
+// Everything above describes results on their way in. What follows is one view
+// of them once they are in the ledger, derived and recomputable like every other
+// statistic (ADR 004).
+
+/**
+ * One finisher on an event's podium.
+ *
+ * A handle, not a player (ADR 003). Which person it belongs to is resolved at
+ * read time and can change under a merge without this view changing at all.
+ *
+ * Everything past the handle is nullable because every one of these is missing
+ * from some real import: a standings-only source brings no decks (ADR 006), and
+ * a deck nobody has labelled yet is still a deck.
+ */
+export interface PodiumFinish {
+  /** 1-based, and the order the view is sorted in. */
+  readonly placement: number;
+  readonly handle: string;
+  readonly archetype: string | null;
+  readonly deckName: string | null;
+  /** Null until the list itself is in the database, so the tile stops linking rather than 404s. */
+  readonly deckId: DeckId | null;
+  readonly record: WinLossDraw | null;
+  /** The deck's colour identity. Empty means colourless, never unknown. */
+  readonly colors: readonly Color[];
+  /** A few cards that say what the deck is. Names, because a decklist carries names (ADR 007). */
+  readonly keyCards: readonly string[];
+}
+
+/**
+ * The top finishers of one event.
+ *
+ * Keyed by `slug` and not by id: the only thing anyone does with this is link to
+ * `/tournaments/[slug]`, and the id would be a second identifier that no URL
+ * uses. `finishes` is however many the caller asked for — the type does not fix
+ * a podium at three or at four.
+ */
+export interface EventPodium {
+  readonly name: string;
+  readonly slug: string;
+  readonly date: IsoDate;
+  readonly platform: string | null;
+  readonly externalUrl: string | null;
+  readonly playerCount: number | null;
+  /** Ordered by placement, winner first. */
+  readonly finishes: readonly PodiumFinish[];
+}

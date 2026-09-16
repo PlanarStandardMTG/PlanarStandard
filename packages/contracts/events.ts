@@ -5,8 +5,16 @@ import type { IsoDateTime } from "./primitives";
 
 export type ExternalEventId = string;
 
-/** Which calendar an event came from. One source, one row in the sync ledger. */
-export type EventSource = "challonge";
+/**
+ * Which calendar an event came from. One source, one row in the sync ledger.
+ *
+ * A source is a **calendar**, not a results platform. `melee` here is melee.gg's
+ * tournament listing, and the same event's results arrive later through an
+ * adapter (§9) that knows nothing about this table. The site's own view of what
+ * is on is not per-platform, so nothing downstream of the cache branches on this
+ * value except the label on a card.
+ */
+export type EventSource = "challonge" | "melee";
 
 /**
  * Where an event is in its life, reduced to the three states a schedule can show.

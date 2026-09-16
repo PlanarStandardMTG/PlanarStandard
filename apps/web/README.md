@@ -11,12 +11,13 @@ pnpm dev             # http://localhost:3000
 
 **Layout.** `app/` is routes only. `components/ui/` holds primitives that know
 nothing about the domain; `components/content/` holds the post components that
-every feed and article page shares; `lib/` holds helpers, the two Supabase
-clients, `info-pages/` — the reader, whitelist, and renderer behind
-`content/pages/*.mdx` (E17), `format/`, the one read behind `<LegalSets />` and
-`<Banlist />`, and `challonge/` plus `events/`, the read-through cache behind
-`/events` (E23). Feature slices (§11, E20) will move route-owned code
-out of `components/content` as they land.
+every feed and article page shares; `components/home/` holds the three tiles the
+home page is made of (E24); `lib/` holds helpers, the two Supabase clients,
+`info-pages/` — the reader, whitelist, and renderer behind `content/pages/*.mdx`
+(E17), `format/`, the one read behind `<LegalSets />` and `<Banlist />`,
+`challonge/` plus `events/`, the read-through cache behind `/events` (E23), and
+`podium/`. Feature slices (§11, E20) will move route-owned code out of
+`components/content` as they land.
 
 **The two kinds of writing.** Posts are database rows, served dynamically from
 `/news` and `/articles`. Info pages are MDX in the repository's `content/pages/`,
@@ -58,3 +59,16 @@ special case of the other; §25's split rule decides which a document is.
 - `lib/supabase/server.ts` uses the anon key and is subject to RLS. Anything that
   needs to write, or to read past a policy, uses `service-role.server.ts` — and
   the `.server.ts` suffix is what `pnpm guard:server-only` keys on.
+- **The home page's top-four-decks section is stand-in data**, and says so where a
+  reader can see it. `lib/podium/latest-podium.ts` is a seam shaped like the read
+  it will become — async, nullable, sliced there rather than in the component —
+  and `lib/podium/sample-podium.ts` is the hand-written podium behind it. The
+  real version is one query against tables that do not exist yet (E13.7, E13.8);
+  E24.5 replaces the function body and nothing above it. The `sample` flag is
+  what draws the badge, so removing the data and leaving the flag true is not a
+  way this goes quietly wrong.
+- Nothing on the schedule side branches on which platform an event came from.
+  `EventSource` is a union, `listAllCachedEvents` is the read behind both pages,
+  and the platform is a label next to a link — never a heading, a filter or a
+  sort key. Only the refresh is per-source, because only a fetch spends a request
+  budget. See [`docs/modules/events.md`](../../docs/modules/events.md).

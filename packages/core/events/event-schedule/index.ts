@@ -54,6 +54,23 @@ export function eventSchedule(
 }
 
 /**
+ * Everything a visitor can still act on, as one list in the order they will act.
+ *
+ * Live before upcoming: an event running right now is the only kind anybody can
+ * do something about this minute. Within each group the schedule has already
+ * decided, so this concatenates and never sorts, and the recent past is left out
+ * — there is nothing to do about a finished bracket.
+ */
+export function upcomingEvents(schedule: EventSchedule): readonly ExternalEvent[] {
+  return [...schedule.live, ...schedule.upcoming];
+}
+
+/** The head of that list: the one event to lead with, or nothing to lead with. */
+export function nextEvent(schedule: EventSchedule): ExternalEvent | null {
+  return upcomingEvents(schedule)[0] ?? null;
+}
+
+/**
  * An undated event sorts last within its group rather than being dropped. A
  * bracket the organiser has not scheduled yet is still worth advertising.
  */

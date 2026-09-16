@@ -1,14 +1,38 @@
 # The event calendar
 
-How `/events` works, why the refresh interval is what it is, and what to change
-if it needs to be something else. Epic E23.
+How `/events` and the home page's next-event tile work, why the refresh
+interval is what it is, and what to change if it needs to be something else.
+Epics E23 and E24.3.
 
-The site does not run tournaments. Organisers run them on Challonge, and this
-page is a cached window onto that calendar: what is on, what is coming, and a
+The site does not run tournaments. Organisers run them somewhere else, and this
+page is a cached window onto their calendars: what is on, what is coming, and a
 link to each event's own page. There is no join and no leave. The previous site
 had both, wired to a per-user Challonge OAuth connection, and dropping them is
 deliberate — it removes an entire authentication flow from the site's surface in
 exchange for a link.
+
+## One schedule, however many calendars
+
+`EventSource` is a union, and Challonge is the only member with a client behind
+it today. Everything else is already source-agnostic and is meant to stay that
+way:
+
+| Source-agnostic                                    | Per-source                          |
+| -------------------------------------------------- | ----------------------------------- |
+| `listAllCachedEvents` — the read behind both pages | `listCachedEvents` — the refresh    |
+| `eventSchedule`, `upcomingEvents`, `nextEvent`     | `claimSyncWindow`, `replaceEvents`  |
+| `/events`, the home page's next-event tile         | one `external_event_syncs` row each |
+
+The split is the budget. A **fetch** has to know whose calendar it is spending a
+request on, and one platform being down must not spend another's window — so the
+claim, the replace and the ledger row are all per-source. A **reader** asking
+what is on this weekend does not care, so nothing downstream of the cache
+branches on `source` except the label on the card.
+
+`external_events.source` is `text`, not an enum, precisely so a second calendar
+is a parser and a client rather than a migration. The ledger row is not: it is
+the right to spend a request, so it arrives with the client that spends it, which
+is why the seed has melee.gg events and no melee.gg sync row.
 
 ## The request budget is the design
 
@@ -41,7 +65,7 @@ page render
             ├─ parseChallongeEvents          payload → ParsedExternalEvent[]
             ├─ replaceEvents                 upsert, then prune what is gone
             └─ recordSyncResult              success, or the error text
-  └─ listCachedEvents + eventSchedule → the page
+  └─ listAllCachedEvents + eventSchedule → the page
 ```
 
 Three properties are worth stating because each one is a way this goes wrong:
@@ -69,8 +93,9 @@ repository that reads them. `.server.ts` is enforced: `pnpm guard:server-only`
 
 **No contributor needs them.** With the variables unset the client returns
 `not-configured`, no refresh is attempted, and the page renders whatever is in
-the cache — which on a fresh clone is the six seed events from
-`packages/db/seed/0003_external_events.sql`. Every test in the epic runs with the
+the cache — which on a fresh clone is the eight seed events from
+`packages/db/seed/0003_external_events.sql`, six on Challonge and two on
+melee.gg. Every test in the epic runs with the
 variables unset; the client's tests stub `fetch`.
 
 ## Why this is not the `tournaments` table
@@ -95,7 +120,8 @@ invented ahead of time.
 | -------------------------------------- | --------------------------------------------------------- |
 | `core/events/parse-challonge-events`   | v2.1 payload → `ParsedExternalEvent[]`                    |
 | `core/events/sync-window`              | is a refresh due, and the cutoff a claim compares against |
-| `core/events/event-schedule`           | group and order the cache for display                     |
-| `db/repos/events`                      | the five reads and writes over the two tables             |
+| `core/events/event-schedule`           | group and order the cache, and pick the one to lead with  |
+| `db/repos/events`                      | the six reads and writes over the two tables              |
+| `web/lib/events/source-label.ts`       | what to call each calendar where a reader can see it      |
 | `web/lib/challonge/client.server.ts`   | the only module that talks to Challonge                   |
 | `web/lib/events/sync-events.server.ts` | the order of operations, and nothing else                 |

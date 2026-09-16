@@ -2,7 +2,7 @@
 
 Reads and writes over `external_events` and `external_event_syncs` (E23.6).
 
-**Inputs.** A `SupabaseClient` supplied by the caller. The two reads take the
+**Inputs.** A `SupabaseClient` supplied by the caller. The three reads take the
 public client; `claimSyncWindow`, `replaceEvents` and `recordSyncResult` take the
 **service-role** client — the sync ledger has RLS on and no policy at all.
 
@@ -21,6 +21,10 @@ snake_case row shape does not leave `rows.ts`.
   payload is the whole truth about what the calendar contains. Upserting before
   pruning means a concurrent reader sees the old calendar or the new one, never
   a gap.
+- `listAllCachedEvents` is the read behind the pages; `listCachedEvents` is the
+  read behind a refresh. The difference is the budget: a fetch has to know whose
+  calendar it is spending a request on, and a reader asking what is on this
+  weekend does not care which platform is hosting it.
 - This module never touches `tournaments`. The cache and the ledger are separate
   tables for a reason the migration spells out.
 

@@ -5,6 +5,7 @@ import { afterAll, beforeEach, describe, expect, it } from "vitest";
 import {
   claimSyncWindow,
   getSyncState,
+  listAllCachedEvents,
   listCachedEvents,
   recordSyncResult,
   replaceEvents,
@@ -49,9 +50,9 @@ const client = createClient(url, anonKey);
 const service = createClient(url, serviceKey);
 
 /**
- * Cast because `EventSource` names the one source that exists. Widening the
- * union so a test can have its own value would put a fictional source in the
- * contract, which is the worse trade.
+ * Cast because `EventSource` names the calendars the site actually caches.
+ * Widening the union so a test can have its own value would put a fictional
+ * source in the contract, which is the worse trade.
  */
 const TEST_SOURCE = "vitest" as EventSource;
 
@@ -99,6 +100,18 @@ describe.skipIf(!reachable)("repos/events", () => {
       structure: "swiss",
     });
     expect(cached?.id).toMatch(/^[0-9a-f-]{36}$/);
+  });
+
+  it("reads across every calendar at once, which is what a page asks for", async () => {
+    await replaceEvents(service, TEST_SOURCE, [event("1001", "Weekly #41")], FETCHED_AT);
+
+    const all = await listAllCachedEvents(client);
+    const sources = new Set(all.map((e) => e.source));
+
+    // This suite writes under a source of its own, and the seed holds two more,
+    // so a set with one member would mean the query is still scoped somewhere.
+    expect(all.map((e) => e.externalId)).toContain("1001");
+    expect(sources.size).toBeGreaterThan(1);
   });
 
   it("supersedes wholesale — an event dropped from the payload leaves the cache", async () => {

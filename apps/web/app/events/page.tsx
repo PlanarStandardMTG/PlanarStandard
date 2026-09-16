@@ -29,8 +29,8 @@ export default async function EventsPage() {
       <header className="mb-8">
         <h1 className="font-serif text-3xl font-semibold tracking-tight">Events</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-          Tournaments the community is running on Challonge. Entry, pairings, and results all live
-          on the event&rsquo;s own page — this is the schedule.
+          Tournaments the community is running, wherever they are running them. Entry, pairings, and
+          results all live on the event&rsquo;s own page — this is the schedule.
         </p>
       </header>
 
@@ -42,7 +42,7 @@ export default async function EventsPage() {
         <EmptyState title="No events on the calendar">
           {events.value.configured
             ? "Nothing is scheduled right now. Organisers post new brackets a week or two ahead."
-            : "This site has no Challonge credentials configured, so the schedule is empty. Run `pnpm db:reset` for seed events."}
+            : "This site has no Challonge credentials configured, so nothing is being fetched. Run `pnpm db:reset` for seed events."}
         </EmptyState>
       ) : (
         <>
@@ -65,6 +65,10 @@ export default async function EventsPage() {
  * Worth the paragraph: a cache refreshed every couple of hours will sometimes be
  * wrong, and a visitor who can see how stale it is knows to click through rather
  * than trust the participant count.
+ *
+ * Challonge by name, though the schedule itself is source-agnostic, because it
+ * is the only calendar the site fetches. When a second one is wired up this
+ * needs a ledger row per source rather than a second sentence (E23.12).
  */
 function freshness(sync: { lastSucceededAt: string | null } | null, now: Date): string {
   if (sync === null) return "Showing locally seeded events.";

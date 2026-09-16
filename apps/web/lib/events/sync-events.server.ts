@@ -3,7 +3,7 @@ import { eventSchedule, parseChallongeEvents, syncCutoff } from "@ps/core";
 import {
   claimSyncWindow,
   getSyncState,
-  listCachedEvents,
+  listAllCachedEvents,
   recordSyncResult,
   replaceEvents,
 } from "@ps/db";
@@ -26,10 +26,19 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
  * The cache is read at the end either way. A refresh that failed still serves the
  * events we had, because a schedule that is two hours stale is worth far more
  * than an error page.
+ *
+ * Refreshing is per-source and reading is not. A fetch has to know whose calendar
+ * it is spending a request on; a visitor asking what is on this weekend does not
+ * care, so the read is `listAllCachedEvents` and every melee.gg event in the
+ * cache appears the moment something puts one there (E23.12).
  */
 
 export interface EventsView {
   readonly schedule: EventSchedule;
+  /**
+   * Challonge's ledger row, which is the only refresh the site performs. It says
+   * how stale the *fetched* part of the schedule is; seeded rows have no sync.
+   */
   readonly sync: EventSyncState | null;
   /** False on every machine without the production secrets — the page says so rather than lying. */
   readonly configured: boolean;
@@ -42,7 +51,7 @@ export async function loadEvents(now: Date = new Date()): Promise<EventsView> {
 
   const publicClient = createPublicClient();
   const [events, sync] = await Promise.all([
-    listCachedEvents(publicClient, "challonge"),
+    listAllCachedEvents(publicClient),
     // The sync ledger has no read policy, so "when was this last refreshed"
     // needs the service-role client even though the answer is shown publicly.
     isChallongeConfigured()

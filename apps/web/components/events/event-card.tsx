@@ -2,6 +2,7 @@ import type { ExternalEvent } from "@ps/contracts";
 
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";
 import { formatDateTime } from "@/lib/format-date";
 
 const STATE_LABELS: Record<ExternalEvent["state"], { label: string; variant: BadgeVariant }> = {
@@ -14,9 +15,13 @@ const STATE_LABELS: Record<ExternalEvent["state"], { label: string; variant: Bad
  * One event on the schedule.
  *
  * The whole card is a link out to the event's own page, because that page is the
- * only thing anyone can do here: the site advertises events, Challonge runs
+ * only thing anyone can do here: the site advertises events, the platform runs
  * them. There is no join and no leave — the previous site had both, wired to a
  * per-user OAuth connection, and neither ever worked well enough to keep.
+ *
+ * Which platform is a label next to that link and nothing more. The schedule is
+ * one list whatever calendar an event came from, so the source never groups,
+ * sorts, or filters anything.
  */
 export function EventCard({ event }: { event: ExternalEvent }) {
   const { label, variant } = STATE_LABELS[event.state];
@@ -60,6 +65,9 @@ export function EventCard({ event }: { event: ExternalEvent }) {
             className="shrink-0 text-sm font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
           >
             {finished ? "Final bracket" : "Event page"} <span aria-hidden="true">↗</span>
+            <span className="block text-xs font-normal text-ink-500 dark:text-ink-400">
+              on {EVENT_SOURCE_LABELS[event.source]}
+            </span>
           </a>
         ) : (
           <span className="shrink-0 text-sm text-ink-400 dark:text-ink-600">No page yet</span>

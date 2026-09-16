@@ -1,7 +1,7 @@
 import type { ExternalEvent } from "@ps/contracts";
 import { describe, expect, it } from "vitest";
 
-import { PAST_EVENT_WINDOW_MS, eventSchedule } from "./index";
+import { PAST_EVENT_WINDOW_MS, eventSchedule, nextEvent, upcomingEvents } from "./index";
 
 const NOW = new Date("2026-09-15T12:00:00.000Z");
 
@@ -100,5 +100,89 @@ describe("core/events/event-schedule", () => {
     eventSchedule(events, NOW);
 
     expect(events.map((e) => e.name)).toEqual(before);
+  });
+});
+
+describe("nextEvent", () => {
+  it("prefers an event running now over one that has not started", () => {
+    const schedule = eventSchedule(
+      [
+        event({ name: "soon", startsAt: "2026-09-18T19:00:00.000Z" }),
+        event({ name: "running", state: "live", startsAt: "2026-09-15T10:00:00.000Z" }),
+      ],
+      NOW,
+    );
+
+    expect(nextEvent(schedule)?.name).toBe("running");
+  });
+
+  it("takes the soonest upcoming event when nothing is running", () => {
+    const schedule = eventSchedule(
+      [
+        event({ name: "later", startsAt: "2026-09-27T19:00:00.000Z" }),
+        event({ name: "soon", startsAt: "2026-09-18T19:00:00.000Z" }),
+      ],
+      NOW,
+    );
+
+    expect(nextEvent(schedule)?.name).toBe("soon");
+  });
+
+  it("never offers a finished event as the next one", () => {
+    const schedule = eventSchedule(
+      [event({ name: "last week", state: "complete", startsAt: "2026-09-06T19:00:00.000Z" })],
+      NOW,
+    );
+
+    expect(nextEvent(schedule)).toBeNull();
+  });
+
+  it("is null on an empty cache", () => {
+    expect(nextEvent(eventSchedule([], NOW))).toBeNull();
+  });
+
+  it("does not care which calendar the event came from", () => {
+    const schedule = eventSchedule(
+      [
+        event({ name: "on challonge", startsAt: "2026-09-25T19:00:00.000Z" }),
+        event({ name: "on melee", source: "melee", startsAt: "2026-09-18T19:00:00.000Z" }),
+      ],
+      NOW,
+    );
+
+    expect(nextEvent(schedule)?.name).toBe("on melee");
+  });
+});
+
+describe("upcomingEvents", () => {
+  it("puts everything live ahead of everything scheduled, whatever the dates say", () => {
+    // The live event started before the scheduled one and still leads: a bracket
+    // you can join now beats one that starts on Friday.
+    const schedule = eventSchedule(
+      [
+        event({ name: "friday", startsAt: "2026-09-18T19:00:00.000Z" }),
+        event({ name: "running", state: "live", startsAt: "2026-09-15T10:00:00.000Z" }),
+        event({ name: "saturday", startsAt: "2026-09-19T19:00:00.000Z" }),
+      ],
+      NOW,
+    );
+
+    expect(upcomingEvents(schedule).map((e) => e.name)).toEqual(["running", "friday", "saturday"]);
+  });
+
+  it("leaves out the recent past, which is on the page but not ahead of anyone", () => {
+    const schedule = eventSchedule(
+      [
+        event({ name: "last week", state: "complete", startsAt: "2026-09-06T19:00:00.000Z" }),
+        event({ name: "friday", startsAt: "2026-09-18T19:00:00.000Z" }),
+      ],
+      NOW,
+    );
+
+    expect(upcomingEvents(schedule).map((e) => e.name)).toEqual(["friday"]);
+  });
+
+  it("is empty when there is nothing to turn up to", () => {
+    expect(upcomingEvents(eventSchedule([], NOW))).toEqual([]);
   });
 });
