@@ -16,6 +16,6 @@ silently move the rest of the deck to the sideboard.
 
 Recognized headers: `SIDEBOARD:`, `Sideboard`, `Side Board`, `SB:`, `Deck`,
 `Maindeck`, `Main Deck`, `Commander`, `Command Zone`, each optionally behind
-`//`. A card whose *name* begins with one of those words is still a card.
+`//`. A card whose _name_ begins with one of those words is still a card.
 
 `pnpm --filter core test -- detect-board`

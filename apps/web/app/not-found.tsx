@@ -8,7 +8,10 @@ export default function NotFound() {
     <Container className="py-20">
       <EmptyState title="That page does not exist">
         It may have moved, or the link may be wrong.{" "}
-        <Link href="/" className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400">
+        <Link
+          href="/"
+          className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
+        >
           Back to the home page
         </Link>
         .

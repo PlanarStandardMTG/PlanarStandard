@@ -11,10 +11,7 @@ import type { PruneResult } from "../prune/index";
 const RESULT = JSON.parse(
   readFileSync(
     fileURLToPath(
-      new URL(
-        "../../../../fixtures/scryfall/prune-sample.expected.json",
-        import.meta.url,
-      ),
+      new URL("../../../../fixtures/scryfall/prune-sample.expected.json", import.meta.url),
     ),
     "utf8",
   ),
@@ -46,15 +43,11 @@ describe("buildDataset", () => {
   });
 
   it("carries the Scryfall attribution their terms require", () => {
-    expect(buildDataset(RESULT, INPUT).meta.attribution.source).toBe(
-      "Scryfall",
-    );
+    expect(buildDataset(RESULT, INPUT).meta.attribution.source).toBe("Scryfall");
   });
 
   it("sorts the per-set counts so the key order never churns", () => {
-    const keys = Object.keys(
-      buildDataset(RESULT, INPUT).meta.printingCountBySet,
-    );
+    const keys = Object.keys(buildDataset(RESULT, INPUT).meta.printingCountBySet);
     expect(keys).toEqual([...keys].sort());
   });
 });

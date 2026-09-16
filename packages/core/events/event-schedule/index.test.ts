@@ -48,10 +48,7 @@ describe("core/events/event-schedule", () => {
 
   it("sorts an undated event last in its group rather than dropping it", () => {
     const schedule = eventSchedule(
-      [
-        event({ name: "undated" }),
-        event({ name: "dated", startsAt: "2026-09-18T19:00:00.000Z" }),
-      ],
+      [event({ name: "undated" }), event({ name: "dated", startsAt: "2026-09-18T19:00:00.000Z" })],
       NOW,
     );
 

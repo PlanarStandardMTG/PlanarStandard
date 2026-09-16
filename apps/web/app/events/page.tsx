@@ -16,7 +16,8 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Events",
-  description: "Upcoming and in-progress Planar Standard tournaments, with a link to each event page.",
+  description:
+    "Upcoming and in-progress Planar Standard tournaments, with a link to each event page.",
 };
 
 export default async function EventsPage() {
@@ -28,8 +29,8 @@ export default async function EventsPage() {
       <header className="mb-8">
         <h1 className="font-serif text-3xl font-semibold tracking-tight">Events</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-          Tournaments the community is running on Challonge. Entry, pairings, and results all live on
-          the event&rsquo;s own page — this is the schedule.
+          Tournaments the community is running on Challonge. Entry, pairings, and results all live
+          on the event&rsquo;s own page — this is the schedule.
         </p>
       </header>
 

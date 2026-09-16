@@ -1,4 +1,11 @@
-import type { CardIndex, Color, ColorCountKey, ColorCounts, OracleCard, ResolvedDeck } from "@ps/contracts";
+import type {
+  CardIndex,
+  Color,
+  ColorCountKey,
+  ColorCounts,
+  OracleCard,
+  ResolvedDeck,
+} from "@ps/contracts";
 
 import { entriesOn } from "../shared";
 

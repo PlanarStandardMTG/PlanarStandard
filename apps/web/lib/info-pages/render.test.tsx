@@ -5,7 +5,11 @@ import { type InfoPageComponentRegistry } from "./components";
 import { renderInfoPage } from "./render";
 
 const registry: InfoPageComponentRegistry = {
-  LegalSets: () => <ul data-testid="legal-sets"><li>FDN</li></ul>,
+  LegalSets: () => (
+    <ul data-testid="legal-sets">
+      <li>FDN</li>
+    </ul>
+  ),
 };
 
 const render = async (body: string, components?: readonly ["LegalSets"]) =>
@@ -41,9 +45,7 @@ describe("renderInfoPage", () => {
 
   it("refuses an expression in braces", async () => {
     // The point is that the server's environment is one brace away otherwise.
-    await expect(render("{process.env.HOME}\n")).rejects.toThrow(
-      /expressions in braces/,
-    );
+    await expect(render("{process.env.HOME}\n")).rejects.toThrow(/expressions in braces/);
   });
 
   it("allows a comment in braces, which is how generated regions are marked", async () => {
@@ -51,6 +53,8 @@ describe("renderInfoPage", () => {
   });
 
   it("refuses an import", async () => {
-    await expect(render('import x from "node:fs"\n')).rejects.toThrow(/not allowed in an info page/);
+    await expect(render('import x from "node:fs"\n')).rejects.toThrow(
+      /not allowed in an info page/,
+    );
   });
 });

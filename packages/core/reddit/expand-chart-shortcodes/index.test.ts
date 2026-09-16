@@ -9,7 +9,9 @@ const fixture = (name: string): string =>
 
 describe("core/reddit/expand-chart-shortcodes", () => {
   it("converts the fixture to its sibling expectation", () => {
-    expect(expandChartShortcodes(fixture("expand-chart-shortcodes.in.md"), CANONICAL)).toBe(fixture("expand-chart-shortcodes.out.md"));
+    expect(expandChartShortcodes(fixture("expand-chart-shortcodes.in.md"), CANONICAL)).toBe(
+      fixture("expand-chart-shortcodes.out.md"),
+    );
   });
 
   it("is idempotent", () => {

@@ -11,7 +11,10 @@ import { normalizeHandle } from "./index";
  * typed out twice.
  */
 const POSTGRES_PARITY: ReadonlyArray<{ handle: string; normalized: string }> = JSON.parse(
-  readFileSync(new URL("../../../../fixtures/identity/normalized-handles.json", import.meta.url), "utf8"),
+  readFileSync(
+    new URL("../../../../fixtures/identity/normalized-handles.json", import.meta.url),
+    "utf8",
+  ),
 );
 
 describe("core/identity/normalize-handle", () => {

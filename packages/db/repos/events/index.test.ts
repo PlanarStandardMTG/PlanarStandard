@@ -150,12 +150,12 @@ describe.skipIf(!reachable)("repos/events", () => {
   it("refuses a second claim inside the window and allows one after it", async () => {
     await claimSyncWindow(service, TEST_SOURCE, "2026-09-15T10:00:00.000Z", FETCHED_AT);
 
-    expect(await claimSyncWindow(service, TEST_SOURCE, "2026-09-15T10:00:00.000Z", FETCHED_AT)).toBe(
-      false,
-    );
-    expect(await claimSyncWindow(service, TEST_SOURCE, "2026-09-15T13:00:00.000Z", FETCHED_AT)).toBe(
-      true,
-    );
+    expect(
+      await claimSyncWindow(service, TEST_SOURCE, "2026-09-15T10:00:00.000Z", FETCHED_AT),
+    ).toBe(false);
+    expect(
+      await claimSyncWindow(service, TEST_SOURCE, "2026-09-15T13:00:00.000Z", FETCHED_AT),
+    ).toBe(true);
   });
 
   it("spends the window on a failed refresh, and remembers why", async () => {

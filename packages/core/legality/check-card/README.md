@@ -5,7 +5,7 @@
 **Inputs.** The card (name, oracle id, boards), `FormatRules`, `CardIndex`.
 **Outputs.** A `CardIssue`, or `null` when the card is fine.
 
-**Gotchas.** **ADR 007 lives here.** A card is legal if its oracle card has *any*
+**Gotchas.** **ADR 007 lives here.** A card is legal if its oracle card has _any_
 printing in a legal set, and any printing may then be played. The printed set on
 the decklist line is never consulted: `Llanowar Elves (M19)` is legal because the
 oracle card is in FDN, and `Mistrise Village (PTDM)` is legal because the oracle

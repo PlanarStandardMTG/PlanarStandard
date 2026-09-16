@@ -5,7 +5,8 @@
  * database is unreachable — and an uncaught throw in a server component takes
  * the whole route down. This keeps the failure inside the section that failed.
  */
-export type Loaded<T> = { readonly ok: true; readonly value: T } | { readonly ok: false; readonly error: string };
+export type Loaded<T> =
+  { readonly ok: true; readonly value: T } | { readonly ok: false; readonly error: string };
 
 export async function load<T>(fn: () => Promise<T>): Promise<Loaded<T>> {
   try {

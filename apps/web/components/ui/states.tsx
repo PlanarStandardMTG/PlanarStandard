@@ -72,7 +72,5 @@ export function ErrorState({
 
 /** A block placeholder. Sized by the caller so it matches what is loading. */
 export function Skeleton({ className }: { className?: string }) {
-  return (
-    <div className={cn("animate-pulse rounded-md bg-ink-200 dark:bg-ink-800", className)} />
-  );
+  return <div className={cn("animate-pulse rounded-md bg-ink-200 dark:bg-ink-800", className)} />;
 }

@@ -22,9 +22,7 @@ describe("core/decklist/parse-filename", () => {
   });
 
   it("accepts the separator the OS rewrote to an underscore", () => {
-    expect(
-      parseFilename("BasscannonTtonka_Jeskai Prowess_Jeskai Prowess_3-1-0_7-4.txt"),
-    ).toEqual({
+    expect(parseFilename("BasscannonTtonka_Jeskai Prowess_Jeskai Prowess_3-1-0_7-4.txt")).toEqual({
       player: "BasscannonTtonka",
       deckName: "Jeskai Prowess",
       archetype: "Jeskai Prowess",
@@ -35,15 +33,15 @@ describe("core/decklist/parse-filename", () => {
 
   it("surfaces the trailing parenthetical alias as its own field", () => {
     // core/identity/signals/parenthetical (E9.2) reads this field directly.
-    expect(parseFilename("Zaunus13 (LikoRS)｜Dragonstorm｜4c Dragons｜2-3-0｜7-7.txt")).toMatchObject(
-      { player: "Zaunus13", alias: "LikoRS" },
-    );
+    expect(
+      parseFilename("Zaunus13 (LikoRS)｜Dragonstorm｜4c Dragons｜2-3-0｜7-7.txt"),
+    ).toMatchObject({ player: "Zaunus13", alias: "LikoRS" });
   });
 
   it("finds the alias even with no space before the parenthesis", () => {
-    expect(parseFilename("Oseoros(Rus)｜Quantum｜Mono Blue Quantum Tempo｜1-2-0｜2-4.txt")).toMatchObject(
-      { player: "Oseoros", alias: "Rus" },
-    );
+    expect(
+      parseFilename("Oseoros(Rus)｜Quantum｜Mono Blue Quantum Tempo｜1-2-0｜2-4.txt"),
+    ).toMatchObject({ player: "Oseoros", alias: "Rus" });
   });
 
   it("omits the alias when there is none", () => {
@@ -72,9 +70,9 @@ describe("core/decklist/parse-filename", () => {
   });
 
   it("leaves a fullwidth > inside a segment alone", () => {
-    expect(parseFilename("Boxxy｜Golgari＞Midrange｜Golgari Midrange｜1-3-0｜3-6.txt")).toMatchObject(
-      { deckName: "Golgari＞Midrange", archetype: "Golgari Midrange" },
-    );
+    expect(
+      parseFilename("Boxxy｜Golgari＞Midrange｜Golgari Midrange｜1-3-0｜3-6.txt"),
+    ).toMatchObject({ deckName: "Golgari＞Midrange", archetype: "Golgari Midrange" });
   });
 
   it("distinguishes a match record from a game record by its draw component", () => {

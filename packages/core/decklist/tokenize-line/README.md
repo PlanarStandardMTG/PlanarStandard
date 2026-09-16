@@ -19,7 +19,7 @@ Collector numbers stay **strings**. `11p`, `72s`, `KLD-5`, `M19-54`, `ml233` and
 A lower-case `(fdn)` is left lower-case. Normalizing belongs to the index
 lookup, not the tokenizer.
 
-Only a *trailing* `(SET) COLLECTOR` pair is read as a printing, so
+Only a _trailing_ `(SET) COLLECTOR` pair is read as a printing, so
 `1 Cathar Commando (FDN)` — a parenthesis with no collector after it — keeps the
 parenthesis as part of the name rather than guessing.
 

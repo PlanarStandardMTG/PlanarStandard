@@ -9,8 +9,7 @@ export type ArchetypeId = string;
  * The `archetype_supertype` enum (§14). Charts group by this by default — 58 archetypes
  * over 127 decks is confetti, five supertypes is a readable chart (Part VIII).
  */
-export type ArchetypeSupertype =
-  "aggro" | "midrange" | "control" | "combo" | "other";
+export type ArchetypeSupertype = "aggro" | "midrange" | "control" | "combo" | "other";
 
 /** Buckets 1–6 and 7+, non-lands only (§8.3). Keys are strings: the column is jsonb. */
 export type MvBucket = "1" | "2" | "3" | "4" | "5" | "6" | "7+";
@@ -43,10 +42,7 @@ export type TypeCounts = Readonly<Record<CardTypeBucket, number>>;
 export type SetCounts = Readonly<Record<SetCode, number>>;
 
 /** Read off the printing inside the legal pool, so `special` and `bonus` never appear (E6.5). */
-export type MetricRarity = Extract<
-  Rarity,
-  "common" | "uncommon" | "rare" | "mythic"
->;
+export type MetricRarity = Extract<Rarity, "common" | "uncommon" | "rare" | "mythic">;
 export type RarityCounts = Readonly<Record<MetricRarity, number>>;
 
 /**

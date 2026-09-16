@@ -17,8 +17,7 @@ describe("content contracts", () => {
       slug: "season-ii-week-4-4c-dragons",
       title: "Season II, Week 4: 4c Dragons Takes the Crown",
       subtitle: "Abzan Midrange answers back on Sunday",
-      bodyMarkdown:
-        "## The weekend\n\n4 Bloomvine Regent / Claim Territory made every top eight.",
+      bodyMarkdown: "## The weekend\n\n4 Bloomvine Regent / Claim Territory made every top eight.",
       excerpt: "4c Dragons put four copies in the top eight.",
       heroImageUrl: "https://planarstandard.com/media/week-4-hero.png",
       tags: ["metagame", "season-ii"],
@@ -55,9 +54,7 @@ describe("content contracts", () => {
   });
 
   it("names exactly the four post_status values the publish flow transitions between", () => {
-    expectTypeOf<PostStatus>().toEqualTypeOf<
-      "draft" | "review" | "published" | "archived"
-    >();
+    expectTypeOf<PostStatus>().toEqualTypeOf<"draft" | "review" | "published" | "archived">();
     expectTypeOf<"pending">().not.toExtend<PostStatus>();
   });
 
@@ -74,9 +71,7 @@ describe("content contracts", () => {
   });
 
   it("carries the role vocabulary the route guards and the RLS matrix share", () => {
-    expectTypeOf<UserRole>().toEqualTypeOf<
-      "reader" | "writer" | "organizer" | "admin"
-    >();
+    expectTypeOf<UserRole>().toEqualTypeOf<"reader" | "writer" | "organizer" | "admin">();
 
     const organizer = {
       id: "9b8c7d6e-5f40-4312-8a19-0c1d2e3f4a5b",
@@ -104,8 +99,7 @@ describe("content contracts", () => {
       title: "Resources",
       navLabel: "Resources",
       navOrder: 8,
-      description:
-        "Tools, spreadsheets, and Discord servers the community maintains.",
+      description: "Tools, spreadsheets, and Discord servers the community maintains.",
       published: false,
     } satisfies InfoPageFrontmatter;
 
@@ -118,8 +112,7 @@ describe("content contracts", () => {
       title: "Rules",
       navLabel: "Rules",
       navOrder: 2,
-      description:
-        "The legal pool and the current banned list, live from the database.",
+      description: "The legal pool and the current banned list, live from the database.",
       published: true,
       components: ["LegalSets", "Banlist"],
     } satisfies InfoPageFrontmatter;
@@ -132,8 +125,7 @@ describe("content contracts", () => {
   it("hands the Reddit pipeline the markdown plus the canonical url it links back to", () => {
     const input = {
       markdown: "## The weekend\n\nSee the [card page](/cards/llanowar-elves).",
-      canonicalUrl:
-        "https://planarstandard.com/articles/season-ii-week-4-4c-dragons",
+      canonicalUrl: "https://planarstandard.com/articles/season-ii-week-4-4c-dragons",
     } satisfies RedditConversionInput;
     expectTypeOf(input).toExtend<RedditConversionInput>();
   });

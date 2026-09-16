@@ -13,8 +13,7 @@ export type MergeSuggestionId = string;
 /** The `player_visibility` enum (§12). A hidden player is absent from the leaderboard view. */
 export type PlayerVisibility = "public" | "hidden";
 
-export type IdentityPlatform =
-  "discord" | "challonge" | "melee" | "mtgo" | "arena" | "manual";
+export type IdentityPlatform = "discord" | "challonge" | "melee" | "mtgo" | "arena" | "manual";
 
 export type IdentitySource =
   "import_inferred" | "admin_assigned" | "discord_oauth" | "organizer_entered";
@@ -91,8 +90,7 @@ export interface MergeCandidate {
   readonly excludedBy: Exclusion | null;
 }
 
-export type MergeSuggestionStatus =
-  "pending" | "merged" | "dismissed" | "stale";
+export type MergeSuggestionStatus = "pending" | "merged" | "dismissed" | "stale";
 
 /** A persisted merge_suggestions row. */
 export interface MergeSuggestion {

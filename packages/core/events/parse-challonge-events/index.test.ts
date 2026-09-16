@@ -4,7 +4,9 @@ import { describe, expect, it } from "vitest";
 import { parseChallongeEvents } from "./index";
 
 const fixture = (name: string): unknown =>
-  JSON.parse(readFileSync(new URL(`../../../../fixtures/challonge-api/${name}`, import.meta.url), "utf8"));
+  JSON.parse(
+    readFileSync(new URL(`../../../../fixtures/challonge-api/${name}`, import.meta.url), "utf8"),
+  );
 
 describe("core/events/parse-challonge-events", () => {
   it("parses the community list payload exactly as the fixture expects", () => {
@@ -39,7 +41,12 @@ describe("core/events/parse-challonge-events", () => {
   });
 
   it("treats every mid-flight Challonge state as live", () => {
-    const states = ["underway", "awaiting_review", "group_stages_underway", "group_stages_finalized"];
+    const states = [
+      "underway",
+      "awaiting_review",
+      "group_stages_underway",
+      "group_stages_finalized",
+    ];
     const events = parseChallongeEvents({
       data: states.map((state, i) => ({ id: String(i), attributes: { name: state, state } })),
     });
@@ -51,7 +58,10 @@ describe("core/events/parse-challonge-events", () => {
     const events = parseChallongeEvents({
       data: [
         { id: "1", attributes: { name: "Slug", state: "pending", url: "ps_weekly_41" } },
-        { id: "2", attributes: { name: "Absolute", state: "pending", url: "https://challonge.com/x/y" } },
+        {
+          id: "2",
+          attributes: { name: "Absolute", state: "pending", url: "https://challonge.com/x/y" },
+        },
         { id: "3", attributes: { name: "Blank", state: "pending", url: "  " } },
       ],
     });

@@ -4,15 +4,15 @@
 
 **Inputs.** A card name as a decklist spelled it.
 
-**Outputs.** A lowercase, punctuation-free string with faces joined by ` // `.
+**Outputs.** A lowercase, punctuation-free string with faces joined by `//`.
 `normalizeFaces` returns the same thing split back into its faces.
 
 **Gotchas.** Deliberately **lossy** — this is a lookup key, never something to
 display. The name the player typed stays on `ParsedLine.name`.
 
 `Sanar, Unfinished Genius / Wild Idea` and `Sanar, Unfinished Genius // Wild Idea`
-normalize identically, because decklist exports write ` / ` where Scryfall writes
-` // `. Idempotent by construction, which a test asserts over the whole fixture
+normalize identically, because decklist exports write `/` where Scryfall writes
+`//`. Idempotent by construction, which a test asserts over the whole fixture
 corpus.
 
 Apostrophes and dashes arrive in several Unicode flavours (a curly `Ride’s End`

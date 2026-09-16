@@ -1,4 +1,11 @@
-import type { CardIndex, FormatRules, OracleId, ResolvedDeck, SetCode, SetCounts } from "@ps/contracts";
+import type {
+  CardIndex,
+  FormatRules,
+  OracleId,
+  ResolvedDeck,
+  SetCode,
+  SetCounts,
+} from "@ps/contracts";
 
 import { normalizeSetCode } from "../../legality/build-card-index/index";
 import { entriesOn } from "../shared";

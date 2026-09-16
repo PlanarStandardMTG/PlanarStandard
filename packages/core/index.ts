@@ -6,14 +6,7 @@
 
 // stats — presentation-safe aggregation (§8.7)
 export { wilson } from "./stats/wilson/index";
-export {
-  aggregateBy,
-  countBy,
-  groupBy,
-  shareOf,
-  sum,
-  sumBy,
-} from "./stats/aggregate-by/index";
+export { aggregateBy, countBy, groupBy, shareOf, sum, sumBy } from "./stats/aggregate-by/index";
 export {
   ARCHETYPE_RATE,
   CARD_WIN_RATE,
@@ -91,7 +84,11 @@ export type { Candidate, ScoreOptions } from "./identity/score-candidates/index"
 
 // legality — deck plus rules to a verdict (§8.2)
 export { buildCardIndex, normalizeSetCode } from "./legality/build-card-index/index";
-export { MAX_CANDIDATES, MIN_CANDIDATE_SCORE, resolveCardName } from "./legality/resolve-card-name/index";
+export {
+  MAX_CANDIDATES,
+  MIN_CANDIDATE_SCORE,
+  resolveCardName,
+} from "./legality/resolve-card-name/index";
 export type { Resolution, ResolveOptions } from "./legality/resolve-card-name/index";
 export { DEFAULT_CONSTRAINTS, resolveFormat } from "./legality/resolve-format/index";
 export type { FormatVersionRows } from "./legality/resolve-format/index";

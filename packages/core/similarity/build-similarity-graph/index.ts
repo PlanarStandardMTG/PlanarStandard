@@ -34,7 +34,9 @@ export function buildSimilarityGraph(
   options: GraphOptions = {},
 ): readonly SimilarityEdge[] {
   const threshold = options.threshold ?? DEFAULT_THRESHOLD;
-  const ordered = [...decks].sort((a, b) => (a.deckId < b.deckId ? -1 : a.deckId > b.deckId ? 1 : 0));
+  const ordered = [...decks].sort((a, b) =>
+    a.deckId < b.deckId ? -1 : a.deckId > b.deckId ? 1 : 0,
+  );
   const edges: SimilarityEdge[] = [];
 
   for (let i = 0; i < ordered.length; i += 1) {

@@ -9,13 +9,13 @@ pnpm --filter adapters test          # zero credentials, no Docker
 pnpm --filter adapters test -- registry
 ```
 
-| Module | Role |
-|---|---|
-| `registry` | which adapter reads this upload (E12.1) |
-| `generic-csv` | the permanent floor: any delimited file, mapped by hand |
-| `manual-entry` | pairings an organizer typed in |
-| `archetype-map-html` | decklists out of the community archetype map |
-| `parse-csv`, `normalize-result`, `raw-input` | shared by the sources above |
+| Module                                       | Role                                                    |
+| -------------------------------------------- | ------------------------------------------------------- |
+| `registry`                                   | which adapter reads this upload (E12.1)                 |
+| `generic-csv`                                | the permanent floor: any delimited file, mapped by hand |
+| `manual-entry`                               | pairings an organizer typed in                          |
+| `archetype-map-html`                         | decklists out of the community archetype map            |
+| `parse-csv`, `normalize-result`, `raw-input` | shared by the sources above                             |
 
 ## Writing one
 
@@ -49,7 +49,7 @@ from `index.ts`.
 
 **Omit a payload you did not produce; never ship an empty one.** `matches: []`
 reads as "this event had no pairings", which rates a standings-only import as a
-complete, unremarkable event. `capabilities` says what *this parse* produced,
+complete, unremarkable event. `capabilities` says what _this parse_ produced,
 not what the adapter can do.
 
 **Never infer pairings from placements** (ADR 006). A standings sheet with every

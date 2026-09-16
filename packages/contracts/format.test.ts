@@ -81,9 +81,7 @@ describe("format contracts", () => {
     expectTypeOf(seasonTwoRules).toExtend<FormatRules>();
     expect(seasonTwoRules.legalSets.has("TDM")).toBe(true);
     expect(seasonTwoRules.legalSets.has("STA")).toBe(false);
-    expect(seasonTwoRules.cardRules.get(coriSteelCutter)?.ruling).toBe(
-      "banned",
-    );
+    expect(seasonTwoRules.cardRules.get(coriSteelCutter)?.ruling).toBe("banned");
     expect(seasonTwoRules.constraints.maxMaindeck).toBeNull();
   });
 
@@ -180,9 +178,7 @@ describe("format contracts", () => {
     expectTypeOf<DeckIssue>().not.toExtend<CardIssue>();
 
     const label = (issue: Issue): string =>
-      issue.kind === "card"
-        ? `card:${issue.code}:${issue.cardName}`
-        : `deck:${issue.code}`;
+      issue.kind === "card" ? `card:${issue.code}:${issue.cardName}` : `deck:${issue.code}`;
 
     const banned = {
       kind: "card",

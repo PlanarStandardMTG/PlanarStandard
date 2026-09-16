@@ -72,8 +72,7 @@ export const allInfoPages = cache((): readonly InfoPage[] => {
   });
 
   return pages.sort(
-    (a, b) =>
-      a.frontmatter.navOrder - b.frontmatter.navOrder || a.href.localeCompare(b.href),
+    (a, b) => a.frontmatter.navOrder - b.frontmatter.navOrder || a.href.localeCompare(b.href),
   );
 });
 

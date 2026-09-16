@@ -136,10 +136,7 @@ export interface RatingJumpAnomaly extends RatingAnomalyBase {
 }
 
 export type RatingAnomaly =
-  | SelfPlayAnomaly
-  | DuplicateMatchAnomaly
-  | ImpossibleGameCountAnomaly
-  | RatingJumpAnomaly;
+  SelfPlayAnomaly | DuplicateMatchAnomaly | ImpossibleGameCountAnomaly | RatingJumpAnomaly;
 
 /** What `core/elo/replay` returns. Anomalies come back as data; replay does
  * not throw (E8.5). */

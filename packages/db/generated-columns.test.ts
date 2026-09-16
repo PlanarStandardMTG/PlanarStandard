@@ -78,22 +78,18 @@ describe.skipIf(!reachable)("db — generated columns", () => {
   it("refuses a second identity that normalizes onto an existing one", async () => {
     const playerId = await testPlayerId();
 
-    const first = await db
-      .from("player_identities")
-      .insert({
-        player_id: playerId,
-        platform: "challonge",
-        handle: "Flod_Lawjick",
-        source: "import_inferred",
-      });
-    const second = await db
-      .from("player_identities")
-      .insert({
-        player_id: playerId,
-        platform: "challonge",
-        handle: "flod lawjick",
-        source: "import_inferred",
-      });
+    const first = await db.from("player_identities").insert({
+      player_id: playerId,
+      platform: "challonge",
+      handle: "Flod_Lawjick",
+      source: "import_inferred",
+    });
+    const second = await db.from("player_identities").insert({
+      player_id: playerId,
+      platform: "challonge",
+      handle: "flod lawjick",
+      source: "import_inferred",
+    });
 
     expect(first.error).toBeNull();
     expect(second.error?.code).toBe("23505");
@@ -102,22 +98,18 @@ describe.skipIf(!reachable)("db — generated columns", () => {
   it("scopes that uniqueness to one platform, because one string is two people", async () => {
     const playerId = await testPlayerId();
 
-    const challonge = await db
-      .from("player_identities")
-      .insert({
-        player_id: playerId,
-        platform: "challonge",
-        handle: "Sunsett",
-        source: "import_inferred",
-      });
-    const discord = await db
-      .from("player_identities")
-      .insert({
-        player_id: playerId,
-        platform: "discord",
-        handle: "Sunsett",
-        source: "discord_oauth",
-      });
+    const challonge = await db.from("player_identities").insert({
+      player_id: playerId,
+      platform: "challonge",
+      handle: "Sunsett",
+      source: "import_inferred",
+    });
+    const discord = await db.from("player_identities").insert({
+      player_id: playerId,
+      platform: "discord",
+      handle: "Sunsett",
+      source: "discord_oauth",
+    });
 
     expect(challonge.error).toBeNull();
     expect(discord.error).toBeNull();
@@ -125,14 +117,12 @@ describe.skipIf(!reachable)("db — generated columns", () => {
 
   it("hides a hidden player, and their handles with them", async () => {
     const playerId = await testPlayerId();
-    await db
-      .from("player_identities")
-      .insert({
-        player_id: playerId,
-        platform: "manual",
-        handle: "Sunsett",
-        source: "organizer_entered",
-      });
+    await db.from("player_identities").insert({
+      player_id: playerId,
+      platform: "manual",
+      handle: "Sunsett",
+      source: "organizer_entered",
+    });
 
     const anon = createClient(url, anonKey, { auth: { persistSession: false } });
     const { data: players } = await anon.from("players").select("id").eq("slug", TEST_SLUG);

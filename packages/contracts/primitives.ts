@@ -14,9 +14,4 @@ export type IsoDateTime = string;
 
 /** Anything that survives a round trip through a `jsonb` column. */
 export type JsonValue =
-  | string
-  | number
-  | boolean
-  | null
-  | readonly JsonValue[]
-  | { readonly [key: string]: JsonValue };
+  string | number | boolean | null | readonly JsonValue[] | { readonly [key: string]: JsonValue };

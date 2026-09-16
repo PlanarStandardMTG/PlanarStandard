@@ -75,7 +75,7 @@ quiet on, and the shape of the evidence. Use real handles — `Basscannon` /
 - **`evidence` must survive a jsonb round trip.** It is stored verbatim in
   `merge_suggestions.evidence` and shown to whoever works the queue. No `Date`,
   no `undefined`, no `Map`.
-- **Confidence is how much this *kind* of evidence is worth, not how strong this
+- **Confidence is how much this _kind_ of evidence is worth, not how strong this
   instance was.** `trigram` fires at a flat 0.6 and puts the measured similarity
   in the evidence. A reviewer can then compare two trigram hits; a sliding
   confidence would make every kind of evidence incomparable.
@@ -87,13 +87,13 @@ quiet on, and the shape of the evidence. Use real handles — `Basscannon` /
 
 ## The signals that ship
 
-| Signal | Confidence | Fires when |
-|---|---|---|
-| `parenthetical` | 0.95 | `Zaunus13 (LikoRS)` — the player wrote the pairing down |
-| `deck-fingerprint` | 0.90 | the same list, ≥0.95 similar, under both handles |
-| `trigram` | 0.60 | the normalized handles are ≥0.4 trigram-similar |
-| `containment` | 0.55 | one handle nests inside the other, ≥4 characters |
-| `temporal` | 0.30 | one stopped appearing before the other started |
+| Signal             | Confidence | Fires when                                              |
+| ------------------ | ---------- | ------------------------------------------------------- |
+| `parenthetical`    | 0.95       | `Zaunus13 (LikoRS)` — the player wrote the pairing down |
+| `deck-fingerprint` | 0.90       | the same list, ≥0.95 similar, under both handles        |
+| `trigram`          | 0.60       | the normalized handles are ≥0.4 trigram-similar         |
+| `containment`      | 0.55       | one handle nests inside the other, ≥4 characters        |
+| `temporal`         | 0.30       | one stopped appearing before the other started          |
 
 Confidences are pinned by §8.6 of the master plan. Changing one is a judgement
 call about the whole queue, not a tweak — raise it in an issue first.

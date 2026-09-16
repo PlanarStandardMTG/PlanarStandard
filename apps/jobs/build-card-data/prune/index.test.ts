@@ -10,10 +10,7 @@ const SCOPE = ["fdn", "dft", "tdm", "eoe", "ecl", "sos"];
 /** Real Scryfall rows from the pool, one per layout that behaves differently. */
 function sample(): readonly unknown[] {
   const path = fileURLToPath(
-    new URL(
-      "../../../../fixtures/scryfall/prune-sample.jsonl",
-      import.meta.url,
-    ),
+    new URL("../../../../fixtures/scryfall/prune-sample.jsonl", import.meta.url),
   );
   return readFileSync(path, "utf8")
     .split("\n")
@@ -21,10 +18,7 @@ function sample(): readonly unknown[] {
     .map((line) => JSON.parse(line) as unknown);
 }
 
-function run(
-  rows: readonly unknown[] = sample(),
-  scope: readonly string[] = SCOPE,
-) {
+function run(rows: readonly unknown[] = sample(), scope: readonly string[] = SCOPE) {
   const pruner = createPruner(scope);
   for (const row of rows) pruner.accept(row);
   return pruner.finish();
@@ -33,19 +27,14 @@ function run(
 describe("createPruner", () => {
   it("matches the committed expected output", () => {
     const path = fileURLToPath(
-      new URL(
-        "../../../../fixtures/scryfall/prune-sample.expected.json",
-        import.meta.url,
-      ),
+      new URL("../../../../fixtures/scryfall/prune-sample.expected.json", import.meta.url),
     );
     expect(run()).toEqual(JSON.parse(readFileSync(path, "utf8")));
   });
 
   it("keeps only sets in the fetch scope", () => {
     const result = run(sample(), ["fdn"]);
-    expect(new Set(result.printings.map((p) => p.setCode))).toEqual(
-      new Set(["fdn"]),
-    );
+    expect(new Set(result.printings.map((p) => p.setCode))).toEqual(new Set(["fdn"]));
     expect(result.stats.outOfScope).toBeGreaterThan(0);
   });
 
@@ -55,11 +44,9 @@ describe("createPruner", () => {
   });
 
   it("emits one printing per set for that card, not one merged row", () => {
-    expect(
-      run().printings.filter(
-        (p) => p.oracleId === findOracleId("Broken Wings"),
-      ),
-    ).toHaveLength(2);
+    expect(run().printings.filter((p) => p.oracleId === findOracleId("Broken Wings"))).toHaveLength(
+      2,
+    );
   });
 
   // `reversible_card` rows carry no top-level oracle_id, cmc or type_line.
@@ -67,12 +54,8 @@ describe("createPruner", () => {
     const result = run();
     expect(result.stats.droppedUnkeyed).toBe(1);
     expect(result.unreachableOracleIds).toEqual([]);
-    expect(result.oracle.some((c) => c.name === "Hallowed Fountain")).toBe(
-      true,
-    );
-    expect(result.printings.some((p) => p.collectorNumber === "347")).toBe(
-      false,
-    );
+    expect(result.oracle.some((c) => c.name === "Hallowed Fountain")).toBe(true);
+    expect(result.printings.some((p) => p.collectorNumber === "347")).toBe(false);
   });
 
   it("reports an oracle reachable ONLY through a dropped row rather than losing it", () => {
@@ -96,9 +79,7 @@ describe("createPruner", () => {
 
   it("uses face images when the printing images its faces separately", () => {
     const result = run();
-    const transformId = result.oracle.find(
-      (c) => c.layout === "transform",
-    )?.oracleId;
+    const transformId = result.oracle.find((c) => c.layout === "transform")?.oracleId;
     const printing = result.printings.find((p) => p.oracleId === transformId);
     expect(printing?.imageUris).toBeNull();
     expect(printing?.faceImageUris).toHaveLength(2);
@@ -106,9 +87,7 @@ describe("createPruner", () => {
 
   it("uses the single image on split-like layouts, which print one card", () => {
     const result = run();
-    const prepareId = result.oracle.find(
-      (c) => c.layout === "prepare",
-    )?.oracleId;
+    const prepareId = result.oracle.find((c) => c.layout === "prepare")?.oracleId;
     const printing = result.printings.find((p) => p.oracleId === prepareId);
     expect(printing?.imageUris?.normal).toContain("https://cards.scryfall.io/");
     expect(printing).not.toHaveProperty("faceImageUris");
@@ -142,10 +121,7 @@ describe("createPruner", () => {
   );
 
   it("drops a layout the fetch scope is not expected to contain", () => {
-    expect(
-      run([{ set: "fdn", layout: "art_series", oracle_id: "x" }]).stats
-        .droppedLayout,
-    ).toBe(1);
+    expect(run([{ set: "fdn", layout: "art_series", oracle_id: "x" }]).stats.droppedLayout).toBe(1);
   });
 });
 

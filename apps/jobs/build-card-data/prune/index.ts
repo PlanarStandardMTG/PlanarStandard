@@ -86,10 +86,7 @@ export type Pruner = {
  */
 export function createPruner(scope: readonly SetCode[]): Pruner {
   const wanted = new Set(scope.map((code) => code.toLowerCase()));
-  const oracle = new Map<
-    OracleId,
-    { card: OracleCard; setCodes: Set<SetCode> }
-  >();
+  const oracle = new Map<OracleId, { card: OracleCard; setCodes: Set<SetCode> }>();
   const printings: CardPrinting[] = [];
   const dropped = new Set<OracleId>();
   let seen = 0;
@@ -138,8 +135,7 @@ export function createPruner(scope: readonly SetCode[]): Pruner {
     // A card legal through two sets arrives twice; the union of its sets is what
     // legality reads (ADR 007), so merge rather than overwrite.
     const existing = oracle.get(oracleId);
-    if (existing === undefined)
-      oracle.set(oracleId, { card, setCodes: new Set([setCode]) });
+    if (existing === undefined) oracle.set(oracleId, { card, setCodes: new Set([setCode]) });
     else existing.setCodes.add(setCode);
   }
 
@@ -161,13 +157,10 @@ export function createPruner(scope: readonly SetCode[]): Pruner {
 
     const printingCountBySet: Record<SetCode, number> = {};
     for (const printing of sortedPrintings) {
-      printingCountBySet[printing.setCode] =
-        (printingCountBySet[printing.setCode] ?? 0) + 1;
+      printingCountBySet[printing.setCode] = (printingCountBySet[printing.setCode] ?? 0) + 1;
     }
 
-    const unreachableOracleIds = [...dropped]
-      .filter((id) => !oracle.has(id))
-      .sort();
+    const unreachableOracleIds = [...dropped].filter((id) => !oracle.has(id)).sort();
 
     return {
       oracle: cards,
@@ -195,12 +188,7 @@ function toPrinting(
 ): CardPrinting | null {
   const collectorNumber = asString(raw["collector_number"]);
   const rarity = asString(raw["rarity"]);
-  if (
-    collectorNumber === undefined ||
-    rarity === undefined ||
-    !(rarity in RARITIES)
-  )
-    return null;
+  if (collectorNumber === undefined || rarity === undefined || !(rarity in RARITIES)) return null;
 
   const imageUris = toImageUris(raw["image_uris"]);
   const faceImages = asArray(raw["card_faces"])
@@ -231,12 +219,7 @@ function toOracleCard(
   const name = asString(raw["name"]);
   const typeLine = asString(raw["type_line"]);
   const manaValue = raw["cmc"];
-  if (
-    name === undefined ||
-    typeLine === undefined ||
-    typeof manaValue !== "number"
-  )
-    return null;
+  if (name === undefined || typeLine === undefined || typeof manaValue !== "number") return null;
 
   const faces = asArray(raw["card_faces"])
     ?.map(toFace)
@@ -311,11 +294,5 @@ function asNonEmptyString(value: unknown): string | undefined {
 }
 
 function isColor(value: unknown): value is Color {
-  return (
-    value === "W" ||
-    value === "U" ||
-    value === "B" ||
-    value === "R" ||
-    value === "G"
-  );
+  return value === "W" || value === "U" || value === "B" || value === "R" || value === "G";
 }

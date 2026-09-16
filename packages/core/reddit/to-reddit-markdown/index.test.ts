@@ -10,9 +10,7 @@ const fixture = (name: string): string =>
 describe("core/reddit/to-reddit-markdown", () => {
   it("runs the whole pipeline over a real article", () => {
     const markdown = fixture("to-reddit-markdown.in.md");
-    expect(toRedditMarkdown({ markdown, canonicalUrl })).toBe(
-      fixture("to-reddit-markdown.out.md"),
-    );
+    expect(toRedditMarkdown({ markdown, canonicalUrl })).toBe(fixture("to-reddit-markdown.out.md"));
   });
 
   it("is idempotent on already-converted output", () => {
@@ -31,9 +29,7 @@ describe("core/reddit/to-reddit-markdown", () => {
 
   it("ends with the canonical backlink", () => {
     const out = toRedditMarkdown({ markdown: "Hello.\n", canonicalUrl });
-    expect(out).toBe(
-      `Hello.\n\n*Originally published at [${canonicalUrl}](${canonicalUrl})*\n`,
-    );
+    expect(out).toBe(`Hello.\n\n*Originally published at [${canonicalUrl}](${canonicalUrl})*\n`);
   });
 
   it("expands a shortcode before absolutizing, so the chart link is absolute", () => {

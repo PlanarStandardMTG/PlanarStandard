@@ -93,12 +93,10 @@ describe("core/elo/apply-match", () => {
 
   it("never rates a bye, whatever countByes says", () => {
     for (const countByes of [false, true]) {
-      const skipped = applyMatch(
-        { ...swiss, result: "bye" },
-        settled("a", 1500),
-        null,
-        { ...CONFIG, countByes },
-      );
+      const skipped = applyMatch({ ...swiss, result: "bye" }, settled("a", 1500), null, {
+        ...CONFIG,
+        countByes,
+      });
       // countByes is about appearances, not ratings — there is no opponent here.
       expect(skipped).toEqual({ applied: false, reason: "bye" });
     }

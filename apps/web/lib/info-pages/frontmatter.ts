@@ -30,7 +30,10 @@ export interface ParsedPage {
 }
 
 /** Splits a `---`-delimited frontmatter block off the front of a file. */
-export function splitFrontmatter(source: string): { readonly block: string; readonly body: string } {
+export function splitFrontmatter(source: string): {
+  readonly block: string;
+  readonly body: string;
+} {
   const text = source.replace(/^﻿/, "");
   const lines = text.split("\n");
   if (lines[0]?.trim() !== DELIMITER) {
@@ -94,7 +97,9 @@ function readComponents(entries: Map<string, string>): readonly InfoPageComponen
   if (raw === undefined) return undefined;
   const inner = /^\[(.*)]$/.exec(raw)?.[1];
   if (inner === undefined) {
-    throw new FrontmatterError("`components` must be an inline list, e.g. `components: [LegalSets]`");
+    throw new FrontmatterError(
+      "`components` must be an inline list, e.g. `components: [LegalSets]`",
+    );
   }
   const names: InfoPageComponent[] = [];
   for (const raw of inner.split(",")) {
@@ -127,9 +132,7 @@ export function parseFrontmatter(source: string): ParsedPage {
 
   for (const key of entries.keys()) {
     if (!KNOWN_KEYS.has(key)) {
-      throw new FrontmatterError(
-        `unknown key \`${key}\`. Allowed: ${[...KNOWN_KEYS].join(", ")}`,
-      );
+      throw new FrontmatterError(`unknown key \`${key}\`. Allowed: ${[...KNOWN_KEYS].join(", ")}`);
     }
   }
 

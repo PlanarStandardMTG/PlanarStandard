@@ -12,13 +12,13 @@
 
 A community site for the Magic: The Gathering format **Planar Standard**.
 
-| Feature | What it does |
-|---|---|
+| Feature                | What it does                                                                                                         |
+| ---------------------- | -------------------------------------------------------------------------------------------------------------------- |
 | **Metagame analytics** | Live charts and an interactive archetype map, replacing a hand-maintained spreadsheet driven by simple imported data |
-| **Leaderboard** | Elo ratings computed from tournament results |
-| **Decklists** | Import, validate, visualize |
-| **Articles** | Ambassadors write metagame recaps, one-click copy to Reddit |
-| **Info pages** | Rules, FAQ, methodology — versioned in the repo |
+| **Leaderboard**        | Elo ratings computed from tournament results                                                                         |
+| **Decklists**          | Import, validate, visualize                                                                                          |
+| **Articles**           | Ambassadors write metagame recaps, one-click copy to Reddit                                                          |
+| **Info pages**         | Rules, FAQ, methodology — versioned in the repo                                                                      |
 
 ### 2. The three data streams
 
@@ -82,6 +82,7 @@ contracts ◄── core ◄── adapters
 **Dependencies point left only. No cycles. Ever.** Enforced in CI by `dependency-cruiser`; a violating PR fails before review.
 
 The two consequences that matter:
+
 - `packages/core` must never import from `db`, `next`, `react`, or `@supabase/*`. If a function needs data, it takes it as an argument.
 - `packages/contracts` has no runtime dependencies at all, so both sides of any interface can be built in parallel by different people.
 
@@ -106,16 +107,16 @@ Every module in the system. **Pure** modules need no infrastructure to develop o
 
 ### 7. `packages/contracts` — types only
 
-| Module | Exports |
-|---|---|
-| `cards` | `OracleCard`, `CardPrinting`, `CardIndex`, `OracleId`, `Rarity`, `Layout` |
-| `decks` | `ParsedDeck`, `ParsedLine`, `ResolvedDeck`, `Board` |
-| `format` | `FormatVersion`, `FormatRules`, `LegalityVerdict`, `Issue` |
-| `results` | `RawInput`, `ParsedEvent`, `ParsedMatch`, `ParsedStanding`, `Capability`, `ResultsAdapter` |
-| `identity` | `Handle`, `IdentityRef`, `MergeSuggestion`, `Signal`, `Exclusion` |
-| `ratings` | `RatingConfig`, `RatingEvent`, `PlayerRating`, `LedgerMatch` |
-| `metrics` | `DeckMetrics`, `CardStats`, `ArchetypeStats`, `SimilarityEdge` |
-| `content` | `Post`, `PostStatus`, `InfoPageFrontmatter` |
+| Module     | Exports                                                                                    |
+| ---------- | ------------------------------------------------------------------------------------------ |
+| `cards`    | `OracleCard`, `CardPrinting`, `CardIndex`, `OracleId`, `Rarity`, `Layout`                  |
+| `decks`    | `ParsedDeck`, `ParsedLine`, `ResolvedDeck`, `Board`                                        |
+| `format`   | `FormatVersion`, `FormatRules`, `LegalityVerdict`, `Issue`                                 |
+| `results`  | `RawInput`, `ParsedEvent`, `ParsedMatch`, `ParsedStanding`, `Capability`, `ResultsAdapter` |
+| `identity` | `Handle`, `IdentityRef`, `MergeSuggestion`, `Signal`, `Exclusion`                          |
+| `ratings`  | `RatingConfig`, `RatingEvent`, `PlayerRating`, `LedgerMatch`                               |
+| `metrics`  | `DeckMetrics`, `CardStats`, `ArchetypeStats`, `SimilarityEdge`                             |
+| `content`  | `Post`, `PostStatus`, `InfoPageFrontmatter`                                                |
 
 Write these first. Once they exist, every other package can be built in parallel.
 
@@ -125,99 +126,99 @@ Write these first. Once they exist, every other package can be built in parallel
 
 #### 8.1 `core/decklist` — text → structured deck
 
-| Module | One-line job |
-|---|---|
-| `tokenize-line` | `"4 Bolt (FDN) 192 *F*"` → `{qty, name, set, collector, foil}` |
-| `detect-board` | Is this line a `SIDEBOARD:` / `Sideboard` / `SB:` / blank-line boundary? |
-| `normalize-name` | NFKC, case, punctuation, `//` handling, MDFC front/back faces |
-| `parse-decklist` | Composes the above over a document → `ParsedDeck` |
-| `parse-filename` | `Player (alias)｜Deck｜Archetype｜W-L-D｜GW-GL` → structured metadata |
+| Module           | One-line job                                                             |
+| ---------------- | ------------------------------------------------------------------------ |
+| `tokenize-line`  | `"4 Bolt (FDN) 192 *F*"` → `{qty, name, set, collector, foil}`           |
+| `detect-board`   | Is this line a `SIDEBOARD:` / `Sideboard` / `SB:` / blank-line boundary? |
+| `normalize-name` | NFKC, case, punctuation, `//` handling, MDFC front/back faces            |
+| `parse-decklist` | Composes the above over a document → `ParsedDeck`                        |
+| `parse-filename` | `Player (alias)｜Deck｜Archetype｜W-L-D｜GW-GL` → structured metadata    |
 
 Real cases from existing data that each needs to survive: missing set codes, `*F*` markers, promo sets (`PSOS`), alphanumeric collectors (`25p`, `WOE-273`), split cards (`Sanar, Unfinished Genius / Wild Idea`), fullwidth `｜` and `＞`, and filenames where the OS rewrote `｜` to `_`.
 
 #### 8.2 `core/legality` — deck + rules → verdict
 
-| Module | One-line job |
-|---|---|
-| `build-card-index` | Dataset arrays → lookup maps by oracle id, normalized name, and set. Pure: takes the parsed dataset as an argument |
-| `resolve-card-name` | Parsed decklist name → `oracle_id`, with fuzzy "did you mean" candidates |
-| `resolve-format` | Format version rows → a flat `FormatRules` object |
-| `check-card` | One card against the pool, banlist, and exceptions |
-| `check-deck` | Sizes, copy limits, basic-land exemption; composes `check-card` |
+| Module              | One-line job                                                                                                       |
+| ------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `build-card-index`  | Dataset arrays → lookup maps by oracle id, normalized name, and set. Pure: takes the parsed dataset as an argument |
+| `resolve-card-name` | Parsed decklist name → `oracle_id`, with fuzzy "did you mean" candidates                                           |
+| `resolve-format`    | Format version rows → a flat `FormatRules` object                                                                  |
+| `check-card`        | One card against the pool, banlist, and exceptions                                                                 |
+| `check-deck`        | Sizes, copy limits, basic-land exemption; composes `check-card`                                                    |
 
-**The format rule, confirmed from real data:** a card is legal if its oracle card has *any* printing in a legal set. Any printing may then be played. (EG: Season II tracks six sets (SOS, ECL, EOE, TDM, DFT, FDN) while printings come from FIN, ONE, M19, PLST, and promos.)
+**The format rule, confirmed from real data:** a card is legal if its oracle card has _any_ printing in a legal set. Any printing may then be played. (EG: Season II tracks six sets (SOS, ECL, EOE, TDM, DFT, FDN) while printings come from FIN, ONE, M19, PLST, and promos.)
 
 #### 8.3 `core/metrics` — deck → numbers
 
-| Module | One-line job |
-|---|---|
-| `mana-curve` | MV histogram, buckets 1–6 and 7+, non-lands only |
-| `color-counts` | Counts per colour of identity |
-| `type-counts` | Land/Creature/Instant/… |
-| `set-attribution` | Attributes a card to its **legal** set, not its printed set |
-| `rarity-counts` | C/U/R/MR |
-| `average-mv` | Incl. lands, excl. lands, sideboard |
-| `compute-deck-metrics` | Composes all of the above |
+| Module                 | One-line job                                                |
+| ---------------------- | ----------------------------------------------------------- |
+| `mana-curve`           | MV histogram, buckets 1–6 and 7+, non-lands only            |
+| `color-counts`         | Counts per colour of identity                               |
+| `type-counts`          | Land/Creature/Instant/…                                     |
+| `set-attribution`      | Attributes a card to its **legal** set, not its printed set |
+| `rarity-counts`        | C/U/R/MR                                                    |
+| `average-mv`           | Incl. lands, excl. lands, sideboard                         |
+| `compute-deck-metrics` | Composes all of the above                                   |
 
 Each definition is pinned in `docs/modules/metrics.md` and published verbatim at `/methodology`. `set-attribution` is the subtle one — `Llanowar Elves (M19)` counts as FDN.
 
 #### 8.4 `core/similarity` — decks → graph
 
-| Module | One-line job |
-|---|---|
-| `deck-vector` | `ResolvedDeck` → card→quantity map, basics excluded |
-| `weighted-jaccard` | `Σ min / Σ max` over two vectors |
-| `build-similarity-graph` | All pairs above threshold → edge list |
-| `force-layout` | Edge list → `{x, y}` per node, **seeded RNG** for reproducibility |
+| Module                   | One-line job                                                      |
+| ------------------------ | ----------------------------------------------------------------- |
+| `deck-vector`            | `ResolvedDeck` → card→quantity map, basics excluded               |
+| `weighted-jaccard`       | `Σ min / Σ max` over two vectors                                  |
+| `build-similarity-graph` | All pairs above threshold → edge list                             |
+| `force-layout`           | Edge list → `{x, y}` per node, **seeded RNG** for reproducibility |
 
 Basics excluded, non-basic lands included, maindeck only, default threshold 0.5. At 98 nodes that reproduces the ~763 edges in the existing map.
 
 #### 8.5 `core/elo` — matches → ratings
 
-| Module | One-line job |
-|---|---|
-| `expected-score` | `1 / (1 + 10^((Rb−Ra)/400))` |
-| `pick-k` | Provisional / standard / elite, times tournament weight |
-| `apply-match` | Both players updated simultaneously from pre-match ratings |
-| `replay` | Ordered match stream → full rating history |
+| Module           | One-line job                                               |
+| ---------------- | ---------------------------------------------------------- |
+| `expected-score` | `1 / (1 + 10^((Rb−Ra)/400))`                               |
+| `pick-k`         | Provisional / standard / elite, times tournament weight    |
+| `apply-match`    | Both players updated simultaneously from pre-match ratings |
+| `replay`         | Ordered match stream → full rating history                 |
 
 `replay` takes matches **already resolved to player IDs** as an argument. It does no I/O, so its test is a fixture of matches and an expected rating table.
 
 #### 8.6 `core/identity` — handles → suggested merges
 
-| Module | One-line job |
-|---|---|
-| `normalize-handle` | Lowercase, strip non-alphanumerics |
-| `signals/parenthetical` | `Zaunus13 (LikoRS)` → explicit pairing, confidence 0.95 |
-| `signals/deck-fingerprint` | Same 75 under two handles across events → 0.90 |
-| `signals/trigram` | String similarity → 0.60 |
-| `signals/containment` | `Liko` ⊂ `LikoRS` → 0.55 |
-| `signals/temporal` | A's last event precedes B's first → 0.30 |
-| `score-candidates` | Combines signals, applies exclusions, ranks |
-| `co-appearance-exclusions` | Two handles in one event ⇒ **never the same person** |
+| Module                     | One-line job                                            |
+| -------------------------- | ------------------------------------------------------- |
+| `normalize-handle`         | Lowercase, strip non-alphanumerics                      |
+| `signals/parenthetical`    | `Zaunus13 (LikoRS)` → explicit pairing, confidence 0.95 |
+| `signals/deck-fingerprint` | Same 75 under two handles across events → 0.90          |
+| `signals/trigram`          | String similarity → 0.60                                |
+| `signals/containment`      | `Liko` ⊂ `LikoRS` → 0.55                                |
+| `signals/temporal`         | A's last event precedes B's first → 0.30                |
+| `score-candidates`         | Combines signals, applies exclusions, ranks             |
+| `co-appearance-exclusions` | Two handles in one event ⇒ **never the same person**    |
 
 `signals/` is the best contribution surface in the repo: each file is one scoring function with an obvious test, and adding one is a self-contained PR.
 
 #### 8.7 `core/stats` — presentation-safe aggregation
 
-| Module | One-line job |
-|---|---|
-| `wilson` | 95% confidence interval on a proportion |
-| `aggregate-by` | Group-and-sum helpers used by every stats builder |
-| `suppress-small-n` | Given a rate and n, decide show / grey / hide |
+| Module             | One-line job                                      |
+| ------------------ | ------------------------------------------------- |
+| `wilson`           | 95% confidence interval on a proportion           |
+| `aggregate-by`     | Group-and-sum helpers used by every stats builder |
+| `suppress-small-n` | Given a rate and n, decide show / grey / hide     |
 
 `suppress-small-n` is imported by every chart component. Sample-size discipline is enforced in code, not remembered per page.
 
 #### 8.8 `core/reddit` — Markdown → Reddit-safe Markdown
 
-| Module | One-line job |
-|---|---|
-| `tables-to-lists` | Reddit renders tables inconsistently |
-| `strip-html` | Reddit drops raw HTML |
-| `absolutize-links` | `](/cards/…` → `](https://…/cards/…` |
-| `images-to-links` | Self-posts can't inline images |
-| `expand-chart-shortcodes` | `:::chart{…}` → link + PNG reference |
-| `to-reddit-markdown` | Pipeline over the above, appends canonical backlink |
+| Module                    | One-line job                                        |
+| ------------------------- | --------------------------------------------------- |
+| `tables-to-lists`         | Reddit renders tables inconsistently                |
+| `strip-html`              | Reddit drops raw HTML                               |
+| `absolutize-links`        | `](/cards/…` → `](https://…/cards/…`                |
+| `images-to-links`         | Self-posts can't inline images                      |
+| `expand-chart-shortcodes` | `:::chart{…}` → link + PNG reference                |
+| `to-reddit-markdown`      | Pipeline over the above, appends canonical backlink |
 
 Five tiny transforms and a pipeline. Each is a two-minute PR with a before/after fixture.
 
@@ -225,14 +226,14 @@ Five tiny transforms and a pipeline. Each is a two-minute PR with a before/after
 
 One file per source. All implement `ResultsAdapter` from contracts; all are pure (`RawInput` in, `ParsedEvent` out).
 
-| Adapter | Capabilities | Priority |
-|---|---|---|
-| `generic-csv` | matches or standings, manual mapping | **first** — the permanent floor |
-| `manual-entry` | matches | **first** — always available |
-| `melee-csv` | matches, standings, roster | second |
-| `challonge-csv` | matches, standings, roster | second |
-| `legacy-xlsx` | standings | one-time backfill |
-| `archetype-map-html` | decklists | one-time backfill |
+| Adapter              | Capabilities                         | Priority                        |
+| -------------------- | ------------------------------------ | ------------------------------- |
+| `generic-csv`        | matches or standings, manual mapping | **first** — the permanent floor |
+| `manual-entry`       | matches                              | **first** — always available    |
+| `melee-csv`          | matches, standings, roster           | second                          |
+| `challonge-csv`      | matches, standings, roster           | second                          |
+| `legacy-xlsx`        | standings                            | one-time backfill               |
+| `archetype-map-html` | decklists                            | one-time backfill               |
 
 **Adding an adapter is the ideal first contribution:** drop a real export into `fixtures/`, write `detect` and `parse`, write the expected `ParsedEvent` JSON, done. No database, no UI, no coordination.
 
@@ -242,17 +243,17 @@ One file per source. All implement `ResultsAdapter` from contracts; all are pure
 
 One repository module per aggregate. Each exposes narrow, intention-revealing functions — never a generic query builder — so callers can't drift into ad-hoc SQL.
 
-| Module | Owns tables |
-|---|---|
-| `repos/format` | `format_versions`, `format_legal_sets`, `format_card_rules`, `format_constraints` |
-| `repos/decks` | `decks`, `deck_cards`, `deck_metrics` |
-| `repos/tournaments` | `tournaments`, `tournament_entries`, `seasons` |
-| `repos/results` | `result_imports`, `staged_matches`, `matches`, `match_corrections` |
-| `repos/identity` | `players`, `player_identities`, `identity_exclusions`, `merge_suggestions`, `player_merges` |
-| `repos/ratings` | `rating_events`, `player_ratings`, `rating_config`, `rating_runs` |
-| `repos/stats` | `card_stats`, `archetype_stats`, `deck_similarity`, `deck_map_layout`, `matchup_stats` |
-| `repos/content` | `posts`, `post_revisions` |
-| `repos/archetypes` | `archetypes`, `archetype_aliases` |
+| Module              | Owns tables                                                                                 |
+| ------------------- | ------------------------------------------------------------------------------------------- |
+| `repos/format`      | `format_versions`, `format_legal_sets`, `format_card_rules`, `format_constraints`           |
+| `repos/decks`       | `decks`, `deck_cards`, `deck_metrics`                                                       |
+| `repos/tournaments` | `tournaments`, `tournament_entries`, `seasons`                                              |
+| `repos/results`     | `result_imports`, `staged_matches`, `matches`, `match_corrections`                          |
+| `repos/identity`    | `players`, `player_identities`, `identity_exclusions`, `merge_suggestions`, `player_merges` |
+| `repos/ratings`     | `rating_events`, `player_ratings`, `rating_config`, `rating_runs`                           |
+| `repos/stats`       | `card_stats`, `archetype_stats`, `deck_similarity`, `deck_map_layout`, `matchup_stats`      |
+| `repos/content`     | `posts`, `post_revisions`                                                                   |
+| `repos/archetypes`  | `archetypes`, `archetype_aliases`                                                           |
 
 Plus `migrations/` (numbered, forward-only) and `seed/` (§17).
 
@@ -260,16 +261,16 @@ Plus `migrations/` (numbered, forward-only) and `seed/` (§17).
 
 #### 11.1 Services — the only impure orchestration
 
-| Service | Job |
-|---|---|
-| `import-results` | adapter → stage → resolve → review → commit |
-| `import-decklists` | folder drop / paste → parse → resolve → commit |
-| `recompute-ratings` | full Elo replay, resolving identities at read time |
-| `recompute-metrics` | deck metrics, card stats, archetype stats, similarity, layout |
-| `merge-players` | repoint identities, recompute, audit |
-| `build-card-data` | Runs in `apps/jobs`, not the web app. Fetches Scryfall bulk, prunes, commits `data/cards/`. See §14.1 |
-| `publish-post` | status transition + Discord notify |
-| `notify-discord` | webhook wrapper |
+| Service             | Job                                                                                                   |
+| ------------------- | ----------------------------------------------------------------------------------------------------- |
+| `import-results`    | adapter → stage → resolve → review → commit                                                           |
+| `import-decklists`  | folder drop / paste → parse → resolve → commit                                                        |
+| `recompute-ratings` | full Elo replay, resolving identities at read time                                                    |
+| `recompute-metrics` | deck metrics, card stats, archetype stats, similarity, layout                                         |
+| `merge-players`     | repoint identities, recompute, audit                                                                  |
+| `build-card-data`   | Runs in `apps/jobs`, not the web app. Fetches Scryfall bulk, prunes, commits `data/cards/`. See §14.1 |
+| `publish-post`      | status transition + Discord notify                                                                    |
+| `notify-discord`    | webhook wrapper                                                                                       |
 
 Each service is a thin coordinator: load data via repos, call pure core functions, write results via repos. **If a service contains business logic, that logic is in the wrong place** — it belongs in `core`.
 
@@ -277,17 +278,17 @@ Each service is a thin coordinator: load data via repos, call pure core function
 
 Each slice owns its routes, components, and hooks. Slices don't import from each other; shared UI goes to `components/ui`.
 
-| Slice | Routes |
-|---|---|
-| `auth` | login, callback |
-| `content` | `/articles/*`, MDX `/(info)/[...slug]` |
-| `cards` | `/cards`, `/cards/[oracleId]` |
-| `decks` | `/decks/[id]`, submission |
-| `meta` | `/meta`, `/meta/map`, `/meta/cards`, `/meta/matchups` |
-| `leaderboard` | `/leaderboard`, `/players/[slug]` |
-| `tournaments` | `/tournaments/[slug]`, import dashboard |
-| `identity-admin` | `/dashboard/identities`, merge grid, CSV round-trip |
-| `format-admin` | `/dashboard/format` |
+| Slice            | Routes                                                |
+| ---------------- | ----------------------------------------------------- |
+| `auth`           | login, callback                                       |
+| `content`        | `/articles/*`, MDX `/(info)/[...slug]`                |
+| `cards`          | `/cards`, `/cards/[oracleId]`                         |
+| `decks`          | `/decks/[id]`, submission                             |
+| `meta`           | `/meta`, `/meta/map`, `/meta/cards`, `/meta/matchups` |
+| `leaderboard`    | `/leaderboard`, `/players/[slug]`                     |
+| `tournaments`    | `/tournaments/[slug]`, import dashboard               |
+| `identity-admin` | `/dashboard/identities`, merge grid, CSV round-trip   |
+| `format-admin`   | `/dashboard/format`                                   |
 
 #### 11.3 Chart components
 
@@ -769,20 +770,20 @@ Only two tasks need real credentials: Discord OAuth login and the Discord webhoo
 
 Once `packages/contracts` exists, these proceed simultaneously with no coordination:
 
-| Stream | Needs | Blocked by |
-|---|---|---|
-| **A** Decklist parsing + legality | contracts | nothing |
-| **B** Metrics + similarity + layout | contracts | nothing |
-| **C** Elo engine | contracts | nothing |
-| **D** Adapters | contracts | nothing |
-| **E** Identity signals | contracts | nothing |
-| **F** Reddit transforms | nothing | nothing |
-| **G** Schema + migrations + RLS | contracts | nothing |
-| **H** Chart components | contracts + fixtures | nothing (Storybook) |
-| **I** MDX info pages | nothing | nothing |
-| **J** Auth + dashboard shell | — | nothing |
-| **K** Services | all of the above | A–G |
-| **L** Feature slices | K | K |
+| Stream                              | Needs                | Blocked by          |
+| ----------------------------------- | -------------------- | ------------------- |
+| **A** Decklist parsing + legality   | contracts            | nothing             |
+| **B** Metrics + similarity + layout | contracts            | nothing             |
+| **C** Elo engine                    | contracts            | nothing             |
+| **D** Adapters                      | contracts            | nothing             |
+| **E** Identity signals              | contracts            | nothing             |
+| **F** Reddit transforms             | nothing              | nothing             |
+| **G** Schema + migrations + RLS     | contracts            | nothing             |
+| **H** Chart components              | contracts + fixtures | nothing (Storybook) |
+| **I** MDX info pages                | nothing              | nothing             |
+| **J** Auth + dashboard shell        | —                    | nothing             |
+| **K** Services                      | all of the above     | A–G                 |
+| **L** Feature slices                | K                    | K                   |
 
 Eight of twelve streams are unblocked from day one. That is the payoff for the contracts-first layout.
 
@@ -805,12 +806,12 @@ Labels: `area:parser`, `area:adapters`, `area:metrics`, `area:ratings`, `area:id
 
 Good first issues are structurally abundant here, which is not an accident:
 
-- Add an adapter for a new platform *(fixture + two functions)*
-- Add an identity signal *(one scoring function)*
-- Add a Reddit transform *(one before/after pair)*
-- Handle a new decklist edge case *(one fixture + one branch)*
-- Add a chart *(pure component + Storybook story)*
-- Write an MDX info page *(no code at all)*
+- Add an adapter for a new platform _(fixture + two functions)_
+- Add an identity signal _(one scoring function)_
+- Add a Reddit transform _(one before/after pair)_
+- Handle a new decklist edge case _(one fixture + one branch)_
+- Add a chart _(pure component + Storybook story)_
+- Write an MDX info page _(no code at all)_
 
 `CODEOWNERS` assigns a reviewer per `area:`. Not gatekeeping — just making sure nothing waits a week for review.
 
@@ -818,32 +819,32 @@ Good first issues are structurally abundant here, which is not an accident:
 
 `docs/adr/` — one short file per decision, so nobody relitigates settled questions every three months. Seed it with these:
 
-| ADR | Decision |
-|---|---|
-| 001 | Markdown in Postgres, not a headless CMS *(Reddit is Markdown)* |
+| ADR | Decision                                                              |
+| --- | --------------------------------------------------------------------- |
+| 001 | Markdown in Postgres, not a headless CMS _(Reddit is Markdown)_       |
 | 002 | Card data is a pruned repo artifact, not a database table or live API |
-| 003 | The ledger records handles, not people |
-| 004 | Full recompute, never incremental updates |
-| 005 | Adapter-based ingestion; no platform is special |
-| 006 | Elo requires pairings; standings-only events are unrated |
-| 007 | Legality = oracle card in a legal set; any printing playable |
-| 008 | Derived statistics are never uploaded |
-| 009 | Identities auto-create; curation is merging, not claiming |
-| 010 | MDX in repo for info pages; database for articles |
-| 011 | Decks are decoupled from ratings |
-| 012 | Sample-size guardrails enforced in shared components |
-| 013 | Deck snapshots are immutable once an event starts |
-| 014 | Only `mana-font` and `keyrune` from the MTG npm ecosystem |
+| 003 | The ledger records handles, not people                                |
+| 004 | Full recompute, never incremental updates                             |
+| 005 | Adapter-based ingestion; no platform is special                       |
+| 006 | Elo requires pairings; standings-only events are unrated              |
+| 007 | Legality = oracle card in a legal set; any printing playable          |
+| 008 | Derived statistics are never uploaded                                 |
+| 009 | Identities auto-create; curation is merging, not claiming             |
+| 010 | MDX in repo for info pages; database for articles                     |
+| 011 | Decks are decoupled from ratings                                      |
+| 012 | Sample-size guardrails enforced in shared components                  |
+| 013 | Deck snapshots are immutable once an event starts                     |
+| 014 | Only `mana-font` and `keyrune` from the MTG npm ecosystem             |
 
 ### 22. Testing strategy
 
-| Layer | Tool | Setup needed |
-|---|---|---|
-| `core`, `adapters` | Vitest + fixtures | **none** |
-| `db` | Vitest + local Supabase | Docker |
-| Services | Vitest, seeded DB | Docker |
-| Components | Storybook + fixtures | **none** |
-| End-to-end | Playwright, seeded | Docker |
+| Layer              | Tool                    | Setup needed |
+| ------------------ | ----------------------- | ------------ |
+| `core`, `adapters` | Vitest + fixtures       | **none**     |
+| `db`               | Vitest + local Supabase | Docker       |
+| Services           | Vitest, seeded DB       | Docker       |
+| Components         | Storybook + fixtures    | **none**     |
+| End-to-end         | Playwright, seeded      | Docker       |
 
 Four tests carry disproportionate weight — write them early and treat breakage as a release blocker:
 
@@ -867,20 +868,20 @@ Condensed. Detail per module lives in `docs/modules/`.
 
 ### 24. Analytics suite
 
-| Visual | Source | Notes |
-|---|---|---|
-| **Archetype map** | `deck_map_layout` + `deck_similarity` | Canvas, server-computed layout, size = games played, colour = family. `?highlight=Stock+Up` lights every deck running a card — the thing a spreadsheet can't do |
-| **Metagame share** | `archetype_stats.by_event` | 100% stacked area; toggle archetype / family / supertype, default family |
-| **Archetype performance** | `archetype_stats` | Sorted by **deck count**, Wilson bars, `n` on every row, n<3 collapsed into "insufficient data" |
-| **Mana curve** | `deck_metrics.mv_buckets` | Per deck and per archetype vs field average |
-| **Colour distribution** | `deck_metrics.color_counts` | Pie per event, share over time; `mana-font` symbols |
-| **Set adoption** | `deck_metrics.set_counts` | Stacked area — answers "did the new set change anything" with a number |
-| **Card scores** | `card_stats` | TanStack Table; win-rate column suppressed under 20 games |
-| **Card detail** | `card_stats.by_event` | Inclusion over time, copies histogram, archetype breakdown |
-| **Matchup matrix** | `matchup_stats` | Heatmap; group by family by default or most cells are empty |
-| **Deck visualizer** | `deck_cards` + `deck_metrics` | Image grid by type, curve, colours; ~150 lines, no package exists |
+| Visual                    | Source                                | Notes                                                                                                                                                           |
+| ------------------------- | ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Archetype map**         | `deck_map_layout` + `deck_similarity` | Canvas, server-computed layout, size = games played, colour = family. `?highlight=Stock+Up` lights every deck running a card — the thing a spreadsheet can't do |
+| **Metagame share**        | `archetype_stats.by_event`            | 100% stacked area; toggle archetype / family / supertype, default family                                                                                        |
+| **Archetype performance** | `archetype_stats`                     | Sorted by **deck count**, Wilson bars, `n` on every row, n<3 collapsed into "insufficient data"                                                                 |
+| **Mana curve**            | `deck_metrics.mv_buckets`             | Per deck and per archetype vs field average                                                                                                                     |
+| **Colour distribution**   | `deck_metrics.color_counts`           | Pie per event, share over time; `mana-font` symbols                                                                                                             |
+| **Set adoption**          | `deck_metrics.set_counts`             | Stacked area — answers "did the new set change anything" with a number                                                                                          |
+| **Card scores**           | `card_stats`                          | TanStack Table; win-rate column suppressed under 20 games                                                                                                       |
+| **Card detail**           | `card_stats.by_event`                 | Inclusion over time, copies histogram, archetype breakdown                                                                                                      |
+| **Matchup matrix**        | `matchup_stats`                       | Heatmap; group by family by default or most cells are empty                                                                                                     |
+| **Deck visualizer**       | `deck_cards` + `deck_metrics`         | Image grid by type, curve, colours; ~150 lines, no package exists                                                                                               |
 
-**Non-negotiable rules**, enforced in shared components: always show `n`; Wilson intervals on every rate; suppress below threshold; default sorts by volume not rate; card win rates labelled *"win rate of decks including this card"*, never *"card win rate"*.
+**Non-negotiable rules**, enforced in shared components: always show `n`; Wilson intervals on every rate; suppress below threshold; default sorts by volume not rate; card win rates labelled _"win rate of decks including this card"_, never _"card win rate"_.
 
 ### 25. Content
 
@@ -898,7 +899,7 @@ Condensed. Detail per module lives in `docs/modules/`.
 
 ### 27. Backfill
 
-1. Scrape all 98 Season II decklists from the archetype map HTML *(hover text contains player, date, both records, and the full list)*.
+1. Scrape all 98 Season II decklists from the archetype map HTML _(hover text contains player, date, both records, and the full list)_.
 2. Cross-check records against the per-date xlsx sheets. Ignore every summary sheet — those are outputs.
 3. Auto-create identities; **mine trailing parentheticals** — `C0d3 (c0d33)`, `Zaunus13 (LikoRS)`, `divnyi (Mika)` and the rest are explicit pairings already in the data.
 4. Build `identity_exclusions` from co-appearance across all nine events.
@@ -909,19 +910,19 @@ Condensed. Detail per module lives in `docs/modules/`.
 
 ## Part VII — Roadmap
 
-| Phase | Deliverable | Streams |
-|---|---|---|
-| **0** | Contracts, workspace, CI, dependency rules, seed data | — |
-| **1** | Foundation: Next.js, Tailwind, shadcn, Supabase, auth, roles, dashboard shell. **Deploy day one.** | J |
-| **2** | MDX info pages. Cheap, immediately useful, gives the site a reason to exist | I |
-| **3** | Cards + format: `build-card-data` job, `data/sets.json`, format admin, `/cards`, legality engine | A, G |
-| **4** | Identity core: auto-create, merge/split, exclusions | E, G |
-| **5** | Ingestion: adapters, staging, ledger, commit, corrections | D, K |
-| **6** | Ratings: Elo replay, leaderboard, player pages | C, K, L |
-| **7** | Decks: parser, import paths, `deck_metrics`, backfill Season II, **golden test** | A, B |
-| **8** | Analytics: stats builders, similarity, layout, the full chart suite | B, H |
-| **9** | Articles + Reddit | F, L |
-| **10** | Payoff: matchup matrix, merge-suggestion queue, chart embeds, search | — |
+| Phase  | Deliverable                                                                                        | Streams |
+| ------ | -------------------------------------------------------------------------------------------------- | ------- |
+| **0**  | Contracts, workspace, CI, dependency rules, seed data                                              | —       |
+| **1**  | Foundation: Next.js, Tailwind, shadcn, Supabase, auth, roles, dashboard shell. **Deploy day one.** | J       |
+| **2**  | MDX info pages. Cheap, immediately useful, gives the site a reason to exist                        | I       |
+| **3**  | Cards + format: `build-card-data` job, `data/sets.json`, format admin, `/cards`, legality engine   | A, G    |
+| **4**  | Identity core: auto-create, merge/split, exclusions                                                | E, G    |
+| **5**  | Ingestion: adapters, staging, ledger, commit, corrections                                          | D, K    |
+| **6**  | Ratings: Elo replay, leaderboard, player pages                                                     | C, K, L |
+| **7**  | Decks: parser, import paths, `deck_metrics`, backfill Season II, **golden test**                   | A, B    |
+| **8**  | Analytics: stats builders, similarity, layout, the full chart suite                                | B, H    |
+| **9**  | Articles + Reddit                                                                                  | F, L    |
+| **10** | Payoff: matchup matrix, merge-suggestion queue, chart embeds, search                               | —       |
 
 Identity and ratings precede decks: the leaderboard is what makes the site matter week to week, and it needs the smallest surface to ship.
 
@@ -929,39 +930,54 @@ Identity and ratings precede decks: the leaderboard is what makes the site matte
 
 ## Part VIII — Risks
 
-| Risk | Mitigation |
-|---|---|
-| Metric definitions drift from the trusted spreadsheet | Golden test; definitions published at `/methodology` next to the code |
-| Standings-only imports ⇒ no ratings | Capability gating with an instructional message. Never approximate pairings |
-| melee's ~60-day data window closes | Export immediately post-event; archive raw permanently; put it on the organizer page |
-| Bad merge fuses two players | Co-appearance constraint enforced at merge time; self-play detected during replay; merges reversible |
-| 45 archetypes over 98 decks ⇒ confetti charts | Archetype families with a groupBy toggle; similarity ≥0.85 flags duplicates |
-| Small samples read as fact | `suppress-small-n` in shared components, enforced by the DoD checklist |
-| Card win rate read as causation | Label as "decks including this card"; suppress under 20 games |
-| Adapters break on export changes | `raw` preserved in staging; fixture test per adapter; `generic-csv` is the permanent floor |
-| Contributors blocked by missing credentials | Pure core needs none; seed data ships in-repo |
-| Service-role key reaching the client | Only importable from server contexts; CI grep; dependency-cruiser rule |
-| Scryfall terms | Bulk data only, no request loops, hotlink images, display attribution. The weekly job is a single bulk download |
-| Card dataset outgrows the repo | Pruned to `data/sets.json` and to used fields. If it stops being small, publish as a GitHub Release asset fetched at build time instead of committing it |
-| Bus factor on format knowledge | ADRs; format rules are admin-edited data, never code |
+| Risk                                                  | Mitigation                                                                                                                                               |
+| ----------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Metric definitions drift from the trusted spreadsheet | Golden test; definitions published at `/methodology` next to the code                                                                                    |
+| Standings-only imports ⇒ no ratings                   | Capability gating with an instructional message. Never approximate pairings                                                                              |
+| melee's ~60-day data window closes                    | Export immediately post-event; archive raw permanently; put it on the organizer page                                                                     |
+| Bad merge fuses two players                           | Co-appearance constraint enforced at merge time; self-play detected during replay; merges reversible                                                     |
+| 45 archetypes over 98 decks ⇒ confetti charts         | Archetype families with a groupBy toggle; similarity ≥0.85 flags duplicates                                                                              |
+| Small samples read as fact                            | `suppress-small-n` in shared components, enforced by the DoD checklist                                                                                   |
+| Card win rate read as causation                       | Label as "decks including this card"; suppress under 20 games                                                                                            |
+| Adapters break on export changes                      | `raw` preserved in staging; fixture test per adapter; `generic-csv` is the permanent floor                                                               |
+| Contributors blocked by missing credentials           | Pure core needs none; seed data ships in-repo                                                                                                            |
+| Service-role key reaching the client                  | Only importable from server contexts; CI grep; dependency-cruiser rule                                                                                   |
+| Scryfall terms                                        | Bulk data only, no request loops, hotlink images, display attribution. The weekly job is a single bulk download                                          |
+| Card dataset outgrows the repo                        | Pruned to `data/sets.json` and to used fields. If it stops being small, publish as a GitHub Release asset fetched at build time instead of committing it |
+| Bus factor on format knowledge                        | ADRs; format rules are admin-edited data, never code                                                                                                     |
 
 ---
 
 ## Part IX — Open questions
 
 1. Is the six-set pool (SOS · ECL · EOE · TDM · DFT · FDN) a rolling window or a curated list?
+
 - Defined list (with option to define custom legal pools for special events, all based on oracle of card)
+
 2. Deckbuilding constraints — standard 60/15/4, or modified?
+
 - 60 card min for main deck, 15 card max sideboard, 4 copies of cards max (basic lands excluded)
+
 3. Un-set and Secret Lair printings appear in decklists. Explicitly allowed, or merely tolerated?
+
 - only care about oracle of card for legality, printing doesn't matter
+
 4. Which platform hosts events — Challonge, melee, or a mix? Decides adapter priority.
+
 - melee > challonge
+
 5. Do historical Challonge brackets still exist for Seasons I–II? If so the whole back catalogue becomes ratable.
+
 - yes but not worrying about this too much. Standalone script outside main app can handle backfill
+
 6. Are bracket handles stable across events, or do people re-register under new names?
+
 - assume stable, if new handle appears, they are a new user unless manually merged by an admin
+
 7. Event weighting — flat, or do championships count more?
+
 - flat for now, extentable later if desired
+
 8. Who owns archetype naming, and is there an existing convention document?
+
 - don't worry about archetype naming for now. Let's focus on data aggregation, then archetype naming can be a set of conditions

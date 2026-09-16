@@ -38,5 +38,7 @@ export async function postMetadata(slug: string, kind: PostKind): Promise<Metada
   if (!post.ok || post.value === null || post.value.kind !== kind) return {};
 
   const description = post.value.excerpt ?? post.value.subtitle;
-  return description === null ? { title: post.value.title } : { title: post.value.title, description };
+  return description === null
+    ? { title: post.value.title }
+    : { title: post.value.title, description };
 }

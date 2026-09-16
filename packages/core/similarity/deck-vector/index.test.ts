@@ -3,7 +3,8 @@ import { describe, expect, it } from "vitest";
 
 import { deckVector, isBasicLand } from "./index";
 
-const oracle = (n: number): OracleId => `00000000-0000-4000-8000-${String(n).padStart(12, "0")}` as OracleId;
+const oracle = (n: number): OracleId =>
+  `00000000-0000-4000-8000-${String(n).padStart(12, "0")}` as OracleId;
 
 const card = (over: Partial<ResolvedCard> & Pick<ResolvedCard, "name">): ResolvedCard => ({
   qty: 4,

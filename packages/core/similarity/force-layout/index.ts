@@ -75,8 +75,9 @@ export function forceLayout(
       b: index.get(edge.deckB),
       weight: edge.similarity,
     }))
-    .filter((link): link is { a: number; b: number; weight: number } =>
-      link.a !== undefined && link.b !== undefined && link.a !== link.b,
+    .filter(
+      (link): link is { a: number; b: number; weight: number } =>
+        link.a !== undefined && link.b !== undefined && link.a !== link.b,
     )
     .sort((p, q) => p.a - q.a || p.b - q.b);
 

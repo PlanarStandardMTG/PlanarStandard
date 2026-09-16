@@ -8,8 +8,7 @@ const BULK_INDEX_URL = "https://api.scryfall.com/bulk-data";
  * sends its own unless we set one.
  */
 export const SCRYFALL_HEADERS: Readonly<Record<string, string>> = {
-  "User-Agent":
-    "PlanarStandard/0.1 (+https://github.com/planar-standard/planar-standard)",
+  "User-Agent": "PlanarStandard/0.1 (+https://github.com/planar-standard/planar-standard)",
   Accept: "application/json;q=0.9,*/*;q=0.8",
 };
 
@@ -49,10 +48,7 @@ export type BulkSource = {
  * silent fallback would have turned that into a quietly wrong dataset instead of a
  * failed build.
  */
-export function selectBulkSource(
-  body: unknown,
-  type: string = BULK_TYPE,
-): BulkSource {
+export function selectBulkSource(body: unknown, type: string = BULK_TYPE): BulkSource {
   if (
     typeof body !== "object" ||
     body === null ||
@@ -86,9 +82,7 @@ export function selectBulkSource(
     throw new Error(`bulk index: \`${type}\` has no \`jsonl_download_uri\``);
   }
   if (typeof updatedAt !== "string") {
-    throw new Error(
-      `bulk index: \`${type}\` has no \`updated_at\` to record as provenance`,
-    );
+    throw new Error(`bulk index: \`${type}\` has no \`updated_at\` to record as provenance`);
   }
 
   return {

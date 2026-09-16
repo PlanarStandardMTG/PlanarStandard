@@ -101,12 +101,8 @@ describe("decks contracts", () => {
       issues: [localized, unlocalized],
     } satisfies ParsedDeck;
     expectTypeOf(deck).toExtend<ParsedDeck>();
-    expectTypeOf<ParsedDeck["issues"]>().toEqualTypeOf<
-      readonly DeckParseIssue[]
-    >();
-    expectTypeOf<DeckParseIssue["column"]>().toEqualTypeOf<
-      number | undefined
-    >();
+    expectTypeOf<ParsedDeck["issues"]>().toEqualTypeOf<readonly DeckParseIssue[]>();
+    expectTypeOf<DeckParseIssue["column"]>().toEqualTypeOf<number | undefined>();
     expectTypeOf<DeckParseIssue["raw"]>().toEqualTypeOf<string>();
   });
 
@@ -126,9 +122,7 @@ describe("decks contracts", () => {
     expectTypeOf(resolved).toExtend<ResolvedCard>();
     expectTypeOf<ResolvedCard["oracleId"]>().toEqualTypeOf<OracleId | null>();
     expectTypeOf<ResolvedCard["set"]>().toEqualTypeOf<string | undefined>();
-    expectTypeOf<ResolvedCard["collector"]>().toEqualTypeOf<
-      string | undefined
-    >();
+    expectTypeOf<ResolvedCard["collector"]>().toEqualTypeOf<string | undefined>();
   });
 
   it("keeps an unresolved row, flags the deck, and offers ranked candidates", () => {
@@ -139,9 +133,7 @@ describe("decks contracts", () => {
       foil: false,
       board: "main",
       lineNumber: 12,
-      candidates: [
-        { oracleId: feedTheSwarm, name: "Feed the Swarm", score: 0.93 },
-      ],
+      candidates: [{ oracleId: feedTheSwarm, name: "Feed the Swarm", score: 0.93 }],
     } satisfies ResolvedCard;
     const flagged = {
       cards: [miss],
@@ -150,9 +142,7 @@ describe("decks contracts", () => {
     } satisfies ResolvedDeck;
     expectTypeOf(flagged).toExtend<ResolvedDeck>();
     expectTypeOf<ResolvedDeck["hasUnresolvedCards"]>().toEqualTypeOf<boolean>();
-    expectTypeOf<ResolvedDeck["cards"]>().toEqualTypeOf<
-      readonly ResolvedCard[]
-    >();
+    expectTypeOf<ResolvedDeck["cards"]>().toEqualTypeOf<readonly ResolvedCard[]>();
     // Candidates are absent on an exact hit, so the field is optional.
     expectTypeOf<ResolvedCard["candidates"]>().toEqualTypeOf<
       readonly ResolutionCandidate[] | undefined
@@ -172,12 +162,8 @@ describe("decks contracts", () => {
     } satisfies DecklistFilenameMeta;
     expectTypeOf(meta).toExtend<DecklistFilenameMeta>();
     expectTypeOf<DecklistFilenameMeta["player"]>().toEqualTypeOf<string>();
-    expectTypeOf<DecklistFilenameMeta["alias"]>().toEqualTypeOf<
-      string | undefined
-    >();
-    expectTypeOf<DecklistFilenameMeta["matchRecord"]>().toEqualTypeOf<
-      WinLossDraw | undefined
-    >();
+    expectTypeOf<DecklistFilenameMeta["alias"]>().toEqualTypeOf<string | undefined>();
+    expectTypeOf<DecklistFilenameMeta["matchRecord"]>().toEqualTypeOf<WinLossDraw | undefined>();
   });
 
   it("tolerates a missing trailing segment and a handle with no alias", () => {

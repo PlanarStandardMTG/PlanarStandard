@@ -41,7 +41,9 @@ describe("core/identity/co-appearance-exclusions", () => {
   });
 
   it("produces nothing for an event with one player, or none", () => {
-    expect(coAppearanceExclusions([{ tournamentId: event("x"), identityIds: [id("a")] }])).toEqual([]);
+    expect(coAppearanceExclusions([{ tournamentId: event("x"), identityIds: [id("a")] }])).toEqual(
+      [],
+    );
     expect(coAppearanceExclusions([])).toEqual([]);
   });
 

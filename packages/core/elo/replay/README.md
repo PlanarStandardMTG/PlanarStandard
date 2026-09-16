@@ -22,8 +22,8 @@ the anomalies, and how many matches actually moved a rating.
   unless a caller says otherwise.
 - **It never throws.** Self-play, duplicate match ids, contradictory game counts
   and impossible rating jumps come back in `anomalies` for `rating_runs.anomalies`.
-  Self-play and duplicates are skipped; a bad game count is *recorded but still
-  applied*, because Elo reads the result and a mis-keyed game count is no reason
+  Self-play and duplicates are skipped; a bad game count is _recorded but still
+  applied_, because Elo reads the result and a mis-keyed game count is no reason
   to discard a real one.
 - **A counted bye marks the player present but cannot move a rating** — there is
   no opponent to be right or wrong about.

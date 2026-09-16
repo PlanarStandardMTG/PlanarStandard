@@ -15,12 +15,12 @@ exchange for a link.
 Challonge allows **500 API requests a month**. That is roughly sixteen a day, and
 it is the constraint every decision below falls out of.
 
-| Interval | Requests / day | Requests / 31 days |
-|---|---|---|
-| 5 minutes | 288 | 8,928 |
-| 30 minutes | 48 | 1,488 |
-| **2 hours** | **12** | **372** |
-| 6 hours | 4 | 124 |
+| Interval    | Requests / day | Requests / 31 days |
+| ----------- | -------------- | ------------------ |
+| 5 minutes   | 288            | 8,928              |
+| 30 minutes  | 48             | 1,488              |
+| **2 hours** | **12**         | **372**            |
+| 6 hours     | 4              | 124                |
 
 Two hours is the shipped value. It leaves about a quarter of the month's budget
 spare for a manual refresh, a future scheduled job, or a busy weekend — and the
@@ -46,7 +46,7 @@ page render
 
 Three properties are worth stating because each one is a way this goes wrong:
 
-**The interval is measured from the last *attempt*, not the last success.** If
+**The interval is measured from the last _attempt_, not the last success.** If
 Challonge is down and the interval were measured from the last success, every
 page view would fire another request, and a single bad afternoon would spend the
 month. Measuring from the attempt caps an outage at one request per window.
@@ -91,11 +91,11 @@ invented ahead of time.
 
 ## Modules
 
-| Module | Job |
-|---|---|
-| `core/events/parse-challonge-events` | v2.1 payload → `ParsedExternalEvent[]` |
-| `core/events/sync-window` | is a refresh due, and the cutoff a claim compares against |
-| `core/events/event-schedule` | group and order the cache for display |
-| `db/repos/events` | the five reads and writes over the two tables |
-| `web/lib/challonge/client.server.ts` | the only module that talks to Challonge |
-| `web/lib/events/sync-events.server.ts` | the order of operations, and nothing else |
+| Module                                 | Job                                                       |
+| -------------------------------------- | --------------------------------------------------------- |
+| `core/events/parse-challonge-events`   | v2.1 payload → `ParsedExternalEvent[]`                    |
+| `core/events/sync-window`              | is a refresh due, and the cutoff a claim compares against |
+| `core/events/event-schedule`           | group and order the cache for display                     |
+| `db/repos/events`                      | the five reads and writes over the two tables             |
+| `web/lib/challonge/client.server.ts`   | the only module that talks to Challonge                   |
+| `web/lib/events/sync-events.server.ts` | the order of operations, and nothing else                 |

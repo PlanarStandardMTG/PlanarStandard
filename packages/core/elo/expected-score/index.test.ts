@@ -14,7 +14,7 @@ describe("core/elo/expected-score", () => {
   });
 
   it("matches the published table at 100-point steps", () => {
-    expect(expectedScore(1600, 1500)).toBeCloseTo(0.64006500, 7);
+    expect(expectedScore(1600, 1500)).toBeCloseTo(0.640065, 7);
     expect(expectedScore(1700, 1500)).toBeCloseTo(0.75974693, 7);
     expect(expectedScore(1800, 1500)).toBeCloseTo(0.84902044, 7);
   });

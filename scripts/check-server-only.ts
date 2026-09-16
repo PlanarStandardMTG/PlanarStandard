@@ -120,7 +120,9 @@ function importsOf(file: string, source: string): string[] {
 const SELF = fileURLToPath(import.meta.url);
 
 export function checkServerOnly(roots: readonly string[], repoRoot = REPO_ROOT): Violation[] {
-  const files = roots.flatMap((root) => listSourceFiles(resolve(repoRoot, root))).filter((f) => f !== SELF);
+  const files = roots
+    .flatMap((root) => listSourceFiles(resolve(repoRoot, root)))
+    .filter((f) => f !== SELF);
   const sources = new Map(files.map((file) => [file, readFileSync(file, "utf8")]));
   const rel = (file: string): string => relative(repoRoot, file);
   const violations: Violation[] = [];
@@ -143,7 +145,10 @@ export function checkServerOnly(roots: readonly string[], repoRoot = REPO_ROOT):
     while (queue.length > 0) {
       const current = queue.shift() as string;
       const trail = path.get(current) as string[];
-      for (const next of importsOf(current, sources.get(current) ?? readFileSync(current, "utf8"))) {
+      for (const next of importsOf(
+        current,
+        sources.get(current) ?? readFileSync(current, "utf8"),
+      )) {
         if (seen.has(next)) continue;
         seen.add(next);
         const nextTrail = [...trail, next];
@@ -175,19 +180,24 @@ function selfTest(): number {
   const violating = checkServerOnly(["fixtures/server-only-guard/violating"]);
   const aliased = checkServerOnly(["fixtures/server-only-guard/aliased"]);
   const failures: string[] = [];
-  if (clean.length > 0) failures.push(`the clean fixture tripped the guard: ${JSON.stringify(clean)}`);
+  if (clean.length > 0)
+    failures.push(`the clean fixture tripped the guard: ${JSON.stringify(clean)}`);
   if (!violating.some((v) => v.rule === "key-outside-server-only"))
     failures.push("the violating fixture did not trip rule key-outside-server-only");
   if (!violating.some((v) => v.rule === "client-reaches-server-only"))
     failures.push("the violating fixture did not trip rule client-reaches-server-only");
   if (!aliased.some((v) => v.rule === "client-reaches-server-only"))
-    failures.push("the aliased fixture did not trip rule client-reaches-server-only via a `@/` import");
+    failures.push(
+      "the aliased fixture did not trip rule client-reaches-server-only via a `@/` import",
+    );
   if (failures.length > 0) {
     console.error("server-only guard self-test FAILED:");
     for (const failure of failures) console.error(`  ${failure}`);
     return 1;
   }
-  console.log("server-only guard self-test passed (clean fixture clean; relative and `@/` violations both caught).");
+  console.log(
+    "server-only guard self-test passed (clean fixture clean; relative and `@/` violations both caught).",
+  );
   return 0;
 }
 
@@ -201,7 +211,9 @@ function main(): number {
   if (violations.length > 0) {
     console.error(`\n${SERVICE_ROLE_KEY} is reachable from a client bundle:`);
     report(violations);
-    console.error("\nMove the key behind a `*.server.ts` module, or stop importing that module from a 'use client' file.");
+    console.error(
+      "\nMove the key behind a `*.server.ts` module, or stop importing that module from a 'use client' file.",
+    );
     return 1;
   }
   console.log(`${SERVICE_ROLE_KEY} is confined to server-only modules.`);

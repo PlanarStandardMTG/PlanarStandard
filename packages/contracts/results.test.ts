@@ -34,9 +34,7 @@ const meleeCsv = {
   id: "melee-csv",
   capabilities: ["matches", "standings", "roster"],
   detect(input) {
-    return (
-      input.fileName.endsWith(".csv") && (input.text ?? "").startsWith("Round,")
-    );
+    return input.fileName.endsWith(".csv") && (input.text ?? "").startsWith("Round,");
   },
   parse(input) {
     return {
@@ -105,8 +103,7 @@ describe("results contracts", () => {
   it("hands an adapter the bytes and, for text sources, an existing decode", () => {
     const xlsxUpload = {
       fileName: "Planar Standard S2 2026-08-01.xlsx",
-      mediaType:
-        "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      mediaType: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       bytes: new Uint8Array([0x50, 0x4b, 0x03, 0x04]),
     } satisfies RawInput;
 
@@ -141,15 +138,9 @@ describe("results contracts", () => {
 
   it("is { id, detect(RawInput): boolean, parse(RawInput): ParsedEvent, capabilities }", () => {
     expectTypeOf(meleeCsv).toExtend<ResultsAdapter>();
-    expectTypeOf<ResultsAdapter["detect"]>().toExtend<
-      (input: RawInput) => boolean
-    >();
-    expectTypeOf<ResultsAdapter["parse"]>().toExtend<
-      (input: RawInput) => ParsedEvent
-    >();
-    expectTypeOf<ResultsAdapter["capabilities"]>().toExtend<
-      readonly Capability[]
-    >();
+    expectTypeOf<ResultsAdapter["detect"]>().toExtend<(input: RawInput) => boolean>();
+    expectTypeOf<ResultsAdapter["parse"]>().toExtend<(input: RawInput) => ParsedEvent>();
+    expectTypeOf<ResultsAdapter["capabilities"]>().toExtend<readonly Capability[]>();
 
     expect(meleeCsv.detect(csvUpload)).toBe(true);
     expect(meleeCsv.parse(csvUpload).capabilities).toEqual(["matches"]);
@@ -162,9 +153,7 @@ describe("results contracts", () => {
     });
 
     expectTypeOf(event).toExtend<ParsedEvent>();
-    expectTypeOf<ParsedEvent["matches"]>().toEqualTypeOf<
-      readonly ParsedMatch[] | undefined
-    >();
+    expectTypeOf<ParsedEvent["matches"]>().toEqualTypeOf<readonly ParsedMatch[] | undefined>();
     expect(legacyXlsx.capabilities).not.toContain("matches");
     // Not an empty array — that would read as "this event had no pairings" (ADR 006).
     expect("matches" in event).toBe(false);
@@ -212,8 +201,7 @@ describe("results contracts", () => {
         {
           code: "unrecognized_result",
           severity: "warning",
-          message:
-            'Row 7: result "ID" is not a recognized outcome. Set it in review.',
+          message: 'Row 7: result "ID" is not a recognized outcome. Set it in review.',
           rowIndex: 7,
           column: "Result",
         },
@@ -290,20 +278,17 @@ describe("results contracts", () => {
       issue: {
         code: "unrecognized_format",
         severity: "error",
-        message:
-          "No adapter recognized this file. Try generic-csv with a column mapping.",
+        message: "No adapter recognized this file. Try generic-csv with a column mapping.",
       },
     };
 
-    expectTypeOf<Capability>().toEqualTypeOf<
-      "matches" | "standings" | "roster" | "decklists"
-    >();
-    expect(
-      ambiguous.outcome === "ambiguous" &&
-        ambiguous.candidates.map((a) => a.id),
-    ).toEqual(["melee-csv", "legacy-xlsx"]);
-    expect(
-      unrecognized.outcome === "unrecognized" && unrecognized.issue.code,
-    ).toBe("unrecognized_format");
+    expectTypeOf<Capability>().toEqualTypeOf<"matches" | "standings" | "roster" | "decklists">();
+    expect(ambiguous.outcome === "ambiguous" && ambiguous.candidates.map((a) => a.id)).toEqual([
+      "melee-csv",
+      "legacy-xlsx",
+    ]);
+    expect(unrecognized.outcome === "unrecognized" && unrecognized.issue.code).toBe(
+      "unrecognized_format",
+    );
   });
 });

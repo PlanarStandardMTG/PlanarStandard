@@ -1,4 +1,9 @@
-import type { EventSource, EventSyncState, ExternalEvent, ParsedExternalEvent } from "@ps/contracts";
+import type {
+  EventSource,
+  EventSyncState,
+  ExternalEvent,
+  ParsedExternalEvent,
+} from "@ps/contracts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import {
@@ -113,7 +118,8 @@ export async function replaceEvents(
 
   const kept = events.map((event) => event.externalId);
   const stale = serviceClient.from("external_events").delete().eq("source", source);
-  const { error } = kept.length === 0 ? await stale : await stale.not("external_id", "in", asInList(kept));
+  const { error } =
+    kept.length === 0 ? await stale : await stale.not("external_id", "in", asInList(kept));
 
   if (error !== null) throw new Error(`replaceEvents prune failed: ${error.message}`);
 }
@@ -122,7 +128,8 @@ export async function replaceEvents(
 export async function recordSyncResult(
   serviceClient: SupabaseClient,
   source: EventSource,
-  result: { readonly succeededAt: string; readonly eventCount: number } | { readonly error: string },
+  result:
+    { readonly succeededAt: string; readonly eventCount: number } | { readonly error: string },
 ): Promise<void> {
   const patch =
     "error" in result

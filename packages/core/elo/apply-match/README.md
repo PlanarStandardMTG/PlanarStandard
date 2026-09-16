@@ -15,7 +15,7 @@ order, and this is where that holds.
 
 A `double_loss` scores 0 for both — neither player gains, which is not zero-sum
 and is intentional: a double loss is a penalty, not a result. A bye is never rated, whatever `countByes` says — there is no opponent to be
-right or wrong about, so `countByes` governs whether *replay* counts it as an
+right or wrong about, so `countByes` governs whether _replay_ counts it as an
 appearance, not whether it moves a rating. Elimination rounds are skipped per
 `countEliminationRounds`. Every skip comes back as data so replay can report it
 rather than silently dropping a row.

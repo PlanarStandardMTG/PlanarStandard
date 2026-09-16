@@ -48,7 +48,7 @@ special case of the other; §25's split rule decides which a document is.
   requests a month. Two things make that safe and neither is obvious from the
   page: the refresh window is **claimed before the fetch**, in one conditional
   update, so simultaneous visitors produce one request; and the interval is
-  measured from the last *attempt*, so an outage costs one request per window
+  measured from the last _attempt_, so an outage costs one request per window
   rather than one per visitor. The arithmetic is in
   [`docs/modules/events.md`](../../docs/modules/events.md).
 - `CHALLONGE_API_KEY` and `CHALLONGE_COMMUNITY` are production-only secrets, read

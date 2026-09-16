@@ -29,8 +29,7 @@ export function readScope(path: string): readonly SetCode[] {
   const result = parseSetsScope(JSON.parse(readFileSync(path, "utf8")));
   if (!result.ok) {
     const lines = result.issues.map(
-      (issue) =>
-        `  ${issue.at === null ? "file" : `[${issue.at}]`}: ${issue.message}`,
+      (issue) => `  ${issue.at === null ? "file" : `[${issue.at}]`}: ${issue.message}`,
     );
     throw new Error(`${path} is not a valid fetch scope:\n${lines.join("\n")}`);
   }
@@ -50,9 +49,7 @@ export async function pruneStream(
 ): Promise<PruneResult> {
   const pruner = createPruner(scope);
   const lines = new PassThrough();
-  const unzip = pipeline(
-    gzipped ? [source, createGunzip(), lines] : [source, lines],
-  );
+  const unzip = pipeline(gzipped ? [source, createGunzip(), lines] : [source, lines]);
 
   const reader = createInterface({ input: lines, crlfDelay: Infinity });
   for await (const line of reader) {
@@ -92,14 +89,10 @@ async function main(argv: readonly string[]): Promise<void> {
       headers: { ...SCRYFALL_HEADERS },
     });
     if (!response.ok || response.body === null) {
-      throw new Error(
-        `bulk download: ${response.status} ${response.statusText}`,
-      );
+      throw new Error(`bulk download: ${response.status} ${response.statusText}`);
     }
     bulkUpdatedAt = source.updatedAt;
-    stream = Readable.fromWeb(
-      response.body as Parameters<typeof Readable.fromWeb>[0],
-    );
+    stream = Readable.fromWeb(response.body as Parameters<typeof Readable.fromWeb>[0]);
     gzipped = true;
   } else {
     console.log(`bulk: ${local} (local)`);
@@ -135,10 +128,7 @@ async function main(argv: readonly string[]): Promise<void> {
     await writeFile(`${outDir}/${name}`, body, "utf8");
   }
 
-  const bytes = Object.values(files).reduce(
-    (total, body) => total + Buffer.byteLength(body),
-    0,
-  );
+  const bytes = Object.values(files).reduce((total, body) => total + Buffer.byteLength(body), 0);
   const { stats } = result;
   console.log(
     `read ${stats.seen} rows, kept ${stats.kept} printings across ${dataset.meta.oracleCardCount} cards ` +
@@ -150,9 +140,7 @@ async function main(argv: readonly string[]): Promise<void> {
   );
   console.log(`wrote ${outDir} — ${(bytes / 1048576).toFixed(2)} MB`);
   // E4.3 asserts a bounded peak in the log: this tracks the pool, not the download.
-  console.log(
-    `peak rss: ${(process.memoryUsage().rss / 1048576).toFixed(0)} MB`,
-  );
+  console.log(`peak rss: ${(process.memoryUsage().rss / 1048576).toFixed(0)} MB`);
 }
 
 function argValue(argv: readonly string[], flag: string): string | undefined {
@@ -160,10 +148,7 @@ function argValue(argv: readonly string[], flag: string): string | undefined {
   return at === -1 ? undefined : argv[at + 1];
 }
 
-if (
-  process.argv[1] !== undefined &&
-  import.meta.url === `file://${process.argv[1]}`
-) {
+if (process.argv[1] !== undefined && import.meta.url === `file://${process.argv[1]}`) {
   main(process.argv.slice(2)).catch((error: unknown) => {
     console.error(error instanceof Error ? error.message : error);
     process.exit(1);

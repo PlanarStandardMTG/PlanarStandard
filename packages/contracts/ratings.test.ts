@@ -44,20 +44,14 @@ describe("ratings contracts", () => {
   it("reaches every threshold core/elo needs from one config object", () => {
     expectTypeOf(config).toExtend<RatingConfig>();
     // E8.2 picks K from these three and never from a literal of its own.
-    expect([config.kProvisional, config.kStandard, config.kElite]).toEqual([
-      40, 24, 16,
-    ]);
-    expect(config.provisionalMatches).toBeLessThan(
-      config.minMatchesForLeaderboard * 2,
-    );
+    expect([config.kProvisional, config.kStandard, config.kElite]).toEqual([40, 24, 16]);
+    expect(config.provisionalMatches).toBeLessThan(config.minMatchesForLeaderboard * 2);
     expectTypeOf<RatingConfig["initialRating"]>().toEqualTypeOf<number>();
     expectTypeOf<RatingConfig["eliteThreshold"]>().toEqualTypeOf<number>();
     expectTypeOf<RatingConfig["inactiveAfterDays"]>().toEqualTypeOf<number>();
     // Byes and elimination rounds are config, not code.
     expectTypeOf<RatingConfig["countByes"]>().toEqualTypeOf<boolean>();
-    expectTypeOf<
-      RatingConfig["countEliminationRounds"]
-    >().toEqualTypeOf<boolean>();
+    expectTypeOf<RatingConfig["countEliminationRounds"]>().toEqualTypeOf<boolean>();
   });
 
   it("names resolved players on a ledger match, never handles", () => {
@@ -230,9 +224,7 @@ describe("ratings contracts", () => {
       established.matchesPlayed,
     );
     // Off the leaderboard while provisional, whatever the match count (§12).
-    expect(unrated.isProvisional).toBe(
-      unrated.matchesPlayed < config.provisionalMatches,
-    );
+    expect(unrated.isProvisional).toBe(unrated.matchesPlayed < config.provisionalMatches);
   });
 
   it("returns anomalies as json-shaped data rather than throwing", () => {
@@ -271,12 +263,7 @@ describe("ratings contracts", () => {
       bound: 40,
     } satisfies RatingJumpAnomaly;
 
-    const anomalies: readonly RatingAnomaly[] = [
-      selfPlay,
-      duplicate,
-      impossible,
-      jump,
-    ];
+    const anomalies: readonly RatingAnomaly[] = [selfPlay, duplicate, impossible, jump];
     expect(anomalies.map((a) => a.kind)).toEqual([
       "self-play",
       "duplicate-match-id",
@@ -344,15 +331,9 @@ describe("ratings contracts", () => {
       matchesApplied: 1,
     } satisfies ReplayResult;
     expectTypeOf(result).toExtend<ReplayResult>();
-    expectTypeOf<ReplayResult["ratings"]>().toEqualTypeOf<
-      readonly PlayerRating[]
-    >();
-    expectTypeOf<ReplayResult["events"]>().toEqualTypeOf<
-      readonly RatingEvent[]
-    >();
-    expectTypeOf<ReplayResult["anomalies"]>().toEqualTypeOf<
-      readonly RatingAnomaly[]
-    >();
+    expectTypeOf<ReplayResult["ratings"]>().toEqualTypeOf<readonly PlayerRating[]>();
+    expectTypeOf<ReplayResult["events"]>().toEqualTypeOf<readonly RatingEvent[]>();
+    expectTypeOf<ReplayResult["anomalies"]>().toEqualTypeOf<readonly RatingAnomaly[]>();
     // One applied match, two rows in `rating_events`.
     expect(result.matchesApplied).toBe(result.events.length / 2);
     expect(result.ratings).toHaveLength(2);

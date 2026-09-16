@@ -31,12 +31,18 @@ describe("parseFrontmatter", () => {
   });
 
   it("reads an inline component list", () => {
-    const source = VALID.replace("published: true", "published: true\ncomponents: [LegalSets, Banlist]");
+    const source = VALID.replace(
+      "published: true",
+      "published: true\ncomponents: [LegalSets, Banlist]",
+    );
     expect(parseFrontmatter(source).frontmatter.components).toEqual(["LegalSets", "Banlist"]);
   });
 
   it("refuses a component outside the whitelist", () => {
-    const source = VALID.replace("published: true", "published: true\ncomponents: [ServiceRoleKey]");
+    const source = VALID.replace(
+      "published: true",
+      "published: true\ncomponents: [ServiceRoleKey]",
+    );
     expect(() => parseFrontmatter(source)).toThrow(/not an allowed component/);
   });
 

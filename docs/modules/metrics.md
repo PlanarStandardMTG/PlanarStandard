@@ -15,6 +15,7 @@ Filled in per epic. Sections marked _pending_ land with the story named.
 ## Sample-size guardrails
 
 <!-- publish:omit -->
+
 _Module: `core/stats/suppress-small-n` (E10.3). Enforced in shared components
 (ADR 012)._
 
@@ -33,12 +34,12 @@ approximation produces bounds below 0% or above 100%.
 
 ### Thresholds
 
-| Rate | Hidden below | Greyed below | Shown at or above |
-|---|---|---|---|
-| Win rate of decks including a card | 20 games | 50 games | 50 games |
-| Archetype win rate | 3 decks | 10 decks | 10 decks |
+| Rate                               | Hidden below | Greyed below | Shown at or above |
+| ---------------------------------- | ------------ | ------------ | ----------------- |
+| Win rate of decks including a card | 20 games     | 50 games     | 50 games          |
+| Archetype win rate                 | 3 decks      | 10 decks     | 10 decks          |
 
-- **Hidden** — no rate is rendered at all; the cell reads *insufficient data* and
+- **Hidden** — no rate is rendered at all; the cell reads _insufficient data_ and
   still shows `n`.
 - **Greyed** — the rate is shown de-emphasised, with its interval, because the
   interval is still too wide to read as fact.
@@ -46,11 +47,12 @@ approximation produces bounds below 0% or above 100%.
 
 The two **hide** floors are fixed by the format itself: card win rates are
 suppressed under 20 games, and an archetype row with `n` under 3 collapses to
-*insufficient data*. The **grey** thresholds are a project choice, set where the
+_insufficient data_. The **grey** thresholds are a project choice, set where the
 95% interval on a 50% rate is still roughly ±13 points (n = 50) and ±26 points
 (n = 10) respectively.
 
 <!-- publish:omit -->
+
 _The two hide floors come from master plan §24._
 
 ### Labelling
@@ -66,6 +68,7 @@ to each chart.
 ## Deck metrics
 
 <!-- publish:omit -->
+
 _Modules: `core/metrics/*` (E6)._
 
 Every figure below is derived and fully recomputable; no statistic is ever
@@ -151,6 +154,7 @@ the row and the deck are kept either way.
 ## Similarity
 
 <!-- publish:omit -->
+
 _Modules: `core/similarity/deck-vector`, `weighted-jaccard`,
 `build-similarity-graph`, `force-layout` (E7)._
 

@@ -37,7 +37,9 @@ export function averageMv(deck: ResolvedDeck, index: CardIndex): AverageMv {
   };
 }
 
-function weightedTotal(entries: ReadonlyArray<{ entry: { qty: number }; card: { manaValue: number } }>): number {
+function weightedTotal(
+  entries: ReadonlyArray<{ entry: { qty: number }; card: { manaValue: number } }>,
+): number {
   return entries.reduce((total, { entry, card }) => total + card.manaValue * entry.qty, 0);
 }
 

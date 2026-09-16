@@ -23,7 +23,10 @@ export function SiteHeader() {
   return (
     <header className="border-b border-ink-200 bg-white/80 backdrop-blur dark:border-ink-800 dark:bg-ink-950/80">
       <Container className="flex h-14 items-center justify-between gap-6">
-        <Link href="/" className="shrink-0 font-serif text-base font-semibold tracking-tight whitespace-nowrap">
+        <Link
+          href="/"
+          className="shrink-0 font-serif text-base font-semibold tracking-tight whitespace-nowrap"
+        >
           Planar <span className="text-eclipse-600 dark:text-eclipse-400">Standard</span>
         </Link>
 

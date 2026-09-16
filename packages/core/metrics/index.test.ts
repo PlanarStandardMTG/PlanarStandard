@@ -36,36 +36,107 @@ interface Spec {
 }
 
 const SPECS: readonly Spec[] = [
-  { name: "Voice of Victory", mv: 2, colors: ["W"], typeLine: "Creature — Human Soldier", sets: ["sos"], rarities: [["sos", "rare"]] },
-  { name: "Stock Up", mv: 3, colors: ["U"], typeLine: "Instant", sets: ["dft"], rarities: [["dft", "uncommon"]] },
-  { name: "Ride's End", mv: 2, colors: ["W"], typeLine: "Instant", sets: ["dft"], rarities: [["dft", "common"]] },
-  { name: "Ugin, Eye of the Storms", mv: 7, colors: [], typeLine: "Legendary Planeswalker — Ugin", sets: ["tdm"], rarities: [["tdm", "mythic"]] },
-  { name: "Mazemind Tome", mv: 2, colors: [], typeLine: "Artifact", sets: ["fdn"], rarities: [["fdn", "rare"]] },
-  { name: "Gene Pollinator", mv: 4, colors: ["G", "B"], typeLine: "Artifact Creature — Insect", sets: ["eoe"], rarities: [["eoe", "uncommon"]] },
-  { name: "Tranquil Cove", mv: 0, colors: ["W", "U"], typeLine: "Land", sets: ["tdm"], rarities: [["tdm", "common"]] },
-  { name: "Island", mv: 0, colors: ["U"], typeLine: "Basic Land — Island", sets: ["eoe"], rarities: [["eoe", "common"]] },
+  {
+    name: "Voice of Victory",
+    mv: 2,
+    colors: ["W"],
+    typeLine: "Creature — Human Soldier",
+    sets: ["sos"],
+    rarities: [["sos", "rare"]],
+  },
+  {
+    name: "Stock Up",
+    mv: 3,
+    colors: ["U"],
+    typeLine: "Instant",
+    sets: ["dft"],
+    rarities: [["dft", "uncommon"]],
+  },
+  {
+    name: "Ride's End",
+    mv: 2,
+    colors: ["W"],
+    typeLine: "Instant",
+    sets: ["dft"],
+    rarities: [["dft", "common"]],
+  },
+  {
+    name: "Ugin, Eye of the Storms",
+    mv: 7,
+    colors: [],
+    typeLine: "Legendary Planeswalker — Ugin",
+    sets: ["tdm"],
+    rarities: [["tdm", "mythic"]],
+  },
+  {
+    name: "Mazemind Tome",
+    mv: 2,
+    colors: [],
+    typeLine: "Artifact",
+    sets: ["fdn"],
+    rarities: [["fdn", "rare"]],
+  },
+  {
+    name: "Gene Pollinator",
+    mv: 4,
+    colors: ["G", "B"],
+    typeLine: "Artifact Creature — Insect",
+    sets: ["eoe"],
+    rarities: [["eoe", "uncommon"]],
+  },
+  {
+    name: "Tranquil Cove",
+    mv: 0,
+    colors: ["W", "U"],
+    typeLine: "Land",
+    sets: ["tdm"],
+    rarities: [["tdm", "common"]],
+  },
+  {
+    name: "Island",
+    mv: 0,
+    colors: ["U"],
+    typeLine: "Basic Land — Island",
+    sets: ["eoe"],
+    rarities: [["eoe", "common"]],
+  },
   // Legal through two sets: the tiebreak case.
-  { name: "Llanowar Elves", mv: 1, colors: ["G"], typeLine: "Creature — Elf Druid", sets: ["fdn", "tdm"], rarities: [["fdn", "common"], ["tdm", "uncommon"]] },
+  {
+    name: "Llanowar Elves",
+    mv: 1,
+    colors: ["G"],
+    typeLine: "Creature — Elf Druid",
+    sets: ["fdn", "tdm"],
+    rarities: [
+      ["fdn", "common"],
+      ["tdm", "uncommon"],
+    ],
+  },
   // A modal card: front face is what gets cast.
-  { name: "Marang River Regent / Coil and Catch", mv: 6, colors: ["U"], typeLine: "Creature — Dragon // Instant", sets: ["tdm"], rarities: [["tdm", "rare"]] },
+  {
+    name: "Marang River Regent / Coil and Catch",
+    mv: 6,
+    colors: ["U"],
+    typeLine: "Creature — Dragon // Instant",
+    sets: ["tdm"],
+    rarities: [["tdm", "rare"]],
+  },
 ];
 
 const oracleId = (name: string): OracleId => `oracle:${name}` as OracleId;
 
 const DATASET: CardDataset = {
-  oracle: SPECS.map(
-    (spec): OracleCard => ({
-      oracleId: oracleId(spec.name),
-      name: spec.name,
-      manaCost: null,
-      manaValue: spec.mv,
-      colorIdentity: spec.colors,
-      typeLine: spec.typeLine,
-      oracleText: null,
-      layout: spec.name.includes(" / ") ? "split" : "normal",
-      setCodes: spec.sets,
-    }),
-  ),
+  oracle: SPECS.map((spec): OracleCard => ({
+    oracleId: oracleId(spec.name),
+    name: spec.name,
+    manaCost: null,
+    manaValue: spec.mv,
+    colorIdentity: spec.colors,
+    typeLine: spec.typeLine,
+    oracleText: null,
+    layout: spec.name.includes(" / ") ? "split" : "normal",
+    setCodes: spec.sets,
+  })),
   printings: SPECS.flatMap((spec): CardPrinting[] =>
     (spec.rarities ?? []).map(([setCode, rarity]) => ({
       oracleId: oracleId(spec.name),
@@ -138,7 +209,13 @@ describe("core/metrics/mana-curve", () => {
   });
 
   it("excludes lands, basic and non-basic alike", () => {
-    const curve = manaCurve(deckOf([["Island", 7], ["Tranquil Cove", 4]]), INDEX);
+    const curve = manaCurve(
+      deckOf([
+        ["Island", 7],
+        ["Tranquil Cove", 4],
+      ]),
+      INDEX,
+    );
     expect(Object.values(curve).every((n) => n === 0)).toBe(true);
   });
 
@@ -178,7 +255,14 @@ describe("core/metrics/color-counts", () => {
 
   it("derives the deck's colour identity in WUBRG order", () => {
     expect(
-      colorIdentity(deckOf([["Gene Pollinator", 4], ["Stock Up", 4], ["Mazemind Tome", 2]]), INDEX),
+      colorIdentity(
+        deckOf([
+          ["Gene Pollinator", 4],
+          ["Stock Up", 4],
+          ["Mazemind Tome", 2],
+        ]),
+        INDEX,
+      ),
     ).toEqual(["U", "B", "G"]);
   });
 });
@@ -197,7 +281,13 @@ describe("core/metrics/type-counts", () => {
   });
 
   it("counts basic and non-basic lands alike as Land", () => {
-    const counts = typeCounts(deckOf([["Island", 7], ["Tranquil Cove", 4]]), INDEX);
+    const counts = typeCounts(
+      deckOf([
+        ["Island", 7],
+        ["Tranquil Cove", 4],
+      ]),
+      INDEX,
+    );
     expect(counts.Land).toBe(11);
   });
 
@@ -224,7 +314,11 @@ describe("core/metrics/set-attribution", () => {
   });
 
   it("is deterministic across runs", () => {
-    const deck = deckOf([["Llanowar Elves", 4], ["Stock Up", 4], ["Voice of Victory", 4]]);
+    const deck = deckOf([
+      ["Llanowar Elves", 4],
+      ["Stock Up", 4],
+      ["Voice of Victory", 4],
+    ]);
     expect(setAttribution(deck, INDEX, RULES)).toEqual(setAttribution(deck, INDEX, RULES));
   });
 
@@ -241,7 +335,11 @@ describe("core/metrics/set-attribution", () => {
 describe("core/metrics/rarity-counts", () => {
   it("counts by the rarity of the printing inside the pool", () => {
     const counts = rarityCounts(
-      deckOf([["Stock Up", 4], ["Ugin, Eye of the Storms", 1], ["Ride's End", 3]]),
+      deckOf([
+        ["Stock Up", 4],
+        ["Ugin, Eye of the Storms", 1],
+        ["Ride's End", 3],
+      ]),
       INDEX,
       RULES,
     );
@@ -267,7 +365,11 @@ describe("core/metrics/rarity-counts", () => {
 describe("core/metrics/average-mv", () => {
   it("computes the three averages, copy-weighted", () => {
     const deck = deckOf(
-      [["Stock Up", 4], ["Llanowar Elves", 4], ["Island", 2]],
+      [
+        ["Stock Up", 4],
+        ["Llanowar Elves", 4],
+        ["Island", 2],
+      ],
       [["Ride's End", 2]],
     );
     const averages = averageMv(deck, INDEX);
@@ -300,7 +402,12 @@ describe("core/metrics/compute-deck-metrics", () => {
 
   it("fills every deck_metrics column", () => {
     const deck = deckOf(
-      [["Stock Up", 4], ["Llanowar Elves", 4], ["Gene Pollinator", 2], ["Island", 10]],
+      [
+        ["Stock Up", 4],
+        ["Llanowar Elves", 4],
+        ["Gene Pollinator", 2],
+        ["Island", 10],
+      ],
       [["Ride's End", 3]],
     );
     const metrics = computeDeckMetrics("deck-1" as never, deck, INDEX, RULES, { computedAt });

@@ -1,4 +1,10 @@
-import type { CardIndex, CardTypeBucket, OracleCard, ResolvedDeck, TypeCounts } from "@ps/contracts";
+import type {
+  CardIndex,
+  CardTypeBucket,
+  OracleCard,
+  ResolvedDeck,
+  TypeCounts,
+} from "@ps/contracts";
 
 import { entriesOn } from "../shared";
 

@@ -60,11 +60,11 @@ match, so the order the two updates are written in cannot change the outcome.
 `K` controls how far one match can move a rating. It comes from the
 admin-editable rating config, never from code:
 
-| Tier | K | When |
-|---|---|---|
-| Provisional | 40 | fewer than 15 rated matches |
-| Standard | 24 | the default |
-| Elite | 16 | rating at or above 2100 |
+| Tier        | K   | When                        |
+| ----------- | --- | --------------------------- |
+| Provisional | 40  | fewer than 15 rated matches |
+| Standard    | 24  | the default                 |
+| Elite       | 16  | rating at or above 2100     |
 
 Provisional is checked first. A new player who has climbed above 2100 in three
 matches is still provisional — that rating has not been tested yet.
@@ -96,12 +96,12 @@ marked inactive.
 
 Replay never throws on bad data; it records it. Each run stores what it found:
 
-| Anomaly | What happens |
-|---|---|
-| Both sides are the same player | the match is skipped |
-| A match id appears twice | the repeat is skipped |
-| Game counts contradict the result | recorded, and the match still applies — Elo reads the result, and a mis-keyed game count is no reason to discard a real one |
-| A rating moved further than K allows | recorded; this is arithmetically impossible and means a bug, not bad data |
+| Anomaly                              | What happens                                                                                                                |
+| ------------------------------------ | --------------------------------------------------------------------------------------------------------------------------- |
+| Both sides are the same player       | the match is skipped                                                                                                        |
+| A match id appears twice             | the repeat is skipped                                                                                                       |
+| Game counts contradict the result    | recorded, and the match still applies — Elo reads the result, and a mis-keyed game count is no reason to discard a real one |
+| A rating moved further than K allows | recorded; this is arithmetically impossible and means a bug, not bad data                                                   |
 
 These are visible per rating run so they get corrected rather than accumulating.
 

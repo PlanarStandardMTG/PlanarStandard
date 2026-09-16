@@ -7,8 +7,9 @@ const ROOT_RELATIVE = /(\]\()(\/[^)\s]*)(\))/g;
 export function absolutizeLinks(markdown: string, canonicalUrl: string): string {
   const origin = originOf(canonicalUrl);
   if (origin === null) return markdown;
-  return markdown.replace(ROOT_RELATIVE, (_m, open: string, path: string, close: string) =>
-    `${open}${origin}${path}${close}`,
+  return markdown.replace(
+    ROOT_RELATIVE,
+    (_m, open: string, path: string, close: string) => `${open}${origin}${path}${close}`,
   );
 }
 

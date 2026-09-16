@@ -15,8 +15,7 @@ export type OracleId = string & { readonly [oracleIdBrand]: "OracleId" };
  */
 export type SetCode = string;
 
-export type Rarity =
-  "common" | "uncommon" | "rare" | "mythic" | "special" | "bonus";
+export type Rarity = "common" | "uncommon" | "rare" | "mythic" | "special" | "bonus";
 
 /** Colour identity letters, as Scryfall writes them. */
 export type Color = "W" | "U" | "B" | "R" | "G";

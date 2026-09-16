@@ -15,9 +15,7 @@ export const dynamic = "force-dynamic";
 const RECENT_POST_COUNT = 5;
 
 export default async function HomePage() {
-  const posts = await load(() =>
-    listRecentPublishedPosts(createPublicClient(), RECENT_POST_COUNT),
-  );
+  const posts = await load(() => listRecentPublishedPosts(createPublicClient(), RECENT_POST_COUNT));
 
   return (
     <Container className="py-14">

@@ -212,7 +212,12 @@ describe("core/legality/check-card", () => {
       formatVersionId: "narrow" as FormatVersionId,
       legalSets: ["eoe"],
       cardRules: [
-        { oracleId: oracleOf("Stock Up"), ruling: "legal_exception", reason: null, effectiveFrom: null },
+        {
+          oracleId: oracleOf("Stock Up"),
+          ruling: "legal_exception",
+          reason: null,
+          effectiveFrom: null,
+        },
       ],
     });
     expect(
@@ -226,7 +231,12 @@ describe("core/legality/check-card", () => {
 
   it("lets a ban override everything, including an exception", () => {
     const banned = format([
-      { oracleId: oracleOf("Stock Up"), ruling: "banned", reason: "draws too many", effectiveFrom: null },
+      {
+        oracleId: oracleOf("Stock Up"),
+        ruling: "banned",
+        reason: "draws too many",
+        effectiveFrom: null,
+      },
     ]);
     expect(
       checkCard(
@@ -245,7 +255,13 @@ describe("core/legality/check-card", () => {
 
   it("uses the restricted limit when a card carries one", () => {
     const restricted = format([
-      { oracleId: oracleOf("Stock Up"), ruling: "restricted", limit: 1, reason: null, effectiveFrom: null },
+      {
+        oracleId: oracleOf("Stock Up"),
+        ruling: "restricted",
+        limit: 1,
+        reason: null,
+        effectiveFrom: null,
+      },
     ]);
     expect(copyLimit(oracleOf("Stock Up"), restricted)).toBe(1);
     expect(copyLimit(oracleOf("Negate"), restricted)).toBe(4);

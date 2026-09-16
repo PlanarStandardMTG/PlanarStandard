@@ -46,17 +46,12 @@ describe("parseSetsScope", () => {
 
   it("rejects a set name written where a code belongs", () => {
     const result = parseSetsScope(["Foundations"]);
-    expect(!result.ok && result.issues[0]?.message).toContain(
-      "is not a set code",
-    );
+    expect(!result.ok && result.issues[0]?.message).toContain("is not a set code");
   });
 
-  it.each([[["FDN", 7]], [[null]], [[["FDN"]]]])(
-    "rejects a non-string entry: %j",
-    (raw) => {
-      expect(parseSetsScope(raw).ok).toBe(false);
-    },
-  );
+  it.each([[["FDN", 7]], [[null]], [[["FDN"]]]])("rejects a non-string entry: %j", (raw) => {
+    expect(parseSetsScope(raw).ok).toBe(false);
+  });
 
   it("rejects a JSON object, which is the shape a reason field would have made it", () => {
     expect(parseSetsScope({ FDN: "core set" }).ok).toBe(false);

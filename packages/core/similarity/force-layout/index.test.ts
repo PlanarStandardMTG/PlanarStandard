@@ -20,8 +20,18 @@ const edge = (a: number, b: number, similarity = 0.7): SimilarityEdge => ({
 const CLUSTERED = {
   ids: Array.from({ length: 10 }, (_, i) => id(i)),
   edges: [
-    edge(0, 1), edge(0, 2), edge(1, 2), edge(2, 3), edge(0, 3), edge(1, 3),
-    edge(5, 6), edge(5, 7), edge(6, 7), edge(7, 8), edge(5, 8), edge(6, 8),
+    edge(0, 1),
+    edge(0, 2),
+    edge(1, 2),
+    edge(2, 3),
+    edge(0, 3),
+    edge(1, 3),
+    edge(5, 6),
+    edge(5, 7),
+    edge(6, 7),
+    edge(7, 8),
+    edge(5, 8),
+    edge(6, 8),
     edge(3, 5, 0.52),
   ],
 };
@@ -90,7 +100,8 @@ describe("core/similarity/force-layout", () => {
 
   it("pulls connected decks closer than unconnected ones", () => {
     const nodes = forceLayout(CLUSTERED.edges, CLUSTERED.ids, { seed: 42 });
-    const at = (n: number) => nodes.find((node) => node.deckId === id(n)) as { x: number; y: number };
+    const at = (n: number) =>
+      nodes.find((node) => node.deckId === id(n)) as { x: number; y: number };
     const distance = (a: { x: number; y: number }, b: { x: number; y: number }) =>
       Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
 
@@ -100,7 +111,8 @@ describe("core/similarity/force-layout", () => {
 
   it("separates the two clusters", () => {
     const nodes = forceLayout(CLUSTERED.edges, CLUSTERED.ids, { seed: 42 });
-    const at = (n: number) => nodes.find((node) => node.deckId === id(n)) as { x: number; y: number };
+    const at = (n: number) =>
+      nodes.find((node) => node.deckId === id(n)) as { x: number; y: number };
     const distance = (a: { x: number; y: number }, b: { x: number; y: number }) =>
       Math.sqrt((a.x - b.x) ** 2 + (a.y - b.y) ** 2);
 

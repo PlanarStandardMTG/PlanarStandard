@@ -74,7 +74,10 @@ module.exports = {
   options: {
     tsPreCompilationDeps: true,
     tsConfig: { fileName: "tsconfig.depcruise.json" },
-    enhancedResolveOptions: { exportsFields: ["exports"], conditionNames: ["import", "require", "node", "default"] },
+    enhancedResolveOptions: {
+      exportsFields: ["exports"],
+      conditionNames: ["import", "require", "node", "default"],
+    },
     // Resolve dependencies so the rules above can see *that* a package is
     // imported, but stop at the boundary rather than walking its internals.
     // Without this, cruising `apps/web` means cruising all of Next and React and

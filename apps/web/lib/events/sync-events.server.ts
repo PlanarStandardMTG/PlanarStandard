@@ -67,12 +67,7 @@ export async function loadEvents(now: Date = new Date()): Promise<EventsView> {
 async function refreshIfDue(now: Date): Promise<void> {
   try {
     const service = createServiceRoleClient();
-    const claimed = await claimSyncWindow(
-      service,
-      "challonge",
-      syncCutoff(now),
-      now.toISOString(),
-    );
+    const claimed = await claimSyncWindow(service, "challonge", syncCutoff(now), now.toISOString());
     if (!claimed) return;
 
     const result = await fetchCommunityTournaments();

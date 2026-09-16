@@ -13,9 +13,7 @@ export const metadata: Metadata = {
 };
 
 export default async function ArticlesPage() {
-  const posts = await load(() =>
-    listPublishedPostsByKind(createPublicClient(), "community", 50),
-  );
+  const posts = await load(() => listPublishedPostsByKind(createPublicClient(), "community", 50));
 
   return (
     <PostFeedPage

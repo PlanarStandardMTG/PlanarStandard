@@ -107,9 +107,7 @@ describe("core/elo/replay", () => {
   });
 
   it("derives the provisional flag, peak rating and counters", () => {
-    const wins = Array.from({ length: 16 }, (_, i) =>
-      match({ matchId: `w${i}`, round: i + 1 }),
-    );
+    const wins = Array.from({ length: 16 }, (_, i) => match({ matchId: `w${i}`, round: i + 1 }));
     const result = replay(wins, CONFIG);
     const winner = result.ratings.find((r) => r.playerId === SERLUPIDUS);
 

@@ -33,7 +33,8 @@ function credentials(): ChallongeCredentials | null {
   const apiKey = process.env["CHALLONGE_API_KEY"];
   const community = process.env["CHALLONGE_COMMUNITY"];
 
-  if (apiKey === undefined || apiKey === "" || community === undefined || community === "") return null;
+  if (apiKey === undefined || apiKey === "" || community === undefined || community === "")
+    return null;
   return { apiKey, community };
 }
 

@@ -1,4 +1,11 @@
-import type { CardIndex, DeckId, DeckMetrics, FormatRules, IsoDateTime, ResolvedDeck } from "@ps/contracts";
+import type {
+  CardIndex,
+  DeckId,
+  DeckMetrics,
+  FormatRules,
+  IsoDateTime,
+  ResolvedDeck,
+} from "@ps/contracts";
 
 import { averageMv } from "../average-mv/index";
 import { colorCounts, colorIdentity } from "../color-counts/index";

@@ -69,10 +69,7 @@ export async function getPublishedPostBySlug(
 export async function listPublishedPostSlugs(
   client: SupabaseClient,
 ): Promise<readonly { slug: string; kind: PostKind }[]> {
-  const { data, error } = await client
-    .from("posts")
-    .select("slug, kind")
-    .eq("status", "published");
+  const { data, error } = await client.from("posts").select("slug, kind").eq("status", "published");
 
   if (error !== null) throw new Error(`listPublishedPostSlugs failed: ${error.message}`);
   return data as { slug: string; kind: PostKind }[];

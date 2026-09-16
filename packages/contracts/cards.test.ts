@@ -64,12 +64,7 @@ describe("cards contracts", () => {
 
   it("drops the Scryfall fields the build job prunes", () => {
     expectTypeOf<
-      | "rulings_uri"
-      | "prices"
-      | "foreign_names"
-      | "purchase_uris"
-      | "legalities"
-      | "edhrec_rank"
+      "rulings_uri" | "prices" | "foreign_names" | "purchase_uris" | "legalities" | "edhrec_rank"
     >().not.toExtend<keyof OracleCard>();
   });
 
@@ -86,9 +81,7 @@ describe("cards contracts", () => {
 
   it("takes rarity, set and images from the printing, not the oracle card", () => {
     expectTypeOf(elvesInFoundations).toExtend<CardPrinting>();
-    expectTypeOf<"rarity" | "setCode" | "imageUris">().not.toExtend<
-      keyof OracleCard
-    >();
+    expectTypeOf<"rarity" | "setCode" | "imageUris">().not.toExtend<keyof OracleCard>();
   });
 
   it("decides legality from the sets the oracle card is printed in", () => {
@@ -163,8 +156,7 @@ describe("cards contracts", () => {
           manaCost: "{U}",
           manaValue: 1,
           typeLine: "Creature — Human Wizard",
-          oracleText:
-            "At the beginning of your upkeep, look at the top card of your library.",
+          oracleText: "At the beginning of your upkeep, look at the top card of your library.",
         },
         {
           name: "Insectile Aberration",
@@ -208,22 +200,14 @@ describe("cards contracts", () => {
 
   it("covers the layouts the parser and the pool actually produce", () => {
     expectTypeOf<
-      | "normal"
-      | "split"
-      | "modal_dfc"
-      | "transform"
-      | "adventure"
-      | "saga"
-      | "battle"
+      "normal" | "split" | "modal_dfc" | "transform" | "adventure" | "saga" | "battle"
     >().toExtend<Layout>();
     expectTypeOf<"token" | "emblem" | "art_series">().not.toExtend<Layout>();
   });
 
   it("indexes by oracle id, by normalized name, and by set", () => {
     const index = {
-      byOracleId: new Map([
-        [llanowarElves, { card: elves, printings: [elvesInFoundations] }],
-      ]),
+      byOracleId: new Map([[llanowarElves, { card: elves, printings: [elvesInFoundations] }]]),
       byNormalizedName: new Map([["llanowarelves", [llanowarElves]]]),
       bySet: new Map([["fdn", [llanowarElves]]]),
     } satisfies CardIndex;
@@ -237,9 +221,7 @@ describe("cards contracts", () => {
     const collision = new Map([
       ["claimterritory", [bloomvineRegent, feedTheSwarm]],
     ]) satisfies CardIndex["byNormalizedName"];
-    expectTypeOf(collision.get("claimterritory")).toExtend<
-      readonly OracleId[] | undefined
-    >();
+    expectTypeOf(collision.get("claimterritory")).toExtend<readonly OracleId[] | undefined>();
   });
 
   it("describes the three files the build job emits", () => {
@@ -260,8 +242,7 @@ describe("cards contracts", () => {
       attribution: {
         source: "Scryfall",
         sourceUrl: "https://scryfall.com",
-        notice:
-          "Card data from Scryfall. Magic: The Gathering is © Wizards of the Coast.",
+        notice: "Card data from Scryfall. Magic: The Gathering is © Wizards of the Coast.",
       },
     } satisfies CardDatasetMeta;
     const dataset = {

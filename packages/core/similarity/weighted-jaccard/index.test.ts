@@ -9,9 +9,22 @@ const vec = (entries: ReadonlyArray<readonly [number, number]>): DeckVector =>
 
 describe("core/similarity/weighted-jaccard", () => {
   it("scores identical decks 1", () => {
-    const deck = vec([[1, 4], [2, 3], [3, 1]]);
+    const deck = vec([
+      [1, 4],
+      [2, 3],
+      [3, 1],
+    ]);
     expect(weightedJaccard(deck, deck)).toBe(1);
-    expect(weightedJaccard(deck, vec([[1, 4], [2, 3], [3, 1]]))).toBe(1);
+    expect(
+      weightedJaccard(
+        deck,
+        vec([
+          [1, 4],
+          [2, 3],
+          [3, 1],
+        ]),
+      ),
+    ).toBe(1);
   });
 
   it("scores disjoint decks 0", () => {
@@ -19,8 +32,14 @@ describe("core/similarity/weighted-jaccard", () => {
   });
 
   it("is symmetric", () => {
-    const a = vec([[1, 4], [2, 2]]);
-    const b = vec([[1, 1], [3, 4]]);
+    const a = vec([
+      [1, 4],
+      [2, 2],
+    ]);
+    const b = vec([
+      [1, 1],
+      [3, 4],
+    ]);
     expect(weightedJaccard(a, b)).toBe(weightedJaccard(b, a));
   });
 
@@ -32,8 +51,14 @@ describe("core/similarity/weighted-jaccard", () => {
   });
 
   it("computes sum(min) / sum(max) over the union", () => {
-    const a = vec([[1, 4], [2, 2]]);
-    const b = vec([[1, 2], [3, 4]]);
+    const a = vec([
+      [1, 4],
+      [2, 2],
+    ]);
+    const b = vec([
+      [1, 2],
+      [3, 4],
+    ]);
     // min: 2 + 0 + 0 = 2. max: 4 + 2 + 4 = 10.
     expect(weightedJaccard(a, b)).toBeCloseTo(0.2, 12);
   });
@@ -48,7 +73,18 @@ describe("core/similarity/weighted-jaccard", () => {
   });
 
   it("counts shared cards regardless of how many copies", () => {
-    expect(sharedCardCount(vec([[1, 4], [2, 1]]), vec([[1, 1], [3, 4]]))).toBe(1);
+    expect(
+      sharedCardCount(
+        vec([
+          [1, 4],
+          [2, 1],
+        ]),
+        vec([
+          [1, 1],
+          [3, 4],
+        ]),
+      ),
+    ).toBe(1);
     expect(sharedCardCount(vec([]), vec([[1, 4]]))).toBe(0);
   });
 });

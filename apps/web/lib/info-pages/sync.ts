@@ -47,7 +47,9 @@ if (process.argv[1] !== undefined && fileURLToPath(import.meta.url) === resolve(
   const results = syncContent({ write: true });
   const changed = results.filter((result) => result.changed);
   for (const result of results) {
-    console.log(`${result.changed ? "updated" : "  up to date"}  ${result.page}  <- ${result.source}`);
+    console.log(
+      `${result.changed ? "updated" : "  up to date"}  ${result.page}  <- ${result.source}`,
+    );
   }
   console.log(`${changed.length} of ${results.length} generated regions rewritten.`);
 }

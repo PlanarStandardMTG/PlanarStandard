@@ -44,7 +44,10 @@ export function EventCard({ event }: { event: ExternalEvent }) {
               <time dateTime={event.startsAt}>{formatDateTime(event.startsAt)}</time>
             )}
             {event.participantCount > 0 && (
-              <> · {event.participantCount} {event.participantCount === 1 ? "player" : "players"}</>
+              <>
+                {" "}
+                · {event.participantCount} {event.participantCount === 1 ? "player" : "players"}
+              </>
             )}
           </p>
         </div>

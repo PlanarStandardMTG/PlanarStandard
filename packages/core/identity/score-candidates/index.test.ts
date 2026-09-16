@@ -87,7 +87,10 @@ describe("core/identity/score-candidates", () => {
   });
 
   it("carries per-signal evidence for the review queue", () => {
-    const ranked = scoreCandidates([candidate("Zaunus13", { alias: "LikoRS" }), candidate("LikoRS")]);
+    const ranked = scoreCandidates([
+      candidate("Zaunus13", { alias: "LikoRS" }),
+      candidate("LikoRS"),
+    ]);
     const signal = ranked[0]?.signals.find((s) => s.kind === "parenthetical");
     expect(signal?.evidence).toMatchObject({ alias: "LikoRS" });
     expect(() => JSON.stringify(ranked[0]?.signals)).not.toThrow();
@@ -109,14 +112,16 @@ describe("core/identity/score-candidates", () => {
     ]);
     // Temporal alone is 0.3, exactly the floor.
     expect(weak).toHaveLength(1);
-    expect(scoreCandidates(
-      [
-        candidate("aaaa", { eventDates: ["2025-10-19"] as readonly IsoDate[] }),
-        candidate("zzzz", { eventDates: ["2025-12-06"] as readonly IsoDate[] }),
-      ],
-      [],
-      { minConfidence: 0.5 },
-    )).toEqual([]);
+    expect(
+      scoreCandidates(
+        [
+          candidate("aaaa", { eventDates: ["2025-10-19"] as readonly IsoDate[] }),
+          candidate("zzzz", { eventDates: ["2025-12-06"] as readonly IsoDate[] }),
+        ],
+        [],
+        { minConfidence: 0.5 },
+      ),
+    ).toEqual([]);
     expect(DEFAULT_MIN_CONFIDENCE).toBe(0.3);
   });
 
@@ -135,7 +140,11 @@ describe("core/identity/score-candidates", () => {
     // the module has never heard of composes straight in.
     const inventedSignal: SignalScorer = ({ a, b }) =>
       a.handle.normalized.length === b.handle.normalized.length
-        ? { kind: "same-length", confidence: 0.42, evidence: { length: a.handle.normalized.length } }
+        ? {
+            kind: "same-length",
+            confidence: 0.42,
+            evidence: { length: a.handle.normalized.length },
+          }
         : null;
 
     const ranked = scoreCandidates([candidate("abcd"), candidate("wxyz")], [], {

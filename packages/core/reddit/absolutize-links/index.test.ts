@@ -9,7 +9,9 @@ const fixture = (name: string): string =>
 
 describe("core/reddit/absolutize-links", () => {
   it("converts the fixture to its sibling expectation", () => {
-    expect(absolutizeLinks(fixture("absolutize-links.in.md"), CANONICAL)).toBe(fixture("absolutize-links.out.md"));
+    expect(absolutizeLinks(fixture("absolutize-links.in.md"), CANONICAL)).toBe(
+      fixture("absolutize-links.out.md"),
+    );
   });
 
   it("is idempotent", () => {

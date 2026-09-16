@@ -68,7 +68,9 @@ describe("lib/challonge/client", () => {
   });
 
   it("turns a rate limit into a result, not a throw", async () => {
-    globalThis.fetch = vi.fn(async () => new Response("", { status: 429 })) as typeof globalThis.fetch;
+    globalThis.fetch = vi.fn(
+      async () => new Response("", { status: 429 }),
+    ) as typeof globalThis.fetch;
 
     await expect(fetchCommunityTournaments()).resolves.toEqual({
       status: "failed",

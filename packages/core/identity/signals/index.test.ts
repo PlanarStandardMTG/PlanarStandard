@@ -13,10 +13,7 @@ const card = (n: number): OracleId => `card-${n}` as OracleId;
 const vec = (ids: readonly number[], qty = 4): DeckVector =>
   new Map(ids.map((id) => [card(id), qty]));
 
-function observation(
-  raw: string,
-  over: Partial<HandleObservation> = {},
-): HandleObservation {
+function observation(raw: string, over: Partial<HandleObservation> = {}): HandleObservation {
   return {
     identityId: raw as IdentityId,
     handle: { platform: "challonge", raw, normalized: normalizeHandle(raw) },
@@ -254,8 +251,12 @@ describe("every signal", () => {
         b: observation("b", { deckVectors: [vec([1, 2, 3])] }),
       })?.confidence,
     ).toBe(0.9);
-    expect(trigram({ a: observation("Dreamsalong"), b: observation("DreamsAlongg") })?.confidence).toBe(0.6);
-    expect(containment({ a: observation("Basscannon"), b: observation("BasscannonTtonka") })?.confidence).toBe(0.55);
+    expect(
+      trigram({ a: observation("Dreamsalong"), b: observation("DreamsAlongg") })?.confidence,
+    ).toBe(0.6);
+    expect(
+      containment({ a: observation("Basscannon"), b: observation("BasscannonTtonka") })?.confidence,
+    ).toBe(0.55);
     expect(
       temporal({
         a: observation("a", { eventDates: ["2025-10-19"] as readonly IsoDate[] }),

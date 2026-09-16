@@ -1,11 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import {
-  BULK_TYPE,
-  fetchBulkSource,
-  selectBulkSource,
-  SCRYFALL_HEADERS,
-} from "./index";
+import { BULK_TYPE, fetchBulkSource, selectBulkSource, SCRYFALL_HEADERS } from "./index";
 
 /** A real `GET https://api.scryfall.com/bulk-data` response, committed verbatim. */
 import bulkIndex from "../../../../fixtures/scryfall/bulk-index.json";
@@ -21,12 +16,8 @@ describe("selectBulkSource", () => {
 
   // The plan called this bulk type "all-printings"; no such type exists.
   it("names the available types when the requested one is absent", () => {
-    expect(() => selectBulkSource(bulkIndex, "all-printings")).toThrow(
-      /no `all-printings` entry/,
-    );
-    expect(() => selectBulkSource(bulkIndex, "all-printings")).toThrow(
-      /default_cards/,
-    );
+    expect(() => selectBulkSource(bulkIndex, "all-printings")).toThrow(/no `all-printings` entry/);
+    expect(() => selectBulkSource(bulkIndex, "all-printings")).toThrow(/default_cards/);
   });
 
   // Scryfall serves gzipped JSONL now; `download_uri` is gone.
@@ -49,14 +40,9 @@ describe("selectBulkSource", () => {
     expect(() => selectBulkSource(body)).toThrow(/no `updated_at`/);
   });
 
-  it.each([[null], [[]], [{}], [{ data: {} }]])(
-    "rejects a malformed index body: %j",
-    (body) => {
-      expect(() => selectBulkSource(body)).toThrow(
-        /expected an object with a `data` array/,
-      );
-    },
-  );
+  it.each([[null], [[]], [{}], [{ data: {} }]])("rejects a malformed index body: %j", (body) => {
+    expect(() => selectBulkSource(body)).toThrow(/expected an object with a `data` array/);
+  });
 });
 
 describe("fetchBulkSource", () => {
@@ -89,8 +75,6 @@ describe("fetchBulkSource", () => {
         status: 503,
         statusText: "Service Unavailable",
       }) as Response) as typeof fetch;
-    await expect(fetchBulkSource(failing)).rejects.toThrow(
-      /503 Service Unavailable/,
-    );
+    await expect(fetchBulkSource(failing)).rejects.toThrow(/503 Service Unavailable/);
   });
 });

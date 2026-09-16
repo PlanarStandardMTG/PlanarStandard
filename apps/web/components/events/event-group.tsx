@@ -9,13 +9,7 @@ import { EventCard } from "./event-card";
  * a heading over a blank space reads as a bug, and the page's own empty state
  * covers the case where every group is empty.
  */
-export function EventGroup({
-  title,
-  events,
-}: {
-  title: string;
-  events: readonly ExternalEvent[];
-}) {
+export function EventGroup({ title, events }: { title: string; events: readonly ExternalEvent[] }) {
   if (events.length === 0) return null;
 
   return (

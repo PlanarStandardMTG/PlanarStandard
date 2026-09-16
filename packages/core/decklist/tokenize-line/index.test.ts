@@ -10,7 +10,8 @@ const fixture = (name: string): readonly string[] =>
 
 const ok = (line: string) => {
   const result = tokenizeLine(line);
-  if (!result.ok) throw new Error(`expected ${JSON.stringify(line)} to tokenize: ${result.message}`);
+  if (!result.ok)
+    throw new Error(`expected ${JSON.stringify(line)} to tokenize: ${result.message}`);
   return result.token;
 };
 

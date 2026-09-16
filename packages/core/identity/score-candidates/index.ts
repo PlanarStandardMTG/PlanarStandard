@@ -93,7 +93,8 @@ export function scoreCandidates(
   }
 
   return scored.sort(
-    (x, y) => y.confidence - x.confidence || compare(x.playerA, y.playerA) || compare(x.playerB, y.playerB),
+    (x, y) =>
+      y.confidence - x.confidence || compare(x.playerA, y.playerA) || compare(x.playerB, y.playerB),
   );
 }
 

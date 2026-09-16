@@ -4,7 +4,8 @@
  */
 
 /** Block-level tags leave a paragraph break behind; inline tags leave nothing. */
-const BLOCK_TAGS = /<\/?(?:p|div|section|article|br|hr|h[1-6]|li|ul|ol|table|tr|blockquote)\b[^>]*>/gi;
+const BLOCK_TAGS =
+  /<\/?(?:p|div|section|article|br|hr|h[1-6]|li|ul|ol|table|tr|blockquote)\b[^>]*>/gi;
 const ANY_TAG = /<\/?[a-z][a-z0-9-]*\b[^>]*>/gi;
 const HTML_COMMENT = /<!--[\s\S]*?-->/g;
 

@@ -15,13 +15,13 @@ Modules: `tokenize-line`, `detect-board`, `normalize-name`, `parse-decklist`,
 <quantity>[x] <card name>[ (<set>) <collector>][ *F*]
 ```
 
-| Part | Rule |
-|---|---|
-| quantity | One or more digits, optionally followed by `x` or `X`. Zero is rejected. |
-| card name | Everything up to a trailing printing or foil marker. Kept verbatim. |
-| set | Two to six letters or digits in parentheses. **Optional.** |
+| Part      | Rule                                                                             |
+| --------- | -------------------------------------------------------------------------------- |
+| quantity  | One or more digits, optionally followed by `x` or `X`. Zero is rejected.         |
+| card name | Everything up to a trailing printing or foil marker. Kept verbatim.              |
+| set       | Two to six letters or digits in parentheses. **Optional.**                       |
 | collector | Any non-space run, immediately after the set. **Optional**, and always a string. |
-| foil | A trailing ` *F*`. |
+| foil      | A trailing ` *F*`.                                                               |
 
 Accepted, all from real lines:
 
@@ -74,16 +74,16 @@ boundary would silently move half the deck to the sideboard.
 ## Names
 
 Names are stored as written and normalized only for lookup. Normalization is
-NFKC, case-folded, punctuation-stripped, with faces joined by ` // `:
+NFKC, case-folded, punctuation-stripped, with faces joined by `//`:
 
-| Written | Normalized |
-|---|---|
-| `Ride's End` | `rides end` |
-| `Ugin, Eye of the Storms` | `ugin eye of the storms` |
-| `Sanar, Unfinished Genius / Wild Idea` | `sanar unfinished genius // wild idea` |
+| Written                                 | Normalized                             |
+| --------------------------------------- | -------------------------------------- |
+| `Ride's End`                            | `rides end`                            |
+| `Ugin, Eye of the Storms`               | `ugin eye of the storms`               |
+| `Sanar, Unfinished Genius / Wild Idea`  | `sanar unfinished genius // wild idea` |
 | `Sanar, Unfinished Genius // Wild Idea` | `sanar unfinished genius // wild idea` |
 
-Decklist exports write ` / ` between faces where Scryfall writes ` // `; both
+Decklist exports write `/` between faces where Scryfall writes `//`; both
 reach the same key. Each face is also keyed on its own, because a list may write
 only the front face.
 
@@ -112,13 +112,13 @@ identity pairings already present in the data — `Zaunus13 (LikoRS)`,
 
 Deliberate, with the reason:
 
-| Form | Why not |
-|---|---|
-| A handle containing `_` in an `_`-separated filename | Ambiguous with the separator. Prefer the fullwidth form. |
-| Quantity after the name (`Lightning Bolt x4`) | Not present in any real file. |
+| Form                                                        | Why not                                                                      |
+| ----------------------------------------------------------- | ---------------------------------------------------------------------------- |
+| A handle containing `_` in an `_`-separated filename        | Ambiguous with the separator. Prefer the fullwidth form.                     |
+| Quantity after the name (`Lightning Bolt x4`)               | Not present in any real file.                                                |
 | Deck names or categories as inline headers (`// Creatures`) | Read as comments; category grouping carries no information the metrics need. |
-| Multiple printings on one line | Not present in any real file. |
-| `(SET)` with no collector number after it | Kept as part of the card name rather than guessed at. |
+| Multiple printings on one line                              | Not present in any real file.                                                |
+| `(SET)` with no collector number after it                   | Kept as part of the card name rather than guessed at.                        |
 
 A new form is **a fixture plus a branch** — see `fixtures/README.md`. That is the
 smallest useful contribution in this repo and it is meant to be.

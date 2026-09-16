@@ -68,14 +68,14 @@ than routing around it.
 
 Each of these is a self-contained PR with no coordination:
 
-| Shape | What it takes |
-|---|---|
-| A new source adapter | a real export in `fixtures/`, `detect`, `parse`, expected JSON |
-| A new identity signal | one scoring function in `core/identity/signals/` |
-| A new Reddit transform | one before/after fixture pair |
-| A decklist edge case | one fixture and one branch |
-| A chart | a pure component and a Storybook story |
-| An MDX info page | no code at all |
+| Shape                  | What it takes                                                  |
+| ---------------------- | -------------------------------------------------------------- |
+| A new source adapter   | a real export in `fixtures/`, `detect`, `parse`, expected JSON |
+| A new identity signal  | one scoring function in `core/identity/signals/`               |
+| A new Reddit transform | one before/after fixture pair                                  |
+| A decklist edge case   | one fixture and one branch                                     |
+| A chart                | a pure component and a Storybook story                         |
+| An MDX info page       | no code at all                                                 |
 
 ## Definition of done
 

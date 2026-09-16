@@ -1,9 +1,4 @@
-import type {
-  CardDataset,
-  CardDatasetMeta,
-  IsoDateTime,
-  SetCode,
-} from "@ps/contracts";
+import type { CardDataset, CardDatasetMeta, IsoDateTime, SetCode } from "@ps/contracts";
 
 import { SCRYFALL_ATTRIBUTION } from "../bulk-index/index";
 import type { PruneResult } from "../prune/index";
@@ -23,10 +18,7 @@ export type EmittedFiles = {
   readonly "meta.json": string;
 };
 
-export function buildDataset(
-  result: PruneResult,
-  input: EmitInput,
-): CardDataset {
+export function buildDataset(result: PruneResult, input: EmitInput): CardDataset {
   const meta: CardDatasetMeta = {
     bulkUpdatedAt: input.bulkUpdatedAt,
     setCodes: [...input.scope],
@@ -60,10 +52,6 @@ function stringify(value: unknown): string {
   return `${JSON.stringify(value, null, 2)}\n`;
 }
 
-function sortKeys(
-  counts: Readonly<Record<SetCode, number>>,
-): Readonly<Record<SetCode, number>> {
-  return Object.fromEntries(
-    Object.entries(counts).sort(([a], [b]) => a.localeCompare(b)),
-  );
+function sortKeys(counts: Readonly<Record<SetCode, number>>): Readonly<Record<SetCode, number>> {
+  return Object.fromEntries(Object.entries(counts).sort(([a], [b]) => a.localeCompare(b)));
 }

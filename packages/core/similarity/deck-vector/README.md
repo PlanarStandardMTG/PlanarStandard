@@ -7,7 +7,7 @@
 **Gotchas.** **Maindeck only, basics excluded, non-basic lands kept.** Basics
 carry no information about what a deck is doing — every green deck runs Forests —
 so leaving them in makes two unrelated mono-colour decks look related. Non-basic
-lands stay because a manabase *is* a deckbuilding choice.
+lands stay because a manabase _is_ a deckbuilding choice.
 
 Basics are detected by normalized name rather than by type line, so this module
 needs no card index. It is the only closed set of card names in the game; the

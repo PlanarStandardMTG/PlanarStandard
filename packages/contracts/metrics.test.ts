@@ -82,12 +82,8 @@ describe("metrics contracts", () => {
       | "computedAt"
     >();
     // `not null` columns are required; the nullable numerics are present-and-null.
-    expectTypeOf<RequiredKeys<DeckMetrics>>().toEqualTypeOf<
-      keyof DeckMetrics
-    >();
-    expectTypeOf<DeckMetrics["avgMvSideboard"]>().toEqualTypeOf<
-      number | null
-    >();
+    expectTypeOf<RequiredKeys<DeckMetrics>>().toEqualTypeOf<keyof DeckMetrics>();
+    expectTypeOf<DeckMetrics["avgMvSideboard"]>().toEqualTypeOf<number | null>();
     expectTypeOf<DeckMetrics["colorIdentity"]>().toEqualTypeOf<
       readonly ("W" | "U" | "B" | "R" | "G")[] | null
     >();
@@ -109,14 +105,9 @@ describe("metrics contracts", () => {
   });
 
   it("buckets mana value 1-6 and 7+, and nothing else", () => {
-    expectTypeOf<MvBucket>().toEqualTypeOf<
-      "1" | "2" | "3" | "4" | "5" | "6" | "7+"
-    >();
+    expectTypeOf<MvBucket>().toEqualTypeOf<"1" | "2" | "3" | "4" | "5" | "6" | "7+">();
     // Lands are excluded from the curve, so the buckets sum to the 36 spells, not to 60.
-    const spells = Object.values(abzanMetrics.mvBuckets).reduce(
-      (a, b) => a + b,
-      0,
-    );
+    const spells = Object.values(abzanMetrics.mvBuckets).reduce((a, b) => a + b, 0);
     expectTypeOf(spells).toBeNumber();
     expectTypeOf<"0">().not.toExtend<MvBucket>();
     expectTypeOf<"7">().not.toExtend<MvBucket>();
@@ -151,9 +142,7 @@ describe("metrics contracts", () => {
   });
 
   it("counts rarity as C/U/R/MR from the printing in the legal pool", () => {
-    expectTypeOf<MetricRarity>().toEqualTypeOf<
-      "common" | "uncommon" | "rare" | "mythic"
-    >();
+    expectTypeOf<MetricRarity>().toEqualTypeOf<"common" | "uncommon" | "rare" | "mythic">();
     expectTypeOf<"special">().not.toExtend<MetricRarity>();
     expectTypeOf<"bonus">().not.toExtend<MetricRarity>();
   });
@@ -190,9 +179,7 @@ describe("metrics contracts", () => {
     } satisfies CardStats;
     expectTypeOf(stockUp).toExtend<CardStats>();
     expectTypeOf<CardStats["oracleId"]>().toEqualTypeOf<OracleId>();
-    expectTypeOf<CardStats["primaryArchetypeId"]>().toEqualTypeOf<
-      string | null
-    >();
+    expectTypeOf<CardStats["primaryArchetypeId"]>().toEqualTypeOf<string | null>();
   });
 
   it("has no commander board on card_stats", () => {
@@ -262,12 +249,8 @@ describe("metrics contracts", () => {
   it("shares one by-event envelope between card and archetype series", () => {
     type CardPoint = CardStats["byEvent"][number];
     type ArchetypePoint = ArchetypeStats["byEvent"][number];
-    expectTypeOf<Omit<CardPoint, "stats">>().toEqualTypeOf<
-      Omit<ArchetypePoint, "stats">
-    >();
-    expectTypeOf<CardStats["byEvent"]>().toExtend<
-      EventSeries<CardPoint["stats"]>
-    >();
+    expectTypeOf<Omit<CardPoint, "stats">>().toEqualTypeOf<Omit<ArchetypePoint, "stats">>();
+    expectTypeOf<CardStats["byEvent"]>().toExtend<EventSeries<CardPoint["stats"]>>();
   });
 
   it("orders the deck pair on a similarity edge", () => {
@@ -357,11 +340,7 @@ describe("metrics contracts", () => {
 
     // `n` reads off the union, so every arm has it.
     expectTypeOf<SuppressionVerdict["n"]>().toEqualTypeOf<number>();
-    expectTypeOf<
-      Extract<SuppressionVerdict, { level: "hide" }>
-    >().not.toHaveProperty("rate");
-    expectTypeOf<
-      Extract<SuppressionVerdict, { level: "show" }>
-    >().toHaveProperty("interval");
+    expectTypeOf<Extract<SuppressionVerdict, { level: "hide" }>>().not.toHaveProperty("rate");
+    expectTypeOf<Extract<SuppressionVerdict, { level: "show" }>>().toHaveProperty("interval");
   });
 });

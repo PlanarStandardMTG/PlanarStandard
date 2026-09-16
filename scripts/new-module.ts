@@ -13,11 +13,31 @@ const REPO_ROOT = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 /** Where a path prefix lands, and what that package is allowed to depend on. */
 const PACKAGE_ROOTS: ReadonlyArray<{ prefix: string; dir: string; note: string }> = [
-  { prefix: "contracts", dir: "packages/contracts", note: "Types only — no runtime code, no dependencies." },
-  { prefix: "core", dir: "packages/core", note: "Pure. Never imports db, next, react or @supabase/*; data arrives as an argument." },
-  { prefix: "adapters", dir: "packages/adapters", note: "Pure: RawInput in, ParsedEvent out. Depends on contracts + core only." },
-  { prefix: "db", dir: "packages/db", note: "Narrow, intention-revealing repository functions. No SQL string escapes this module." },
-  { prefix: "web", dir: "apps/web", note: "Thin coordinator. Business logic belongs in core, not here." },
+  {
+    prefix: "contracts",
+    dir: "packages/contracts",
+    note: "Types only — no runtime code, no dependencies.",
+  },
+  {
+    prefix: "core",
+    dir: "packages/core",
+    note: "Pure. Never imports db, next, react or @supabase/*; data arrives as an argument.",
+  },
+  {
+    prefix: "adapters",
+    dir: "packages/adapters",
+    note: "Pure: RawInput in, ParsedEvent out. Depends on contracts + core only.",
+  },
+  {
+    prefix: "db",
+    dir: "packages/db",
+    note: "Narrow, intention-revealing repository functions. No SQL string escapes this module.",
+  },
+  {
+    prefix: "web",
+    dir: "apps/web",
+    note: "Thin coordinator. Business logic belongs in core, not here.",
+  },
   { prefix: "jobs", dir: "apps/jobs", note: "Scheduled script. Never imported by apps/web." },
 ];
 

@@ -118,9 +118,7 @@ describe("identity contracts", () => {
       },
     ] satisfies readonly Signal[];
 
-    expect(signals.map((signal) => signal.confidence)).toEqual([
-      0.95, 0.9, 0.6, 0.55, 0.3,
-    ]);
+    expect(signals.map((signal) => signal.confidence)).toEqual([0.95, 0.9, 0.6, 0.55, 0.3]);
   });
 
   it("holds evidence that goes into a jsonb column as-is", () => {
@@ -196,9 +194,7 @@ describe("identity contracts", () => {
     >();
     expect(pending.reviewedBy).toBeNull();
     expect(merged.reviewedBy).not.toBeNull();
-    expect(merged.evidence.map((signal) => signal.kind)).toEqual([
-      "parenthetical",
-    ]);
+    expect(merged.evidence.map((signal) => signal.kind)).toEqual(["parenthetical"]);
   });
 
   it("closes the status union even though the signal union stays open", () => {

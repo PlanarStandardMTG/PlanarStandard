@@ -53,6 +53,8 @@ export function detectBoard(line: string): BoardLine {
 export function hasBoardHeader(lines: readonly string[]): boolean {
   return lines.some((line) => {
     const classified = detectBoard(line);
-    return classified.kind === "header" || (classified.kind === "card" && classified.board !== undefined);
+    return (
+      classified.kind === "header" || (classified.kind === "card" && classified.board !== undefined)
+    );
   });
 }
