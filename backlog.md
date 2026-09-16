@@ -32,7 +32,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
 | E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
-| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 13/23 |
+| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 14/23 |
 | E14  | RLS and access control                | 1     | E13          | ⬜ 0/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 2/8   |
@@ -389,7 +389,14 @@ published record. `matches` and `match_corrections` are public, scoped to the to
 visibility — "computed from data you can read" is not true if the ledger cannot be read, and a
 correction log only admins can see leaves a moved rating unexplainable to the person it moved.
 Verified: a draft tournament's matches are invisible to anon and present to service-role.
-⬜ **E13.9 — `tournament_entries`** · S · Deps: E13.7, E13.8
+✅ **E13.9 — `tournament_entries`** · S · Deps: E13.7, E13.8
+_Note:_ this references `players` where `matches` references `player_identities`, and the difference
+is the point. A match is raw history, so a merge repoints identities and rewrites nothing (ADR 003).
+An entry is a resolved standing, and a person cannot finish fourth and ninth at one event. That makes
+`unique (tournament_id, player_id)` the **co-appearance rule (E9.7) enforced by the database** — a
+merge that would collide here is a merge that must be refused. E18.16 checks it first and gives a
+readable error; this catches it if the service ever forgets. Verified rejecting at the database,
+along with `placement > 0`.
 ⬜ **E13.10 — `identity_exclusions`, `merge_suggestions`, `player_merges`** · M · Deps: E13.8
 ⬜ **E13.11 — Ratings tables and `leaderboard` view** · M · Deps: E13.10 — `rating_config`, `rating_events`, `player_ratings`, `rating_runs`.
 ⬜ **E13.12 — Derived stats tables** · L · Deps: E13.9 — `deck_metrics`, `card_stats`, `archetype_stats`, `deck_similarity`, `deck_map_layout`, `matchup_stats`. _Split per table if the review gets long._
@@ -787,12 +794,14 @@ can start today, in rough order of how much it unblocks.
   `set-attribution` and `rarity-counts` can now be proven against it rather than `fixtures/cards/`.
   **E4.7 (the loader) unblocks the most** — E19.13, E20.4 and E22.11 all wait on it. E4.5 moves the
   build to CI; E4.6 sets the size ceiling, for which 10 MB gives ~4x headroom over today's artifact.
-- **E13.9–E13.12 — the rest of the migrations,** in the Part IV order. Everything through the results
-  ledger is in; E14–E21 wait on what is not. **E13.9 (`tournament_entries`) is the next one and is
-  small** — it is the last schema between the home page's podium and real data (E24.5), and
-  `repos/tournaments` (E13.17) waits on it too.
-- **E13.18 — `repos/results`,** newly unblocked, and the read/write surface every E18 import story
-  sits on.
+- **E13.10–E13.12 — the rest of the migrations,** in the Part IV order. Everything through
+  `tournament_entries` is in, which is every table the site currently reads. E13.10 (the identity
+  trio) unblocks E13.11 and E13.19; E13.12 (derived stats) unblocks E13.21 and most of E19.
+- **E13.17 — `repos/tournaments`** and **E13.18 — `repos/results`,** both newly unblocked. E13.18 is
+  the read/write surface every E18 import story sits on.
+- **E24.5 — the real podium — now waits on one thing only.** Its schema is all in; what is missing is
+  something to _write_ an entry, which is E18.4. The query itself could be written today and would
+  correctly return nothing.
 - **E19.13 — `DeckVisualizer`,** now that `repos/decks` can hand it a deck. It takes shaped lines as
   props like every E19 component, so it needs no card data of its own — but see E19.1 first, which
   sets the fixture conventions the other thirteen components inherit.
@@ -847,7 +856,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
 | E1   | 9       | 9    | E12  | 10      | 6    |
-| E2   | 9       | 9    | E13  | 23      | 13   |
+| E2   | 9       | 9    | E13  | 23      | 14   |
 | E3   | 7       | 7    | E14  | 5       | 0    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
 | E5   | 6       | 6    | E16  | 8       | 2    |
@@ -860,4 +869,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 11   |
 |      |         |      | E24  | 7       | 4    |
 
-**122 of 228 stories done across 24 epics.**
+**123 of 228 stories done across 24 epics.**
