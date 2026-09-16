@@ -46,3 +46,6 @@ export type SeasonId = string;
 export type TournamentId = string;
 export type TournamentEntryId = string;
 export type MatchId = string;
+export type ResultImportId = string;
+export type StagedMatchId = string;
+export type MatchCorrectionId = string;

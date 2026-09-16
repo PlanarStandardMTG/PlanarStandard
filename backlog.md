@@ -32,7 +32,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
 | E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
-| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 15/23 |
+| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 16/23 |
 | E14  | RLS and access control                | 1     | E13          | ⬜ 0/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 2/8   |
@@ -434,7 +434,20 @@ _Note:_ writing this suite exposed a cross-file hazard in two earlier ones. Vite
 parallel, so a suite that clears a whole table clears it out from under whoever else is using it —
 this one's `vitest-%` cleanup was deleting `generated-columns.test.ts`'s fixture player mid-run. Both
 this suite and `repos/decks` now delete by the ids they created.
-⬜ **E13.18 — `repos/results`** · L · Deps: E13.8
+✅ **E13.18 — `repos/results`** · L · Deps: E13.8 — the import pipeline (`createImport`,
+`findImportByContentHash`, `updateImportStatus`, `supersedeOtherImports`), staging
+(`replaceStagedMatches`, `listStagedMatches`, `resolveStagedMatch`), the ledger
+(`replaceTournamentMatches`, `listMatchesByTournament`, `listLedgerMatchesBySeason`) and the
+correction log (`recordMatchCorrection`, `listMatchCorrections`).
+_Note:_ **`listLedgerMatchesBySeason` is where ADR 003 happens.** The ledger stores identities and
+`LedgerMatch` names players; that translation is done at read time, here, which is exactly why a
+merge changes every rating and rewrites no history. It orders date → round → match id, and that order
+is a contract: Elo is path-dependent, so a different one is a different leaderboard, silently.
+_Note:_ which client a function takes is not a style choice. `result_imports` and `staged_matches`
+have RLS on with **no policy**, so the anon client reads them as empty with no error — passing the
+public client is a bug that looks like an event with no rows. Asserted.
+_Note:_ both identity embeds carry an explicit FK hint. `matches` has two foreign keys into
+`player_identities` and PostgREST will not guess between them.
 ⬜ **E13.19 — `repos/identity`** · L · Deps: E13.10
 ⬜ **E13.20 — `repos/ratings`** · M · Deps: E13.11
 ⬜ **E13.21 — `repos/stats`** · L · Deps: E13.12
@@ -809,8 +822,11 @@ can start today, in rough order of how much it unblocks.
 - **E13.10–E13.12 — the rest of the migrations,** in the Part IV order. Everything through
   `tournament_entries` is in, which is every table the site currently reads. E13.10 (the identity
   trio) unblocks E13.11 and E13.19; E13.12 (derived stats) unblocks E13.21 and most of E19.
-- **E13.18 — `repos/results`,** the read/write surface every E18 import story sits on, and the last
-  repository between here and E18.1.
+- **E18.1–E18.5 — the import pipeline.** `repos/results` is in, so the whole chain — upload, detect,
+  stage, resolve, review, commit, supersede — now has its storage. E18.1 needs one more decision
+  first: where archived raw bytes live. Supabase Storage is the obvious answer and nothing has
+  written it down.
+- **E13.10 — the identity trio,** which E18.3 needs to auto-create an identity on a miss.
 - **E24.5 — the real podium — now waits on one thing only.** Its schema is all in; what is missing is
   something to _write_ an entry, which is E18.4. The query itself could be written today and would
   correctly return nothing.
@@ -868,7 +884,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
 | E1   | 9       | 9    | E12  | 10      | 6    |
-| E2   | 9       | 9    | E13  | 23      | 15   |
+| E2   | 9       | 9    | E13  | 23      | 16   |
 | E3   | 7       | 7    | E14  | 5       | 0    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
 | E5   | 6       | 6    | E16  | 8       | 2    |
@@ -881,4 +897,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 11   |
 |      |         |      | E24  | 7       | 4    |
 
-**124 of 228 stories done across 24 epics.**
+**125 of 228 stories done across 24 epics.**

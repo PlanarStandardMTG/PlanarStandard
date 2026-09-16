@@ -8,10 +8,17 @@ import type {
   ArchetypeId,
   DeckId,
   FormatVersionId,
+  IdentityId,
   IsoDate,
   IsoDateTime,
+  JsonValue,
+  MatchCorrectionId,
+  MatchId,
   PlayerId,
+  ProfileId,
+  ResultImportId,
   SeasonId,
+  StagedMatchId,
   TournamentEntryId,
   TournamentId,
 } from "./primitives";
@@ -277,6 +284,110 @@ export interface TournamentEntry {
   readonly dropped: boolean;
   /** Why there is no deck, in the organiser's words. Absent-for-a-reason is not absent-and-chaseable. */
   readonly deckMissingReason: string | null;
+}
+
+/**
+ * A `result_imports` row — one upload, and everything known about what became of it.
+ *
+ * `contentHash` is the idempotency key: uploading the same file twice is one
+ * import, which is what makes a retry after a timeout safe (E18.1).
+ */
+export interface ResultImport {
+  readonly id: ResultImportId;
+  readonly tournamentId: TournamentId;
+  readonly adapterId: AdapterId;
+  readonly sourcePlatform: string | null;
+  /** Where the raw bytes were archived. They are kept permanently (§26). */
+  readonly filePath: string | null;
+  readonly fileName: string | null;
+  readonly contentHash: string;
+  /** What this parse produced, not what the adapter can do — the ADR 006 gate. */
+  readonly capabilities: readonly Capability[];
+  readonly columnMapping: ColumnMapping | null;
+  readonly status: ImportStatus;
+  readonly rowCount: number | null;
+  readonly stats: JsonValue | null;
+  readonly errors: JsonValue | null;
+  readonly uploadedBy: ProfileId | null;
+  readonly createdAt: IsoDateTime;
+  readonly committedAt: IsoDateTime | null;
+}
+
+/**
+ * A `staged_matches` row — one source row, mid-review.
+ *
+ * `raw` is retained per row so a parser fix re-runs without the original file
+ * (§26). `result` is a plain string rather than a `MatchResult`, because a cell
+ * that could not be normalized still has to stage where an operator can see it.
+ */
+export interface StagedMatch {
+  readonly id: StagedMatchId;
+  readonly importId: ResultImportId;
+  readonly rowIndex: number;
+  readonly raw: RawRow;
+  readonly round: number | null;
+  readonly tableNumber: number | null;
+  readonly p1Handle: string | null;
+  readonly p2Handle: string | null;
+  readonly p1Games: number | null;
+  readonly p2Games: number | null;
+  readonly gameDraws: number | null;
+  readonly result: string | null;
+  readonly isElimination: boolean;
+  /** Written back by resolution (E18.3), per side — one row routinely has a
+   * confident match on one handle and a guess on the other. */
+  readonly p1IdentityId: IdentityId | null;
+  readonly p2IdentityId: IdentityId | null;
+  readonly p1Method: string | null;
+  readonly p2Method: string | null;
+  readonly p1Confidence: number | null;
+  readonly p2Confidence: number | null;
+  readonly issues: readonly ParseIssue[];
+}
+
+/**
+ * A `matches` row as stored — identities, not players.
+ *
+ * `LedgerMatch` (in `ratings`) is the same row with both sides resolved to a
+ * player, which is what replay consumes. This is what the table holds, and the
+ * difference between the two is ADR 003 in a type.
+ */
+export interface Match {
+  readonly id: MatchId;
+  readonly tournamentId: TournamentId;
+  readonly sourceImportId: ResultImportId | null;
+  readonly round: number;
+  readonly tableNumber: number | null;
+  readonly p1IdentityId: IdentityId;
+  /** Null on a bye — there is no opponent to record. */
+  readonly p2IdentityId: IdentityId | null;
+  readonly p1Games: number;
+  readonly p2Games: number;
+  readonly gameDraws: number;
+  readonly result: MatchResult;
+  readonly isElimination: boolean;
+  readonly createdAt: IsoDateTime;
+}
+
+/** What `replaceTournamentMatches` writes. No id or timestamp — Postgres assigns both. */
+export type NewMatch = Omit<Match, "id" | "tournamentId" | "createdAt">;
+
+/**
+ * One `match_corrections` row.
+ *
+ * `reason` is required, and that is the point: a correction with no stated
+ * reason is indistinguishable from a mistake, and this log is what lets a rating
+ * that moved be explained rather than merely observed (E18.6).
+ */
+export interface MatchCorrection {
+  readonly id: MatchCorrectionId;
+  readonly matchId: MatchId;
+  readonly field: string;
+  readonly oldValue: JsonValue | null;
+  readonly newValue: JsonValue | null;
+  readonly reason: string;
+  readonly correctedBy: ProfileId;
+  readonly createdAt: IsoDateTime;
 }
 
 // ── The read side ────────────────────────────────────────────────────────────
