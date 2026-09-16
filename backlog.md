@@ -32,7 +32,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
 | E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
-| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 9/23  |
+| E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 10/23 |
 | E14  | RLS and access control                | 1     | E13          | ⬜ 0/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 2/8   |
@@ -366,7 +366,13 @@ _Note:_ the seed carries no `format_card_rules` rows. The live banlist is announ
 _Note:_ closes E9.1's outstanding parity check. `fixtures/identity/normalized-handles.json` is read by both `core/identity/normalize-handle`'s test and `packages/db/generated-columns.test.ts`, so the two implementations are asserted against one table instead of against a list typed out twice — neither package has to import the other.
 _Note:_ no seed rows. Synthetic handles and pairings are E15.1's job, and inventing a second set here would be the thing that seed has to reconcile with.
 ✅ **E13.6 — `tournaments`** · S · Deps: E13.4
-⬜ **E13.7 — `decks`, `deck_cards`** · M · Deps: E13.3, E13.5, E13.6
+✅ **E13.7 — `decks`, `deck_cards`** · M · Deps: E13.3, E13.5, E13.6
+_Note:_ `visibility <> 'private'` is the read policy, so an **unlisted deck is readable**. Unlisted
+means "not in the listings", and a policy that hid it would break the share link that is the whole
+point of the state — filtering a browse page down to `public` is the query's job. E14.1 revisits it
+and E14.5 is where the allow-deny matrix gets asserted; it is verified by hand for now.
+_Note:_ no seed rows, following E13.5. A deck needs a player and a tournament to mean anything, and
+inventing a second synthetic set here is exactly what E15.1 would then have to reconcile with.
 ⬜ **E13.8 — `result_imports`, `staged_matches`, `matches`, `match_corrections`** · L · Deps: E13.6 — _AC:_ `unique (tournament_id, content_hash)`; ledger references `player_identities`, never `players`.
 ⬜ **E13.9 — `tournament_entries`** · S · Deps: E13.7, E13.8
 ⬜ **E13.10 — `identity_exclusions`, `merge_suggestions`, `player_merges`** · M · Deps: E13.8
@@ -745,9 +751,13 @@ can start today, in rough order of how much it unblocks.
   `set-attribution` and `rarity-counts` can now be proven against it rather than `fixtures/cards/`.
   **E4.7 (the loader) unblocks the most** — E19.13, E20.4 and E22.11 all wait on it. E4.5 moves the
   build to CI; E4.6 sets the size ceiling, for which 10 MB gives ~4x headroom over today's artifact.
-- **E13.7–E13.12 — the rest of the migrations,** in the Part IV order. `profiles`, content, format,
-  archetypes, seasons, tournaments and the identity pair are in; everything in E14–E21 waits on the
-  ones that are not. E13.7 (`decks`) and E13.8 (the results ledger) unblock the most.
+- **E13.8–E13.12 — the rest of the migrations,** in the Part IV order. `profiles`, content, format,
+  archetypes, seasons, tournaments, the identity pair and now `decks` are in; everything in E14–E21
+  waits on the ones that are not. **E13.8 (the results ledger) unblocks the most** — E13.9, E13.10,
+  E14.3 and E18.1–E18.6 all sit behind it, and with E13.9 the home page's podium stops being a
+  placeholder (E24.5).
+- **E13.16 — `repos/decks`,** newly unblocked by E13.7 and the last thing between E19.13/E20.6 and a
+  deck page.
 - **E13.23 — `repos/archetypes`,** and **E13.17 — `repos/tournaments`** once E13.9 lands.
 - **E17.4 — `<Chart />`,** the last thing between E17 and a finished epic. It waits on E19.
 
@@ -799,7 +809,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
 | E1   | 9       | 9    | E12  | 10      | 6    |
-| E2   | 9       | 9    | E13  | 23      | 9    |
+| E2   | 9       | 9    | E13  | 23      | 10   |
 | E3   | 7       | 7    | E14  | 5       | 0    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
 | E5   | 6       | 6    | E16  | 8       | 2    |
@@ -812,4 +822,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 11   |
 |      |         |      | E24  | 7       | 4    |
 
-**118 of 228 stories done across 24 epics.**
+**119 of 228 stories done across 24 epics.**
