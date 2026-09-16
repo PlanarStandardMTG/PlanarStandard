@@ -1,8 +1,13 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+import { CURRENT_PATH_HEADER } from "@/lib/auth/path-header";
+
 /**
  * Keeps the session alive (E16.2).
+ *
+ * `proxy.ts`, not `middleware.ts`: Next 16 deprecated that name and this is the
+ * same feature under the one it kept.
  *
  * Supabase access tokens expire in an hour. Nothing else in the request cycle
  * can refresh them — a Server Component is not allowed to set cookies — so
@@ -12,29 +17,41 @@ import { NextResponse, type NextRequest } from "next/server";
  *
  * **This is not the authorization boundary, and must not become one.** It
  * refreshes a session and nothing more. Who may see what is decided by
- * `lib/auth/guard.ts`, inside the render, next to the data — middleware can be
- * skipped by a request that never reaches the matcher, has been bypassable by
- * header in the past (CVE-2025-29927), and knows nothing about the row a page is
- * about to read. A guard in front of the page is a convenience; a guard in the
- * page is the rule.
+ * `lib/auth/guard.ts`, inside the render, next to the data. A proxy runs in
+ * front of the app — it can be skipped by a request that never matches, it has
+ * been bypassable by header in the past (CVE-2025-29927), and it knows nothing
+ * about the row a page is about to read. A check out here is a convenience; the
+ * check in the page is the rule.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
+  // A Server Component cannot see the URL it is rendering for, and a guard that
+  // redirects to the login page has to know where to send the visitor back to.
+  // Always `set`, never append: whatever the browser sent under this name is
+  // overwritten here, so it cannot be used to aim the post-login redirect.
+  const currentPath = request.nextUrl.pathname + request.nextUrl.search;
+
+  const build = () => {
+    const headers = new Headers(request.headers);
+    headers.set(CURRENT_PATH_HEADER, currentPath);
+    return NextResponse.next({ request: { headers } });
+  };
+
   const url = process.env["NEXT_PUBLIC_SUPABASE_URL"];
   const anonKey = process.env["NEXT_PUBLIC_SUPABASE_ANON_KEY"];
 
   // A deployment without Supabase configured still serves every public page.
-  if (url === undefined || anonKey === undefined) return NextResponse.next({ request });
+  if (url === undefined || anonKey === undefined) return build();
 
-  let response = NextResponse.next({ request });
+  let response = build();
 
   const supabase = createServerClient(url, anonKey, {
     cookies: {
       getAll: () => request.cookies.getAll(),
       setAll: (written) => {
         for (const { name, value } of written) request.cookies.set(name, value);
-        // A fresh response, built from the mutated request, so the refreshed
-        // cookies reach both this render and the browser.
-        response = NextResponse.next({ request });
+        // Rebuilt from the mutated request, so the refreshed cookies reach both
+        // this render and the browser.
+        response = build();
         for (const { name, value, options } of written) response.cookies.set(name, value, options);
       },
     },

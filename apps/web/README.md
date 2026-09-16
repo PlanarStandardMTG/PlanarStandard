@@ -15,8 +15,9 @@ every feed and article page shares; `components/home/` holds the three tiles the
 home page is made of (E24); `lib/` holds helpers, the two Supabase clients,
 `info-pages/` — the reader, whitelist, and renderer behind `content/pages/*.mdx`
 (E17), `format/`, the one read behind `<LegalSets />` and `<Banlist />`,
-`challonge/` plus `events/`, the read-through cache behind `/events` (E23), and
-`podium/`. Feature slices (§11, E20) will move route-owned code out of
+`challonge/` plus `events/`, the read-through cache behind `/events` (E23),
+`podium/`, and `auth/` — the guards, the viewer, and the two path helpers behind
+every protected route (E16). Feature slices (§11, E20) will move route-owned code out of
 `components/content` as they land.
 
 **The two kinds of writing.** Posts are database rows, served dynamically from
@@ -59,6 +60,19 @@ special case of the other; §25's split rule decides which a document is.
 - `lib/supabase/server.ts` uses the anon key and is subject to RLS. Anything that
   needs to write, or to read past a policy, uses `service-role.server.ts` — and
   the `.server.ts` suffix is what `pnpm guard:server-only` keys on.
+  `lib/supabase/session.ts` is a third client: the same anon key, carrying the
+  visitor's cookies, so `auth.uid()` is populated and RLS sees a person.
+- **A protected route guards itself.** `await requireRole("admin")` is the first
+  statement in the page or layout, and there is no registry of protected routes —
+  so a new page under `/dashboard` cannot be left open by forgetting to list it
+  somewhere. Guard in the layout *and* in the page: the call is memoised per
+  request, and a page that relies on its parent is one route move from having no
+  check. `proxy.ts` refreshes the session and decides nothing. See
+  [`docs/modules/auth.md`](../../docs/modules/auth.md).
+- Signing in is a form POST to a route handler, so there is still **no browser
+  Supabase client** in the repo and the whole flow works with JavaScript off. The
+  header renders the account state on the server, which is why it never flickers
+  from signed-out to signed-in.
 - **The home page's top-four-decks section is stand-in data**, and says so where a
   reader can see it. `lib/podium/latest-podium.ts` is a seam shaped like the read
   it will become — async, nullable, sliced there rather than in the component —

@@ -107,6 +107,11 @@ export {
   upcomingEvents,
 } from "./events/event-schedule/index";
 
+// auth — who may do what (§16, E16.5)
+export { ROLE_LADDER, isUserRole, meetsRole, roleRank } from "./auth/meets-role/index";
+export { HANDLE_MAX_LENGTH, HANDLE_MIN_LENGTH, checkProfileHandle } from "./auth/profile-handle/index";
+export type { HandleCheck, HandleProblem } from "./auth/profile-handle/index";
+
 // metrics — deck to numbers (§8.3)
 export { bucketFor, manaCurve } from "./metrics/mana-curve/index";
 export { colorCounts, colorIdentity } from "./metrics/color-counts/index";

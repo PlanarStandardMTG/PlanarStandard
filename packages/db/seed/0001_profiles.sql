@@ -14,10 +14,18 @@
 -- into a specific person, and it sets the one thing the trigger will not — the
 -- role. Every writer and organizer the seeded site needs comes from here.
 
+-- The token columns are set to '' and not left to default. GoTrue scans them
+-- into Go strings and a NULL is a 500 on sign-in — "Database error querying
+-- schema", which names neither the column nor the row. Nothing read these until
+-- there was a login (E16.3), so the seeded accounts looked fine and none of them
+-- could sign in.
 insert into auth.users (
   instance_id, id, aud, role, email, encrypted_password,
   email_confirmed_at, created_at, updated_at,
-  raw_app_meta_data, raw_user_meta_data
+  raw_app_meta_data, raw_user_meta_data,
+  confirmation_token, recovery_token,
+  email_change, email_change_token_new, email_change_token_current,
+  phone_change, phone_change_token, reauthentication_token
 )
 select
   '00000000-0000-0000-0000-000000000000',
@@ -28,7 +36,8 @@ select
   crypt('seed-password-not-a-secret', gen_salt('bf')),
   now(), now(), now(),
   '{"provider":"email","providers":["email"]}'::jsonb,
-  '{}'::jsonb
+  '{}'::jsonb,
+  '', '', '', '', '', '', '', ''
 from (values
   ('11111111-1111-4111-8111-000000000001'::uuid, 'newsdesk@planarstandard.test'),
   ('11111111-1111-4111-8111-000000000002'::uuid, 'wrenfield@planarstandard.test'),

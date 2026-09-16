@@ -35,11 +35,11 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 20/23 |
 | E14  | RLS and access control                | 1     | E13          | ⬜ 0/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
-| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 5/8   |
+| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 7/8   |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | ⬜ 0/19  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 1/19  |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 2/20  |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | ✅ 12/12 |
@@ -571,8 +571,20 @@ the user rather than by whichever code path runs next — which also covers an a
 Supabase dashboard. The migration backfills accounts that predate it, so "signed in with no profile"
 is unreachable rather than handled. `handle` is left null: a Discord username is not unique, and
 claiming one on sign-up would hand the first arrival a name the second could never have.
-⬜ **E16.5 — Role-aware route guards** · M · Deps: E16.4 — reader / writer / organizer / admin.
-⬜ **E16.6 — Dashboard shell and navigation** · M · Deps: E16.5
+✅ **E16.5 — Role-aware route guards** · M · Deps: E16.4 — reader / writer / organizer / admin.
+_Note:_ the call site is the declaration. `requireViewer()` and `requireRole(role)` are called as the
+first statement of a page or layout, and there is no registry of protected routes — a new page under
+`/dashboard` cannot be left open by forgetting to add it to a list it does not know exists. Signed
+out redirects to `/login` with the destination remembered; signed in and short of the bar goes to
+`/unauthorized`, which is a page rather than a bounce home so that a permission is distinguishable
+from a broken link. The ladder itself is `core/auth/meets-role`, so it is testable with no
+credentials. `proxy.ts` refreshes the session and decides nothing — the comment there says why.
+✅ **E16.6 — Dashboard shell and navigation** · M · Deps: E16.5
+_Note:_ the shell and the role-aware nav, with all four sections listed and none of them built —
+they are E20.2, E20.15, E20.16 and E20.18. Listed rather than hidden, the same way the main nav
+lists `/meta`: the shape is worth advertising to the people who will use it. The layout guards at
+`writer`, the lowest rung with anything to do here, and each section will guard itself again at what
+it actually needs, because a layout cannot express "organizer here, admin there".
 ⬜ **E16.7 — Deploy pipeline and preview environments** · M · Deps: E16.1 — _AC:_ production deploy from `main`, preview per PR, environment variables documented.
 ✅ **E16.8 — Error, empty, and loading states as shared components** · S · Deps: E16.1
 
@@ -696,6 +708,14 @@ slice owns no client components — see E16.2.
 ⬜ **E20.17 — `identity-admin`: CSV round-trip** · M · Deps: E20.16
 ⬜ **E20.18 — `format-admin`: `/dashboard/format`** · L · Deps: E13.15 — _AC:_ validates `format_legal_sets` against `data/sets.json` and warns when a selected set is absent from the dataset; bans and exceptions editable without a deploy.
 ⬜ **E20.19 — Site search** · M · Deps: E20.4
+✅ **E20.20 — `auth`: `/profile`** · M · Deps: E16.5 — the page every signed-in account has: display
+name, handle, bio, role, and what that role can do. _AC:_ a person may edit their own profile and
+may not change their own role.
+_Note:_ added at E16.5 rather than planned — §11.2 gives the `auth` slice login and callback, and an
+account with nowhere to go after signing in is not a finished flow. The handle is optional and
+validated by `core/auth/profile-handle`; role escalation is refused by `profiles_self_update`'s
+`with check` clause, asserted from the signed-in side in `repos/profiles`. The form is a server
+action with no client component, so it works with JavaScript off like the rest of the slice.
 
 ---
 
@@ -943,6 +963,17 @@ E23 is complete, and both calendars are live: `/events` and the home page fetch 
 melee.gg independently, each against its own ledger row, and render from the seed anywhere the
 credentials are unset. See [`docs/modules/events.md`](docs/modules/events.md).
 
+**Auth is in, so every gated story now has somewhere to put its gate.** E16.2–E16.6 and E20.1 are
+merged: Discord sign-in, a profile row per account, `requireViewer` / `requireRole`, and a dashboard
+shell whose four sections are all still empty. Anything that needed a signed-in person can now ask
+for one in a line — E18.8 (the self-service paste path), E20.2 (article authoring), E20.15 (the
+import dashboard), E20.16 and E20.18 (the two admin slices). Each of those is a page under
+`/dashboard` that calls `requireRole` and fills in one entry in `lib/auth/dashboard-sections.ts`.
+
+The one thing to do *before* the admin slices is **E14.4**, which makes role grants a policy rather
+than an `update` in the SQL editor. Until it lands there is no way to promote anybody from inside the
+site. See [`docs/modules/auth.md`](docs/modules/auth.md).
+
 **E12.10 is what is left of melee.gg.** E23.12 took the tournament _listing_, so an event run there
 shows up on the schedule; E12.10 wants the _results_ — match history, standings, decklists — so it can
 be imported. The listing endpoint answered to `MELEE_CLIENT_ID` and `MELEE_CLIENT_SECRET` over basic
@@ -978,14 +1009,14 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E2   | 9       | 9    | E13  | 23      | 20   |
 | E3   | 7       | 7    | E14  | 5       | 0    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
-| E5   | 6       | 6    | E16  | 8       | 5    |
+| E5   | 6       | 6    | E16  | 8       | 7    |
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 19      | 0    |
 | E8   | 6       | 6    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 19      | 1    |
+| E9   | 9       | 9    | E20  | 20      | 2    |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**134 of 228 stories done across 24 epics.**
+**137 of 229 stories done across 24 epics.**

@@ -112,6 +112,79 @@ suite("repos/profiles", () => {
     ).rejects.toThrow(/updateProfile failed/);
   });
 
+  /**
+   * `profiles_self_update` (migration 0001), from the signed-in side.
+   *
+   * The profile page's edit form depends on all three of these, and none of them
+   * is visible in the repository — the policy is the whole implementation. The
+   * full allow-deny matrix across every table is E14.5; these are the three rows
+   * of it that shipped code already relies on.
+   */
+  describe("under the signed-in person's own session", () => {
+    const password = "not-a-secret-either";
+    let ownerId = "";
+    let owner = anon;
+    let neighbourId = "";
+
+    beforeAll(async () => {
+      const created = await service.auth.admin.createUser({
+        email: `owner-${Date.now()}@example.test`,
+        password,
+        email_confirm: true,
+      });
+      ownerId = created.data.user?.id ?? "";
+
+      const other = await service.auth.admin.createUser({
+        email: `neighbour-${Date.now()}@example.test`,
+        email_confirm: true,
+      });
+      neighbourId = other.data.user?.id ?? "";
+
+      // A client of its own: signing in on the shared `anon` client would leave
+      // every later test authenticated as this person.
+      owner = createClient(url, anonKey, { auth: { persistSession: false } });
+      const { error } = await owner.auth.signInWithPassword({
+        email: created.data.user?.email ?? "",
+        password,
+      });
+      if (error !== null) throw new Error(`could not sign in: ${error.message}`);
+    });
+
+    afterAll(async () => {
+      if (ownerId !== "") await service.auth.admin.deleteUser(ownerId);
+      if (neighbourId !== "") await service.auth.admin.deleteUser(neighbourId);
+    });
+
+    it("lets a person edit their own profile", async () => {
+      const saved = await updateProfile(owner, ownerId, {
+        displayName: "Chandra",
+        handle: null,
+        bio: "Burn.",
+      });
+
+      expect(saved.displayName).toBe("Chandra");
+      expect(saved.bio).toBe("Burn.");
+    });
+
+    it("refuses to let a person promote themselves", async () => {
+      // Not through `updateProfile`, which omits the column — straight at the
+      // table, the way an attacker would. The `with check` clause is the only
+      // thing standing here, and if it stopped working nothing else would notice.
+      const { error } = await owner.from("profiles").update({ role: "admin" }).eq("id", ownerId);
+
+      expect(error?.code).toBe("42501");
+      expect(await getProfile(anon, ownerId).then((p) => p?.role)).toBe("reader");
+    });
+
+    it("refuses to let a person edit somebody else", async () => {
+      // No error: the `using` clause makes the row invisible to the update, so
+      // it matches nothing. Silent, which is why the assertion is on the row.
+      await owner.from("profiles").update({ bio: "not mine to write" }).eq("id", neighbourId);
+
+      expect(await getProfile(anon, neighbourId).then((p) => p?.bio)).toBeNull();
+    });
+  });
+
   it("has no answer for an id that is not a person", async () => {
     expect(await getProfile(anon, "00000000-0000-0000-0000-000000000000")).toBeNull();
   });
