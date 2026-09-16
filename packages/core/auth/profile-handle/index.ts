@@ -14,11 +14,18 @@ export const HANDLE_MAX_LENGTH = 30;
 
 /** Handles that would collide with a route, or imply an authority nobody granted. */
 const RESERVED = new Set([
+  "account",
   "admin",
   "administrator",
   "api",
   "articles",
   "auth",
+  "check-email",
+  "confirm",
+  "forgot-password",
+  "oauth",
+  "password",
+  "signup",
   "cards",
   "dashboard",
   "decks",

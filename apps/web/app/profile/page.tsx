@@ -1,5 +1,6 @@
 import { HANDLE_MAX_LENGTH, HANDLE_MIN_LENGTH } from "@ps/core";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
@@ -58,15 +59,17 @@ export default async function ProfilePage({
   const params = await searchParams;
   const rawError = typeof params["error"] === "string" ? params["error"] : null;
   const error = rawError === null ? null : (ERRORS[rawError] ?? "That could not be saved.");
-  const saved = params["saved"] === "1" && error === null;
+  const savedWhat = typeof params["saved"] === "string" ? params["saved"] : null;
+  const saved = error === null && savedWhat !== null;
 
   return (
     <Container className="py-12">
       <div className="mx-auto max-w-xl">
         <header className="flex items-center gap-4">
           {profile.avatarUrl !== null && (
-            // Discord's CDN, not our own uploads — so a plain img rather than
-            // next/image, which would need the host listed in next.config.ts.
+            // A provider's CDN — Google's or Discord's — and not our own
+            // uploads, so a plain img rather than next/image, which would need
+            // every provider's host listed in next.config.ts.
             <img
               src={profile.avatarUrl}
               alt=""
@@ -99,6 +102,18 @@ export default async function ProfilePage({
               Signed in with {email}. Only you can see this.
             </p>
           )}
+          <p className="mt-3 text-sm">
+            <Link
+              href="/account/password"
+              className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
+            >
+              Set a new password
+            </Link>
+            <span className="text-ink-500 dark:text-ink-400">
+              {" "}
+              — including if you have only ever signed in with a link or a provider.
+            </span>
+          </p>
         </Card>
 
         <Card className="mt-6 p-6">
@@ -117,7 +132,7 @@ export default async function ProfilePage({
               role="status"
               className="mt-4 rounded-lg border border-emerald-300 bg-emerald-50 px-4 py-3 text-sm text-emerald-900 dark:border-emerald-900 dark:bg-emerald-950 dark:text-emerald-200"
             >
-              Saved.
+              {savedWhat === "password" ? "Your new password is saved." : "Saved."}
             </p>
           )}
 

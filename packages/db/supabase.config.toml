@@ -188,7 +188,9 @@ enable_anonymous_sign_ins = false
 # Allow/disallow testing manual linking of accounts
 enable_manual_linking = false
 # Passwords shorter than this value will be rejected as weak. Minimum 6, recommended 8 or more.
-minimum_password_length = 6
+# Eight, not the CLI's six. Mirrored by `core/auth/password-policy`, which is
+# what gives someone the message before a round trip — this is the authority.
+minimum_password_length = 8
 # Passwords that do not meet the following requirements will be rejected as weak. Supported values
 # are: `letters_digits`, `lower_upper_letters_digits`, `lower_upper_letters_digits_symbols`
 password_requirements = ""
@@ -231,8 +233,15 @@ enable_signup = true
 # If enabled, a user will be required to confirm any email change on both the old, and new email
 # addresses. If disabled, only the new email is required to confirm.
 double_confirm_changes = true
-# If enabled, users need to confirm their email address before signing in.
-enable_confirmations = false
+# On, and load-bearing rather than tidy. Supabase links identities that share an
+# email address, so an *unconfirmed* password account on somebody else's address
+# would be waiting to be linked to their Google sign-in — handing whoever created
+# it a password into the real owner's account. Requiring confirmation is what
+# makes "same email" mean "same person" (E16.9).
+#
+# It also means production needs real SMTP. Supabase's built-in sender is rate
+# limited to a few messages an hour and is not for production use.
+enable_confirmations = true
 # If enabled, users will need to reauthenticate or have logged in recently to change their password.
 secure_password_change = false
 # Controls the minimum amount of time that must pass before sending another signup confirmation or password reset email.
@@ -252,10 +261,30 @@ otp_expiry = 3600
 # admin_email = "admin@email.com"
 # sender_name = "Admin"
 
-# Uncomment to customize email template
-# [auth.email.template.invite]
-# subject = "You have been invited"
-# content_path = "./supabase/templates/invite.html"
+# Every email links to `/auth/confirm?token_hash=…`, not to the default
+# `{{ .ConfirmationURL }}`. That default sends the browser through Supabase's
+# verify endpoint, which hands the session back in a URL *fragment* — and a
+# fragment never reaches the server, so a server-rendered site cannot read it.
+# The token-hash form is exchanged server-side in the route handler, and it is
+# also what lets a link opened on a different device work at all.
+#
+# `content_path` is relative to the directory the CLI runs in, and
+# `supabase/templates` is symlinked to `packages/db/templates` by `pnpm db:setup`.
+[auth.email.template.confirmation]
+subject = "Confirm your Planar Standard account"
+content_path = "./supabase/templates/confirmation.html"
+
+[auth.email.template.magic_link]
+subject = "Your Planar Standard sign-in link"
+content_path = "./supabase/templates/magic_link.html"
+
+[auth.email.template.recovery]
+subject = "Reset your Planar Standard password"
+content_path = "./supabase/templates/recovery.html"
+
+[auth.email.template.email_change]
+subject = "Confirm your new email address"
+content_path = "./supabase/templates/email_change.html"
 
 # Uncomment to customize notification email template
 # [auth.email.notification.password_changed]
@@ -336,6 +365,17 @@ max_frequency = "5s"
 # No contributor needs this. Everything on the site is readable signed out, and
 # only work on the auth flow itself requires an account — §17 counts Discord
 # login as one of two tasks in the repository that need real credentials.
+# Sign in with Google. Set both variables before `pnpm db:start` to use it
+# locally; in production they are set in the Supabase dashboard.
+[auth.external.google]
+enabled = true
+client_id = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_CLIENT_ID)"
+secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
+redirect_uri = ""
+url = ""
+# Google's local sign-in needs this; the nonce is not returned to a loopback app.
+skip_nonce_check = true
+
 [auth.external.discord]
 enabled = true
 client_id = "env(SUPABASE_AUTH_EXTERNAL_DISCORD_CLIENT_ID)"

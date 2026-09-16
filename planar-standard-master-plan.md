@@ -764,7 +764,7 @@ pnpm dev                        # http://localhost:3000
 
 **The seed matters.** `packages/db/seed/` ships an anonymized derivative of Season II — real decklists, real archetype distribution, synthetic handles and synthetic pairings. A contributor gets a site with a populated leaderboard, a working archetype map, and real charts on first run. Nobody can meaningfully improve a chart against an empty database.
 
-Only two tasks need real credentials: Discord OAuth login and the Discord webhook. Card data is committed to the repo, so even legality and metrics work offline on a fresh clone.
+Only the Discord webhook needs real credentials, and only for the task that posts to it. Sign-in does not: local Supabase accepts email and password, and its mail catcher holds the confirmation and magic links, so the whole auth surface can be worked on offline (E16.9). OAuth providers are optional everywhere — the sign-in page renders whichever ones the project has configured and offers email either way. Card data is committed to the repo, so legality and metrics work offline on a fresh clone too.
 
 ### 18. Parallel work streams
 

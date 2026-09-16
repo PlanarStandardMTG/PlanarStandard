@@ -26,6 +26,8 @@ const template = resolve(root, "packages/db/supabase.config.toml");
 const config = resolve(supabaseDir, "config.toml");
 const migrations = resolve(supabaseDir, "migrations");
 const source = resolve(root, "packages/db/migrations");
+const templates = resolve(supabaseDir, "templates");
+const templateSource = resolve(root, "packages/db/templates");
 
 mkdirSync(supabaseDir, { recursive: true });
 
@@ -35,10 +37,16 @@ if (!existsSync(config) || readFileSync(config, "utf8") !== desired) {
   console.log("supabase/config.toml written from packages/db/supabase.config.toml");
 }
 
-// Relative, so the link survives the repo being cloned to a different path.
-const target = relative(supabaseDir, source);
-if (existsSync(migrations) || lstatSync(migrations, { throwIfNoEntry: false })) {
-  rmSync(migrations, { recursive: true, force: true });
+// Relative, so the links survive the repo being cloned to a different path.
+function link(at: string, to: string): void {
+  const target = relative(supabaseDir, to);
+  if (existsSync(at) || lstatSync(at, { throwIfNoEntry: false })) {
+    rmSync(at, { recursive: true, force: true });
+  }
+  symlinkSync(target, at, "dir");
+  console.log(`${relative(root, at)} -> ${target}`);
 }
-symlinkSync(target, migrations, "dir");
-console.log(`supabase/migrations -> ${target}`);
+
+link(migrations, source);
+// The auth email templates, which `config.toml` names by path (E16.9).
+link(templates, templateSource);

@@ -35,7 +35,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | 🚧 20/23 |
 | E14  | RLS and access control                | 1     | E13          | ⬜ 0/5   |
 | E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
-| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 7/8   |
+| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 8/9   |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | ⬜ 0/19  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
@@ -560,10 +560,10 @@ JavaScript disabled and no `'use client'` module can reach a Supabase key at all
 refreshes the token — a Server Component cannot set cookies, so without it an hour-old session is
 silently signed out mid-visit.
 ✅ **E16.3 — Discord OAuth login and callback** · M · Deps: E16.2
-_Note:_ Discord and no second provider, per §17 — the community already lives there, and a second
-identity to reconcile buys nobody anything. Sign-out is POST-only so a remote `<img>` tag cannot
-trigger it. `next` is validated by `safeNextPath` before it reaches a `Location` header: the login
-page would otherwise be an open redirect.
+_Note:_ shipped Discord-only, per §17 as it then read. **Superseded by E16.9**, which makes Discord
+one option among four and no longer the door — §17 has been rewritten to match. What survives
+unchanged from this story is the OAuth half: `/auth/callback`, and `safeNextPath` validating `next`
+before it reaches a `Location` header, without which the login page is an open redirect.
 ✅ **E16.4 — `profiles` bootstrap on first login** · S · Deps: E16.3
 _Note:_ a trigger on `auth.users` (migration 0016), not an upsert in the callback. Every table that
 attributes anything points at `profiles`, so the row is created by the same statement that creates
@@ -586,6 +586,26 @@ lists `/meta`: the shape is worth advertising to the people who will use it. The
 `writer`, the lowest rung with anything to do here, and each section will guard itself again at what
 it actually needs, because a layout cannot express "organizer here, admin there".
 ⬜ **E16.7 — Deploy pipeline and preview environments** · M · Deps: E16.1 — _AC:_ production deploy from `main`, preview per PR, environment variables documented.
+✅ **E16.9 — Email, magic link, and Google sign-in** · L · Deps: E16.5 — four ways in, none required;
+email confirmation; password reset. _AC:_ a contributor can sign up, sign in, and reset a password
+with no external account registered anywhere.
+_Note:_ added after E16.3 shipped, because Discord-only was the wrong call — it made "join our chat
+server" a precondition for writing anything, and the site is readable without an account precisely
+so that it is not a club. Discord stays as one provider among several, and its real use — knowing
+which member a player is — moves to a later, opt-in pairing (`identity_source` already has
+`discord_oauth`; `linkIdentity` attaches one to an existing account). Which buttons appear comes from
+Supabase's `/auth/v1/settings`, so a provider is a dashboard toggle rather than a deploy.
+_Note:_ `enable_confirmations` is now on and is load-bearing, not tidy — Supabase links identities
+sharing an email, so an unconfirmed password account on somebody else's address would be waiting to
+be linked to their Google sign-in. It also makes real SMTP a **production dependency**: two of the
+four ways in are an email, as is every reset, and the built-in sender is a few messages an hour.
+_Note:_ the four auth emails are ours (`packages/db/templates/`) because the defaults return the
+session in a URL fragment, which a server-rendered site cannot read. Three separate traps in editing
+them are written up in `docs/modules/auth.md`; each one had already been hit.
+_Outstanding:_ Discord identity pairing is designed, not built — no story owns it until a feature
+needs it. Google and Discord are verified against the settings endpoint and the local config, but
+neither has been run against a real provider application; the email flows have been run end to end.
+_Outstanding:_ E14.4 still owns role granting, so promotion is an `update` in the SQL editor.
 ✅ **E16.8 — Error, empty, and loading states as shared components** · S · Deps: E16.1
 
 ---
@@ -963,16 +983,17 @@ E23 is complete, and both calendars are live: `/events` and the home page fetch 
 melee.gg independently, each against its own ledger row, and render from the seed anywhere the
 credentials are unset. See [`docs/modules/events.md`](docs/modules/events.md).
 
-**Auth is in, so every gated story now has somewhere to put its gate.** E16.2–E16.6 and E20.1 are
-merged: Discord sign-in, a profile row per account, `requireViewer` / `requireRole`, and a dashboard
-shell whose four sections are all still empty. Anything that needed a signed-in person can now ask
+**Auth is in, so every gated story now has somewhere to put its gate.** E16.2–E16.6, E16.9 and E20.1
+are merged: four ways to sign in, a profile row per account, `requireViewer` / `requireRole`, and a
+dashboard shell whose four sections are all still empty. Anything that needed a signed-in person can now ask
 for one in a line — E18.8 (the self-service paste path), E20.2 (article authoring), E20.15 (the
 import dashboard), E20.16 and E20.18 (the two admin slices). Each of those is a page under
 `/dashboard` that calls `requireRole` and fills in one entry in `lib/auth/dashboard-sections.ts`.
 
-The one thing to do *before* the admin slices is **E14.4**, which makes role grants a policy rather
-than an `update` in the SQL editor. Until it lands there is no way to promote anybody from inside the
-site. See [`docs/modules/auth.md`](docs/modules/auth.md).
+Two things to do *before* the admin slices. **E14.4** makes role grants a policy rather than an
+`update` in the SQL editor — until it lands there is no way to promote anybody from inside the site.
+And production needs **real SMTP**: two of the four ways in are an email, and so is every password
+reset. See [`docs/modules/auth.md`](docs/modules/auth.md).
 
 **E12.10 is what is left of melee.gg.** E23.12 took the tournament _listing_, so an event run there
 shows up on the schedule; E12.10 wants the _results_ — match history, standings, decklists — so it can
@@ -1009,7 +1030,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E2   | 9       | 9    | E13  | 23      | 20   |
 | E3   | 7       | 7    | E14  | 5       | 0    |
 | E4   | 7       | 4    | E15  | 5       | 0    |
-| E5   | 6       | 6    | E16  | 8       | 7    |
+| E5   | 6       | 6    | E16  | 9       | 8    |
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 19      | 0    |
 | E8   | 6       | 6    | E19  | 14      | 0    |
@@ -1019,4 +1040,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**137 of 229 stories done across 24 epics.**
+**138 of 230 stories done across 24 epics.**

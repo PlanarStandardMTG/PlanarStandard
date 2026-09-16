@@ -111,6 +111,13 @@ export {
 export { ROLE_LADDER, isUserRole, meetsRole, roleRank } from "./auth/meets-role/index";
 export { HANDLE_MAX_LENGTH, HANDLE_MIN_LENGTH, checkProfileHandle } from "./auth/profile-handle/index";
 export type { HandleCheck, HandleProblem } from "./auth/profile-handle/index";
+export {
+  PASSWORD_MAX_BYTES,
+  PASSWORD_MIN_LENGTH,
+  checkPassword,
+  utf8ByteLength,
+} from "./auth/password-policy/index";
+export type { PasswordCheck, PasswordProblem } from "./auth/password-policy/index";
 
 // metrics — deck to numbers (§8.3)
 export { bucketFor, manaCurve } from "./metrics/mana-curve/index";

@@ -50,6 +50,12 @@ describe("checkProfileHandle", () => {
   it("refuses a handle that would shadow a route", () => {
     expect(rejected("events")).toBe("reserved");
     expect(rejected("login")).toBe("reserved");
+    // Added with the routes themselves (E16.9). A handle is destined for a
+    // top-level URL, so every route the site adds is a name it can no longer
+    // hand out.
+    expect(rejected("signup")).toBe("reserved");
+    expect(rejected("account")).toBe("reserved");
+    expect(rejected("forgot-password")).toBe("reserved");
   });
 
   it("refuses a handle that claims an authority nobody granted", () => {

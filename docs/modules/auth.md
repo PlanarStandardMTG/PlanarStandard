@@ -8,52 +8,112 @@ Everything on this site is readable without an account. Signing in is for
 banlist — and that shapes every decision below. An account is never a gate in
 front of information the community already published.
 
-## Discord, and nothing else
+## Several ways in, none of them required
 
-The format's community lives on Discord, organizers are already known to each
-other there, and every account the site cares about has one. A second provider
-would mean a second identity to reconcile against the same person for nobody's
-benefit.
+| Method                 | What it needs                     | Also signs you up |
+| ---------------------- | --------------------------------- | ----------------- |
+| Email and password     | nothing but an address            | via `/signup`     |
+| Emailed sign-in link   | nothing but an address            | **yes**           |
+| Google                 | a Google account                  | yes               |
+| Discord                | a Discord account                 | yes               |
 
-§17 of the plan accepts the cost: Discord login is one of only two tasks in the
-repository that need real credentials. Nothing else does, which is why a fresh
-clone still runs the whole site.
+**No provider is privileged, and Discord in particular is not.** The format's
+community lives there, but requiring it would turn "read this site" into "join
+our chat server first". It is one option among several.
 
-The provider is configured in Supabase, not here — the dashboard in production,
-`packages/db/supabase.config.toml` locally. **No Vercel environment variable is
-involved**, and there is no `DISCORD_*` secret anywhere in the app.
+That leaves Discord's real use — knowing which Discord member a player is — as a
+thing to ask for **later, when a feature earns it**, rather than a toll at the
+door. Someone who signs in with an emailed link today can link a Discord identity
+the day the site does something with it. `identity_source` in §12 already has a
+`discord_oauth` member for exactly that, and Supabase's `linkIdentity` attaches a
+provider to an account that already exists. Nothing in this epic needs it.
 
-## The flow
+Which OAuth buttons appear is decided by the project, not the repository:
+`lib/auth/enabled-providers.ts` asks Supabase's public `/auth/v1/settings` which
+providers are switched on. Turning Google off is a toggle in the dashboard, and
+the button goes away without a deploy. With none configured, email and the magic
+link are a complete way in on their own.
+
+## The flows
 
 ```
-/login                       form POST, no JavaScript required
-  └─ POST /auth/sign-in      signInWithOAuth → Discord, PKCE verifier cookie set
-       └─ discord.com
-            └─ GET /auth/callback?code=…&next=…
-                 ├─ exchangeCodeForSession → session cookies
-                 └─ redirect to `next`
+Password        /login → POST /auth/password → session → next
+Sign up         /signup → POST /auth/sign-up → email → /auth/confirm → next
+Magic link      /login → POST /auth/magic-link → email → /auth/confirm → next
+OAuth           /login → POST /auth/oauth → provider → /auth/callback → next
+Reset           /forgot-password → POST /auth/recover → email
+                  → /auth/confirm → /account/password → POST /auth/update-password
 ```
 
-A profile row already exists by the time the callback runs. It is created by a
-trigger on `auth.users` (migration 0016), not by this code path — every table
-that attributes anything points at `profiles`, so the row is made by the same
-statement that makes the user. An account created from the Supabase dashboard
-gets one too.
+Every route that can change a credential is under `app/auth/`, so the whole
+surface can be read in one sitting. Every one of them is a POST from a plain
+form: signing in changes state, and a GET would let a prefetch, a crawler or an
+`<img>` tag start a round trip nobody asked for. Nothing in the flow is a client
+component, so it all works with JavaScript off.
 
-Three things are worth stating because each is a way this goes wrong:
+A profile row already exists by the time any of this finishes. It is created by a
+trigger on `auth.users` (migration 0016), not by any code path above — every
+table that attributes anything points at `profiles`, so the row is made by the
+same statement that makes the user.
 
-**Sign-out is POST-only.** A sign-out on GET can be fired by any page on the
-internet with an `<img>` tag.
+## Email is infrastructure now
 
-**`next` is validated before it reaches a `Location` header.** `safeNextPath`
-rejects absolute URLs, protocol-relative paths (`//evil.example` starts with a
-slash and still leaves the site), and control characters. Without it the login
-page is an open redirect wearing the site's own credibility.
+Two of the four ways in are an email, and so is every password reset. **That
+makes an SMTP provider a production dependency.** Supabase's built-in sender is
+rate limited to a few messages an hour and is explicitly not for production use;
+without a real one configured, magic links and resets fail quietly for most
+people who try them.
 
-**`getUser`, never `getSession`.** `getSession` reads the cookie and believes
-it. `getUser` revalidates with the auth server. On a page deciding what someone
-may see, that is the difference between a forged cookie being rejected and being
-authenticated.
+Locally there is nothing to configure: Supabase runs Mailpit and every message
+lands at <http://127.0.0.1:54324> instead of being delivered.
+
+### Why the templates are ours
+
+`packages/db/templates/` holds the four email bodies, linked into place by
+`pnpm db:setup`. They exist for one reason: the default templates link to
+`{{ .ConfirmationURL }}`, which sends the browser through Supabase's verify
+endpoint and hands the result back in a URL **fragment**. A fragment never
+reaches the server, so a server-rendered site cannot read it. Ours link to
+`/auth/confirm?token_hash=…`, which is exchanged server-side — and which also
+makes a link work when it is opened on a different device from the one that
+asked for it.
+
+Three things about editing them, each of which has already gone wrong once:
+
+- **Build the URL from `RedirectTo`**, which carries the `?next=` the visitor was
+  heading for. A hard-coded path silently drops it and lands everyone on the same
+  page.
+- **Never put a conditional at the start of an `href`.** Go's `html/template`
+  refuses to autoescape a URL whose context it cannot work out, and fails with
+  "appears in an ambiguous context within a URL".
+- **Do not use the template delimiters in a comment.** Go parses comments too, so
+  the word `if` between braces is an action with no argument — and a template
+  that fails to parse is not an error anybody sees. GoTrue quietly falls back to
+  its own default and sends that instead, which is how a working-looking flow
+  ends up with an unreadable fragment in the URL.
+
+## What is and is not hidden
+
+**Confirmation is required, and that is load-bearing rather than tidy.** Supabase
+links identities that share an email address. An *unconfirmed* password account
+on somebody else's address would sit waiting to be linked to their Google
+sign-in, handing whoever created it a password into the real owner's account.
+Requiring confirmation is what makes "same email" mean "same person".
+
+The **magic link** and the **password reset** never say whether an address has an
+account. Both can be scripted against a list of addresses, and the answer goes to
+the address rather than to the screen.
+
+The **sign-up form does** say, and that is a deliberate trade. Supabase obfuscates
+a repeat sign-up only while the first one is still unconfirmed; after that it
+answers `user_already_exists`. Passing that through, with somewhere to go, beats
+stranding the person who forgot they already signed up — which is a certainty —
+in order to hide something any password form leaks anyway.
+
+Failures travel as **codes**, not sentences: `?error=invalid-credentials`, never
+`?error=<message>`. `lib/auth/auth-error.ts` turns a code into copy, so a crafted
+link can only ever produce one of our sentences rather than arbitrary text on our
+page over our name.
 
 ## Where the session is kept alive
 
@@ -68,18 +128,22 @@ someone back where they were going. A proxy runs in front of the app: it can be
 skipped by a request that never matches, it has been bypassable by header before
 (CVE-2025-29927), and it knows nothing about the row a page is about to read.
 
+`getUser`, never `getSession`. `getSession` reads the cookie and believes it;
+`getUser` revalidates with the auth server. On a page deciding what someone may
+see, that is the difference between a forged cookie being rejected and being
+authenticated.
+
 ## Three layers, saying the same thing
 
-| Layer                             | Stops                       | Lives in                    |
-| --------------------------------- | --------------------------- | --------------------------- |
-| Hiding a link                     | nothing — it is a courtesy  | `lib/auth/dashboard-sections.ts` |
-| `requireRole` in a page or layout | a page from rendering       | `lib/auth/guard.ts`         |
-| RLS                               | a row from moving           | migrations, E14             |
+| Layer                             | Stops                      | Lives in                         |
+| --------------------------------- | -------------------------- | -------------------------------- |
+| Hiding a link                     | nothing — it is a courtesy | `lib/auth/dashboard-sections.ts` |
+| `requireRole` in a page or layout | a page from rendering      | `lib/auth/guard.ts`              |
+| RLS                               | a row from moving          | migrations, E14                  |
 
 Only the third is a control in the security sense. The first two exist so people
-are not shown doors they cannot open, and so a page does not have to render
-before discovering it should not have. **A guard that ever disagrees with a
-policy is a bug in the guard, never a permission.**
+are not shown doors they cannot open. **A guard that ever disagrees with a policy
+is a bug in the guard, never a permission.**
 
 ## Adding a protected route
 
@@ -108,19 +172,11 @@ A layout guard sets the floor for a segment and cannot express "organizer here,
 admin there" — so `/dashboard` guards at `writer` and each section guards itself
 again at what it actually needs.
 
-## What happens when someone cannot get in
-
-Two different situations, deliberately handled differently:
-
+Where somebody cannot get in, the two cases are handled differently on purpose.
 **Signed out** → `/login?next=…`, because signing in may be all that is needed.
-They land back on the page they asked for.
-
-**Signed in, but short of the bar** → `/unauthorized?from=…&need=…`, which is a
-page and not a redirect home. Someone bounced silently to the home page cannot
-tell a permission from a broken link, and will try the same link again. The page
-names the path, what it needs, what their account is, and where to ask. Both
-parameters are display-only and validated anyway; the page grants nothing, so the
-worst a forged link does is show a sentence that is not true.
+**Signed in and short of the bar** → `/unauthorized?from=…&need=…`, a page rather
+than a redirect home: someone bounced silently to the home page cannot tell a
+permission from a broken link, and will try the same link again.
 
 ## The role ladder
 
@@ -129,8 +185,8 @@ worst a forged link does is show a sentence that is not true.
 They are a ladder and not a set of independent permissions: an organizer may do
 anything a writer may. That holds because the format's organizers are also the
 people who write the event recaps, and a site this size does not need two grants
-where one will do. The day it stops holding, `meets-role` is the only module
-that changes — which is why callers ask it instead of comparing roles themselves.
+where one will do. The day it stops holding, `meets-role` is the only module that
+changes — which is why callers ask it instead of comparing roles themselves.
 
 **Nobody can grant themselves a role.** `updateProfile` omits the column, and
 `profiles_self_update`'s `with check` clause refuses a change to it even from a
@@ -138,28 +194,39 @@ client that goes straight at the table. Both are asserted in
 `packages/db/repos/profiles/index.test.ts`. Granting is admin-only and lands with
 E14.4; until then it is an `update` in the SQL editor.
 
-## Working on this without a Discord app
+## Working on this locally
 
-The seeded accounts have passwords, and local Supabase accepts email sign-in even
-though the site does not offer it. That is enough to develop a protected page
-without registering a Discord application — sign in through Supabase Studio, or
-mint a session with `signInWithPassword` against the local instance.
+Nothing needs registering. Sign up at `/signup` with any address, then open
+<http://127.0.0.1:54324> and click the link in the message that arrives — the
+whole sign-up, magic link, and reset surface works with no external account at
+all.
 
-The seed's five accounts cover writer, organizer, and admin, so the role-aware
-parts of the UI have something to render for every rung.
+The seeded accounts have passwords (`seed-password-not-a-secret`) and cover
+writer, organizer, and admin, so the role-aware parts of the UI have something to
+render for every rung.
+
+To exercise an OAuth provider locally, register an application with it, point its
+redirect URI at `http://127.0.0.1:54321/auth/v1/callback`, and export the two
+variables named in `supabase.config.toml` before `pnpm db:start`.
 
 ## Modules
 
-| Module                                | Job                                                     |
-| ------------------------------------- | ------------------------------------------------------- |
-| `core/auth/meets-role`                | does this role clear that bar                           |
-| `core/auth/profile-handle`            | what a person may call themselves in a URL              |
-| `db/repos/profiles`                   | read a profile, save a person's own edits               |
-| `db/migrations/0016_profile_bootstrap`| the trigger that makes the row                          |
-| `web/proxy.ts`                        | keeps the session alive; decides nothing                |
-| `web/lib/supabase/session.ts`         | the cookie-bound client                                 |
-| `web/lib/auth/viewer.ts`              | the one place a cookie becomes a person                 |
-| `web/lib/auth/guard.ts`               | `requireViewer`, `requireRole`                          |
-| `web/lib/auth/next-path.ts`           | where it is safe to send somebody afterwards            |
-| `web/lib/auth/current-path.ts`        | what path this render is for                            |
-| `web/lib/auth/dashboard-sections.ts`  | what is behind the dashboard, and who each part is for  |
+| Module                                 | Job                                                    |
+| -------------------------------------- | ------------------------------------------------------ |
+| `core/auth/meets-role`                 | does this role clear that bar                          |
+| `core/auth/profile-handle`             | what a person may call themselves in a URL             |
+| `core/auth/password-policy`            | what we require of a password, mirrored from Supabase  |
+| `db/repos/profiles`                    | read a profile, save a person's own edits              |
+| `db/migrations/0016_profile_bootstrap` | the trigger that makes the row                         |
+| `db/templates/`                        | the four emails, and why they are not the defaults     |
+| `web/proxy.ts`                         | keeps the session alive; decides nothing               |
+| `web/app/auth/*`                       | every route that can change a credential               |
+| `web/lib/supabase/session.ts`          | the cookie-bound client                                |
+| `web/lib/auth/viewer.ts`               | the one place a cookie becomes a person                |
+| `web/lib/auth/guard.ts`                | `requireViewer`, `requireRole`                         |
+| `web/lib/auth/auth-error.ts`           | a failure becomes a code, and a code becomes a sentence |
+| `web/lib/auth/providers.ts`            | the OAuth catalogue                                    |
+| `web/lib/auth/enabled-providers.ts`    | which of them this project actually has                |
+| `web/lib/auth/next-path.ts`            | where it is safe to send somebody afterwards           |
+| `web/lib/auth/current-path.ts`         | what path this render is for                           |
+| `web/lib/auth/dashboard-sections.ts`   | what is behind the dashboard, and who each part is for |

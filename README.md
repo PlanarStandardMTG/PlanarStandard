@@ -20,8 +20,9 @@ pnpm db:reset                       # migrations + seed
 pnpm dev                            # http://localhost:3000
 ```
 
-Only two things need real secrets: Discord OAuth login and the Discord
-webhook. Everything else — including legality and metrics — works offline.
+Only the Discord webhook needs a real secret. Sign-in does not — local
+Supabase takes an email and a password and catches its own mail — and neither
+does anything else, including legality and metrics.
 
 ## Layout
 

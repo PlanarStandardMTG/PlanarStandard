@@ -73,6 +73,15 @@ special case of the other; §25's split rule decides which a document is.
   Supabase client** in the repo and the whole flow works with JavaScript off. The
   header renders the account state on the server, which is why it never flickers
   from signed-out to signed-in.
+- **Every route that can change a credential is under `app/auth/`** — password,
+  sign-up, magic link, recovery, OAuth, confirm, update-password, sign-out — so
+  the whole surface reads in one sitting. There are four ways in and none is
+  required; which OAuth buttons appear comes from Supabase's own settings
+  endpoint, so turning a provider off is a dashboard toggle rather than a deploy.
+- **Auth emails are ours, in `packages/db/templates/`,** because the default
+  templates return the session in a URL fragment and a server-rendered site
+  cannot read a fragment. Editing one has three traps in it — see
+  [`docs/modules/auth.md`](../../docs/modules/auth.md) before you do.
 - **The home page's top-four-decks section is stand-in data**, and says so where a
   reader can see it. `lib/podium/latest-podium.ts` is a seam shaped like the read
   it will become — async, nullable, sliced there rather than in the component —

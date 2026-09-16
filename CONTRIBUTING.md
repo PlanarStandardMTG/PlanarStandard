@@ -105,8 +105,9 @@ ID: `E5.2`, `E12.4`.
 
 ## The full stack
 
-Only two things need real secrets — Discord OAuth login and the Discord
-webhook. Everything else runs locally:
+Only the Discord webhook needs a real secret. Sign-in does not: local Supabase
+takes an email and a password, and Mailpit at <http://127.0.0.1:54324> catches
+the confirmation and magic links it sends. Everything else runs locally:
 
 ```bash
 pnpm db:start                    # supabase start (local Docker)
