@@ -1,9 +1,13 @@
 import type { Color, OracleId, Rarity, SetCode } from "./cards";
-import type { Board, DeckId } from "./decks";
-import type { IsoDate, IsoDateTime } from "./primitives";
-import type { SeasonId, TournamentId } from "./results";
-
-export type ArchetypeId = string;
+import type { Board } from "./decks";
+import type {
+  ArchetypeId,
+  DeckId,
+  IsoDate,
+  IsoDateTime,
+  SeasonId,
+  TournamentId,
+} from "./primitives";
 
 /**
  * The `archetype_supertype` enum (§14). Charts group by this by default — 58 archetypes

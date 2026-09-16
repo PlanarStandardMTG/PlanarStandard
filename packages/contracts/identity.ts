@@ -2,13 +2,15 @@
 // system refers to them. The ledger references identities, never players (ADR 003), so a
 // merge repoints rows here and leaves `matches` untouched.
 
-import type { ProfileId } from "./content";
-import type { IsoDateTime, JsonValue } from "./primitives";
-import type { TournamentId } from "./results";
-
-export type IdentityId = string;
-export type PlayerId = string;
-export type MergeSuggestionId = string;
+import type {
+  IdentityId,
+  IsoDateTime,
+  JsonValue,
+  MergeSuggestionId,
+  PlayerId,
+  ProfileId,
+  TournamentId,
+} from "./primitives";
 
 /** The `player_visibility` enum (§12). A hidden player is absent from the leaderboard view. */
 export type PlayerVisibility = "public" | "hidden";

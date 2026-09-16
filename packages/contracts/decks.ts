@@ -1,7 +1,5 @@
 import type { OracleId, SetCode } from "./cards";
 
-export type DeckId = string;
-
 /** The `deck_visibility` enum (§14). */
 export type DeckVisibility = "private" | "unlisted" | "public";
 

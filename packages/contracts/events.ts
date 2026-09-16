@@ -1,9 +1,7 @@
 // A cached view of an external event calendar. Rows mirror `external_events` and
 // `external_event_syncs`; `timestamptz` columns arrive as ISO 8601 strings.
 
-import type { IsoDateTime } from "./primitives";
-
-export type ExternalEventId = string;
+import type { ExternalEventId, IsoDateTime } from "./primitives";
 
 /**
  * Which calendar an event came from. One source, one row in the sync ledger.

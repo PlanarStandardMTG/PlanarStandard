@@ -15,3 +15,33 @@ export type IsoDateTime = string;
 /** Anything that survives a round trip through a `jsonb` column. */
 export type JsonValue =
   string | number | boolean | null | readonly JsonValue[] | { readonly [key: string]: JsonValue };
+
+/**
+ * Row ids, as opaque strings.
+ *
+ * Here rather than in the module that owns each concept, for the reason at the
+ * top of this file: a `Deck` row carries an owner, a player, a season, a format
+ * version and an archetype, and if the id of each lived with its concept then
+ * `decks` would have to import from five modules — three of which already import
+ * from `decks`. Owning the concept is not the same as owning the scalar that
+ * names it.
+ *
+ * `OracleId` is the exception and stays in `cards`: it is branded rather than a
+ * plain alias, because an oracle id has no foreign key anywhere (§14.1) and the
+ * brand is the only thing stopping any other string being passed where one
+ * belongs.
+ */
+export type ProfileId = string;
+export type PostId = string;
+export type PostRevisionId = string;
+export type DeckId = string;
+export type ExternalEventId = string;
+export type FormatVersionId = string;
+export type IdentityId = string;
+export type PlayerId = string;
+export type MergeSuggestionId = string;
+export type ArchetypeId = string;
+export type AdapterId = string;
+export type SeasonId = string;
+export type TournamentId = string;
+export type MatchId = string;

@@ -2,17 +2,8 @@
 // ParsedEvent out. No platform is special (ADR 005).
 
 import type { Color } from "./cards";
-import type { DeckId, WinLossDraw } from "./decks";
-import type { IsoDate } from "./primitives";
-
-/** `result_imports.adapter_id`. Persisted, so it outlives a rename. */
-export type AdapterId = string;
-
-// The ledger's own ids (§13). Declared here because this is the module that owns
-// seasons, tournaments and matches; identity, ratings and metrics all import them.
-export type SeasonId = string;
-export type TournamentId = string;
-export type MatchId = string;
+import type { WinLossDraw } from "./decks";
+import type { AdapterId, DeckId, IsoDate } from "./primitives";
 
 /**
  * What a parse can yield. Gating is load-bearing (ADR 006): Elo consumes

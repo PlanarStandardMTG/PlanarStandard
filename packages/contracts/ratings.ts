@@ -1,8 +1,7 @@
 // Ratings are derived from the ledger, so the ledger owns the ids and the result
 // vocabulary; `core/elo` only adds the numbers.
-import type { PlayerId } from "./identity";
-import type { IsoDate } from "./primitives";
-import type { MatchId, MatchResult, TournamentId } from "./results";
+import type { IsoDate, MatchId, PlayerId, TournamentId } from "./primitives";
+import type { MatchResult } from "./results";
 
 /**
  * The singleton `rating_config` row (§12). Every threshold and every K that

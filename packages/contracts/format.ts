@@ -1,8 +1,6 @@
 import type { OracleId, SetCode } from "./cards";
 import type { Board } from "./decks";
-import type { IsoDate } from "./primitives";
-
-export type FormatVersionId = string;
+import type { FormatVersionId, IsoDate } from "./primitives";
 
 /** A `format_versions` row (§14). */
 export interface FormatVersion {

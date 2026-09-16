@@ -1,11 +1,7 @@
 // Rows mirror §16 of the master plan; `timestamptz` columns arrive as ISO 8601
 // strings and are typed as such.
 
-import type { IsoDateTime } from "./primitives";
-
-export type ProfileId = string;
-export type PostId = string;
-export type PostRevisionId = string;
+import type { IsoDateTime, PostId, PostRevisionId, ProfileId } from "./primitives";
 
 export type UserRole = "reader" | "writer" | "organizer" | "admin";
 
