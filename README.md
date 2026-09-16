@@ -31,6 +31,7 @@ packages/
 ├── contracts/   types only, zero runtime dependencies
 ├── core/        pure functions, depends on contracts ONLY
 ├── adapters/    source parsers, depends on contracts + core
+├── cards/       loads data/cards/ — the only package that reads a file
 └── db/          schema, migrations, repositories
 apps/
 ├── web/         Next.js app (scaffolded in E16)

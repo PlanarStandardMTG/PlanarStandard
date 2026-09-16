@@ -1,17 +1,17 @@
 {
-  "name": "@ps/jobs",
+  "name": "@ps/cards",
   "version": "0.0.0",
   "private": true,
   "type": "module",
   "main": "index.ts",
+  "types": "index.ts",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "test": "vitest run",
-    "build-card-data": "tsx build-card-data/index.ts"
+    "test": "vitest run"
   },
   "dependencies": {
-    "@ps/cards": "workspace:*",
-    "@ps/contracts": "workspace:*"
+    "@ps/contracts": "workspace:*",
+    "@ps/core": "workspace:*"
   },
   "devDependencies": {
     "@types/node": "^26.5.1"

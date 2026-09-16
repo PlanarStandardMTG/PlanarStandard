@@ -199,6 +199,9 @@ importers:
 
   apps/jobs:
     dependencies:
+      '@ps/cards':
+        specifier: workspace:*
+        version: link:../../packages/cards
       '@ps/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
@@ -215,6 +218,9 @@ importers:
       '@ps/adapters':
         specifier: workspace:*
         version: link:../../packages/adapters
+      '@ps/cards':
+        specifier: workspace:*
+        version: link:../../packages/cards
       '@ps/contracts':
         specifier: workspace:*
         version: link:../../packages/contracts
@@ -282,6 +288,19 @@ importers:
       '@ps/core':
         specifier: workspace:*
         version: link:../core
+
+  packages/cards:
+    dependencies:
+      '@ps/contracts':
+        specifier: workspace:*
+        version: link:../contracts
+      '@ps/core':
+        specifier: workspace:*
+        version: link:../core
+    devDependencies:
+      '@types/node':
+        specifier: ^26.5.1
+        version: 26.5.1
 
   packages/contracts: {}
 

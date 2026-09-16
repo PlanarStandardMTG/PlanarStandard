@@ -73,18 +73,20 @@ planar-standard/
 
 ```
 contracts ◄── core ◄── adapters
-    ▲          ▲          ▲
-    └──── db ──┴──────────┘
+    ▲         ▲ ▲         ▲
+    │         │ └─ cards   │
+    └──── db ─┴───────────┘
               ▲
           web, jobs
 ```
 
 **Dependencies point left only. No cycles. Ever.** Enforced in CI by `dependency-cruiser`; a violating PR fails before review.
 
-The two consequences that matter:
+The three consequences that matter:
 
 - `packages/core` must never import from `db`, `next`, `react`, or `@supabase/*`. If a function needs data, it takes it as an argument.
 - `packages/contracts` has no runtime dependencies at all, so both sides of any interface can be built in parallel by different people.
+- `packages/cards` is the only module in `packages/` that reads a file. Card data is a repo artifact rather than a table (§14.1), so something has to load it — and it can be neither `core`, which does no file I/O, nor `jobs`, which `web` may not import (E4.7).
 
 ### 6. What "a module" means here
 
@@ -221,6 +223,16 @@ Basics excluded, non-basic lands included, maindeck only, default threshold 0.5.
 | `to-reddit-markdown`      | Pipeline over the above, appends canonical backlink |
 
 Five tiny transforms and a pipeline. Each is a two-minute PR with a before/after fixture.
+
+#### 8.9 `packages/cards` — the loader that `core` may not be
+
+`core` takes the card index as an argument and never reads a file, which is what makes every module above testable with no infrastructure. Something still has to read `data/cards/` off disk, and it cannot be `apps/jobs` either, because `apps/web` may not import it.
+
+| Module    | Does                                                                     |
+| --------- | ------------------------------------------------------------------------ |
+| `dataset` | `loadCardDataset` and `loadCardIndex` — parse once per process, memoized |
+
+That is the whole package, and it is the only module in `packages/` that touches the filesystem (E4.7). It depends on contracts and core; `web` and `jobs` depend on it.
 
 ### 9. `packages/adapters` — sources → canonical events
 

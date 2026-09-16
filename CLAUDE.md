@@ -84,7 +84,8 @@ pnpm new:module core/metrics/foo  # scaffolds index.ts, index.test.ts, README.md
 
 ```
 contracts <- core <- adapters
-    ^         ^          ^
+    ^        ^ ^         ^
+    │        │ └ cards   │
     └──── db ─┴──────────┘
               ^
          web, jobs
@@ -107,6 +108,9 @@ wrong, the design is wrong — don't work around it.
   `repos/<aggregate>` per table group. Depends on contracts only. Repositories expose **narrow,
   intention-revealing functions** (`listRatedTournamentsBySeason`, not `query`); no SQL string escapes
   the module.
+- **`packages/cards`** (`@ps/cards`) — **the only module in `packages/` that reads a file.** Loads
+  `data/cards/` once per process and hands it to `core/legality/build-card-index`; it does nothing
+  else. It exists because `core` does no file I/O and `web` cannot import `jobs`.
 - **`apps/web`** — Next.js (App Router, Tailwind v4, React 19). Feature slices own their routes,
   components, and hooks and **never import from each other**; shared UI goes to `components/ui`.
   Services are thin coordinators: load via repos, call pure core functions, write via repos.

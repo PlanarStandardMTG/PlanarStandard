@@ -1,7 +1,8 @@
 /**
  * Enforces §5 of the master plan:
  *   contracts <- core <- adapters
- *       ^         ^          ^
+ *       ^         ^  ^       ^
+ *       │         │  └ cards │
  *       └──── db ─┴──────────┘
  *                 ^
  *            web, jobs
@@ -25,7 +26,7 @@ module.exports = {
       comment:
         "packages/contracts has no runtime dependencies at all, so both sides of any interface can be built in parallel.",
       from: { path: "^packages/contracts" },
-      to: { path: "^packages/(core|adapters|db)|^apps" },
+      to: { path: "^packages/(core|adapters|cards|db)|^apps" },
     },
     {
       name: "core-is-pure",
@@ -37,7 +38,7 @@ module.exports = {
         // Matched on the LAST node_modules segment: pnpm resolves `react` to
         // node_modules/.pnpm/react@19.3.0/node_modules/react/index.js, which an
         // anchored ^node_modules/react never matches.
-        path: "^packages/(adapters|db)|^apps|(^|/)node_modules/(next|react|react-dom|@supabase)(/|$)",
+        path: "^packages/(adapters|cards|db)|^apps|(^|/)node_modules/(next|react|react-dom|@supabase)(/|$)",
       },
     },
     {
@@ -45,7 +46,7 @@ module.exports = {
       severity: "error",
       comment: "packages/adapters depends on contracts + core only.",
       from: { path: "^packages/adapters" },
-      to: { path: "^packages/db|^apps" },
+      to: { path: "^packages/(cards|db)|^apps" },
     },
     {
       name: "server-only-stays-out-of-packages",
@@ -56,11 +57,27 @@ module.exports = {
       to: { path: "(\\.server\\.[cm]?[jt]sx?$)|(/server-only/)" },
     },
     {
+      name: "cards-only-loads",
+      severity: "error",
+      comment:
+        "packages/cards reads `data/cards/` and does nothing else with it. It depends on contracts + core, and the lookups it hands back are core's (E4.7).",
+      from: { path: "^packages/cards" },
+      to: { path: "^packages/(adapters|db)|^apps" },
+    },
+    {
+      name: "only-cards-reads-a-file",
+      severity: "error",
+      comment:
+        "Card data is a repo artifact, so exactly one module loads it (§14.1, E4.7). `core` doing file I/O would make it untestable without a filesystem, which is the promise the package is built on. Tests are exempt: a fixture is read from disk by design.",
+      from: { path: "^packages/(contracts|core|adapters|db)", pathNot: "\\.test\\.ts$" },
+      to: { path: "(^|/)node_modules/(node:)?fs(/|$)|^fs$|^node:fs$" },
+    },
+    {
       name: "db-depends-on-contracts-only",
       severity: "error",
       comment: "packages/db depends on contracts only.",
       from: { path: "^packages/db" },
-      to: { path: "^packages/(core|adapters)|^apps" },
+      to: { path: "^packages/(core|adapters|cards)|^apps" },
     },
     {
       name: "no-unresolvable",

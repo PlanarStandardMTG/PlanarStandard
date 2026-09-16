@@ -23,7 +23,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E1   | Workspace, CI, and dependency rules   | 0     | —            | ✅ 9/9   |
 | E2   | Contracts                             | 0     | E1           | ✅ 9/9   |
 | E3   | Decklist parsing                      | 7     | E2           | ✅ 7/7   |
-| E4   | Card dataset pipeline                 | 3     | E1           | 🚧 4/7   |
+| E4   | Card dataset pipeline                 | 3     | E1           | 🚧 5/7   |
 | E5   | Legality engine                       | 3     | E2, E4       | ✅ 6/6   |
 | E6   | Deck metrics                          | 7     | E2           | ✅ 8/8   |
 | E7   | Similarity and layout                 | 8     | E2           | ✅ 5/5   |
@@ -202,9 +202,22 @@ _AC:_ opens a PR only when the artifact changes; the PR body summarizes added/re
 ⬜ **E4.6 — Dataset size budget check** · S · Deps: E4.4
 _AC:_ CI fails if `data/cards/` exceeds an agreed ceiling, with the Release-asset fallback from Part VIII named in the failure message.
 
-⬜ **E4.7 — Dataset loader for app and tests** · S · Deps: E4.4
+✅ **E4.7 — Dataset loader for app and tests** · S · Deps: E4.4
 A single helper that loads the artifact into memory once.
 _AC:_ importable from `jobs`, `web`, and tests; does not live in `core` (which takes the index as an argument).
+_Note:_ it needed **a sixth package**, `packages/cards`. `core` does no file I/O and `web` may not
+import `jobs`, so there was nowhere existing for a loader to live that both apps could reach. The
+§5 diagram, `CLAUDE.md` and `.dependency-cruiser.cjs` all gained the node; it sits beside `db`, one
+step left of the apps, and the rule that dependencies point left is unchanged.
+_Note:_ `loadCardDataset` and `loadCardIndex` memoize **per directory**, so a test passes its own
+path and gets its own copy — which is why no cache-clearing function exists for production code to
+reach for.
+_Note:_ a new depcruise rule, `only-cards-reads-a-file`, forbids `node:fs` anywhere in
+`contracts`, `core`, `adapters` or `db` outside a test. Self-tested: adding an `fs` import to
+`build-card-index` fails the cruise.
+_Outstanding:_ `apps/web` reads these files at runtime and Next's tracing does not follow a path
+built from `import.meta.url`, so a serverless deploy needs `outputFileTracingIncludes` to name
+`data/cards/`. That belongs with the first page that loads it (E20.4).
 
 ---
 
@@ -1109,7 +1122,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E1   | 9       | 9    | E12  | 10      | 6    |
 | E2   | 9       | 9    | E13  | 23      | 23   |
 | E3   | 7       | 7    | E14  | 5       | 5    |
-| E4   | 7       | 4    | E15  | 5       | 0    |
+| E4   | 7       | 5    | E15  | 5       | 0    |
 | E5   | 6       | 6    | E16  | 12      | 11   |
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 19      | 0    |
@@ -1120,4 +1133,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**149 of 233 stories done across 24 epics.**
+**150 of 233 stories done across 24 epics.**

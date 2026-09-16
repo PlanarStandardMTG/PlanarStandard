@@ -4,7 +4,7 @@
     "rootDir": ".",
     "outDir": "dist"
   },
-  "references": [{ "path": "../../packages/cards" }, { "path": "../../packages/contracts" }],
+  "references": [{ "path": "../contracts" }, { "path": "../core" }],
   "include": ["**/*.ts"],
   "exclude": ["dist", "node_modules", "**/*.test.ts"]
 }
