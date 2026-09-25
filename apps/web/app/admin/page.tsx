@@ -1,4 +1,4 @@
-import { listMembers, listPostsAwaitingReview } from "@ps/db";
+import { listFormatVersions, listMembers, listPostsAwaitingReview } from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -19,13 +19,15 @@ export default async function AdminPage() {
   await requireRole("admin");
 
   const supabase = await createSessionClient();
-  const [members, queue] = await Promise.all([
+  const [members, queue, formats] = await Promise.all([
     listMembers(supabase),
     listPostsAwaitingReview(supabase),
+    listFormatVersions(supabase),
   ]);
 
   const figures: Readonly<Record<string, string>> = {
     "/admin/users": `${members.length} ${members.length === 1 ? "member" : "members"}`,
+    "/admin/formats": formats.find((version) => version.isCurrent)?.name ?? "None in force",
     "/dashboard/review": `${queue.length} waiting`,
   };
 

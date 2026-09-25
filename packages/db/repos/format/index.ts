@@ -3,6 +3,7 @@ import type {
   FormatCardRule,
   FormatVersion,
   FormatVersionDetail,
+  FormatVersionDraft,
   FormatVersionId,
   SetCode,
 } from "@ps/contracts";
@@ -71,6 +72,85 @@ export async function getFormatDetail(
     ? null
     : await detailFor(client, toFormatVersion(data as unknown as FormatVersionRow));
 }
+
+/** Every version, current first, then newest first — the admin list (E20.33). */
+export async function listFormatVersions(
+  client: SupabaseClient,
+): Promise<readonly FormatVersion[]> {
+  const { data, error } = await client
+    .from("format_versions")
+    .select(VERSION_COLUMNS)
+    .order("is_current", { ascending: false })
+    .order("effective_from", { ascending: false });
+
+  if (error !== null) throw new Error(`listFormatVersions failed: ${error.message}`);
+  return (data as unknown as FormatVersionRow[]).map(toFormatVersion);
+}
+
+/**
+ * Create a version (`formatVersionId` null) or replace one, with its sets,
+ * constraints and card rules, in one transaction (E20.33). Making it current
+ * un-marks the old current version. Takes the admin's own client:
+ * `format_*_admin_write` decides.
+ */
+export async function saveFormatVersion(
+  client: SupabaseClient,
+  formatVersionId: FormatVersionId | null,
+  draft: FormatVersionDraft,
+): Promise<FormatVersionId> {
+  const { data, error } = await client.rpc("save_format_version", {
+    format_version_id: formatVersionId,
+    draft: {
+      name: draft.name,
+      effective_from: draft.effectiveFrom,
+      effective_to: draft.effectiveTo,
+      notes_markdown: draft.notesMarkdown,
+      is_current: draft.isCurrent,
+      legal_sets: draft.legalSets,
+      constraints: {
+        min_maindeck: draft.constraints.minMaindeck,
+        max_maindeck: draft.constraints.maxMaindeck,
+        max_sideboard: draft.constraints.maxSideboard,
+        max_copies: draft.constraints.maxCopies,
+        singleton: draft.constraints.singleton,
+      },
+      card_rules: draft.cardRules.map((rule) => ({
+        oracle_id: rule.oracleId,
+        ruling: rule.ruling,
+        reason: rule.reason,
+        effective_from: rule.effectiveFrom,
+      })),
+    },
+  });
+
+  if (error !== null) throw new Error(`saveFormatVersion failed: ${error.message}`);
+  return data as FormatVersionId;
+}
+
+/**
+ * Why a version could not be deleted: it is the current one, or a season,
+ * tournament or deck names it and would be left pointing at nothing.
+ */
+export type FormatVersionDeletion =
+  { readonly ok: true } | { readonly ok: false; readonly reason: "current" | "in-use" };
+
+/** Delete a version with its sets, constraints and card rules (E20.33). */
+export async function deleteFormatVersion(
+  client: SupabaseClient,
+  formatVersionId: FormatVersionId,
+): Promise<FormatVersionDeletion> {
+  const { error } = await client.rpc("delete_format_version", {
+    format_version_id: formatVersionId,
+  });
+
+  if (error === null) return { ok: true };
+  if (error.code === CHECK_VIOLATION) return { ok: false, reason: "current" };
+  if (error.code === FOREIGN_KEY_VIOLATION) return { ok: false, reason: "in-use" };
+  throw new Error(`deleteFormatVersion failed: ${error.message}`);
+}
+
+const CHECK_VIOLATION = "23514";
+const FOREIGN_KEY_VIOLATION = "23503";
 
 async function detailFor(
   client: SupabaseClient,

@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | ⬜ 0/19  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 13/32 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 14/33 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | ✅ 12/12 |
@@ -950,6 +950,15 @@ the data export needs (E16.11). "Delete" is the member's word for it; nothing is
 a player linked to the profile (`players.profile_id`) — _AC:_ `/decks` has a "Tournament decks" tab
 listing the decks the member's player registered, from `listDecksByPlayer`, whether or not the member
 removed a copy from their own decks.
+✅ **E20.33 — `admin`: create, edit and delete format versions** · M · Deps: E14.4, E20.21 —
+`/admin/formats`. _AC:_ an admin lists every version with the one in force marked; creates or edits a
+version's name, dates, notes, legal sets, deck limits and card rules (by card name, with "did you
+mean"); marks one in force, which un-marks the old one; and deletes a version that is not in force
+and that nothing was checked against.
+_Note:_ added outside the plan, so a production database can get its format without SQL — `db push`
+applies migrations and never seeds. `0023_admin_format_versions.sql` adds `save_format_version` and
+`delete_format_version`, both security invoker so the E14.4 admin policies decide.
+`core/legality/check-format-draft` checks the form. `extra_rules` has no editor yet and is kept as it is.
 
 ---
 
@@ -1246,10 +1255,10 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 19      | 0    |
 | E8   | 6       | 6    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 32      | 13   |
+| E9   | 9       | 9    | E20  | 33      | 14   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**165 of 248 stories done across 24 epics.**
+**166 of 249 stories done across 24 epics.**

@@ -24,6 +24,12 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
     role: "admin",
   },
   {
+    href: "/admin/formats",
+    label: "Formats",
+    description: "Legal sets, deck limits and card rules for each version of the format.",
+    role: "admin",
+  },
+  {
     href: "/dashboard/review",
     label: "Community review",
     description: "Members' submissions waiting for a writer or above to approve them.",

@@ -40,6 +40,29 @@ export interface DeckConstraints {
   readonly extraRules: Readonly<Record<string, unknown>>;
 }
 
+/** One card rule as an admin writes it: the row, with no restricted `limit` (E20.33). */
+export interface CardRuleDraft {
+  readonly oracleId: OracleId;
+  readonly ruling: CardRuling;
+  readonly reason: string | null;
+  readonly effectiveFrom: IsoDate | null;
+}
+
+/**
+ * One format version as an admin saves it (E20.33): the four tables' rows, less
+ * their ids. `extraRules` is not here because nothing edits it yet.
+ */
+export interface FormatVersionDraft {
+  readonly name: string;
+  readonly effectiveFrom: IsoDate;
+  readonly effectiveTo: IsoDate | null;
+  readonly notesMarkdown: string | null;
+  readonly isCurrent: boolean;
+  readonly legalSets: readonly SetCode[];
+  readonly constraints: Omit<DeckConstraints, "extraRules">;
+  readonly cardRules: readonly CardRuleDraft[];
+}
+
 /**
  * The four `format_*` tables flattened by `resolve-format` (E5.3) — everything the checkers
  * read, with no further queries. Set and Map so a check is a lookup, not a scan.

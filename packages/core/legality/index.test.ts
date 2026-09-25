@@ -21,6 +21,7 @@ import {
   readDecklist,
 } from "./check-deck-import/index";
 import { checkDeckInFormat } from "./check-deck-in-format/index";
+import { checkFormatDraft, isIsoDate } from "./check-format-draft/index";
 import { MAX_CANDIDATES, resolveCardName } from "./resolve-card-name/index";
 import { resolveDeck } from "./resolve-deck/index";
 import { DEFAULT_CONSTRAINTS, resolveFormat } from "./resolve-format/index";
@@ -459,5 +460,97 @@ describe("core/legality/check-deck-in-format", () => {
       cardIssues: [],
       deckIssues: [],
     });
+  });
+});
+
+describe("core/legality/check-format-draft", () => {
+  const input = {
+    name: "  Season III  ",
+    effectiveFrom: "2027-01-20",
+    effectiveTo: "",
+    notes: "",
+    isCurrent: true,
+    legalSets: ["fdn", "DFT", "fdn", " "],
+    minMaindeck: "60",
+    maxMaindeck: "",
+    maxSideboard: "15",
+    maxCopies: "4",
+    singleton: false,
+    cardRules: [
+      { cardName: "stock up", ruling: "banned", reason: " Too good ", effectiveFrom: "2027-02-01" },
+      { cardName: "", ruling: "banned", reason: "", effectiveFrom: "" },
+    ],
+  };
+
+  it("accepts a version, trimming, upper-casing sets and resolving card rules by name", () => {
+    const check = checkFormatDraft(input, INDEX);
+
+    expect(check.ok).toBe(true);
+    if (!check.ok) return;
+    expect(check.value).toMatchObject({
+      name: "Season III",
+      effectiveTo: null,
+      notesMarkdown: null,
+      legalSets: ["FDN", "DFT"],
+      constraints: { minMaindeck: 60, maxMaindeck: null, maxSideboard: 15, maxCopies: 4 },
+    });
+    expect(check.value.cardRules).toEqual([
+      {
+        oracleId: oracleOf("Stock Up"),
+        ruling: "banned",
+        reason: "Too good",
+        effectiveFrom: "2027-02-01",
+      },
+    ]);
+  });
+
+  it("names every problem: dates, sets, limits, and card rules it cannot resolve", () => {
+    const check = checkFormatDraft(
+      {
+        ...input,
+        name: "",
+        effectiveFrom: "2027-02-30",
+        effectiveTo: "2026-01-01",
+        legalSets: ["F-DN"],
+        minMaindeck: "60",
+        maxMaindeck: "40",
+        maxCopies: "0",
+        cardRules: [
+          { cardName: "Stokk Up", ruling: "banned", reason: "", effectiveFrom: "" },
+          { cardName: "Island", ruling: "exiled", reason: "", effectiveFrom: "" },
+          { cardName: "island", ruling: "banned", reason: "", effectiveFrom: "" },
+        ],
+      },
+      INDEX,
+    );
+
+    expect(check.ok).toBe(false);
+    if (check.ok) return;
+    expect(check.problems.map((p) => `${p.field}:${p.code}`)).toEqual([
+      "name:empty",
+      "effectiveFrom:invalid",
+      "legalSets:invalid",
+      "maxCopies:invalid",
+      "maxMaindeck:below-minimum",
+      "cardRules:unknown-card",
+      "cardRules:invalid-ruling",
+      "cardRules:duplicate",
+    ]);
+    const unknown = check.problems.find((p) => p.code === "unknown-card");
+    expect(unknown && "suggestions" in unknown ? unknown.suggestions[0] : null).toBe("Stock Up");
+  });
+
+  it("refuses an end date before the start, and a pool with no sets", () => {
+    const check = checkFormatDraft({ ...input, effectiveTo: "2027-01-01", legalSets: [] }, INDEX);
+    expect(check.ok ? [] : check.problems.map((p) => `${p.field}:${p.code}`)).toEqual([
+      "effectiveTo:before-start",
+      "legalSets:empty",
+    ]);
+  });
+
+  it("knows a real calendar date from a well-shaped string", () => {
+    expect(isIsoDate("2028-02-29")).toBe(true);
+    expect(isIsoDate("2027-02-29")).toBe(false);
+    expect(isIsoDate("27-01-01")).toBe(false);
   });
 });
