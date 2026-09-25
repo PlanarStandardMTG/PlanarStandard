@@ -1,21 +1,7 @@
-import type { DeckSection, DeckSectionKey } from "@ps/core";
+import type { DeckSection } from "@ps/core";
 
+import { SECTION_LABELS } from "@/components/decks/section-labels";
 import type { DeckViewCard } from "@/lib/decks/deck-view";
-
-const LABELS: Record<DeckSectionKey, string> = {
-  command: "Command zone",
-  creature: "Creatures",
-  planeswalker: "Planeswalkers",
-  battle: "Battles",
-  instant: "Instants",
-  sorcery: "Sorceries",
-  artifact: "Artifacts",
-  enchantment: "Enchantments",
-  other: "Other",
-  land: "Lands",
-  unknown: "Not found in the card pool",
-  sideboard: "Sideboard",
-};
 
 /**
  * A deck as card images, section by section.
@@ -33,7 +19,7 @@ export function DeckSectionsGrid({ sections }: { sections: readonly DeckSection<
             id={`section-${section.key}`}
             className="mb-3 border-b border-ink-200 pb-2 text-sm font-semibold tracking-wide text-ink-700 uppercase dark:border-ink-800 dark:text-ink-300"
           >
-            {LABELS[section.key]}{" "}
+            {SECTION_LABELS[section.key]}{" "}
             <span className="font-normal text-ink-500 dark:text-ink-400">({section.count})</span>
           </h2>
           <ul className="grid grid-cols-2 gap-x-3 gap-y-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">

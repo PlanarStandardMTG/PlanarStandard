@@ -8,6 +8,7 @@ import { cache } from "react";
 import { ColorPips } from "@/components/decks/color-pips";
 import { DeckLegality } from "@/components/decks/deck-legality";
 import { DeckSectionsGrid } from "@/components/decks/deck-sections-grid";
+import { DeckSectionsList } from "@/components/decks/deck-sections-list";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
 import { currentViewer } from "@/lib/auth/viewer";
@@ -45,8 +46,15 @@ export async function generateMetadata({
 }
 
 /** One deck, card by card, checked against the format in force (E20.6). */
-export default async function DeckPage({ params }: { params: Promise<{ id: string }> }) {
-  const deck = await findDeck((await params).id);
+export default async function DeckPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ layout?: string | string[] }>;
+}) {
+  const { id } = await params;
+  const deck = await findDeck(id);
   if (deck === null) notFound();
 
   const [viewer, format, owner] = await Promise.all([
@@ -56,6 +64,7 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
   ]);
   const view: DeckView = buildDeckView(deck, format.ok ? format.value : null);
   const isOwner = viewer !== null && viewer.profile.id === deck.ownerId;
+  const showImages = (await searchParams).layout === "images";
 
   return (
     <Container className="py-12">
@@ -104,9 +113,21 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
         formatName={format.ok ? format.value?.version.name : undefined}
       />
 
-      <div className="mt-10">
-        <DeckSectionsGrid sections={view.sections} />
+      <div className="mt-10 mb-4 flex justify-end">
+        <Link
+          href={showImages ? `/decks/${id}` : `/decks/${id}?layout=images`}
+          scroll={false}
+          className="rounded-lg border border-ink-300 px-3 py-1.5 text-sm text-ink-700 hover:border-ink-500 dark:border-ink-700 dark:text-ink-300 dark:hover:border-ink-500"
+        >
+          {showImages ? "Show as text" : "Show as images"}
+        </Link>
       </div>
+
+      {showImages ? (
+        <DeckSectionsGrid sections={view.sections} />
+      ) : (
+        <DeckSectionsList sections={view.sections} />
+      )}
 
       <details className="mt-12 rounded-xl border border-ink-200 p-4 dark:border-ink-800">
         <summary className="cursor-pointer text-sm font-medium">Decklist as text</summary>

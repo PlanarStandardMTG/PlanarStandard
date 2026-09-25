@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | ⬜ 0/19  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 10/28 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 11/29 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | ✅ 12/12 |
@@ -922,6 +922,11 @@ _Note:_ added outside the plan, ahead of E20.7's organizer registration. `core/l
 and `check-deck-import` decide; `0020_member_decks.sql` lets a member insert, read and delete their
 own deck, and not set its player, lock or legality verdict. `create_deck` is an invoker RPC so the
 deck and its list are one transaction. Other formats arrive as adapters behind the same form.
+✅ **E20.29 — `decks`: a deck reads as a text list, with images a click away** · S · Deps: E20.6 —
+_AC:_ `/decks/[id]` opens as a text list by section, flowed into as many columns as the screen fits;
+each name links to Scryfall and shows its card on hover; a button switches to the image grid and back.
+_Note:_ added outside the plan. The layout is `?layout=images` in the URL, so the page stays
+server-rendered and either view can be linked; the hover preview only shows where the device can hover.
 
 ---
 
@@ -1218,10 +1223,10 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 19      | 0    |
 | E8   | 6       | 6    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 28      | 10   |
+| E9   | 9       | 9    | E20  | 29      | 11   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**162 of 244 stories done across 24 epics.**
+**163 of 245 stories done across 24 epics.**
