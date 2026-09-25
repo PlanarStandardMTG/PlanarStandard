@@ -30,6 +30,7 @@ export type {
 } from "./elo/apply-match/index";
 export { replay } from "./elo/replay/index";
 export type { ReplayOptions } from "./elo/replay/index";
+export { ratedByDefault } from "./elo/rated-by-default/index";
 
 // decklist — text to structured deck (§8.1)
 export { normalizeFaces, normalizeName } from "./decklist/normalize-name/index";

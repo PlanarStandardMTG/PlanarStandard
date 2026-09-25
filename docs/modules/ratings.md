@@ -5,7 +5,7 @@ between the `publish:start` and `publish:end` markers is copied verbatim into
 `content/pages/ratings-explained.mdx`; a test fails when the two disagree, and
 `pnpm content:sync` resolves it.
 
-Modules: `core/elo/expected-score`, `pick-k`, `apply-match`, `replay` (E8).
+Modules: `core/elo/expected-score`, `pick-k`, `apply-match`, `replay`, `rated-by-default` (E8).
 
 ---
 
@@ -19,6 +19,11 @@ the result was. Beating someone rated far above you moves your rating a lot;
 beating someone far below you barely moves it at all.
 
 ## What counts as a rated match
+
+Only **Monthly** events are rated. Every other event is still recorded, and
+counts towards the metagame, but its matches never move a rating. An event is
+treated as a Monthly when its name contains the word "Monthly"; an admin can
+correct that for any single event.
 
 A match only rates if the event reported **who played whom**. Standings alone are
 not enough: an event that reports only final placements is recorded for metagame

@@ -27,19 +27,19 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E5   | Legality engine                       | 3     | E2, E4       | ✅ 6/6   |
 | E6   | Deck metrics                          | 7     | E2           | ✅ 8/8   |
 | E7   | Similarity and layout                 | 8     | E2           | ✅ 5/5   |
-| E8   | Elo engine                            | 6     | E2           | ✅ 6/6   |
+| E8   | Elo engine                            | 6     | E2           | ✅ 7/7   |
 | E9   | Identity signals and scoring          | 4     | E2           | ✅ 9/9   |
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
-| E12  | Source adapters                       | 5     | E2           | 🚧 7/11  |
+| E12  | Source adapters                       | 5     | E2           | 🚧 7/14  |
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | ✅ 23/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 12/13 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
-| E18  | Services                              | 5–8   | E3–E13       | ⬜ 0/19  |
+| E18  | Services                              | 5–8   | E3–E13       | ⬜ 0/20  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 14/33 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 14/34 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 13/14 |
@@ -288,6 +288,11 @@ Stream C. Entirely pure; `replay` takes matches already resolved to player IDs.
 ✅ **E8.4 — `replay`** · M · Deps: E8.3 — ordered match stream → full rating history. _AC:_ no I/O; fixture of matches produces an expected rating table; deterministic tiebreak for same-date matches.
 ✅ **E8.5 — Anomaly detection during replay** · M · Deps: E8.4 — self-play, duplicate match IDs, impossible game counts, rating jumps beyond a bound. _AC:_ returns anomalies as data for `rating_runs.anomalies`; does not throw.
 ✅ **E8.6 — Activity and provisional flags** · S · Deps: E8.4 — derive `is_provisional`, `is_active`, `peak_rating`, per-player counters.
+✅ **E8.7 — `rated-by-default`** · S · Deps: E2.6 — a tournament's name → whether it feeds Elo on
+import. Only Monthlies are rated: `Monthly Championship Series - September 2026` is, `Mid-Month
+Madness #2` and a weekly are not. _AC:_ matches the whole word `Monthly`, case-insensitive; the result
+only seeds `tournaments.is_rated`, which an admin can flip afterwards (E20.34), so a misnamed event
+never needs a PR.
 
 ---
 
@@ -374,6 +379,17 @@ document (`swagger/docs/v0.3.64.190`). `lib/melee/transport.server.ts` sends eve
 copy an allowlist; `.dependency-cruiser.cjs`' `melee-transport-is-private` fails CI on any import of
 the transport from outside `lib/melee/`. The decklist list carries each player's final rank and
 record, so it is the roster and the standings as well as the lists.
+⬜ **E12.12 — `melee-api`: keep the player's username** · S · Deps: E12.11 — the one personal field
+the scrub lets through, because identity needs a handle to resolve (E18.20) and an admin needs one to
+merge (E20.16). _AC:_ each competitor carries melee's public username; legal names, Discord, Arena,
+email and pronouns are still dropped, and a test asserts each of them is absent.
+⬜ **E12.13 — Challonge results endpoints, fetched and scrubbed** · M · Deps: E23.7 — a finished
+tournament's participants and matches, through `lib/challonge/` as E12.11 did for melee. _AC:_ each
+participant keeps its Challonge id and username only; two requests per event, counted against the
+500-a-month budget the calendar already spends from.
+⬜ **E12.14 — `challonge-api` adapter** · M · Deps: E12.13 — the E12.13 payload → `ParsedEvent`, matches
+and standings, no decklists (Challonge has none). _AC:_ a fixture with invented participants in the
+captured shape and its expected `ParsedEvent`.
 
 ---
 
@@ -789,6 +805,15 @@ Thin coordinators only. If a service contains business logic, that logic belongs
 ⬜ **E18.4 — Review queue UI contract and commit** · L · Deps: E18.3 — staged → `matches`; sets `is_rated` from capabilities.
 ⬜ **E18.5 — Supersede on re-import** · M · Deps: E18.4 — _AC:_ wholesale replacement, never a merge; prior import marked `superseded`.
 ⬜ **E18.6 — Corrections with audit and recompute** · M · Deps: E18.4 — _AC:_ reason required; writes `match_corrections`; triggers recompute; Discord notice if a public rank moves.
+⬜ **E18.20 — `ingest-completed-event`** · L · Deps: E8.7, E12.10, E18.3, E18.12 — what
+`onTournamentCompleted` (E23.13) does: fetch, parse, write the tournament, resolve handles, commit
+matches, then run two independent follow-ups — ratings (E18.12) when the tournament is rated, and deck
+processing (E18.13–E18.15) when it has decklists, which on melee.gg is sometimes and on Challonge
+never. _AC:_ every finished event is ingested, and only rated ones feed Elo; a handle resolves to an
+existing player **only** on an exact normalized match (E9.1) — same platform first, then any platform
+— and otherwise creates a new player, so fuzzy signals (E9.2–E9.6) never merge anything on their own;
+an API import commits straight to the ledger without E18.4's review queue, because resolution is
+deterministic; re-ingesting an event supersedes it (E18.5).
 
 ### import-decklists
 
@@ -970,6 +995,9 @@ _Note:_ added outside the plan, so a production database can get its format with
 applies migrations and never seeds. `0023_admin_format_versions.sql` adds `save_format_version` and
 `delete_format_version`, both security invoker so the E14.4 admin policies decide.
 `core/legality/check-format-draft` checks the form. `extra_rules` has no editor yet and is kept as it is.
+⬜ **E20.34 — `admin`: rate or unrate a tournament** · S · Deps: E8.7, E18.12 — flip
+`tournaments.is_rated` after E8.7 guessed it, and recompute. _AC:_ admin-only; the leaderboard
+reflects the change once the recompute finishes, with no deploy.
 
 ---
 
@@ -1204,6 +1232,9 @@ can start today, in rough order of how much it unblocks.
   reviewed. Nothing in E14–E21 is waiting on schema or on storage any more.
 - **E19 can start.** `repos/stats` is in, so every chart in the epic has something to read — but see
   E19.1 first, which sets the fixture conventions the other thirteen components inherit.
+- **The Elo path, end to end:** E8.7 is in and E12.12 needs nothing, then E12.10 → E18.3 → E18.12 →
+  E18.20 fills in `onTournamentCompleted`, and E18.16 → E20.16 is the admin merge view. Challonge
+  results (E12.13–E12.14) follow the same shape. Only Monthlies are rated; every event is ingested.
 - **E18.12 — `recompute-ratings`,** now fully supplied: `listLedgerMatchesBySeason` reads the
   matches, `core/elo/replay` rates them, `replaceRatings` stores the result and `recordRatingRun`
   logs it. The service is the four calls in order.
@@ -1279,18 +1310,18 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
-| E1   | 9       | 9    | E12  | 11      | 7    |
+| E1   | 9       | 9    | E12  | 14      | 7    |
 | E2   | 9       | 9    | E13  | 23      | 23   |
 | E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
 | E5   | 6       | 6    | E16  | 13      | 12   |
 | E6   | 8       | 8    | E17  | 13      | 12   |
-| E7   | 5       | 5    | E18  | 19      | 0    |
-| E8   | 6       | 6    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 33      | 14   |
+| E7   | 5       | 5    | E18  | 20      | 0    |
+| E8   | 7       | 7    | E19  | 14      | 0    |
+| E9   | 9       | 9    | E20  | 34      | 14   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
 |      |         |      | E23  | 14      | 13   |
 |      |         |      | E24  | 7       | 4    |
 
-**168 of 252 stories done across 24 epics.**
+**169 of 258 stories done across 24 epics.**

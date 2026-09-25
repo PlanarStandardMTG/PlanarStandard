@@ -177,12 +177,13 @@ Basics excluded, non-basic lands included, maindeck only, default threshold 0.5.
 
 #### 8.5 `core/elo` — matches → ratings
 
-| Module           | One-line job                                               |
-| ---------------- | ---------------------------------------------------------- |
-| `expected-score` | `1 / (1 + 10^((Rb−Ra)/400))`                               |
-| `pick-k`         | Provisional / standard / elite, times tournament weight    |
-| `apply-match`    | Both players updated simultaneously from pre-match ratings |
-| `replay`         | Ordered match stream → full rating history                 |
+| Module             | One-line job                                               |
+| ------------------ | ---------------------------------------------------------- |
+| `expected-score`   | `1 / (1 + 10^((Rb−Ra)/400))`                               |
+| `pick-k`           | Provisional / standard / elite, times tournament weight    |
+| `apply-match`      | Both players updated simultaneously from pre-match ratings |
+| `replay`           | Ordered match stream → full rating history                 |
+| `rated-by-default` | Tournament name → whether it feeds Elo: only Monthlies     |
 
 `replay` takes matches **already resolved to player IDs** as an argument. It does no I/O, so its test is a fixture of matches and an expected rating table.
 
