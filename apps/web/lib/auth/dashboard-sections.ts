@@ -24,10 +24,10 @@ export interface DashboardSection {
 
 export const DASHBOARD_SECTIONS: readonly DashboardSection[] = [
   {
-    href: "/dashboard/articles",
-    label: "Articles",
+    href: "/dashboard/community",
+    label: "Community",
     description:
-      "Submit community articles. A writer's publish at once; anyone else's wait for review.",
+      "Write community posts. A writer's publish at once; anyone else's wait for review.",
     role: "reader",
     built: true,
     story: "E20.22",
@@ -68,6 +68,6 @@ export const DASHBOARD_SECTIONS: readonly DashboardSection[] = [
 
 /**
  * The lowest rung with anything to do here. The layout guards at this. Every
- * member since E20.22, because anyone may submit an article.
+ * member since E20.22, because anyone may write a community post.
  */
 export const DASHBOARD_MINIMUM: UserRole = "reader";

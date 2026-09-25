@@ -12,9 +12,9 @@ import { createPublicClient } from "@/lib/supabase/server";
 /**
  * The detail route for one kind of post.
  *
- * `/news/[slug]` and `/articles/[slug]` are both this, so the two can never
+ * `/news/[slug]` and `/community/[slug]` are both this, so the two can never
  * render the same post differently. A slug is unique across both kinds, so the
- * kind check is what stops an article being readable at a `/news/` URL and vice
+ * kind check is what stops a community post being readable at a `/news/` URL and vice
  * versa — one post, one canonical address.
  */
 export async function renderPostPage(slug: string, kind: PostKind) {

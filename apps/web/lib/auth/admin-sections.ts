@@ -25,7 +25,7 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
   },
   {
     href: "/dashboard/review",
-    label: "Article review",
+    label: "Community review",
     description: "Members' submissions waiting for a writer or above to approve them.",
     role: "writer",
   },

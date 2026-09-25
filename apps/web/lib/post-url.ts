@@ -12,10 +12,10 @@ export function postHref(post: { slug: string; kind: PostKind }): string {
 }
 
 export function feedHref(kind: PostKind): string {
-  return kind === "official" ? "/news" : "/articles";
+  return kind === "official" ? "/news" : "/community";
 }
 
 export const FEED_LABEL: Record<PostKind, string> = {
   official: "News",
-  community: "Articles",
+  community: "Community",
 };

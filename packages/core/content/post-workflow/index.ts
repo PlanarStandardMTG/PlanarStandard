@@ -1,4 +1,4 @@
-import type { PostStatus, UserRole } from "@ps/contracts";
+import type { PostKind, PostStatus, UserRole } from "@ps/contracts";
 
 import { meetsRole } from "../../auth/meets-role/index";
 
@@ -32,4 +32,33 @@ export function reviewedStatus(
 
 export function isReviewDecision(value: unknown): value is ReviewDecision {
   return value === "approve" || value === "reject";
+}
+
+/**
+ * The status an author's save lands in (E20.2). Submitting goes where
+ * `submissionStatus` says. Saving keeps a writer's published post live — they
+ * are correcting it, not withdrawing it — and anything else becomes a draft,
+ * which takes a waiting post back out of the queue.
+ */
+export function savedStatus(
+  current: PostStatus | null,
+  intent: "save" | "submit",
+  role: UserRole,
+): Extract<PostStatus, "draft" | "review" | "published"> {
+  if (intent === "submit") return submissionStatus(role);
+  return current === "published" && canReview(role) ? "published" : "draft";
+}
+
+/** Whether an author may still change a post: a reader's stops at publication. */
+export function canEditOwnPost(status: PostStatus, role: UserRole): boolean {
+  return status === "draft" || status === "review" || (status === "published" && canReview(role));
+}
+
+/**
+ * Who may write which kind. `community` is any member under their own name;
+ * `official` is the format's own voice — news, B&R notices — so admins only.
+ * `posts_author_insert` says the same (migration 0019).
+ */
+export function canWriteKind(role: UserRole, kind: PostKind): boolean {
+  return meetsRole(role, kind === "official" ? "admin" : "reader");
 }

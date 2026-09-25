@@ -12,7 +12,7 @@ import { postHref } from "@/lib/post-url";
  * behind it as a list.
  *
  * Not `PostList`. That component renders a feed — every post at the same weight,
- * which is what `/news` and `/articles` want and the opposite of what the top
+ * which is what `/news` and `/community` want and the opposite of what the top
  * left of a home page wants. The lead post here gets the excerpt and the size;
  * the rest get a date and a title.
  */

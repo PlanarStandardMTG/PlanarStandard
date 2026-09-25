@@ -108,6 +108,7 @@ export async function listPostsByAuthor(
 export interface NewPost {
   readonly slug: string;
   readonly title: string;
+  readonly subtitle: string | null;
   readonly excerpt: string | null;
   readonly bodyMarkdown: string;
   readonly tags: readonly string[];
@@ -130,6 +131,7 @@ export async function createPost(client: SupabaseClient, post: NewPost): Promise
     .insert({
       slug: post.slug,
       title: post.title,
+      subtitle: post.subtitle,
       excerpt: post.excerpt,
       body_markdown: post.bodyMarkdown,
       tags: post.tags,
@@ -173,4 +175,54 @@ export async function reviewPost(
 
   if (error !== null) throw new Error(`reviewPost failed: ${error.message}`);
   if (data !== true) throw new Error(`reviewPost failed: post ${id} is not awaiting review`);
+}
+
+/**
+ * One post, at any status, for its author to edit (E20.2).
+ *
+ * No author filter: RLS answers only with a post the caller wrote, or one in
+ * the review queue for a writer — the page then checks it is the caller's own.
+ */
+export async function getPostForEditing(
+  client: SupabaseClient,
+  id: PostId,
+): Promise<PostWithAuthor | null> {
+  const { data, error } = await client
+    .from("posts")
+    .select(POST_COLUMNS)
+    .eq("id", id)
+    .maybeSingle();
+
+  if (error !== null) throw new Error(`getPostForEditing failed: ${error.message}`);
+  return data === null ? null : toPostWithAuthor(data as unknown as PostRow);
+}
+
+/** What an author may change. Slug, kind and author are fixed once the post exists. */
+export type PostEdit = Omit<NewPost, "slug" | "kind" | "authorId">;
+
+/**
+ * Save an author's edits. Under their own client, so `posts_author_update`
+ * decides — a reader cannot edit a published post or publish one here either.
+ */
+export async function updatePost(
+  client: SupabaseClient,
+  id: PostId,
+  edit: PostEdit,
+): Promise<PostWithAuthor> {
+  const { data, error } = await client
+    .from("posts")
+    .update({
+      title: edit.title,
+      subtitle: edit.subtitle,
+      excerpt: edit.excerpt,
+      body_markdown: edit.bodyMarkdown,
+      tags: edit.tags,
+      status: edit.status,
+    })
+    .eq("id", id)
+    .select(POST_COLUMNS)
+    .single();
+
+  if (error !== null) throw new Error(`updatePost failed: ${error.message}`);
+  return toPostWithAuthor(data as unknown as PostRow);
 }

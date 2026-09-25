@@ -15,6 +15,20 @@ const config: NextConfig = {
   // only find a directory it is told about.
   outputFileTracingRoot: REPO_ROOT,
   outputFileTracingIncludes: { "/**": ["../../content/pages/**"] },
+  // Community posts lived at `/articles` until the rename. Links to them are
+  // already out in the world — every Reddit export ends with one — so the old
+  // paths stay working, permanently.
+  redirects() {
+    return [
+      { source: "/articles", destination: "/community", permanent: true },
+      { source: "/articles/:slug", destination: "/community/:slug", permanent: true },
+      {
+        source: "/dashboard/articles/:path*",
+        destination: "/dashboard/community/:path*",
+        permanent: true,
+      },
+    ];
+  },
 };
 
 export default config;

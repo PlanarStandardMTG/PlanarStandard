@@ -8,7 +8,7 @@ describe("strayCredentialTarget", () => {
   it("leaves an ordinary page view alone", () => {
     expect(at("/")).toBeNull();
     expect(at("/events?season=2")).toBeNull();
-    expect(at("/articles/some-post")).toBeNull();
+    expect(at("/community/some-post")).toBeNull();
   });
 
   it("rescues a code dropped on the site root by a default email template", () => {

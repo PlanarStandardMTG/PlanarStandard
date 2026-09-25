@@ -125,15 +125,54 @@ export type { PasswordCheck, PasswordProblem } from "./auth/password-policy/inde
 export { checkModeration } from "./auth/moderation/index";
 export type { ModerationCheck, ModerationProblem } from "./auth/moderation/index";
 
-// content — where a post goes (E14.6)
+// content — where a post goes, and what it may contain (E14.6, E20.2, E20.23)
 export {
   REVIEWER_ROLE,
+  canEditOwnPost,
   canReview,
+  canWriteKind,
   isReviewDecision,
   reviewedStatus,
+  savedStatus,
   submissionStatus,
 } from "./content/post-workflow/index";
 export type { ReviewDecision, SubmittedStatus } from "./content/post-workflow/index";
+export {
+  BODY_MAX,
+  EXCERPT_MAX,
+  SUBTITLE_MAX,
+  TAGS_MAX,
+  TITLE_MAX,
+  checkPostDraft,
+  postSlug,
+} from "./content/post-draft/index";
+export type {
+  DraftCheck,
+  DraftProblem,
+  PostDraft,
+  PostDraftInput,
+} from "./content/post-draft/index";
+export {
+  findEmbeds,
+  formatEmbed,
+  parseEmbedLine,
+  replaceEmbeds,
+} from "./content/embed-syntax/index";
+export type { EmbedCall } from "./content/embed-syntax/index";
+export { EXPORT_TARGETS, defineEmbed, expandEmbeds } from "./content/embed-registry/index";
+export type {
+  EmbedAttribute,
+  EmbedData,
+  EmbedDefinition,
+  EmbedExportContext,
+  EmbedParse,
+  ExportTarget,
+  RegisteredEmbed,
+} from "./content/embed-registry/index";
+export { EMBEDS, EMBED_REGISTRY, PLANNED_EMBEDS } from "./content/embed-catalogue/index";
+export type { EmbedName, PlannedEmbed } from "./content/embed-catalogue/index";
+export { DISCORD_MESSAGE_LIMIT, exportPost } from "./content/export-post/index";
+export type { ExportInput } from "./content/export-post/index";
 
 // metrics — deck to numbers (§8.3)
 export { bucketFor, manaCurve } from "./metrics/mana-curve/index";

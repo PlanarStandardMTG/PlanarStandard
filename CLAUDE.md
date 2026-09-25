@@ -5,7 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## What this is
 
 A community site for the Magic: The Gathering format **Planar Standard**: metagame analytics, an Elo
-leaderboard, decklist import/validation, and articles.
+leaderboard, decklist import/validation, and news and community posts.
 
 Two documents govern the work and outrank any summary here:
 
@@ -168,7 +168,7 @@ split it. Every module ships `index.ts` (usually under 60 lines), `index.test.ts
   the doc, run `pnpm content:sync`, commit both — a test fails when they disagree (§19).
 - **A post's `kind` is who is speaking, not how far through review it is.** `official` is the format —
   B&R notices, season openings, event recaps, at `/news`; `community` is a member under their own
-  byline, at `/articles`. That is a different axis from `status` (draft → review → published →
+  byline, at `/community`. That is a different axis from `status` (draft → review → published →
   archived) and from the §25 split rule, which decides repo-MDX versus database-post in the first
   place. A slug is unique across both kinds, so each post has exactly one canonical URL and the other
   kind's prefix 404s.

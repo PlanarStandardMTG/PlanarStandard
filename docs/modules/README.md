@@ -9,4 +9,5 @@ One page per module, linked from each module's own README.md.
 | [`ratings.md`](ratings.md)   | the Elo model — the source for `/ratings-explained`                         |
 | [`events.md`](events.md)     | the Challonge event cache: the request budget, the refresh, the credentials |
 | [`auth.md`](auth.md)         | signing in, the role ladder, and how a route says who it is for             |
+| [`content.md`](content.md)   | the article editor, components, and exporting to Reddit and Discord         |
 | [`indexes.md`](indexes.md)   | every index, what it serves, and the plans that show it is used             |

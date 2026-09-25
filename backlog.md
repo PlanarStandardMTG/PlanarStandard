@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | ⬜ 0/19  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 4/22  |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 8/27  |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | ✅ 12/12 |
@@ -836,8 +836,18 @@ Slices own their routes, components, and hooks; they never import from each othe
 ✅ **E20.1 — `auth` slice** · M · Deps: E16.3
 _Note:_ `/login` plus the three `/auth/*` route handlers, and `AccountNav` in the site header. The
 slice owns no client components — see E16.2.
-⬜ **E20.2 — `content`: `/articles/*` and MDXEditor** · L · Deps: E18.18
-⬜ **E20.3 — `content`: "Copy for Reddit" button** · S · Deps: E11.6, E20.2
+✅ **E20.2 — `content`: `/articles/*` and MDXEditor** · L · Deps: E18.18
+_Note:_ a Markdown textarea with Write / Preview / Reddit / Discord tabs, not MDXEditor. The body is
+Markdown by ADR 001, and a rich-text editor would have to round-trip `:::name{…}` components
+through its own model; a textarea cannot garble them. The preview is a server action that returns
+the published page's own `PostArticleContent`, so components can load data and the preview cannot
+drift from the page. Built without E18.18: the status transition is `savedStatus` and RLS; the
+Discord notice on publish is still E18.18's.
+_Outstanding:_ saving does not write `post_revisions` — the table still takes no writes (E14.5), and
+edit history needs deciding (every save, or only after publication) before a policy is written.
+✅ **E20.3 — `content`: "Copy for Reddit" button** · S · Deps: E11.6, E20.2
+_Note:_ it is the editor's Reddit tab, with a Discord one beside it, both through
+`core/content/export-post` so components expand first.
 ⬜ **E20.4 — `cards`: `/cards` browse, filter, sort** · L · Deps: E4.7 — _AC:_ filtering happens in-app against the loaded index, not in SQL.
 ⬜ **E20.5 — `cards`: `/cards/[oracleId]` detail** · M · Deps: E19.9, E20.4
 ⬜ **E20.6 — `decks`: `/decks/[id]`** · M · Deps: E19.13
@@ -871,8 +881,32 @@ _Note:_ added outside the plan. The review queue is listed as an admin section b
 `/dashboard/articles` (any member) and `/dashboard/review` (writer and up). _AC:_ a reader's
 submission waits for approval, a writer's publishes, and approval or return happens from the queue.
 _Note:_ submitting sends a generated sample (`lib/content/sample-article.ts`) instead of real input.
-The status decision, the policies and the queue are real; E20.2 replaces the sample with the editor.
+The status decision, the policies and the queue are real; E20.2 has since replaced the sample with the editor.
 The dashboard now admits every member, not only writers, since anyone may submit.
+✅ **E20.23 — `content`: article components, scaffolded** · M · Deps: E20.2 — _AC:_ a component is
+one line (`:::name{…}`); adding one is a core definition plus a site renderer, and it cannot compile
+without a Reddit and a Discord export; planned ones are listed in the editor with how each exports.
+_Note:_ no component is live. `core/content/embed-*` holds the syntax, the registry and the catalogue;
+`web/components/content/embeds` the renderers. Submission refuses a component that is not live, so
+nothing unrenderable is published. How to add one: [`docs/modules/content.md`](docs/modules/content.md).
+⬜ **E20.24 — Decklist component** · M · Deps: E20.23, E19.13, E20.7 — `:::decklist{id}`; the picker
+lists the author's own decks first. _AC:_ Reddit gets a link and the list as text; Discord a link
+with the deck's name and record.
+⬜ **E20.25 — Image component** · M · Deps: E20.23 — `:::image{src alt caption}`. Needs a decision on
+where uploads are stored (Supabase Storage is the obvious one) and on size limits.
+⬜ **E20.26 — Card component** · S · Deps: E20.23, E4.7 — `:::card{name}`, resolved against the card
+index. _AC:_ exports as the name linked to Scryfall.
+✅ **E20.27 — `content`: "Articles" becomes "Community", with a way in from every feed** · S · Deps:
+E20.2 — _AC:_ `/articles` answers at `/community`, and every old link still works; each feed offers
+the editor to whoever may use it.
+_Note:_ the feed, the nav, the dashboard section (`/dashboard/community`) and the copy say
+"community post", because the feed is about community involvement rather than a publication's
+articles. `/articles`, `/articles/:slug` and `/dashboard/articles/*` redirect permanently: every
+Reddit export already ends in a link to the old path. The post `kind` was already `community`, so
+no data moved. The editor's code went generic (`PostEditor`, `savePost`), since it writes news too:
+`?kind=official` opens it for a news post, admins only. Signed out, the Community feed offers
+"Sign in to write a community post" and returns to the editor after; News shows its button to
+admins and nobody else. Story titles above that name `/articles` are left as written.
 
 ---
 
@@ -1118,7 +1152,7 @@ credentials are unset. See [`docs/modules/events.md`](docs/modules/events.md).
 **Auth is in, so every gated story now has somewhere to put its gate.** E16.2–E16.6, E16.9 and E20.1
 are merged: four ways to sign in, a profile row per account, `requireViewer` / `requireRole`, and a
 dashboard shell open to every member. Anything that needed a signed-in person can now ask
-for one in a line — E18.8 (the self-service paste path), E20.2 (the article editor, which replaces E20.22's sample with real input — the policies and the review queue are already there), E20.15 (the
+for one in a line — E18.8 (the self-service paste path), E20.24–E20.26 (the first article components — see `docs/modules/content.md` for the three steps), E20.15 (the
 import dashboard), E20.16 and E20.18 (the two admin slices, which could equally become sections of `/admin` — see `lib/auth/admin-sections.ts`). Each of those is a page under
 `/dashboard` that calls `requireRole` and fills in one entry in `lib/auth/dashboard-sections.ts`.
 
@@ -1167,10 +1201,10 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 19      | 0    |
 | E8   | 6       | 6    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 22      | 4    |
+| E9   | 9       | 9    | E20  | 27      | 8    |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**156 of 238 stories done across 24 epics.**
+**160 of 243 stories done across 24 epics.**

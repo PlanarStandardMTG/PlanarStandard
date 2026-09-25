@@ -146,7 +146,7 @@ query is on a page rather than in an export.
 | Table                 | Index                                                 | Serves                                             |
 | --------------------- | ----------------------------------------------------- | -------------------------------------------------- |
 | `posts`               | `posts_published_idx` (partial)                       | the feed — published only, newest first            |
-| `posts`               | `posts_kind_published_idx` (partial)                  | `/news` and `/articles` separately                 |
+| `posts`               | `posts_kind_published_idx` (partial)                  | `/news` and `/community` separately                |
 | `post_revisions`      | `post_revisions_post_idx`                             | one post's history                                 |
 | `external_events`     | `external_events_source_starts_idx`                   | the calendar, per source                           |
 | `format_versions`     | `format_versions_one_current` (unique, partial)       | one current version, enforced not asserted         |

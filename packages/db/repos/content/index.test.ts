@@ -4,6 +4,7 @@ import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import {
   createPost,
+  getPostForEditing,
   getPublishedPostBySlug,
   listPostsAwaitingReview,
   listPostsByAuthor,
@@ -11,6 +12,7 @@ import {
   listPublishedPostsByKind,
   listRecentPublishedPosts,
   reviewPost,
+  updatePost,
 } from "./index";
 
 /**
@@ -119,6 +121,7 @@ describe.skipIf(!reachable)("repos/content — submission and review", () => {
     return {
       slug: `${prefix}-${suffix}`,
       title: `Queue test ${suffix}`,
+      subtitle: null,
       excerpt: null,
       bodyMarkdown: "Test body.",
       tags: [],
@@ -200,5 +203,33 @@ describe.skipIf(!reachable)("repos/content — submission and review", () => {
     const post = await createPost(reader, draft("twice", readerId, "review"));
     await reviewPost(writer, post.id, "published");
     await expect(reviewPost(writer, post.id, "draft")).rejects.toThrow(/not awaiting review/);
+  });
+
+  it("lets an author reopen their own post and save a draft of it", async () => {
+    const post = await createPost(reader, draft("edited", readerId, "review"));
+    const edit = { ...draft("edited", readerId, "draft"), title: "Edited title" };
+
+    expect((await getPostForEditing(reader, post.id))?.status).toBe("review");
+    const saved = await updatePost(reader, post.id, edit);
+    expect(saved).toMatchObject({ title: "Edited title", status: "draft" });
+  });
+
+  it("does not let a reader edit a post once it is published", async () => {
+    const post = await createPost(reader, draft("locked", readerId, "review"));
+    await reviewPost(writer, post.id, "published");
+
+    await expect(
+      updatePost(reader, post.id, { ...draft("locked", readerId, "published"), title: "Changed" }),
+    ).rejects.toThrow();
+  });
+
+  it("does not show another member's draft to be edited", async () => {
+    const post = await createPost(writer, draft("private", writerId, "published"));
+    await updatePost(writer, post.id, {
+      ...draft("private", writerId, "published"),
+      status: "draft",
+    });
+
+    expect(await getPostForEditing(reader, post.id)).toBeNull();
   });
 });

@@ -6,7 +6,7 @@ import { dateAttribute, formatDate } from "@/lib/format-date";
 import { PostKindBadge } from "./post-kind-badge";
 
 /**
- * Byline, date, and kind. Used by the card in a feed and by the article header,
+ * Byline, date, and kind. Used by the card in a feed and by the post header,
  * so the two can never drift into disagreeing about what a post is.
  */
 export function PostMeta({

@@ -25,7 +25,7 @@ every protected route (E16). Feature slices (§11, E20) will move route-owned co
 `components/content` as they land.
 
 **The two kinds of writing.** Posts are database rows, served dynamically from
-`/news` and `/articles`. Info pages are MDX in the repository's `content/pages/`,
+`/news` and `/community`. Info pages are MDX in the repository's `content/pages/`,
 served statically from `/(info)/[...slug]` at the root of the site. Neither is a
 special case of the other; §25's split rule decides which a document is.
 

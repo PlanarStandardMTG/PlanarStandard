@@ -37,7 +37,7 @@ export function EmptyState({
  * A failure the reader can do nothing about.
  *
  * `detail` is shown only in development: in production it is a stack trace
- * pointed at somebody who came to read an article.
+ * pointed at somebody who came to read a post.
  */
 export function ErrorState({
   title = "Something went wrong",

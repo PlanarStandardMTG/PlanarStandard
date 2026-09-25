@@ -6,7 +6,7 @@ import { PostCard } from "./post-card";
 
 /**
  * A feed of posts, and the only component that decides what an empty feed looks
- * like. The home page, `/news`, and `/articles` all render through here.
+ * like. The home page, `/news`, and `/community` all render through here.
  */
 export function PostList({
   posts,

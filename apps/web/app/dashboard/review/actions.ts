@@ -35,6 +35,6 @@ export async function reviewSubmission(form: FormData): Promise<never> {
 
   revalidatePath("/dashboard", "layout");
   revalidatePath("/admin", "layout");
-  if (decision === "approve") revalidatePath("/articles", "layout");
+  if (decision === "approve") revalidatePath("/community", "layout");
   redirect(`/dashboard/review?done=${decision}`);
 }

@@ -54,7 +54,7 @@ export default async function LoginPage({
   return (
     <AuthShell
       title="Sign in"
-      intro="Everything here is readable without an account. Signing in is for writing — publishing an article, running an event, submitting a deck."
+      intro="Everything here is readable without an account. Signing in is for writing — posting to the community, running an event, submitting a deck."
     >
       {error !== null && <Notice tone="warn">{error}</Notice>}
 

@@ -10,6 +10,6 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   return postMetadata((await params).slug, "community");
 }
 
-export default async function ArticlePostPage({ params }: Params) {
+export default async function CommunityPostPage({ params }: Params) {
   return renderPostPage((await params).slug, "community");
 }

@@ -293,7 +293,7 @@ Each slice owns its routes, components, and hooks. Slices don't import from each
 | Slice            | Routes                                                |
 | ---------------- | ----------------------------------------------------- |
 | `auth`           | login, callback                                       |
-| `content`        | `/articles/*`, MDX `/(info)/[...slug]`                |
+| `content`        | `/community/*`, MDX `/(info)/[...slug]`               |
 | `cards`          | `/cards`, `/cards/[oracleId]`                         |
 | `decks`          | `/decks/[id]`, submission                             |
 | `meta`           | `/meta`, `/meta/map`, `/meta/cards`, `/meta/matchups` |

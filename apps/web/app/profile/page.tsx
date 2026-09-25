@@ -39,7 +39,7 @@ const ERRORS: Readonly<Record<string, string>> = {
 
 const ROLE_BLURBS: Readonly<Record<string, string>> = {
   reader: "You can read everything on the site and submit decklists.",
-  writer: "You can write and publish community articles.",
+  writer: "You can write and publish community posts directly.",
   organizer: "You can create tournaments and import results.",
   admin: "You can edit the format, merge identities, and grant roles.",
 };

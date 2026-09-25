@@ -56,7 +56,7 @@ export default async function AccountDataPage({
             <strong className="text-ink-800 dark:text-ink-200">
               Anything you have written or submitted
             </strong>
-            : articles, decks.
+            : posts, decks.
           </li>
           <li>
             <strong className="text-ink-800 dark:text-ink-200">Sign-in records</strong>, kept by our
@@ -80,8 +80,8 @@ export default async function AccountDataPage({
       <Card className="mt-6 p-6">
         <h2 className="font-serif text-lg font-semibold">Take a copy</h2>
         <p className="mt-2 text-sm text-ink-600 dark:text-ink-400">
-          A JSON file with your profile, your articles including unpublished drafts, and your decks.
-          It also lists what is held elsewhere and how to ask for it.
+          A JSON file with your profile, your posts including unpublished drafts, and your decks. It
+          also lists what is held elsewhere and how to ask for it.
         </p>
         <a
           href="/account/data/export"
@@ -100,7 +100,7 @@ export default async function AccountDataPage({
         </p>
         <p className="mt-3 text-sm text-ink-600 dark:text-ink-400">
           Anything you published stays up with the byline changed to <em>Deleted member</em> — an
-          article the community is still reading is not removed when its author leaves. Tournament
+          post the community is still reading is not removed when its author leaves. Tournament
           results stay too: they are recorded against the handle you played under rather than
           against this account, and they came from the organiser&rsquo;s own platform. Download a
           copy first if you want one.

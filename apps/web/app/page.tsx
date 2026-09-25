@@ -36,7 +36,7 @@ export default async function HomePage() {
   const now = new Date();
   const client = createPublicClient();
 
-  const [news, events, podium, articles] = await Promise.all([
+  const [news, events, podium, community] = await Promise.all([
     load(() => listPublishedPostsByKind(client, "official", NEWS_COUNT)),
     load(() => loadEvents(now)),
     load(() => loadLatestPodium()),
@@ -95,20 +95,20 @@ export default async function HomePage() {
       </div>
 
       <section className="mt-12">
-        <SectionHeading href="/articles" linkLabel="All articles">
+        <SectionHeading href="/community" linkLabel="All community posts">
           From the community
         </SectionHeading>
 
-        {articles.ok ? (
+        {community.ok ? (
           <PostList
-            posts={articles.value}
+            posts={community.value}
             compact
             showKind={false}
-            emptyTitle="No articles yet"
+            emptyTitle="No community posts yet"
             emptyBody="Members write these under their own byline. Announcements from the format are in news."
           />
         ) : (
-          <ErrorState title="Could not load recent articles" detail={articles.error} />
+          <ErrorState title="Could not load recent community posts" detail={community.error} />
         )}
       </section>
     </Container>

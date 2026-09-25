@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 
-import { canReview, isReviewDecision, reviewedStatus, submissionStatus } from "./index";
+import {
+  canEditOwnPost,
+  canReview,
+  canWriteKind,
+  isReviewDecision,
+  reviewedStatus,
+  savedStatus,
+  submissionStatus,
+} from "./index";
 
 describe("submissionStatus", () => {
   it("holds a reader's post for review", () => {
@@ -32,5 +40,38 @@ describe("isReviewDecision", () => {
     expect(isReviewDecision("approve")).toBe(true);
     expect(isReviewDecision("publish")).toBe(false);
     expect(isReviewDecision(null)).toBe(false);
+  });
+});
+
+describe("savedStatus", () => {
+  it("submits where submissionStatus says", () => {
+    expect(savedStatus(null, "submit", "reader")).toBe("review");
+    expect(savedStatus("draft", "submit", "writer")).toBe("published");
+  });
+
+  it("keeps a writer's live post live when they save a correction", () => {
+    expect(savedStatus("published", "save", "writer")).toBe("published");
+  });
+
+  it("returns anything else to draft, including a post waiting for review", () => {
+    expect(savedStatus(null, "save", "admin")).toBe("draft");
+    expect(savedStatus("review", "save", "reader")).toBe("draft");
+  });
+});
+
+describe("canEditOwnPost", () => {
+  it("stops a reader at publication and lets a writer keep editing", () => {
+    expect(canEditOwnPost("review", "reader")).toBe(true);
+    expect(canEditOwnPost("published", "reader")).toBe(false);
+    expect(canEditOwnPost("published", "writer")).toBe(true);
+    expect(canEditOwnPost("archived", "admin")).toBe(false);
+  });
+});
+
+describe("canWriteKind", () => {
+  it("lets any member write community posts and only an admin write news", () => {
+    expect(canWriteKind("reader", "community")).toBe(true);
+    expect(canWriteKind("organizer", "official")).toBe(false);
+    expect(canWriteKind("admin", "official")).toBe(true);
   });
 });
