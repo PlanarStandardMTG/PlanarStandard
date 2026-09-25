@@ -1,0 +1,330 @@
+{
+  "name": "Monthly Championship Series - Invented",
+  "date": "2026-09-20",
+  "platform": "melee",
+  "externalUrl": "https://melee.gg/Tournament/View/999001",
+  "structure": "swiss + top 4 playoffs",
+  "rounds": 5,
+  "playerCount": 5,
+  "capabilities": [
+    "matches",
+    "standings",
+    "roster",
+    "decklists"
+  ],
+  "matches": [
+    {
+      "rowIndex": 0,
+      "raw": {
+        "guid": "r1-a",
+        "roundId": 11,
+        "p1PlayerId": 101,
+        "p2PlayerId": 102,
+        "p1GameWins": 2,
+        "p2GameWins": 1,
+        "gameDraws": 0,
+        "byeReason": null
+      },
+      "p1Handle": "pilot-7",
+      "p2Handle": "Arcane Owl",
+      "result": "p1_win",
+      "round": 1,
+      "isElimination": false,
+      "p1Games": 2,
+      "p2Games": 1,
+      "gameDraws": 0
+    },
+    {
+      "rowIndex": 1,
+      "raw": {
+        "guid": "r1-b",
+        "roundId": 11,
+        "p1PlayerId": 103,
+        "p2PlayerId": 104,
+        "p1GameWins": 1,
+        "p2GameWins": 1,
+        "gameDraws": 1,
+        "byeReason": null
+      },
+      "p1Handle": "zed_zed",
+      "p2Handle": "Mossback",
+      "result": "draw",
+      "round": 1,
+      "isElimination": false,
+      "p1Games": 1,
+      "p2Games": 1,
+      "gameDraws": 1
+    },
+    {
+      "rowIndex": 2,
+      "raw": {
+        "guid": "r1-bye",
+        "roundId": 11,
+        "p1PlayerId": 105,
+        "p2PlayerId": null,
+        "p1GameWins": 0,
+        "p2GameWins": null,
+        "gameDraws": 0,
+        "byeReason": "Bye"
+      },
+      "p1Handle": "melee-player-105",
+      "result": "bye",
+      "round": 1,
+      "isElimination": false
+    },
+    {
+      "rowIndex": 3,
+      "raw": {
+        "guid": "r2-a",
+        "roundId": 12,
+        "p1PlayerId": 101,
+        "p2PlayerId": 103,
+        "p1GameWins": 2,
+        "p2GameWins": 0,
+        "gameDraws": 0,
+        "byeReason": null
+      },
+      "p1Handle": "pilot-7",
+      "p2Handle": "zed_zed",
+      "result": "p1_win",
+      "round": 2,
+      "isElimination": false,
+      "p1Games": 2,
+      "p2Games": 0,
+      "gameDraws": 0
+    },
+    {
+      "rowIndex": 4,
+      "raw": {
+        "guid": "r2-b",
+        "roundId": 12,
+        "p1PlayerId": 102,
+        "p2PlayerId": 105,
+        "p1GameWins": 0,
+        "p2GameWins": 2,
+        "gameDraws": 0,
+        "byeReason": null
+      },
+      "p1Handle": "Arcane Owl",
+      "p2Handle": "melee-player-105",
+      "result": "p2_win",
+      "round": 2,
+      "isElimination": false,
+      "p1Games": 0,
+      "p2Games": 2,
+      "gameDraws": 0
+    },
+    {
+      "rowIndex": 5,
+      "raw": {
+        "guid": "r2-bye",
+        "roundId": 12,
+        "p1PlayerId": 104,
+        "p2PlayerId": null,
+        "p1GameWins": 0,
+        "p2GameWins": null,
+        "gameDraws": 0,
+        "byeReason": "Bye"
+      },
+      "p1Handle": "Mossback",
+      "result": "bye",
+      "round": 2,
+      "isElimination": false
+    },
+    {
+      "rowIndex": 6,
+      "raw": {
+        "guid": "r3-a",
+        "roundId": 13,
+        "p1PlayerId": 101,
+        "p2PlayerId": 105,
+        "p1GameWins": 0,
+        "p2GameWins": 0,
+        "gameDraws": 0,
+        "byeReason": null
+      },
+      "p1Handle": "pilot-7",
+      "p2Handle": "melee-player-105",
+      "result": null,
+      "round": 3,
+      "isElimination": false
+    },
+    {
+      "rowIndex": 7,
+      "raw": {
+        "guid": "r3-b",
+        "roundId": 13,
+        "p1PlayerId": 102,
+        "p2PlayerId": 104,
+        "p1GameWins": 2,
+        "p2GameWins": 1,
+        "gameDraws": 0,
+        "byeReason": null
+      },
+      "p1Handle": "Arcane Owl",
+      "p2Handle": "Mossback",
+      "result": "p1_win",
+      "round": 3,
+      "isElimination": false,
+      "p1Games": 2,
+      "p2Games": 1,
+      "gameDraws": 0
+    },
+    {
+      "rowIndex": 8,
+      "raw": {
+        "guid": "r3-bye",
+        "roundId": 13,
+        "p1PlayerId": 103,
+        "p2PlayerId": null,
+        "p1GameWins": 0,
+        "p2GameWins": null,
+        "gameDraws": 0,
+        "byeReason": "Bye"
+      },
+      "p1Handle": "zed_zed",
+      "result": "bye",
+      "round": 3,
+      "isElimination": false
+    },
+    {
+      "rowIndex": 9,
+      "raw": {
+        "guid": "sf-a",
+        "roundId": 21,
+        "p1PlayerId": 101,
+        "p2PlayerId": 104,
+        "p1GameWins": 2,
+        "p2GameWins": 0,
+        "gameDraws": 0,
+        "byeReason": null
+      },
+      "p1Handle": "pilot-7",
+      "p2Handle": "Mossback",
+      "result": "p1_win",
+      "round": 4,
+      "isElimination": true,
+      "p1Games": 2,
+      "p2Games": 0,
+      "gameDraws": 0
+    },
+    {
+      "rowIndex": 10,
+      "raw": {
+        "guid": "sf-b",
+        "roundId": 21,
+        "p1PlayerId": 105,
+        "p2PlayerId": 102,
+        "p1GameWins": 2,
+        "p2GameWins": 1,
+        "gameDraws": 0,
+        "byeReason": null
+      },
+      "p1Handle": "melee-player-105",
+      "p2Handle": "Arcane Owl",
+      "result": "p1_win",
+      "round": 4,
+      "isElimination": true,
+      "p1Games": 2,
+      "p2Games": 1,
+      "gameDraws": 0
+    },
+    {
+      "rowIndex": 11,
+      "raw": {
+        "guid": "f",
+        "roundId": 22,
+        "p1PlayerId": 101,
+        "p2PlayerId": 105,
+        "p1GameWins": 2,
+        "p2GameWins": 1,
+        "gameDraws": 0,
+        "byeReason": null
+      },
+      "p1Handle": "pilot-7",
+      "p2Handle": "melee-player-105",
+      "result": "p1_win",
+      "round": 5,
+      "isElimination": true,
+      "p1Games": 2,
+      "p2Games": 1,
+      "gameDraws": 0
+    }
+  ],
+  "standings": [
+    {
+      "handle": "pilot-7",
+      "placement": 1,
+      "matchWins": 4,
+      "matchLosses": 0,
+      "matchDraws": 0
+    },
+    {
+      "handle": "Arcane Owl",
+      "placement": 4,
+      "matchWins": 2,
+      "matchLosses": 3,
+      "matchDraws": 0
+    },
+    {
+      "handle": "Mossback",
+      "placement": 3,
+      "matchWins": 1,
+      "matchLosses": 2,
+      "matchDraws": 1
+    }
+  ],
+  "roster": [
+    {
+      "handle": "pilot-7",
+      "deckName": "Azorius Control",
+      "archetypeRaw": "Control"
+    },
+    {
+      "handle": "Arcane Owl",
+      "deckName": "Owl Tempo"
+    },
+    {
+      "handle": "zed_zed"
+    },
+    {
+      "handle": "Mossback"
+    },
+    {
+      "handle": "melee-player-105"
+    }
+  ],
+  "decklists": [
+    {
+      "handle": "pilot-7",
+      "decklistText": "12 Island\n11 Plains\n\nSideboard\n2 Negate",
+      "matchRecord": "4-0",
+      "deckName": "Azorius Control",
+      "archetypeRaw": "Control"
+    },
+    {
+      "handle": "Arcane Owl",
+      "decklistText": "20 Island",
+      "matchRecord": "2-3",
+      "deckName": "Owl Tempo"
+    }
+  ],
+  "issues": [
+    {
+      "code": "missing-username",
+      "severity": "warning",
+      "message": "melee sent no username for player 105; recorded as melee-player-105."
+    },
+    {
+      "code": "unreadable-result",
+      "severity": "warning",
+      "message": "pilot-7 vs melee-player-105 has no result; the pairing stages for review.",
+      "rowIndex": 6
+    },
+    {
+      "code": "unknown-board",
+      "severity": "warning",
+      "message": "Arcane Owl's Faerie Mastermind is in a melee board that is neither main nor side; left out."
+    }
+  ]
+}

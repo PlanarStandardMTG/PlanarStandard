@@ -10,6 +10,7 @@ export type { RegisteredAdapter } from "./registry/index";
 export { archetypeMapHtml } from "./archetype-map-html/index";
 export { genericCsv } from "./generic-csv/index";
 export { manualEntry } from "./manual-entry/index";
+export { meleeApi } from "./melee-api/index";
 
 // Shared by the delimited-text sources
 export { parseCsv } from "./parse-csv/index";

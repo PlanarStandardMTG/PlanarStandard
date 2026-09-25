@@ -31,7 +31,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E9   | Identity signals and scoring          | 4     | E2           | ✅ 9/9   |
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
-| E12  | Source adapters                       | 5     | E2           | 🚧 8/14  |
+| E12  | Source adapters                       | 5     | E2           | 🚧 9/14  |
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | ✅ 23/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
@@ -356,7 +356,7 @@ _Note:_ the hover text sorts all 75 cards alphabetically with no sideboard heade
 ✅ **E12.9 — Adapter authoring guide** · S · Deps: E12.4 — `packages/adapters/README.md`: drop a fixture, write `detect` and `parse`, write expected output.
 _Note:_ written without E12.4. The dependency existed so the guide would have a worked example; `archetype-map-html` and `generic-csv` are that example, and the four rules it has to teach — omit an empty payload, never infer pairings, a bye has no opponent, do not guess — are all demonstrable without a melee export.
 
-⛔ **E12.10 — `melee-api`** · L · Deps: E12.1 — the same event's results straight from melee.gg's
+✅ **E12.10 — `melee-api`** · L · Deps: E12.1 — the same event's results straight from melee.gg's
 API rather than from an export: match history, standings, roster, and a decklist per player. A
 different adapter from E12.4, not a replacement for it — `melee-csv` reads a file an organiser
 downloaded and needs no credentials, and it stays the path for anyone who cannot call the API.
@@ -365,10 +365,12 @@ asserted against it; the adapter stays pure, so fetching belongs to the caller a
 is the response body. That directory already holds E23.12's `tournament-list.json`, so name the
 capture for its endpoint and leave the calendar's alone — one vendor API, one directory, one file per
 endpoint.
-_Blocked:_ needs a committed fixture that names no real player. The endpoints, pagination and shapes
-are known now (E12.11), but a captured response carries players' legal names and handles, so it
-cannot be committed verbatim: it needs either invented players in the captured shape or a
-reviewed, scrubbed capture.
+_Note:_ `RawInput.bytes` is not a response body. It is one JSON document the site assembles from
+the three scrubbed fetches — `{ adapter: "melee-api", tournament, matches, decklists }` — because a
+raw response names people and never leaves `lib/melee/` (E12.11). The fixture,
+`fixtures/melee-api/results-bundle.json`, is that document with invented players, which is what
+unblocked the story. Standings ride on decklists, so an event nobody submitted a list for yields
+matches and a roster only. Rounds use melee's `SortOrder`, which counts across phases.
 ✅ **E12.11 — `melee-api`: the results endpoints, fetched and scrubbed** · M · Deps: E23.12 —
 _AC:_ the tournament, match-list, decklist-list and decklist endpoints are reachable from the site
 through functions that return only melee ids, results and decklists — never a name, handle, Discord,
@@ -1235,7 +1237,7 @@ can start today, in rough order of how much it unblocks.
   reviewed. Nothing in E14–E21 is waiting on schema or on storage any more.
 - **E19 can start.** `repos/stats` is in, so every chart in the epic has something to read — but see
   E19.1 first, which sets the fixture conventions the other thirteen components inherit.
-- **The Elo path, end to end:** E8.7 and E12.12 are in, so next is E12.10 → E18.3 → E18.12 →
+- **The Elo path, end to end:** E8.7, E12.12 and E12.10 are in, so next is E18.3 → E18.12 →
   E18.20 fills in `onTournamentCompleted`, and E18.16 → E20.16 is the admin merge view. Challonge
   results (E12.13–E12.14) follow the same shape. Only Monthlies are rated; every event is ingested.
 - **E18.12 — `recompute-ratings`,** now fully supplied: `listLedgerMatchesBySeason` reads the
@@ -1282,11 +1284,9 @@ the format tables and grant roles, an organizer can create tournaments and impor
 four ways in are an email, and so is every password reset. See
 [`docs/modules/auth.md`](docs/modules/auth.md).
 
-**E12.10 is what is left of melee.gg.** E23.12 took the tournament _listing_, so an event run there
-shows up on the schedule; E12.10 wants the _results_ — match history, standings, decklists — so it can
-be imported. E12.11 found and wired the endpoints — a tournament, its matches, its decklists — behind
-functions that scrub every personal detail but the username (E12.12), so what is still missing is a committed fixture that
-names no real player, and then the adapter itself.
+**melee.gg results can be read.** E12.11 fetches and scrubs them, E12.12 keeps the username, and
+E12.10's adapter turns them into a `ParsedEvent`. What is missing is the service that stores one,
+E18.20.
 
 **The home page shows one thing it does not have.** The top-four-decks section runs on a hand-written
 podium (E24.4's _Outstanding:_ line) and says so on the page. E24.5 is the swap, and it is the
@@ -1313,7 +1313,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
-| E1   | 9       | 9    | E12  | 14      | 8    |
+| E1   | 9       | 9    | E12  | 14      | 9    |
 | E2   | 9       | 9    | E13  | 23      | 23   |
 | E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
@@ -1327,4 +1327,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 14      | 13   |
 |      |         |      | E24  | 7       | 4    |
 
-**170 of 258 stories done across 24 epics.**
+**171 of 258 stories done across 24 epics.**

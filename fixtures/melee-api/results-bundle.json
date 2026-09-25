@@ -1,0 +1,577 @@
+{
+  "adapter": "melee-api",
+  "tournament": {
+    "id": 999001,
+    "guid": "00000000-0000-4000-8000-000000999001",
+    "name": "Monthly Championship Series - Invented",
+    "status": "Ended",
+    "organizationId": 18712,
+    "formats": [
+      "Planar Standard"
+    ],
+    "lastPairedAt": "2026-09-20T18:30:00Z",
+    "phases": [
+      {
+        "id": 1,
+        "name": "Swiss Phase",
+        "formatId": "fmt-ps",
+        "format": "Planar Standard",
+        "sortOrder": 1,
+        "rounds": [
+          {
+            "id": 11,
+            "name": "Round 1",
+            "sortOrder": 1
+          },
+          {
+            "id": 12,
+            "name": "Round 2",
+            "sortOrder": 2
+          },
+          {
+            "id": 13,
+            "name": "Round 3",
+            "sortOrder": 3
+          }
+        ]
+      },
+      {
+        "id": 2,
+        "name": "Top 4 Playoffs",
+        "formatId": "fmt-ps",
+        "format": "Planar Standard",
+        "sortOrder": 2,
+        "rounds": [
+          {
+            "id": 21,
+            "name": "Semifinals",
+            "sortOrder": 4
+          },
+          {
+            "id": 22,
+            "name": "Finals",
+            "sortOrder": 5
+          }
+        ]
+      }
+    ]
+  },
+  "matches": [
+    {
+      "guid": "r1-a",
+      "tournamentId": 999001,
+      "phaseId": 1,
+      "roundId": 11,
+      "roundNumber": 1,
+      "hasResult": true,
+      "gameDraws": 0,
+      "type": "Best of Three",
+      "byeReason": null,
+      "competitors": [
+        {
+          "players": [
+            {
+              "id": 101,
+              "username": "pilot-7"
+            }
+          ],
+          "teamId": null,
+          "gameWins": 2,
+          "gameByes": 0,
+          "decklistIds": [
+            "deck-101"
+          ]
+        },
+        {
+          "players": [
+            {
+              "id": 102,
+              "username": "Arcane Owl"
+            }
+          ],
+          "teamId": null,
+          "gameWins": 1,
+          "gameByes": 0,
+          "decklistIds": [
+            "deck-102"
+          ]
+        }
+      ]
+    },
+    {
+      "guid": "r1-b",
+      "tournamentId": 999001,
+      "phaseId": 1,
+      "roundId": 11,
+      "roundNumber": 1,
+      "hasResult": true,
+      "gameDraws": 1,
+      "type": "Best of Three",
+      "byeReason": null,
+      "competitors": [
+        {
+          "players": [
+            {
+              "id": 103,
+              "username": "zed_zed"
+            }
+          ],
+          "teamId": null,
+          "gameWins": 1,
+          "gameByes": 0,
+          "decklistIds": []
+        },
+        {
+          "players": [
+            {
+              "id": 104,
+              "username": "Mossback"
+            }
+          ],
+          "teamId": null,
+          "gameWins": 1,
+          "gameByes": 0,
+          "decklistIds": [
+            "deck-104"
+          ]
+        }
+      ]
+    },
+    {
+      "guid": "r1-bye",
+      "tournamentId": 999001,
+      "phaseId": 1,
+      "roundId": 11,
+      "roundNumber": 1,
+      "hasResult": true,
+      "gameDraws": 0,
+      "type": "Best of Three",
+      "byeReason": "Bye",
+      "competitors": [
+        {
+          "players": [
+            {
+              "id": 105,
+              "username": null
+            }
+          ],
+          "teamId": null,
+          "gameWins": 0,
+          "gameByes": 0,
+          "decklistIds": []
+        }
+      ]
+    },
+    {
+      "guid": "r2-a",
+      "tournamentId": 999001,
+      "phaseId": 1,
+      "roundId": 12,
+      "roundNumber": 2,
+      "hasResult": true,
+      "gameDraws": 0,
+      "type": "Best of Three",
+      "byeReason": null,
+      "competitors": [
+        {
+          "players": [
+            {
+              "id": 101,
+              "username": "pilot-7"
+            }
+          ],
+          "teamId": null,
+          "gameWins": 2,
+          "gameByes": 0,
+          "decklistIds": [
+            "deck-101"
+          ]
+        },
+        {
+          "players": [
+            {
+              "id": 103,
+              "username": "zed_zed"
+            }
+          ],
+          "teamId": null,
+          "gameWins": 0,
+          "gameByes": 0,
+          "decklistIds": []
+        }
+      ]
+    },
+    {
+      "guid": "r2-b",
+      "tournamentId": 999001,
+      "phaseId": 1,
+      "roundId": 12,
+      "roundNumber": 2,
+      "hasResult": true,
+      "gameDraws": 0,
+      "type": "Best of Three",
+      "byeReason": null,
+      "competitors": [
+        {
+          "players": [
+            {
+              "id": 102,
+              "username": "Arcane Owl"
+            }
+          ],
+          "teamId": null,
+          "gameWins": 0,
+          "gameByes": 0,
+          "decklistIds": [
+            "deck-102"
+          ]
+        },
+        {
+          "players": [
+            {
+              "id": 105,
+              "username": null
+            }
+          ],
+          "teamId": null,
+          "gameWins": 2,
+          "gameByes": 0,
+          "decklistIds": []
+        }
+      ]
+    },
+    {
+      "guid": "r2-bye",
+      "tournamentId": 999001,
+      "phaseId": 1,
+      "roundId": 12,
+      "roundNumber": 2,
+      "hasResult": true,
+      "gameDraws": 0,
+      "type": "Best of Three",
+      "byeReason": "Bye",
+      "competitors": [
+        {
+          "players": [
+            {
+              "id": 104,
+              "username": "Mossback"
+            }
+          ],
+          "teamId": null,
+          "gameWins": 0,
+          "gameByes": 0,
+          "decklistIds": [
+            "deck-104"
+          ]
+        }
+      ]
+    },
+    {
+      "guid": "r3-a",
+      "tournamentId": 999001,
+      "phaseId": 1,
+      "roundId": 13,
+      "roundNumber": 3,
+      "hasResult": false,
+      "gameDraws": 0,
+      "type": "Best of Three",
+      "byeReason": null,
+      "competitors": [
+        {
+          "players": [
+            {
+              "id": 101,
+              "username": "pilot-7"
+            }
+          ],
+          "teamId": null,
+          "gameWins": 0,
+          "gameByes": 0,
+          "decklistIds": [
+            "deck-101"
+          ]
+        },
+        {
+          "players": [
+            {
+              "id": 105,
+              "username": null
+            }
+          ],
+          "teamId": null,
+          "gameWins": 0,
+          "gameByes": 0,
+          "decklistIds": []
+        }
+      ]
+    },
+    {
+      "guid": "r3-b",
+      "tournamentId": 999001,
+      "phaseId": 1,
+      "roundId": 13,
+      "roundNumber": 3,
+      "hasResult": true,
+      "gameDraws": 0,
+      "type": "Best of Three",
+      "byeReason": null,
+      "competitors": [
+        {
+          "players": [
+            {
+              "id": 102,
+              "username": "Arcane Owl"
+            }
+          ],
+          "teamId": null,
+          "gameWins": 2,
+          "gameByes": 0,
+          "decklistIds": [
+            "deck-102"
+          ]
+        },
+        {
+          "players": [
+            {
+              "id": 104,
+              "username": "Mossback"
+            }
+          ],
+          "teamId": null,
+          "gameWins": 1,
+          "gameByes": 0,
+          "decklistIds": [
+            "deck-104"
+          ]
+        }
+      ]
+    },
+    {
+      "guid": "r3-bye",
+      "tournamentId": 999001,
+      "phaseId": 1,
+      "roundId": 13,
+      "roundNumber": 3,
+      "hasResult": true,
+      "gameDraws": 0,
+      "type": "Best of Three",
+      "byeReason": "Bye",
+      "competitors": [
+        {
+          "players": [
+            {
+              "id": 103,
+              "username": "zed_zed"
+            }
+          ],
+          "teamId": null,
+          "gameWins": 0,
+          "gameByes": 0,
+          "decklistIds": []
+        }
+      ]
+    },
+    {
+      "guid": "sf-a",
+      "tournamentId": 999001,
+      "phaseId": 2,
+      "roundId": 21,
+      "roundNumber": 1,
+      "hasResult": true,
+      "gameDraws": 0,
+      "type": "Best of Three",
+      "byeReason": null,
+      "competitors": [
+        {
+          "players": [
+            {
+              "id": 101,
+              "username": "pilot-7"
+            }
+          ],
+          "teamId": null,
+          "gameWins": 2,
+          "gameByes": 0,
+          "decklistIds": [
+            "deck-101"
+          ]
+        },
+        {
+          "players": [
+            {
+              "id": 104,
+              "username": "Mossback"
+            }
+          ],
+          "teamId": null,
+          "gameWins": 0,
+          "gameByes": 0,
+          "decklistIds": [
+            "deck-104"
+          ]
+        }
+      ]
+    },
+    {
+      "guid": "sf-b",
+      "tournamentId": 999001,
+      "phaseId": 2,
+      "roundId": 21,
+      "roundNumber": 1,
+      "hasResult": true,
+      "gameDraws": 0,
+      "type": "Best of Three",
+      "byeReason": null,
+      "competitors": [
+        {
+          "players": [
+            {
+              "id": 105,
+              "username": null
+            }
+          ],
+          "teamId": null,
+          "gameWins": 2,
+          "gameByes": 0,
+          "decklistIds": []
+        },
+        {
+          "players": [
+            {
+              "id": 102,
+              "username": "Arcane Owl"
+            }
+          ],
+          "teamId": null,
+          "gameWins": 1,
+          "gameByes": 0,
+          "decklistIds": [
+            "deck-102"
+          ]
+        }
+      ]
+    },
+    {
+      "guid": "f",
+      "tournamentId": 999001,
+      "phaseId": 2,
+      "roundId": 22,
+      "roundNumber": 1,
+      "hasResult": true,
+      "gameDraws": 0,
+      "type": "Best of Three",
+      "byeReason": null,
+      "competitors": [
+        {
+          "players": [
+            {
+              "id": 101,
+              "username": "pilot-7"
+            }
+          ],
+          "teamId": null,
+          "gameWins": 2,
+          "gameByes": 0,
+          "decklistIds": [
+            "deck-101"
+          ]
+        },
+        {
+          "players": [
+            {
+              "id": 105,
+              "username": null
+            }
+          ],
+          "teamId": null,
+          "gameWins": 1,
+          "gameByes": 0,
+          "decklistIds": []
+        }
+      ]
+    }
+  ],
+  "decklists": [
+    {
+      "guid": "deck-101",
+      "tournamentId": 999001,
+      "playerId": 101,
+      "username": "pilot-7",
+      "teamId": null,
+      "formatId": "fmt-ps",
+      "format": "Planar Standard",
+      "deckName": "Azorius Control",
+      "archetypes": [
+        "Control"
+      ],
+      "isValid": true,
+      "rank": 1,
+      "matchWins": 4,
+      "matchLosses": 0,
+      "matchDraws": 0,
+      "cards": [
+        {
+          "name": "Island",
+          "quantity": 12,
+          "board": "main"
+        },
+        {
+          "name": "Plains",
+          "quantity": 11,
+          "board": "main"
+        },
+        {
+          "name": "Negate",
+          "quantity": 2,
+          "board": "side"
+        }
+      ]
+    },
+    {
+      "guid": "deck-102",
+      "tournamentId": 999001,
+      "playerId": 102,
+      "username": "Arcane Owl",
+      "teamId": null,
+      "formatId": "fmt-ps",
+      "format": "Planar Standard",
+      "deckName": "Owl Tempo",
+      "archetypes": [],
+      "isValid": true,
+      "rank": 4,
+      "matchWins": 2,
+      "matchLosses": 3,
+      "matchDraws": 0,
+      "cards": [
+        {
+          "name": "Island",
+          "quantity": 20,
+          "board": "main"
+        },
+        {
+          "name": "Faerie Mastermind",
+          "quantity": 1,
+          "board": "other"
+        }
+      ]
+    },
+    {
+      "guid": "deck-104",
+      "tournamentId": 999001,
+      "playerId": 104,
+      "username": "Mossback",
+      "teamId": null,
+      "formatId": "fmt-ps",
+      "format": "Planar Standard",
+      "deckName": null,
+      "archetypes": [],
+      "isValid": true,
+      "rank": 3,
+      "matchWins": 1,
+      "matchLosses": 2,
+      "matchDraws": 1,
+      "cards": []
+    }
+  ]
+}

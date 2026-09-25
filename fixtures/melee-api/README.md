@@ -1,7 +1,11 @@
 # fixtures/melee-api
 
-The melee.gg `GET /api/tournament/list` response, which
-`core/events/parse-melee-events` reads (E23.12).
+Two things from melee.gg:
+
+- `tournament-list.json` — the `GET /api/tournament/list` response, which
+  `core/events/parse-melee-events` reads (E23.12).
+- `results-bundle.json` — one event's results as `adapters/melee-api` reads
+  them (E12.10), with its expected `ParsedEvent` beside it.
 
 ## Provenance
 
@@ -28,3 +32,12 @@ suggests another one can appear. If one ever does, that filter is the fix.
 
 The trailing space on `Legality Fracture #1 ` is not a transcription slip. It is
 in the live data, and it is why the parser trims.
+
+## `results-bundle.json`
+
+**Invented, not captured.** A results response names players, so this is the
+document the site builds from the scrubbed fetches (`lib/melee/results.server.ts`),
+filled with five made-up players. It covers a bye in every Swiss round, a 1-1-1
+draw, a match melee left without a result, a player melee sent no username for,
+a top-4 cut numbered after the Swiss, a list with a card on an unknown board, and
+a registered player with no cards — a standing but not a decklist.

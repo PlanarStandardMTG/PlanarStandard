@@ -239,14 +239,15 @@ That is the whole package, and it is the only module in `packages/` that touches
 
 One file per source. All implement `ResultsAdapter` from contracts; all are pure (`RawInput` in, `ParsedEvent` out).
 
-| Adapter              | Capabilities                         | Priority                        |
-| -------------------- | ------------------------------------ | ------------------------------- |
-| `generic-csv`        | matches or standings, manual mapping | **first** — the permanent floor |
-| `manual-entry`       | matches                              | **first** — always available    |
-| `melee-csv`          | matches, standings, roster           | second                          |
-| `challonge-csv`      | matches, standings, roster           | second                          |
-| `legacy-xlsx`        | standings                            | one-time backfill               |
-| `archetype-map-html` | decklists                            | one-time backfill               |
+| Adapter              | Capabilities                          | Priority                        |
+| -------------------- | ------------------------------------- | ------------------------------- |
+| `generic-csv`        | matches or standings, manual mapping  | **first** — the permanent floor |
+| `manual-entry`       | matches                               | **first** — always available    |
+| `melee-csv`          | matches, standings, roster            | second                          |
+| `melee-api`          | matches, standings, roster, decklists | second — scrubbed API results   |
+| `challonge-csv`      | matches, standings, roster            | second                          |
+| `legacy-xlsx`        | standings                             | one-time backfill               |
+| `archetype-map-html` | decklists                             | one-time backfill               |
 
 **Adding an adapter is the ideal first contribution:** drop a real export into `fixtures/`, write `detect` and `parse`, write the expected `ParsedEvent` JSON, done. No database, no UI, no coordination.
 
