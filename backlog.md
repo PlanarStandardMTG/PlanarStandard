@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 3/20  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 15/35 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 16/35 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 13/14 |
@@ -938,7 +938,14 @@ grid's text half when it lands.
 ⬜ **E20.9 — `meta`: `/meta/map`** · M · Deps: E19.10
 ⬜ **E20.10 — `meta`: `/meta/cards`** · M · Deps: E19.8
 ⬜ **E20.11 — `meta`: `/meta/matchups`** · M · Deps: E19.11
-⬜ **E20.12 — `leaderboard`: `/leaderboard`** · M · Deps: E13.20
+✅ **E20.12 — `leaderboard`: `/leaderboard`** · M · Deps: E13.20
+_Note:_ two tables, not one: **Ranked** from the `leaderboard` view, and **Not ranked yet** from a
+new `provisional_ratings` view — `leaderboard`'s complement under the same visibility rules, so a
+shown player is in exactly one — read by `getProvisionalRatings`. Migration
+`0026_provisional_ratings.sql` also lowers `rating_config` to 5 rated matches for both provisional
+and ranking, so a player ranks after about one Monthly rather than three; `/ratings-explained` says
+so. The page shows a record rather than a win rate, so no rate needs `suppress-small-n`. Names are
+not links yet — `/players/[slug]` is E20.13. The header's Leaderboard link is live.
 ⬜ **E20.13 — `leaderboard`: `/players/[slug]`** · M · Deps: E19.12
 ⬜ **E20.14 — `tournaments`: `/tournaments/[slug]`** · M · Deps: E13.17
 ⬜ **E20.15 — `tournaments`: import dashboard** · L · Deps: E18.4
@@ -1284,7 +1291,7 @@ can start today, in rough order of how much it unblocks.
   E19.1 first, which sets the fixture conventions the other thirteen components inherit.
 - **The Elo path runs end to end for melee.gg:** a finished event is fetched, ingested and, if it
   is a Monthly, rated (E18.20). What is left: a current season in production (`/admin/seasons`, E20.35), E23.14 so
-  the queue runs on its own, E20.12 to show the ladder, and E18.16 → E20.16 for the admin merge
+  the queue runs on its own, and E18.16 → E20.16 for the admin merge
   view. Challonge results (E12.13–E12.14) follow the same shape.
 - **E24.5 — the real podium — now waits on one thing only.** Its schema is all in; what is missing is
   something to _write_ an entry, which is E18.4. The query itself could be written today and would
@@ -1364,10 +1371,10 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 20      | 3    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 35      | 15   |
+| E9   | 9       | 9    | E20  | 35      | 16   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
 |      |         |      | E23  | 14      | 13   |
 |      |         |      | E24  | 7       | 4    |
 
-**175 of 259 stories done across 24 epics.**
+**176 of 259 stories done across 24 epics.**

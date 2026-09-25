@@ -61,11 +61,11 @@ match, so the order the two updates are written in cannot change the outcome.
 `K` controls how far one match can move a rating. It comes from the
 admin-editable rating config, never from code:
 
-| Tier        | K   | When                        |
-| ----------- | --- | --------------------------- |
-| Provisional | 40  | fewer than 15 rated matches |
-| Standard    | 24  | the default                 |
-| Elite       | 16  | rating at or above 2100     |
+| Tier        | K   | When                       |
+| ----------- | --- | -------------------------- |
+| Provisional | 40  | fewer than 5 rated matches |
+| Standard    | 24  | the default                |
+| Elite       | 16  | rating at or above 2100    |
 
 Provisional is checked first. A new player who has climbed above 2100 in three
 matches is still provisional — that rating has not been tested yet.
@@ -89,9 +89,13 @@ row in the match ledger**.
 
 ## Leaderboard eligibility
 
-A player appears on the leaderboard once they are out of provisional (15 rated
-matches) and have played at least 10. A player with no rated match in 120 days is
-marked inactive.
+The leaderboard is **per season**: it replays only the current season's rated
+matches, so it starts fresh when a new season opens.
+
+A player is ranked once they are out of provisional and have played at least 5
+rated matches — about one Monthly. Everyone rated this season who has not got
+there yet is listed beneath the ranked table, unplaced. A player with no rated
+match in 120 days is marked inactive.
 
 ## Anomalies
 

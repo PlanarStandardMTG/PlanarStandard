@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import {
   getLeaderboard,
+  getProvisionalRatings,
   getPlayerRating,
   getRatingConfig,
   listRatingHistory,
@@ -180,8 +181,8 @@ describe.skipIf(!reachable)("repos/ratings", () => {
       kProvisional: 40,
       kStandard: 24,
       kElite: 16,
-      provisionalMatches: 15,
-      minMatchesForLeaderboard: 10,
+      provisionalMatches: 5,
+      minMatchesForLeaderboard: 5,
       countByes: false,
     });
   });
@@ -263,7 +264,7 @@ describe.skipIf(!reachable)("repos/ratings", () => {
         rating(second, { rating: 1800 }),
         rating(provisional, { rating: 2000, isProvisional: true }),
         rating(hidden, { rating: 2100 }),
-        // Over provisional but under `min_matches_for_leaderboard` (10).
+        // Under `min_matches_for_leaderboard` (5).
         rating(thin, { rating: 1950, matchesPlayed: 4 }),
       ],
       [],
@@ -273,6 +274,11 @@ describe.skipIf(!reachable)("repos/ratings", () => {
     // The three excluded each fail a different clause of the view, and each
     // would otherwise have been at the top.
     expect(board.map((row) => row.rating)).toEqual([1900, 1800]);
+
+    // The complement, for the page's second table: the two that are not there
+    // yet, and never the hidden one.
+    const waiting = await getProvisionalRatings(client, 10);
+    expect(waiting.map((row) => row.rating)).toEqual([2000, 1950]);
   });
 
   it("still gives a provisional player their own rating", async () => {

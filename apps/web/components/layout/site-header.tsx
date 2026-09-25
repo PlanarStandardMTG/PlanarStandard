@@ -20,7 +20,7 @@ const NAV = [
   { href: "/rules", label: "Rules" },
   { href: "/events", label: "Events" },
   { href: "/meta", label: "Metagame", soon: true },
-  { href: "/leaderboard", label: "Leaderboard", soon: true },
+  { href: "/leaderboard", label: "Leaderboard" },
 ] as const;
 
 export async function SiteHeader() {
