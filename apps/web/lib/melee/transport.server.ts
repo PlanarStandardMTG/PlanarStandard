@@ -1,4 +1,5 @@
 import type { CalendarFetch } from "@/lib/events/calendar-fetch";
+import { describeFetchFailure } from "@/lib/fetch-failure";
 
 /**
  * The only code in the repo that sends a request to melee.gg (E23.12, E12.10).
@@ -130,8 +131,7 @@ export async function meleeGet(
 
     return { status: "ok", payload };
   } catch (cause) {
-    const error = cause instanceof Error ? cause.message : String(cause);
-    return { status: "failed", error: `melee request failed: ${error}` };
+    return { status: "failed", error: `melee request failed: ${describeFetchFailure(cause)}` };
   }
 }
 

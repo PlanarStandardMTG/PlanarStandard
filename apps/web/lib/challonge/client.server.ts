@@ -1,4 +1,5 @@
 import type { CalendarFetch } from "@/lib/events/calendar-fetch";
+import { describeFetchFailure } from "@/lib/fetch-failure";
 
 /**
  * The only module in the repo that talks to Challonge (E23.7).
@@ -95,8 +96,7 @@ async function fetchPage(creds: ChallongeCredentials, page: number): Promise<Cal
 
     return { status: "ok", payload: await response.json() };
   } catch (cause) {
-    const error = cause instanceof Error ? cause.message : String(cause);
-    return { status: "failed", error: `challonge request failed: ${error}` };
+    return { status: "failed", error: `challonge request failed: ${describeFetchFailure(cause)}` };
   }
 }
 

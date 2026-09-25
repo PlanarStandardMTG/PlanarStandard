@@ -78,9 +78,20 @@ describe("lib/challonge/client", () => {
     });
   });
 
+  it("does not carry any of an unparseable body into the error", async () => {
+    globalThis.fetch = vi.fn(
+      async () => new Response("<html>Jane Doe, jane@example.com</html>", { status: 200 }),
+    ) as typeof globalThis.fetch;
+
+    await expect(fetchCommunityTournaments()).resolves.toEqual({
+      status: "failed",
+      error: "challonge request failed: response was not JSON",
+    });
+  });
+
   it("turns a network failure into a result, not a throw", async () => {
     globalThis.fetch = vi.fn(async () => {
-      throw new Error("fetch failed");
+      throw new TypeError("fetch failed");
     }) as typeof globalThis.fetch;
 
     const result = await fetchCommunityTournaments();
