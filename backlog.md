@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | ⬜ 0/19  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 12/30 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 13/32 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | ✅ 12/12 |
@@ -938,6 +938,18 @@ _Note:_ added outside the plan, and separate from a tournament registration's lo
 line, not a tree. Deleting a deck deletes every version, after a confirmation. A name that does not resolve no longer blocks
 a save, which changes E20.28: Kitchen Table allows cards outside the dataset, so an unknown name is
 reported with suggestions, confirmed, and stored unresolved.
+✅ **E20.31 — `decks`: remove versions of a deck, keeping the rows** · S · Deps: E20.30 — _AC:_ the
+owner picks which versions to remove in a dialog; the versions kept are relinked into one line; a
+removed version is gone from every page, list and history, and still in the database; one a
+tournament entry names stays public wherever that entry is.
+_Note:_ added outside the plan. `0022_hide_deck_versions.sql` adds `decks.hidden_at` and drops the
+member delete policy, so a member can no longer delete a deck at all. `hide_deck_versions` is a
+definer function because `decks` has no update policy. The owner can still read hidden decks, which
+the data export needs (E16.11). "Delete" is the member's word for it; nothing is deleted.
+⬜ **E20.32 — `decks`: a member's tournament decks, as a tab beside their own** · S · Deps: E20.31,
+a player linked to the profile (`players.profile_id`) — _AC:_ `/decks` has a "Tournament decks" tab
+listing the decks the member's player registered, from `listDecksByPlayer`, whether or not the member
+removed a copy from their own decks.
 
 ---
 
@@ -1234,10 +1246,10 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 19      | 0    |
 | E8   | 6       | 6    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 30      | 12   |
+| E9   | 9       | 9    | E20  | 32      | 13   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**164 of 246 stories done across 24 epics.**
+**165 of 248 stories done across 24 epics.**

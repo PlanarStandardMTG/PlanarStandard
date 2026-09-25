@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { latestVersions } from "@ps/core";
-import { listDecksByOwner } from "@ps/db";
+import { listMemberDecks } from "@ps/db";
 import Link from "next/link";
 
 import { FORMAT_LABELS } from "@/components/decks/format-labels";
@@ -56,8 +56,8 @@ export default async function DecksPage() {
   );
 }
 
-async function OwnDecks({ ownerId }: { ownerId: Parameters<typeof listDecksByOwner>[1] }) {
-  const decks = await load(async () => listDecksByOwner(await createSessionClient(), ownerId));
+async function OwnDecks({ ownerId }: { ownerId: Parameters<typeof listMemberDecks>[1] }) {
+  const decks = await load(async () => listMemberDecks(await createSessionClient(), ownerId));
   if (!decks.ok) return <ErrorState title="Your decks could not be loaded" detail={decks.error} />;
   if (decks.value.length === 0) {
     return <EmptyState title="No decks yet">Imported decks will be listed here.</EmptyState>;

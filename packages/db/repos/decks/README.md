@@ -26,6 +26,11 @@ snake_case row shape does not leave `rows.ts`.
   an empty deck everywhere and is indistinguishable from a legitimately empty
   one, which is worse than no row. If genuine atomicity is ever needed, the
   answer is a `plpgsql` function and an RPC, not a cleverer sequence.
+- **A member never deletes a deck; they hide it** (E20.31). `hidden_at` takes it out
+  of `listMemberDecks` and `listDeckVersions` and off the public read policy — except
+  where a tournament entry names it, since an event's record outlives the player's
+  tidying. The owner can still read their hidden decks, because the data export
+  (`listDecksByOwner`) must hand them over.
 - A card whose name did not resolve is stored with a null `oracle_id` and the
   deck is flagged (E18.10). Dropping the line would make a 60-card deck read as
   59 and legal.

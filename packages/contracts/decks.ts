@@ -174,6 +174,11 @@ export interface Deck {
   readonly isLegal: boolean | null;
   /** The `LegalityVerdict` that produced `isLegal`, as stored. Null when unchecked. */
   readonly validation: JsonValue | null;
+  /**
+   * Set when the owner removed it from their decks (E20.31). The row stays, and a
+   * hidden deck a tournament entry names is still public wherever that entry is.
+   */
+  readonly hiddenAt: IsoDateTime | null;
   readonly createdAt: IsoDateTime;
 }
 

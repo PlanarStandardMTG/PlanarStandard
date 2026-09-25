@@ -12,12 +12,14 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import {
   createMemberDeck,
-  deleteMemberDeck,
   getDeckWithCards,
+  hideMemberDeckVersions,
   insertDeck,
   listDecksByOwner,
+  isDeckInEvent,
   listDeckVersions,
   listDecksByPlayer,
+  listMemberDecks,
   listPublicDecksBySeason,
   type NewDeck,
 } from "./index";
@@ -74,6 +76,7 @@ const deck = (over: Partial<NewDeck> & { name: string }): NewDeck => ({
   parentDeckId: null,
   isLegal: null,
   validation: null,
+  hiddenAt: null,
   ...over,
 });
 
@@ -330,19 +333,6 @@ describe.skipIf(!reachable)("repos/decks — member imports", () => {
     expect(someoneElse.error).not.toBeNull();
   });
 
-  it("lets only the owner delete a deck", async () => {
-    [reader] = await signIn("reader@planarstandard.test");
-    const id = await createMemberDeck(reader, member("Shortlived", "public"), [
-      card({ name: "Swamp" }),
-    ]);
-    mine.push(id);
-
-    [writer] = await signIn("wrenfield@planarstandard.test");
-    expect(await deleteMemberDeck(writer, id)).toBe(false);
-    expect(await deleteMemberDeck(reader, id)).toBe(true);
-    expect(await getDeckWithCards(service, id)).toBeNull();
-  });
-
   it("saves an edit as a new version, and reads the history oldest first", async () => {
     [reader] = await signIn("reader@planarstandard.test");
     const first = await createMemberDeck(reader, member("Mono Black v1"), [
@@ -387,16 +377,96 @@ describe.skipIf(!reachable)("repos/decks — member imports", () => {
     ).rejects.toThrow(/createMemberDeck failed/);
   });
 
-  it("deletes every version of a deck together", async () => {
-    [reader] = await signIn("reader@planarstandard.test");
-    const first = await createMemberDeck(reader, member("Gone v1"), [card({ name: "Swamp" })]);
-    const second = await createMemberDeck(reader, member("Gone v2", "private", first), [
-      card({ name: "Swamp" }),
-    ]);
-    mine.push(first, second);
+  async function history(names: readonly string[], visibility: "public" | "private" = "private") {
+    const ids: DeckId[] = [];
+    for (const name of names) {
+      const id = await createMemberDeck(reader, member(name, visibility, ids.at(-1) ?? null), [
+        card({ name: "Swamp" }),
+      ]);
+      ids.push(id);
+      mine.push(id);
+    }
+    return ids;
+  }
 
-    expect(await deleteMemberDeck(reader, second)).toBe(true);
-    expect(await getDeckWithCards(service, first)).toBeNull();
-    expect(await getDeckWithCards(service, second)).toBeNull();
+  it("hides the versions chosen, keeps the rows, and relinks the rest into one line", async () => {
+    [reader, readerId] = await signIn("reader@planarstandard.test");
+    const [a, b, c, d] = (await history(["A", "B", "C", "D"])) as [DeckId, DeckId, DeckId, DeckId];
+
+    expect(await hideMemberDeckVersions(reader, d, [b, c])).toBe(d);
+
+    const versions = await listDeckVersions(reader, a);
+    expect(versions.map((v) => [v.id, v.parentDeckId])).toEqual([
+      [a, null],
+      [d, a],
+    ]);
+    expect((await getDeckWithCards(service, b))?.hiddenAt).not.toBeNull();
+    expect((await listMemberDecks(reader, readerId)).map((deck) => deck.id)).not.toContain(b);
+  });
+
+  it("lets the newest visible version be edited after the newest is hidden", async () => {
+    [reader] = await signIn("reader@planarstandard.test");
+    const [a, b] = (await history(["A", "B"])) as [DeckId, DeckId];
+
+    expect(await hideMemberDeckVersions(reader, a, [b])).toBe(a);
+    const c = await createMemberDeck(reader, member("C", "private", a), [card({ name: "Swamp" })]);
+    mine.push(c);
+
+    expect((await listDeckVersions(reader, c)).map((v) => v.id)).toEqual([a, c]);
+  });
+
+  it("promotes the next version to the root, and says when none is left", async () => {
+    [reader] = await signIn("reader@planarstandard.test");
+    const [a, b] = (await history(["A", "B"])) as [DeckId, DeckId];
+
+    expect(await hideMemberDeckVersions(reader, b, [a])).toBe(b);
+    expect((await getDeckWithCards(reader, b))?.parentDeckId).toBeNull();
+    expect(await hideMemberDeckVersions(reader, b, [b])).toBeNull();
+  });
+
+  it("refuses someone else's deck, a version from another deck, and a hard delete", async () => {
+    [reader] = await signIn("reader@planarstandard.test");
+    const [a] = (await history(["A"], "public")) as [DeckId];
+    const [other] = (await history(["Other"])) as [DeckId];
+
+    await expect(hideMemberDeckVersions(reader, a, [other])).rejects.toThrow(/failed/);
+    [writer] = await signIn("wrenfield@planarstandard.test");
+    await expect(hideMemberDeckVersions(writer, a, [a])).rejects.toThrow(/failed/);
+
+    const deleted = await reader.from("decks").delete().eq("id", a).select("id");
+    expect(deleted.data ?? []).toHaveLength(0);
+    expect(await getDeckWithCards(service, a)).not.toBeNull();
+  });
+
+  it("hides a hidden public deck from everyone else, unless an event names it", async () => {
+    [reader] = await signIn("reader@planarstandard.test");
+    const [a] = (await history(["Played"], "public")) as [DeckId];
+    await hideMemberDeckVersions(reader, a, [a]);
+    expect(await getDeckWithCards(client, a)).toBeNull();
+
+    const { data: tournament } = await service
+      .from("tournaments")
+      .select("id")
+      .neq("status", "draft")
+      .limit(1)
+      .single();
+    const { data: player } = await service
+      .from("players")
+      .insert({ display_name: "Deck test", slug: `deck-test-${a}` })
+      .select("id")
+      .single();
+    const { data: entry } = await service
+      .from("tournament_entries")
+      .insert({ tournament_id: tournament?.id, player_id: player?.id, deck_id: a })
+      .select("id")
+      .single();
+
+    try {
+      expect(await isDeckInEvent(client, a)).toBe(true);
+      expect((await getDeckWithCards(client, a))?.id).toBe(a);
+    } finally {
+      await service.from("tournament_entries").delete().eq("id", entry?.id);
+      await service.from("players").delete().eq("id", player?.id);
+    }
   });
 });

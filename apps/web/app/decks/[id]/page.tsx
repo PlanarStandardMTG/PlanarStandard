@@ -1,5 +1,5 @@
 import type { Deck, DeckId } from "@ps/contracts";
-import { getDeckWithCards, getProfile, listDeckVersions } from "@ps/db";
+import { getDeckWithCards, getProfile, isDeckInEvent, listDeckVersions } from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -63,15 +63,20 @@ export default async function DeckPage({
   const deck = await findDeck(id);
   if (deck === null) notFound();
 
+  // Its owner can still read a deck they removed; only an event keeps it on a page (E20.31).
   const session = await createSessionClient();
+  const hidden = deck.hiddenAt !== null;
+  if (hidden && !(await isDeckInEvent(session, deck.id))) notFound();
+
   const [viewer, format, owner, versions] = await Promise.all([
     currentViewer(),
     loadCurrentFormat(),
     deck.ownerId === null ? null : getProfile(session, deck.ownerId),
-    listDeckVersions(session, deck.id),
+    hidden ? [] : listDeckVersions(session, deck.id),
   ]);
   const view: DeckView = buildDeckView(deck, format.ok ? format.value : null);
   const isOwner = viewer !== null && viewer.profile.id === deck.ownerId;
+  const canManage = isOwner && !hidden && deck.submittedVia === "import" && deck.lockedAt === null;
   const latest = versions.at(-1) ?? deck;
   const isLatest = latest.id === deck.id;
   const showImages = (await searchParams).layout === "images";
@@ -106,7 +111,7 @@ export default async function DeckPage({
             <span>{formatDate(deck.createdAt)}</span>
           </p>
         </div>
-        {isOwner && deck.lockedAt === null && (
+        {canManage && (
           <div className="flex items-center gap-2">
             {isLatest && (
               <Link
@@ -116,7 +121,16 @@ export default async function DeckPage({
                 Edit deck
               </Link>
             )}
-            <DeleteDeckButton deckId={deck.id} deckName={deck.name} versions={versions.length} />
+            <DeleteDeckButton
+              deckId={deck.id}
+              deckName={deck.name}
+              current={deck.id}
+              versions={versions.map((version, i) => ({
+                id: version.id,
+                label: `Version ${i + 1}`,
+                date: formatDate(version.createdAt),
+              }))}
+            />
           </div>
         )}
       </header>

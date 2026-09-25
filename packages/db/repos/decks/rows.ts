@@ -38,6 +38,7 @@ export interface DeckRow {
   readonly parent_deck_id: string | null;
   readonly is_legal: boolean | null;
   readonly validation: unknown;
+  readonly hidden_at: string | null;
   readonly created_at: string;
 }
 
@@ -57,7 +58,7 @@ export interface DeckWithCardsRow extends DeckRow {
 export const DECK_COLUMNS =
   "id, name, owner_id, player_id, season_id, format, format_version_id, archetype_id, archetype_raw, " +
   "visibility, description_markdown, source_url, raw_import, submitted_via, locked_at, " +
-  "parent_deck_id, is_legal, validation, created_at";
+  "parent_deck_id, is_legal, validation, hidden_at, created_at";
 
 const CARD_COLUMNS = "oracle_id, card_name, quantity, board, set_code, collector_number";
 
@@ -70,7 +71,7 @@ const CARD_COLUMNS = "oracle_id, card_name, quantity, board, set_code, collector
 export const DECK_SUMMARY_COLUMNS =
   "id, name, owner_id, player_id, season_id, format, format_version_id, archetype_id, archetype_raw, " +
   "visibility, description_markdown, source_url, submitted_via, locked_at, parent_deck_id, " +
-  "is_legal, created_at";
+  "is_legal, hidden_at, created_at";
 
 export const DECK_WITH_CARDS_COLUMNS = `${DECK_COLUMNS}, cards:deck_cards (${CARD_COLUMNS})`;
 
@@ -99,6 +100,7 @@ export function toDeck(row: DeckRow): Deck {
     parentDeckId: row.parent_deck_id as DeckId | null,
     isLegal: row.is_legal,
     validation: (row.validation ?? null) as Deck["validation"],
+    hiddenAt: row.hidden_at,
     createdAt: row.created_at,
   };
 }

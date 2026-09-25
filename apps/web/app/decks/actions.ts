@@ -12,8 +12,8 @@ import {
 } from "@ps/core";
 import {
   createMemberDeck,
-  deleteMemberDeck,
   getCurrentFormatDetail,
+  hideMemberDeckVersions,
   listDeckVersions,
 } from "@ps/db";
 import { revalidatePath } from "next/cache";
@@ -25,7 +25,7 @@ import { createPublicClient } from "@/lib/supabase/server";
 import { createSessionClient } from "@/lib/supabase/session";
 
 /**
- * Save, check and delete a member's own deck (E20.28, E20.30). The owner is
+ * Save, check and remove a member's own deck (E20.28, E20.30, E20.31). The owner is
  * always the session's, and `decks_member_insert` checks it again underneath.
  */
 
@@ -112,10 +112,21 @@ export async function saveDeck(_previous: SaveState, form: FormData): Promise<Sa
   redirect(`/decks/${id}`);
 }
 
-export async function deleteDeck(form: FormData): Promise<void> {
+/**
+ * Remove the chosen versions from the member's decks (E20.31). They are hidden,
+ * not deleted, and the member lands on the newest version left.
+ */
+export async function deleteDeckVersions(form: FormData): Promise<void> {
   await requireRole("reader");
-  const id = form.get("id")?.toString() ?? "";
-  await deleteMemberDeck(await createSessionClient(), id as DeckId);
+  const deckId = form.get("id")?.toString() ?? "";
+  const versionIds = form.getAll("version").map((value) => value.toString() as DeckId);
+  if (versionIds.length === 0) redirect(`/decks/${deckId}`);
+
+  const left = await hideMemberDeckVersions(
+    await createSessionClient(),
+    deckId as DeckId,
+    versionIds,
+  );
   revalidatePath("/decks");
-  redirect("/decks");
+  redirect(left === null ? "/decks" : `/decks/${left}`);
 }

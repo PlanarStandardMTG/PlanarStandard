@@ -131,6 +131,7 @@ export async function insertDeck(
       parent_deck_id: deck.parentDeckId,
       is_legal: deck.isLegal,
       validation: deck.validation,
+      hidden_at: deck.hiddenAt,
     })
     .select("id")
     .single();
@@ -183,6 +184,27 @@ export async function listDecksByOwner(
   return (data as unknown as DeckRow[]).map(toDeck);
 }
 
+/**
+ * The decks a member keeps on the site — their own imports, hidden ones left
+ * out — newest first (E20.28, E20.31). Decks from events they played are a
+ * different list: those are the player's, and `listDecksByPlayer` reads them.
+ */
+export async function listMemberDecks(
+  client: SupabaseClient,
+  ownerId: ProfileId,
+): Promise<readonly Deck[]> {
+  const { data, error } = await client
+    .from("decks")
+    .select(DECK_SUMMARY_COLUMNS)
+    .eq("owner_id", ownerId)
+    .eq("submitted_via", "import")
+    .is("hidden_at", null)
+    .order("created_at", { ascending: false });
+
+  if (error !== null) throw new Error(`listMemberDecks failed: ${error.message}`);
+  return (data as unknown as DeckRow[]).map(toDeck);
+}
+
 /** What a member supplies when importing a deck; the database fills in the rest. */
 export interface MemberDeck {
   readonly name: string;
@@ -231,8 +253,9 @@ export async function createMemberDeck(
 }
 
 /**
- * Every version of the deck `deckId` belongs to that the caller may read,
- * oldest first (E20.30). A deck never edited is a history of one.
+ * Every visible version of the deck `deckId` belongs to that the caller may
+ * read, oldest first (E20.30). A hidden version is left out even for its owner
+ * (E20.31); a deck never edited is a history of one.
  */
 export async function listDeckVersions(
   client: SupabaseClient,
@@ -240,19 +263,37 @@ export async function listDeckVersions(
 ): Promise<readonly Deck[]> {
   const { data, error } = await client
     .rpc("deck_lineage", { deck_id: deckId })
-    .select(DECK_SUMMARY_COLUMNS);
+    .select(DECK_SUMMARY_COLUMNS)
+    .is("hidden_at", null)
+    .order("created_at");
 
   if (error !== null) throw new Error(`listDeckVersions failed: ${error.message}`);
   return (data as unknown as DeckRow[]).map(toDeck);
 }
 
 /**
- * Delete one of the caller's own unlocked decks, every version of it together.
- * False when there was none to delete.
+ * Remove versions of one of the caller's decks from their decks (E20.31). The
+ * rows stay, hidden; the versions kept are relinked so the history is still one
+ * line. Returns the newest version left, or null when none is.
  */
-export async function deleteMemberDeck(client: SupabaseClient, deckId: DeckId): Promise<boolean> {
-  const { data, error } = await client.rpc("delete_deck", { deck_id: deckId });
+export async function hideMemberDeckVersions(
+  client: SupabaseClient,
+  deckId: DeckId,
+  versionIds: readonly DeckId[],
+): Promise<DeckId | null> {
+  const { data, error } = await client.rpc("hide_deck_versions", {
+    deck_id: deckId,
+    version_ids: versionIds,
+  });
 
-  if (error !== null) throw new Error(`deleteMemberDeck failed: ${error.message}`);
-  return (data as number) > 0;
+  if (error !== null) throw new Error(`hideMemberDeckVersions failed: ${error.message}`);
+  return (data ?? null) as DeckId | null;
+}
+
+/** Whether any tournament entry names the deck — what keeps a hidden deck public. */
+export async function isDeckInEvent(client: SupabaseClient, deckId: DeckId): Promise<boolean> {
+  const { data, error } = await client.rpc("deck_in_event", { deck_id: deckId });
+
+  if (error !== null) throw new Error(`isDeckInEvent failed: ${error.message}`);
+  return data === true;
 }

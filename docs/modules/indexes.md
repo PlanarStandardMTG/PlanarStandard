@@ -168,6 +168,7 @@ query is on a page rather than in an export.
 | `match_corrections`   | `match_corrections_match_idx`                         | a match's correction trail                         |
 | `tournament_entries`  | `tournament_entries_placement_idx`                    | the podium                                         |
 | `tournament_entries`  | `tournament_entries_player_idx`                       | a player's events                                  |
+| `tournament_entries`  | `tournament_entries_deck_idx` (partial)               | whether an event names a hidden deck (read policy) |
 | `identity_exclusions` | `identity_exclusions_b_idx`                           | the second half of an ordered pair                 |
 | `merge_suggestions`   | `merge_suggestions_pending_idx` (partial)             | the review queue, most confident first             |
 | `player_merges`       | `player_merges_winner_idx`, `player_merges_loser_idx` | undoing a merge from either end                    |

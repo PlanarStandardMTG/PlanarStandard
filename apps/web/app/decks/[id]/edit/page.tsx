@@ -35,7 +35,8 @@ export default async function EditDeckPage({ params }: { params: Promise<{ id: s
     deck === null ||
     deck.ownerId !== viewer.profile.id ||
     deck.submittedVia !== "import" ||
-    deck.lockedAt !== null
+    deck.lockedAt !== null ||
+    deck.hiddenAt !== null
   ) {
     notFound();
   }
