@@ -31,7 +31,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E9   | Identity signals and scoring          | 4     | E2           | ✅ 9/9   |
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
-| E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
+| E12  | Source adapters                       | 5     | E2           | 🚧 7/11  |
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | ✅ 23/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
@@ -360,9 +360,20 @@ asserted against it; the adapter stays pure, so fetching belongs to the caller a
 is the response body. That directory already holds E23.12's `tournament-list.json`, so name the
 capture for its endpoint and leave the calendar's alone — one vendor API, one directory, one file per
 endpoint.
-_Blocked:_ needs API access — a documented endpoint list and whatever credential it wants. Until then
-neither the payload shape nor the pagination is known, and guessing produces a fixture that has to be
-thrown away.
+_Blocked:_ needs a committed fixture that names no real player. The endpoints, pagination and shapes
+are known now (E12.11), but a captured response carries players' legal names and handles, so it
+cannot be committed verbatim: it needs either invented players in the captured shape or a
+reviewed, scrubbed capture.
+✅ **E12.11 — `melee-api`: the results endpoints, fetched and scrubbed** · M · Deps: E23.12 —
+_AC:_ the tournament, match-list, decklist-list and decklist endpoints are reachable from the site
+through functions that return only melee ids, results and decklists — never a name, handle, Discord,
+email or pronoun — and nothing outside `lib/melee/` can reach an unscrubbed response.
+_Note:_ added outside the plan, as E12.10's groundwork. The endpoints come from melee's Swagger
+document (`swagger/docs/v0.3.64.190`). `lib/melee/transport.server.ts` sends every request;
+`results.server.ts` keeps the raw results fetches private and exports scrubbed `get…` functions that
+copy an allowlist; `.dependency-cruiser.cjs`' `melee-transport-is-private` fails CI on any import of
+the transport from outside `lib/melee/`. The decklist list carries each player's final rank and
+record, so it is the roster and the standings as well as the lists.
 
 ---
 
@@ -1086,9 +1097,9 @@ plus migration 0015 for the ledger row. Two things the listing payload forced, b
 cancelled tournament is dropped rather than mapped to `complete`. `MELEE_CLIENT_ID` and
 `MELEE_CLIENT_SECRET` are sent as basic auth; a calendar with no credentials is filtered out before
 anything is claimed, so setting one platform and not the other is a working configuration.
-_Outstanding:_ pagination past the first page is unexercised — the organisation has six tournaments
-and `HasMore` has never been true, so the `page`/`pageSize` parameter names are inferred from the
-fields the response echoes back.
+_Note:_ the inferred `page`/`pageSize` names were wrong — melee ignored them and served its default
+of 25. The Swagger names are `variables.page` and `variables.pageSize`, verified live by a page size
+of 100 echoing back (E12.11).
 
 ---
 
@@ -1218,9 +1229,9 @@ four ways in are an email, and so is every password reset. See
 
 **E12.10 is what is left of melee.gg.** E23.12 took the tournament _listing_, so an event run there
 shows up on the schedule; E12.10 wants the _results_ — match history, standings, decklists — so it can
-be imported. The listing endpoint answered to `MELEE_CLIENT_ID` and `MELEE_CLIENT_SECRET` over basic
-auth, so the credential question is settled; what is still missing is the endpoint list for everything
-under a single tournament.
+be imported. E12.11 found and wired the endpoints — a tournament, its matches, its decklists — behind
+functions that scrub every personal detail, so what is still missing is a committed fixture that
+names no real player, and then the adapter itself.
 
 **The home page shows one thing it does not have.** The top-four-decks section runs on a hand-written
 podium (E24.4's _Outstanding:_ line) and says so on the page. E24.5 is the swap, and it is the
@@ -1247,7 +1258,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
-| E1   | 9       | 9    | E12  | 10      | 6    |
+| E1   | 9       | 9    | E12  | 11      | 7    |
 | E2   | 9       | 9    | E13  | 23      | 23   |
 | E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
@@ -1261,4 +1272,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**166 of 249 stories done across 24 epics.**
+**167 of 250 stories done across 24 epics.**

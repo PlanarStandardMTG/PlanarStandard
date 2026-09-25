@@ -57,6 +57,14 @@ module.exports = {
       to: { path: "(\\.server\\.[cm]?[jt]sx?$)|(/server-only/)" },
     },
     {
+      name: "melee-transport-is-private",
+      severity: "error",
+      comment:
+        "E12.10 — apps/web/lib/melee/transport.server.ts returns melee.gg responses untouched, and a tournament's results name players. Only lib/melee/ may import it; everything else reads melee through the functions client.server.ts and results.server.ts export, which scrub results down to melee ids, results and decklists.",
+      from: { pathNot: "^apps/web/lib/melee/" },
+      to: { path: "^apps/web/lib/melee/transport\\.server\\.ts$" },
+    },
+    {
       name: "cards-only-loads",
       severity: "error",
       comment:

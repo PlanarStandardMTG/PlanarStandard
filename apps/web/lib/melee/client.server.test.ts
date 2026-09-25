@@ -17,7 +17,7 @@ function stubFetch(pages: readonly (readonly unknown[])[]) {
   const calls: string[] = [];
   globalThis.fetch = vi.fn(async (input: RequestInfo | URL) => {
     calls.push(String(input));
-    const page = Number(new URL(String(input)).searchParams.get("page") ?? "1");
+    const page = Number(new URL(String(input)).searchParams.get("variables.page") ?? "1");
     return new Response(
       JSON.stringify({
         StatusCode: 200,
@@ -127,5 +127,16 @@ describe("lib/melee/client", () => {
     expect(request.init.headers).toMatchObject({
       Authorization: `Basic ${btoa("test-id:test-secret")}`,
     });
+  });
+
+  it("asks for pages by the names melee honours, a hundred at a time", async () => {
+    const calls = stubFetch([[tournament(1)]]);
+
+    await fetchTournamentList();
+
+    const url = new URL(calls[0] ?? "");
+    expect(url.searchParams.get("variables.page")).toBe("1");
+    expect(url.searchParams.get("variables.pageSize")).toBe("100");
+    expect(url.searchParams.has("pageSize")).toBe(false);
   });
 });
