@@ -81,3 +81,20 @@ export interface EventSchedule {
   readonly upcoming: readonly ExternalEvent[];
   readonly past: readonly ExternalEvent[];
 }
+
+/**
+ * An `event_completions` row (E23.13): a tournament the calendar saw reach
+ * `complete`, queued so that its results are fetched and processed exactly once.
+ * `processedAt` set means it is never fetched again.
+ */
+export interface EventCompletion {
+  readonly source: EventSource;
+  readonly externalId: string;
+  readonly name: string;
+  readonly detectedAt: IsoDateTime;
+  /** When a runner last took it. A lease: older than the cutoff, and it can be taken again. */
+  readonly claimedAt: IsoDateTime | null;
+  readonly processedAt: IsoDateTime | null;
+  readonly attempts: number;
+  readonly lastError: string | null;
+}

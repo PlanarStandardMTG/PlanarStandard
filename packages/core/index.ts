@@ -135,6 +135,14 @@ export type {
 export { parseChallongeEvents } from "./events/parse-challonge-events/index";
 export { parseMeleeEvents } from "./events/parse-melee-events/index";
 export { EVENT_SYNC_INTERVAL_MS, isSyncDue, syncCutoff } from "./events/sync-window/index";
+export { newlyCompleted } from "./events/newly-completed/index";
+export type { CachedEventState } from "./events/newly-completed/index";
+export {
+  COMPLETION_LEASE_MS,
+  COMPLETION_MAX_ATTEMPTS,
+  completionStatus,
+} from "./events/completion-status/index";
+export type { CompletionStatus } from "./events/completion-status/index";
 export {
   PAST_EVENT_WINDOW_MS,
   eventSchedule,

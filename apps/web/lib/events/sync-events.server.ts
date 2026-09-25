@@ -4,11 +4,19 @@ import type {
   EventSyncState,
   ParsedExternalEvent,
 } from "@ps/contracts";
-import { eventSchedule, parseChallongeEvents, parseMeleeEvents, syncCutoff } from "@ps/core";
+import {
+  eventSchedule,
+  newlyCompleted,
+  parseChallongeEvents,
+  parseMeleeEvents,
+  syncCutoff,
+} from "@ps/core";
 import {
   claimSyncWindow,
   getSyncState,
   listAllCachedEvents,
+  listCachedEvents,
+  recordCompletions,
   recordSyncResult,
   replaceEvents,
 } from "@ps/db";
@@ -28,7 +36,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
  * update; what the payload means is each parser's; what the page shows is
  * `event-schedule`'s. What is left here is the order of operations.
  *
- *   claim the window → fetch → parse → replace → record → read the cache
+ *   claim the window → fetch → parse → queue what finished → replace → record → read the cache
  *
  * The cache is read at the end either way. A refresh that failed still serves the
  * events we had, because a schedule that is two hours stale is worth far more
@@ -137,6 +145,12 @@ async function refreshIfDue(calendar: Calendar, now: Date): Promise<void> {
 
     const events = calendar.parse(result.payload);
     const fetchedAt = new Date().toISOString();
+
+    // Before the replace, which is what erases "it was not complete until now".
+    // Queued first so a failed replace costs a retry next window, while a
+    // replace that landed without its queue row would lose the event for good.
+    const previous = await listCachedEvents(service, source);
+    await recordCompletions(service, source, newlyCompleted(previous, events), fetchedAt);
 
     await replaceEvents(service, source, events, fetchedAt);
     await recordSyncResult(service, source, {

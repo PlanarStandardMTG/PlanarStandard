@@ -3,11 +3,17 @@ import { createClient } from "@supabase/supabase-js";
 import { afterAll, beforeEach, describe, expect, it } from "vitest";
 
 import {
+  claimCompletions,
   claimSyncWindow,
   getSyncState,
   listAllCachedEvents,
   listCachedEvents,
+  listCompletions,
+  markCompletionFailed,
+  markCompletionProcessed,
+  recordCompletions,
   recordSyncResult,
+  requeueAllCompletions,
   replaceEvents,
 } from "./index";
 
@@ -70,12 +76,14 @@ const event = (externalId: string, name: string) => ({
 const FETCHED_AT = "2026-09-15T12:00:00.000Z";
 
 async function resetTestSource(): Promise<void> {
+  await service.from("event_completions").delete().eq("source", TEST_SOURCE);
   await service.from("external_events").delete().eq("source", TEST_SOURCE);
   await service.from("external_event_syncs").delete().eq("source", TEST_SOURCE);
   await service.from("external_event_syncs").insert({ source: TEST_SOURCE });
 }
 
 async function dropTestSource(): Promise<void> {
+  await service.from("event_completions").delete().eq("source", TEST_SOURCE);
   await service.from("external_events").delete().eq("source", TEST_SOURCE);
   await service.from("external_event_syncs").delete().eq("source", TEST_SOURCE);
 }
@@ -205,5 +213,110 @@ describe.skipIf(!reachable)("repos/events", () => {
 
   it("keeps the sync ledger away from the public client", async () => {
     await expect(getSyncState(client, TEST_SOURCE)).resolves.toBeNull();
+  });
+
+  describe("the completion queue (E23.13)", () => {
+    const NOW = "2026-09-25T12:00:00.000Z";
+    const claim = (over: { leaseCutoff?: string; maxAttempts?: number } = {}) =>
+      claimCompletions(service, {
+        limit: 10,
+        leaseCutoff: over.leaseCutoff ?? "2026-09-25T11:45:00.000Z",
+        maxAttempts: over.maxAttempts ?? 5,
+        source: TEST_SOURCE,
+      });
+
+    it("queues an event once, however many refreshes see it finish", async () => {
+      await recordCompletions(service, TEST_SOURCE, [{ externalId: "9", name: "Finals" }], NOW);
+      await recordCompletions(service, TEST_SOURCE, [{ externalId: "9", name: "Finals" }], NOW);
+
+      const claimed = await claim();
+      expect(claimed).toHaveLength(1);
+      expect(claimed[0]).toMatchObject({ externalId: "9", name: "Finals", attempts: 1 });
+    });
+
+    it("gives a claimed row to nobody else until its lease runs out", async () => {
+      await recordCompletions(service, TEST_SOURCE, [{ externalId: "9", name: "Finals" }], NOW);
+      expect(await claim()).toHaveLength(1);
+
+      // Held since just now: a cutoff an hour ago does not reach it.
+      expect(await claim({ leaseCutoff: "2026-01-01T00:00:00.000Z" })).toEqual([]);
+      // A cutoff in the future treats the lease as abandoned.
+      expect(await claim({ leaseCutoff: "2099-01-01T00:00:00.000Z" })).toHaveLength(1);
+    });
+
+    it("never hands out a processed event again", async () => {
+      await recordCompletions(service, TEST_SOURCE, [{ externalId: "9", name: "Finals" }], NOW);
+      const [taken] = await claim();
+      if (taken === undefined) throw new Error("nothing claimed");
+
+      await markCompletionProcessed(service, taken, NOW);
+      expect(await claim({ leaseCutoff: "2099-01-01T00:00:00.000Z" })).toEqual([]);
+    });
+
+    it("releases a failure for a retry, and stops retrying after the last attempt", async () => {
+      await recordCompletions(service, TEST_SOURCE, [{ externalId: "9", name: "Finals" }], NOW);
+
+      const [first] = await claim({ maxAttempts: 2 });
+      if (first === undefined) throw new Error("nothing claimed");
+      await markCompletionFailed(service, first, "melee responded 429");
+
+      const [second] = await claim({ maxAttempts: 2 });
+      expect(second).toMatchObject({ attempts: 2, lastError: "melee responded 429" });
+      if (second === undefined) throw new Error("nothing claimed");
+      await markCompletionFailed(service, second, "melee responded 429");
+
+      expect(await claim({ maxAttempts: 2 })).toEqual([]);
+    });
+
+    async function signIn(email: string) {
+      const session = createClient(url, anonKey, { auth: { persistSession: false } });
+      const { error } = await session.auth.signInWithPassword({
+        email,
+        password: "seed-password-not-a-secret",
+      });
+      if (error !== null) throw new Error(`could not sign in as ${email}: ${error.message}`);
+      return session;
+    }
+
+    it("lets an admin send everything round again, backfilling complete calendar events", async () => {
+      await replaceEvents(
+        service,
+        TEST_SOURCE,
+        [
+          { ...event("1", "Done, never queued"), state: "complete" },
+          { ...event("2", "Still to come"), state: "scheduled" },
+        ],
+        FETCHED_AT,
+      );
+      await recordCompletions(service, TEST_SOURCE, [{ externalId: "9", name: "Finals" }], NOW);
+      const [taken] = await claim();
+      if (taken === undefined) throw new Error("nothing claimed");
+      await markCompletionProcessed(service, taken, NOW);
+
+      const admin = await signIn("newsdesk@planarstandard.test");
+      expect(await requeueAllCompletions(admin, TEST_SOURCE)).toBe(2);
+
+      const waiting = (await listCompletions(admin, 100)).filter((c) => c.source === TEST_SOURCE);
+      expect(waiting.map((c) => [c.externalId, c.processedAt, c.attempts]).sort()).toEqual([
+        ["1", null, 0],
+        ["9", null, 0],
+      ]);
+    });
+
+    it("keeps the queue, and the re-run, from anyone but an admin", async () => {
+      await recordCompletions(service, TEST_SOURCE, [{ externalId: "9", name: "Finals" }], NOW);
+      const writer = await signIn("wrenfield@planarstandard.test");
+
+      expect(await listCompletions(writer, 100)).toEqual([]);
+      expect(await requeueAllCompletions(writer, TEST_SOURCE)).toBe(0);
+      const [row] = await claim();
+      expect(row?.attempts).toBe(1);
+    });
+
+    it("keeps the queue away from the public client", async () => {
+      await recordCompletions(service, TEST_SOURCE, [{ externalId: "9", name: "Finals" }], NOW);
+      const { data } = await client.from("event_completions").select("external_id");
+      expect(data ?? []).toEqual([]);
+    });
   });
 });

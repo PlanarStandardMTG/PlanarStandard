@@ -42,7 +42,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E20  | Feature slices                        | 3–10  | E18          | 🚧 14/33 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
-| E23  | Upcoming events                       | 2     | E13.1        | ✅ 12/12 |
+| E23  | Upcoming events                       | 2     | E13.1        | 🚧 13/14 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 4/7   |
 
 ---
@@ -1100,6 +1100,24 @@ anything is claimed, so setting one platform and not the other is a working conf
 _Note:_ the inferred `page`/`pageSize` names were wrong — melee ignored them and served its default
 of 25. The Swagger names are `variables.page` and `variables.pageSize`, verified live by a page size
 of 100 echoing back (E12.11).
+✅ **E23.13 — a tournament that ends is handled once** · M · Deps: E23.12 — _AC:_ a refresh that sees an
+event reach `complete` — absent from the cache before, or in another state — queues it, once however
+many refreshes list it; a runner-agnostic pass claims queued events, calls one hook per event, and marks
+it processed so its results are never fetched again; a failure is retried on a later run, up to a limit.
+_Note:_ added outside the plan. `0024_event_completions.sql` is the queue, apart from `external_events`
+so the wholesale replace cannot erase it; `claim_event_completions` takes a lease with `skip locked`.
+`core/events/newly-completed` compares against the cache before `replaceEvents`. The hook,
+`onTournamentCompleted`, is a no-op that names what it will coordinate (E12.10, E13.18, E18.12).
+`/api/jobs/process-completed-events` runs one pass for `Authorization: Bearer $CRON_SECRET` and refuses
+everyone when the secret is unset. `/admin/processing` shows the queue, runs a pass ("Process now"),
+and re-queues every finished tournament ("Re-run everything", typed confirmation), backfilling complete
+calendar events that were never queued. The re-run clears derived data through `onFullRerun`, a no-op
+until E18 writes any, and never the ledger: re-importing an event supersedes it (§26), and the ledger
+also holds imports the queue cannot recreate.
+⬜ **E23.14 — schedule the completed-events job** · S · Deps: E23.13 — _AC:_ something calls
+`/api/jobs/process-completed-events` on a schedule in production, with `CRON_SECRET` set in Vercel and
+in the scheduler; the choice of scheduler, and its interval, is recorded here. A GitHub Actions cron
+with `workflow_dispatch` is the plan's default (§7).
 
 ---
 
@@ -1192,6 +1210,9 @@ can start today, in rough order of how much it unblocks.
 - **E24.5 — the real podium — now waits on one thing only.** Its schema is all in; what is missing is
   something to _write_ an entry, which is E18.4. The query itself could be written today and would
   correctly return nothing.
+- **E23.14 — scheduling the completed-events job,** now that `/api/jobs/process-completed-events`
+  exists: pick the scheduler, set `CRON_SECRET` in Vercel and in it, and choose an interval. The queue
+  makes any interval safe.
 - **E20.24 — the decklist component,** now that members have decks (E20.28) and a deck page (E20.6)
   to link to. The picker is `listDecksByOwner`.
 - **E19.13 — `DeckVisualizer`,** now that `repos/decks` can hand it a deck. It takes shaped lines as
@@ -1269,7 +1290,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E9   | 9       | 9    | E20  | 33      | 14   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
-|      |         |      | E23  | 12      | 12   |
+|      |         |      | E23  | 14      | 13   |
 |      |         |      | E24  | 7       | 4    |
 
-**167 of 250 stories done across 24 epics.**
+**168 of 252 stories done across 24 epics.**

@@ -149,6 +149,7 @@ query is on a page rather than in an export.
 | `posts`               | `posts_kind_published_idx` (partial)                  | `/news` and `/community` separately                |
 | `post_revisions`      | `post_revisions_post_idx`                             | one post's history                                 |
 | `external_events`     | `external_events_source_starts_idx`                   | the calendar, per source                           |
+| `event_completions`   | `event_completions_pending_idx` (partial)             | the queue of finished events still to handle       |
 | `format_versions`     | `format_versions_one_current` (unique, partial)       | one current version, enforced not asserted         |
 | `archetype_aliases`   | `archetype_aliases_archetype_idx`                     | an archetype's aliases                             |
 | `archetypes`          | `archetypes_parent_idx` (partial)                     | the supertype tree                                 |

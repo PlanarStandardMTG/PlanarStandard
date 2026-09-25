@@ -30,6 +30,13 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
     role: "admin",
   },
   {
+    href: "/admin/processing",
+    label: "Tournament processing",
+    description:
+      "Finished tournaments waiting to be processed — run them now, or re-run everything.",
+    role: "admin",
+  },
+  {
     href: "/dashboard/review",
     label: "Community review",
     description: "Members' submissions waiting for a writer or above to approve them.",

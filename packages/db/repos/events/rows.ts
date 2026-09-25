@@ -1,4 +1,4 @@
-import type { EventSource, EventSyncState, ExternalEvent } from "@ps/contracts";
+import type { EventCompletion, EventSource, EventSyncState, ExternalEvent } from "@ps/contracts";
 
 /**
  * The `external_events` and `external_event_syncs` rows as PostgREST returns
@@ -54,5 +54,32 @@ export function toSyncState(row: SyncRow): EventSyncState {
     lastSucceededAt: row.last_succeeded_at,
     lastError: row.last_error,
     eventCount: row.event_count,
+  };
+}
+
+export interface CompletionRow {
+  readonly source: string;
+  readonly external_id: string;
+  readonly name: string;
+  readonly detected_at: string;
+  readonly claimed_at: string | null;
+  readonly processed_at: string | null;
+  readonly attempts: number;
+  readonly last_error: string | null;
+}
+
+export const COMPLETION_COLUMNS =
+  "source, external_id, name, detected_at, claimed_at, processed_at, attempts, last_error";
+
+export function toCompletion(row: CompletionRow): EventCompletion {
+  return {
+    source: row.source as EventSource,
+    externalId: row.external_id,
+    name: row.name,
+    detectedAt: row.detected_at,
+    claimedAt: row.claimed_at,
+    processedAt: row.processed_at,
+    attempts: row.attempts,
+    lastError: row.last_error,
   };
 }

@@ -73,6 +73,7 @@ page render (once per configured calendar, side by side)
        └─ we won
             ├─ fetchEvents                   lib/<platform>/client.server.ts
             ├─ parse                         payload → ParsedExternalEvent[]
+            ├─ recordCompletions             queue what just finished (below)
             ├─ replaceEvents                 upsert, then prune what is gone
             └─ recordSyncResult              success, or the error text
   └─ listAllCachedEvents + eventSchedule → the page
@@ -113,6 +114,35 @@ from `packages/db/seed/0003_external_events.sql`, six on Challonge and two on
 melee.gg. Every test in the epic runs with the variables unset; the clients' tests
 stub `fetch`.
 
+## When a tournament ends
+
+A finished tournament's results are fetched once, and never again (E23.13). The
+refresh notices the moment: `core/events/newly-completed` compares the fetched
+events with the cache _before_ `replaceEvents` overwrites it, and any event that
+is `complete` now and was absent or in another state before is queued in
+`event_completions`. The primary key makes a second sighting a no-op, and the
+queue lives apart from `external_events` so the wholesale replace cannot erase
+it.
+
+The refresh only queues — it runs inside a page render and has a visitor
+waiting. Working the queue is `processCompletedEvents`, which claims rows with a
+fifteen-minute lease, calls `onTournamentCompleted` once per event, and marks it
+processed; a failure releases the row for a later run, up to five attempts.
+`onTournamentCompleted` is a no-op for now and names what it will coordinate.
+
+Nothing is tied to a scheduler. `/api/jobs/process-completed-events` runs one
+pass for anyone presenting `Authorization: Bearer $CRON_SECRET` — Vercel Cron
+sends exactly that, and a GitHub Actions `curl` can send it too — and refuses
+everyone when the secret is unset. Because the queue decides what is due,
+calling it too often costs nothing and two schedulers overlapping is safe.
+
+An admin can do both by hand at `/admin/processing`: "Process now" runs the same
+pass, and "Re-run everything" — confirmed by typing a word — sends every
+finished tournament round the queue again and backfills any complete calendar
+event that was never queued. It never clears the ledger: re-importing an event
+supersedes its old results (§26), and the ledger also holds organiser and manual
+imports the queue could not recreate.
+
 ## Why this is not the `tournaments` table
 
 `external_events` is a cache of somebody else's calendar, rewritten wholesale on
@@ -131,15 +161,20 @@ invented ahead of time.
 
 ## Modules
 
-| Module                                 | Job                                                       |
-| -------------------------------------- | --------------------------------------------------------- |
-| `core/events/parse-challonge-events`   | v2.1 payload → `ParsedExternalEvent[]`                    |
-| `core/events/parse-melee-events`       | melee's tournament list → the same                        |
-| `core/events/sync-window`              | is a refresh due, and the cutoff a claim compares against |
-| `core/events/event-schedule`           | group and order the cache, and pick the one to lead with  |
-| `db/repos/events`                      | the six reads and writes over the two tables              |
-| `web/lib/events/source-label.ts`       | what to call each calendar where a reader can see it      |
-| `web/lib/events/calendar-fetch.ts`     | the result shape both clients answer with                 |
-| `web/lib/challonge/client.server.ts`   | the only module that talks to Challonge                   |
-| `web/lib/melee/client.server.ts`       | the only module that talks to melee.gg                    |
-| `web/lib/events/sync-events.server.ts` | the `CALENDARS` table, and the order of operations        |
+| Module                                             | Job                                                       |
+| -------------------------------------------------- | --------------------------------------------------------- |
+| `core/events/parse-challonge-events`               | v2.1 payload → `ParsedExternalEvent[]`                    |
+| `core/events/parse-melee-events`                   | melee's tournament list → the same                        |
+| `core/events/sync-window`                          | is a refresh due, and the cutoff a claim compares against |
+| `core/events/newly-completed`                      | which fetched events have just finished                   |
+| `core/events/event-schedule`                       | group and order the cache, and pick the one to lead with  |
+| `db/repos/events`                                  | reads and writes over the cache, ledger and queue         |
+| `web/lib/events/source-label.ts`                   | what to call each calendar where a reader can see it      |
+| `web/lib/events/calendar-fetch.ts`                 | the result shape both clients answer with                 |
+| `web/lib/challonge/client.server.ts`               | the only module that talks to Challonge                   |
+| `web/lib/melee/transport.server.ts`                | the only module that talks to melee.gg                    |
+| `web/lib/melee/client.server.ts`                   | melee.gg's tournament list, for the calendar              |
+| `web/lib/events/sync-events.server.ts`             | the `CALENDARS` table, and the order of operations        |
+| `web/lib/events/process-completions.server.ts`     | work the queue of finished tournaments                    |
+| `web/lib/events/on-tournament-completed.server.ts` | what happens once an event ends — a no-op for now         |
+| `web/lib/jobs/authorize.server.ts`                 | whether a request may run a job (`CRON_SECRET`)           |
