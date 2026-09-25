@@ -14,7 +14,13 @@ import { parseDecklist } from "../decklist/parse-decklist/index";
 import { buildCardIndex, normalizeSetCode } from "./build-card-index/index";
 import { checkCard, copyLimit, isInPool } from "./check-card/index";
 import { checkDeck } from "./check-deck/index";
-import { DECK_NAME_MAX, DECKLIST_MAX, checkDeckImport } from "./check-deck-import/index";
+import {
+  DECK_NAME_MAX,
+  DECKLIST_MAX,
+  checkDeckImport,
+  readDecklist,
+} from "./check-deck-import/index";
+import { checkDeckInFormat } from "./check-deck-in-format/index";
 import { MAX_CANDIDATES, resolveCardName } from "./resolve-card-name/index";
 import { resolveDeck } from "./resolve-deck/index";
 import { DEFAULT_CONSTRAINTS, resolveFormat } from "./resolve-format/index";
@@ -361,7 +367,12 @@ describe("core/legality/resolve-deck", () => {
 });
 
 describe("core/legality/check-deck-import", () => {
-  const input = { name: "  Azorius  ", visibility: "unlisted", decklist: "4 island\n4 plains\n" };
+  const input = {
+    name: "  Azorius  ",
+    visibility: "unlisted",
+    format: "planar_standard",
+    decklist: "4 island\n4 plains\n",
+  };
 
   it("accepts a plain list, trimming the name", () => {
     const check = checkDeckImport(input, INDEX);
@@ -370,6 +381,7 @@ describe("core/legality/check-deck-import", () => {
     if (!check.ok) return;
     expect(check.value.name).toBe("Azorius");
     expect(check.value.visibility).toBe("unlisted");
+    expect(check.value.format).toBe("planar_standard");
     expect(check.value.deck.cards.map((c) => c.oracleId)).toEqual([
       oracleOf("Island"),
       oracleOf("Plains"),
@@ -380,23 +392,39 @@ describe("core/legality/check-deck-import", () => {
     expect(checkDeckImport(input, INDEX).ok).toBe(true);
   });
 
-  it("names every line it could not read and every card it could not find, in line order", () => {
+  it("refuses a line it could not read, in line order", () => {
     const check = checkDeckImport(
-      { ...input, decklist: "2 Stokk Up\nfour Plains\n4 Island\n" },
+      { ...input, decklist: "four Plains\n4 Island\nx Swamp\n" },
       INDEX,
     );
 
     expect(check.ok).toBe(false);
     if (check.ok) return;
     expect(check.problems).toEqual([
-      expect.objectContaining({ code: "unknown-card", lineNumber: 1, name: "Stokk Up" }),
-      expect.objectContaining({ code: "unparsed-line", lineNumber: 2, line: "four Plains" }),
+      expect.objectContaining({ code: "unparsed-line", lineNumber: 1, line: "four Plains" }),
+      expect.objectContaining({ code: "unparsed-line", lineNumber: 3, line: "x Swamp" }),
     ]);
-    const unknown = check.problems[0];
-    expect(unknown && "suggestions" in unknown ? unknown.suggestions[0] : null).toBe("Stock Up");
   });
 
-  it("refuses an empty list, a missing or long name, and an unknown visibility", () => {
+  it("saves a name it could not find, reporting it with suggestions for the member to confirm", () => {
+    const check = checkDeckImport({ ...input, decklist: "2 Stokk Up\n4 Island\n" }, INDEX);
+
+    expect(check.ok).toBe(true);
+    if (!check.ok) return;
+    expect(check.value.deck.cards[0]?.oracleId).toBeNull();
+    expect(check.value.unknownCards).toEqual([
+      expect.objectContaining({ lineNumber: 1, name: "Stokk Up" }),
+    ]);
+    expect(check.value.unknownCards[0]?.suggestions[0]).toBe("Stock Up");
+  });
+
+  it("reads a decklist on its own, as the editor does while the member types", () => {
+    const reading = readDecklist("4 Island\nfour Plains\n", INDEX);
+    expect(reading.deck.cards).toHaveLength(1);
+    expect(reading.problems.map((p) => p.code)).toEqual(["unparsed-line"]);
+  });
+
+  it("refuses an empty list, a missing or long name, and an unknown visibility or format", () => {
     const codes = (overrides: Partial<typeof input>) => {
       const check = checkDeckImport({ ...input, ...overrides }, INDEX);
       return check.ok ? [] : check.problems.map((p) => `${p.field}:${p.code}`);
@@ -406,6 +434,30 @@ describe("core/legality/check-deck-import", () => {
     expect(codes({ name: " " })).toEqual(["name:empty"]);
     expect(codes({ name: "x".repeat(DECK_NAME_MAX + 1) })).toEqual(["name:long"]);
     expect(codes({ visibility: "secret" })).toEqual(["visibility:invalid"]);
+    expect(codes({ format: "vintage" })).toEqual(["format:invalid"]);
     expect(codes({ decklist: "x".repeat(DECKLIST_MAX + 1) })).toEqual(["decklist:long"]);
+  });
+});
+
+describe("core/legality/check-deck-in-format", () => {
+  const eightCards = resolvedDeck("4 Stokk Up\n4 Island\n");
+
+  it("checks a Planar Standard deck against the rules in force", () => {
+    const verdict = checkDeckInFormat(eightCards, "planar_standard", format(), INDEX);
+    expect(verdict?.legal).toBe(false);
+    expect(verdict?.deckIssues.map((i) => i.code)).toContain("maindeck_too_small");
+    expect(verdict?.cardIssues.map((i) => i.code)).toContain("unresolved_name");
+  });
+
+  it("has nothing to check a Planar Standard deck against when no version is in force", () => {
+    expect(checkDeckInFormat(eightCards, "planar_standard", null, INDEX)).toBeNull();
+  });
+
+  it("finds every Kitchen Table deck legal, whatever its shape or cards", () => {
+    expect(checkDeckInFormat(eightCards, "kitchen_table", format(), INDEX)).toEqual({
+      legal: true,
+      cardIssues: [],
+      deckIssues: [],
+    });
   });
 });

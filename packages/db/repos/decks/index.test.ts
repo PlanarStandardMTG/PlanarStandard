@@ -16,6 +16,7 @@ import {
   getDeckWithCards,
   insertDeck,
   listDecksByOwner,
+  listDeckVersions,
   listDecksByPlayer,
   listPublicDecksBySeason,
   type NewDeck,
@@ -60,6 +61,7 @@ const deck = (over: Partial<NewDeck> & { name: string }): NewDeck => ({
   ownerId: null,
   playerId: null,
   seasonId: SEASON_II,
+  format: "planar_standard",
   formatVersionId: null,
   archetypeId: null,
   archetypeRaw: null,
@@ -257,11 +259,17 @@ describe.skipIf(!reachable)("repos/decks — member imports", () => {
     return [session, (profile as { id: ProfileId }).id];
   }
 
-  const member = (name: string, visibility: "public" | "private" = "private") => ({
+  const member = (
+    name: string,
+    visibility: "public" | "private" = "private",
+    parentDeckId: DeckId | null = null,
+  ) => ({
     name,
     visibility,
+    format: "planar_standard" as const,
     rawImport: "4 Swamp",
     formatVersionId: null,
+    parentDeckId,
   });
 
   afterEach(async () => {
@@ -333,5 +341,62 @@ describe.skipIf(!reachable)("repos/decks — member imports", () => {
     expect(await deleteMemberDeck(writer, id)).toBe(false);
     expect(await deleteMemberDeck(reader, id)).toBe(true);
     expect(await getDeckWithCards(service, id)).toBeNull();
+  });
+
+  it("saves an edit as a new version, and reads the history oldest first", async () => {
+    [reader] = await signIn("reader@planarstandard.test");
+    const first = await createMemberDeck(reader, member("Mono Black v1"), [
+      card({ name: "Swamp" }),
+    ]);
+    mine.push(first);
+    const second = await createMemberDeck(
+      reader,
+      { ...member("Mono Black v2", "private", first), format: "kitchen_table" },
+      [card({ name: "Swamp", quantity: 7 })],
+    );
+    mine.push(second);
+
+    const stored = await getDeckWithCards(reader, second);
+    expect(stored).toMatchObject({ parentDeckId: first, format: "kitchen_table" });
+    expect((await getDeckWithCards(reader, first))?.cards[0]?.quantity).toBe(4);
+
+    const fromEither = [
+      await listDeckVersions(reader, first),
+      await listDeckVersions(reader, second),
+    ];
+    for (const versions of fromEither) expect(versions.map((d) => d.id)).toEqual([first, second]);
+  });
+
+  it("refuses a second edit of the same version, and an edit of someone else's deck", async () => {
+    [reader] = await signIn("reader@planarstandard.test");
+    const first = await createMemberDeck(reader, member("Base", "public"), [
+      card({ name: "Swamp" }),
+    ]);
+    mine.push(first);
+    mine.push(
+      await createMemberDeck(reader, member("Edit", "private", first), [card({ name: "Swamp" })]),
+    );
+
+    await expect(
+      createMemberDeck(reader, member("Fork", "private", first), [card({ name: "Swamp" })]),
+    ).rejects.toThrow(/createMemberDeck failed/);
+
+    [writer] = await signIn("wrenfield@planarstandard.test");
+    await expect(
+      createMemberDeck(writer, member("Theirs", "private", first), [card({ name: "Swamp" })]),
+    ).rejects.toThrow(/createMemberDeck failed/);
+  });
+
+  it("deletes every version of a deck together", async () => {
+    [reader] = await signIn("reader@planarstandard.test");
+    const first = await createMemberDeck(reader, member("Gone v1"), [card({ name: "Swamp" })]);
+    const second = await createMemberDeck(reader, member("Gone v2", "private", first), [
+      card({ name: "Swamp" }),
+    ]);
+    mine.push(first, second);
+
+    expect(await deleteMemberDeck(reader, second)).toBe(true);
+    expect(await getDeckWithCards(service, first)).toBeNull();
+    expect(await getDeckWithCards(service, second)).toBeNull();
   });
 });

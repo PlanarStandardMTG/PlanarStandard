@@ -25,6 +25,7 @@ export interface DeckRow {
   readonly owner_id: string | null;
   readonly player_id: string | null;
   readonly season_id: string | null;
+  readonly format: string;
   readonly format_version_id: string | null;
   readonly archetype_id: string | null;
   readonly archetype_raw: string | null;
@@ -54,7 +55,7 @@ export interface DeckWithCardsRow extends DeckRow {
 }
 
 export const DECK_COLUMNS =
-  "id, name, owner_id, player_id, season_id, format_version_id, archetype_id, archetype_raw, " +
+  "id, name, owner_id, player_id, season_id, format, format_version_id, archetype_id, archetype_raw, " +
   "visibility, description_markdown, source_url, raw_import, submitted_via, locked_at, " +
   "parent_deck_id, is_legal, validation, created_at";
 
@@ -67,7 +68,7 @@ const CARD_COLUMNS = "oracle_id, card_name, quantity, board, set_code, collector
  * twelve decks and not at twelve hundred.
  */
 export const DECK_SUMMARY_COLUMNS =
-  "id, name, owner_id, player_id, season_id, format_version_id, archetype_id, archetype_raw, " +
+  "id, name, owner_id, player_id, season_id, format, format_version_id, archetype_id, archetype_raw, " +
   "visibility, description_markdown, source_url, submitted_via, locked_at, parent_deck_id, " +
   "is_legal, created_at";
 
@@ -83,6 +84,7 @@ export function toDeck(row: DeckRow): Deck {
     ownerId: row.owner_id as ProfileId | null,
     playerId: row.player_id as PlayerId | null,
     seasonId: row.season_id as SeasonId | null,
+    format: row.format === "kitchen_table" ? "kitchen_table" : "planar_standard",
     formatVersionId: row.format_version_id as FormatVersionId | null,
     archetypeId: row.archetype_id as ArchetypeId | null,
     archetypeRaw: row.archetype_raw,

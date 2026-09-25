@@ -1,7 +1,9 @@
 import type { Metadata } from "next";
+import { latestVersions } from "@ps/core";
 import { listDecksByOwner } from "@ps/db";
 import Link from "next/link";
 
+import { FORMAT_LABELS } from "@/components/decks/format-labels";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
 import { EmptyState, ErrorState } from "@/components/ui/states";
@@ -22,7 +24,10 @@ const BUTTON =
   "inline-block shrink-0 rounded-lg bg-ink-900 px-4 py-2 text-sm font-medium text-white " +
   "hover:bg-ink-700 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-white";
 
-/** A member's own decks (E20.28). The public browse page is E20.6's listing, later. */
+/**
+ * A member's own decks (E20.28), each at its latest version (E20.30). The public
+ * browse page is E20.6's listing, later.
+ */
 export default async function DecksPage() {
   const viewer = await currentViewer();
 
@@ -64,7 +69,7 @@ async function OwnDecks({ ownerId }: { ownerId: Parameters<typeof listDecksByOwn
         Your decks
       </h2>
       <ul className="divide-y divide-ink-200 rounded-xl border border-ink-200 dark:divide-ink-800 dark:border-ink-800">
-        {decks.value.map((deck) => (
+        {latestVersions(decks.value).map(({ deck, versions }) => (
           <li key={deck.id}>
             <Link
               href={`/decks/${deck.id}`}
@@ -72,6 +77,8 @@ async function OwnDecks({ ownerId }: { ownerId: Parameters<typeof listDecksByOwn
             >
               <span className="font-medium">{deck.name}</span>
               <span className="flex items-center gap-3 text-xs text-ink-500 dark:text-ink-400">
+                <span>{FORMAT_LABELS[deck.format]}</span>
+                {versions > 1 && <span>{versions} versions</span>}
                 {deck.visibility !== "public" && (
                   <Badge variant="outline" className="capitalize">
                     {deck.visibility}

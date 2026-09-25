@@ -127,6 +127,12 @@ export interface DecklistFilenameMeta {
 // Everything above is a decklist on its way in. What follows is one after it has
 // a row (§14, E13.7).
 
+/**
+ * `decks.format` — which rules a deck is built for. Planar Standard is checked
+ * against the version in force; Kitchen Table is casual and checks nothing.
+ */
+export type DeckFormat = "planar_standard" | "kitchen_table";
+
 /** `decks.submitted_via` — how the list reached the site. */
 export type DeckSubmissionRoute = "registration" | "organizer" | "backfill" | "import";
 
@@ -150,6 +156,7 @@ export interface Deck {
   readonly ownerId: ProfileId | null;
   readonly playerId: PlayerId | null;
   readonly seasonId: SeasonId | null;
+  readonly format: DeckFormat;
   readonly formatVersionId: FormatVersionId | null;
   readonly archetypeId: ArchetypeId | null;
   readonly archetypeRaw: string | null;
@@ -161,6 +168,7 @@ export interface Deck {
   readonly submittedVia: DeckSubmissionRoute | null;
   /** Set when the event starts (ADR 013). After this, an edit forks rather than overwrites. */
   readonly lockedAt: IsoDateTime | null;
+  /** The version this one replaced: an edit writes a new deck rather than changing one. */
   readonly parentDeckId: DeckId | null;
   /** Null until legality has been checked, which is not the same as false. */
   readonly isLegal: boolean | null;

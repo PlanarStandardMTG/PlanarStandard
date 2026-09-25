@@ -118,6 +118,7 @@ export async function insertDeck(
       owner_id: deck.ownerId,
       player_id: deck.playerId,
       season_id: deck.seasonId,
+      format: deck.format,
       format_version_id: deck.formatVersionId,
       archetype_id: deck.archetypeId,
       archetype_raw: deck.archetypeRaw,
@@ -186,16 +187,22 @@ export async function listDecksByOwner(
 export interface MemberDeck {
   readonly name: string;
   readonly visibility: Deck["visibility"];
+  readonly format: Deck["format"];
   readonly rawImport: string;
   readonly formatVersionId: Deck["formatVersionId"];
+  /** The version this one replaces (E20.30); null for a new deck. */
+  readonly parentDeckId: DeckId | null;
 }
 
 /**
- * A member's own import, written as the member (E20.28).
+ * A member's own import, or the next version of one, written as the member
+ * (E20.28, E20.30).
  *
  * Takes the signed-in client, so `decks_member_insert` decides: the owner is
- * the caller and a member cannot set a player, a lock or a verdict. One RPC,
- * so the deck and its list are written in one transaction.
+ * the caller, a parent must be theirs, and a member cannot set a player, a lock
+ * or a verdict. One RPC, so the deck and its list are written in one
+ * transaction. Editing a version that already has a successor fails on
+ * `decks_one_successor`.
  */
 export async function createMemberDeck(
   client: SupabaseClient,
@@ -205,8 +212,10 @@ export async function createMemberDeck(
   const { data, error } = await client.rpc("create_deck", {
     deck_name: deck.name,
     deck_visibility: deck.visibility,
+    deck_format: deck.format,
     raw_import: deck.rawImport,
     format_version_id: deck.formatVersionId,
+    parent_deck_id: deck.parentDeckId,
     cards: cards.map((card) => ({
       oracle_id: card.oracleId,
       card_name: card.name,
@@ -221,10 +230,29 @@ export async function createMemberDeck(
   return data as DeckId;
 }
 
-/** Delete one of the caller's own unlocked decks. False when there was none to delete. */
+/**
+ * Every version of the deck `deckId` belongs to that the caller may read,
+ * oldest first (E20.30). A deck never edited is a history of one.
+ */
+export async function listDeckVersions(
+  client: SupabaseClient,
+  deckId: DeckId,
+): Promise<readonly Deck[]> {
+  const { data, error } = await client
+    .rpc("deck_lineage", { deck_id: deckId })
+    .select(DECK_SUMMARY_COLUMNS);
+
+  if (error !== null) throw new Error(`listDeckVersions failed: ${error.message}`);
+  return (data as unknown as DeckRow[]).map(toDeck);
+}
+
+/**
+ * Delete one of the caller's own unlocked decks, every version of it together.
+ * False when there was none to delete.
+ */
 export async function deleteMemberDeck(client: SupabaseClient, deckId: DeckId): Promise<boolean> {
-  const { data, error } = await client.from("decks").delete().eq("id", deckId).select("id");
+  const { data, error } = await client.rpc("delete_deck", { deck_id: deckId });
 
   if (error !== null) throw new Error(`deleteMemberDeck failed: ${error.message}`);
-  return (data ?? []).length > 0;
+  return (data as number) > 0;
 }

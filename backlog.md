@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | ⬜ 0/19  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 11/29 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 12/30 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | ✅ 12/12 |
@@ -927,6 +927,17 @@ _AC:_ `/decks/[id]` opens as a text list by section, flowed into as many columns
 each name links to Scryfall and shows its card on hover; a button switches to the image grid and back.
 _Note:_ added outside the plan. The layout is `?layout=images` in the URL, so the page stays
 server-rendered and either view can be linked; the hover preview only shows where the device can hover.
+✅ **E20.30 — `decks`: edit a deck, keep its history, and choose its format** · M · Deps: E20.28 —
+`/decks/[id]/edit`. _AC:_ an owner edits their latest version and saving writes a new deck whose
+parent is the old one, which stays at its URL; the deck page lists every version; a deck is Planar
+Standard (checked against the version in force) or Kitchen Table (anything goes); the editor shows
+why a list is not legal as it is typed, and saves one anyway after a confirmation. The deck page
+shows the format with ✓ or ✗ and nothing more.
+_Note:_ added outside the plan, and separate from a tournament registration's lock-and-fork (ADR 013).
+`0021_deck_versions_and_formats.sql` adds `decks.format` and `decks_one_successor`, so a history is a
+line, not a tree. Deleting a deck deletes every version. A name that does not resolve no longer blocks
+a save, which changes E20.28: Kitchen Table allows cards outside the dataset, so an unknown name is
+reported with suggestions, confirmed, and stored unresolved.
 
 ---
 
@@ -1223,10 +1234,10 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 19      | 0    |
 | E8   | 6       | 6    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 29      | 11   |
+| E9   | 9       | 9    | E20  | 30      | 12   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**163 of 245 stories done across 24 epics.**
+**164 of 246 stories done across 24 epics.**

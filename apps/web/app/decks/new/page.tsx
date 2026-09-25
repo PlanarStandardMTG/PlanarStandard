@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { DeckImportForm } from "@/components/decks/deck-import-form";
+import { DeckEditorForm } from "@/components/decks/deck-editor-form";
 import { Container } from "@/components/ui/container";
 import { requireRole } from "@/lib/auth/guard";
 
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false },
 };
 
-/** Paste a text list (E20.28). Other formats arrive as adapters later. */
+/** Paste a text list (E20.28, E20.30). Other list formats arrive as adapters later. */
 export default async function NewDeckPage() {
   await requireRole("reader");
 
@@ -26,10 +26,10 @@ export default async function NewDeckPage() {
       </Link>
       <h1 className="mt-2 font-serif text-3xl font-semibold tracking-tight">Import a deck</h1>
       <p className="mt-1 mb-8 text-sm text-ink-600 dark:text-ink-400">
-        Paste a list from Arena, MTGO or a text file. Every card is matched against the sets in the
-        card pool; the deck page then checks it against the current format.
+        Paste a list from Arena, MTGO or a text file. It is checked against the format you choose as
+        you type, and a deck that isn’t legal can still be saved.
       </p>
-      <DeckImportForm />
+      <DeckEditorForm />
     </Container>
   );
 }

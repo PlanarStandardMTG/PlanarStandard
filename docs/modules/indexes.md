@@ -159,6 +159,7 @@ query is on a page rather than in an export.
 | `player_identities`   | `player_identities_player_idx`                        | a player's handles                                 |
 | `player_identities`   | `(platform, normalized)` (unique)                     | resolving a handle on import — the hot import path |
 | `decks`               | `decks_season_idx`, `decks_player_idx` (partial)      | a season's decks; a player's decks                 |
+| `decks`               | `decks_one_successor` (unique, partial)               | one next version per member deck; walks a history  |
 | `deck_cards`          | `deck_cards_deck_idx`, `deck_cards_oracle_idx`        | a decklist; every deck running a card              |
 | `result_imports`      | `result_imports_tournament_status_idx`                | the import queue for an event                      |
 | `staged_matches`      | `staged_matches_import_idx`                           | the review screen                                  |

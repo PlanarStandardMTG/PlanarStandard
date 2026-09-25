@@ -1,5 +1,5 @@
-import type { DeckId } from "@ps/contracts";
-import { getDeckWithCards, getProfile } from "@ps/db";
+import type { Deck, DeckId } from "@ps/contracts";
+import { getDeckWithCards, getProfile, listDeckVersions } from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
 import { currentViewer } from "@/lib/auth/viewer";
 import { buildDeckView, type DeckView } from "@/lib/decks/deck-view";
+import { deckAsText } from "@/lib/decks/deck-text";
 import { loadCurrentFormat } from "@/lib/format/current-format";
 import { formatDate } from "@/lib/format-date";
 import { createSessionClient } from "@/lib/supabase/session";
@@ -20,6 +21,9 @@ import { createSessionClient } from "@/lib/supabase/session";
 import { deleteDeck } from "../actions";
 
 export const dynamic = "force-dynamic";
+
+const OUTLINE_BUTTON =
+  "rounded-lg border border-ink-300 px-3 py-1.5 text-sm text-ink-700 dark:border-ink-700 dark:text-ink-300";
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
@@ -45,7 +49,10 @@ export async function generateMetadata({
   };
 }
 
-/** One deck, card by card, checked against the format in force (E20.6). */
+/**
+ * One deck, card by card, checked against its format (E20.6), and every other
+ * version of it (E20.30).
+ */
 export default async function DeckPage({
   params,
   searchParams,
@@ -57,13 +64,17 @@ export default async function DeckPage({
   const deck = await findDeck(id);
   if (deck === null) notFound();
 
-  const [viewer, format, owner] = await Promise.all([
+  const session = await createSessionClient();
+  const [viewer, format, owner, versions] = await Promise.all([
     currentViewer(),
     loadCurrentFormat(),
-    deck.ownerId === null ? null : getProfile(await createSessionClient(), deck.ownerId),
+    deck.ownerId === null ? null : getProfile(session, deck.ownerId),
+    listDeckVersions(session, deck.id),
   ]);
   const view: DeckView = buildDeckView(deck, format.ok ? format.value : null);
   const isOwner = viewer !== null && viewer.profile.id === deck.ownerId;
+  const latest = versions.at(-1) ?? deck;
+  const isLatest = latest.id === deck.id;
   const showImages = (await searchParams).layout === "images";
 
   return (
@@ -90,34 +101,49 @@ export default async function DeckPage({
               {view.mainCount} cards
               {view.sideCount > 0 && ` · ${view.sideCount} sideboard`}
             </span>
+            <DeckLegality format={deck.format} verdict={view.verdict} />
             <ColorPips colors={view.colors} />
             {owner !== null && <span>by {owner.displayName}</span>}
             <span>{formatDate(deck.createdAt)}</span>
           </p>
         </div>
         {isOwner && deck.lockedAt === null && (
-          <form action={deleteDeck}>
-            <input type="hidden" name="id" value={deck.id} />
-            <button
-              type="submit"
-              className="rounded-lg border border-ink-300 px-3 py-1.5 text-sm text-ink-700 hover:border-red-400 hover:text-red-700 dark:border-ink-700 dark:text-ink-300 dark:hover:text-red-400"
-            >
-              Delete deck
-            </button>
-          </form>
+          <div className="flex items-center gap-2">
+            {isLatest && (
+              <Link
+                href={`/decks/${deck.id}/edit`}
+                className={`${OUTLINE_BUTTON} hover:border-ink-500`}
+              >
+                Edit deck
+              </Link>
+            )}
+            <form action={deleteDeck}>
+              <input type="hidden" name="id" value={deck.id} />
+              <button
+                type="submit"
+                className={`${OUTLINE_BUTTON} hover:border-red-400 hover:text-red-700 dark:hover:text-red-400`}
+              >
+                Delete deck
+              </button>
+            </form>
+          </div>
         )}
       </header>
 
-      <DeckLegality
-        verdict={view.verdict}
-        formatName={format.ok ? format.value?.version.name : undefined}
-      />
+      {!isLatest && (
+        <p className="mb-6 rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
+          This is an earlier version of this deck.{" "}
+          <Link href={`/decks/${latest.id}`} className="font-medium underline">
+            See the latest
+          </Link>
+        </p>
+      )}
 
-      <div className="mt-10 mb-4 flex justify-end">
+      <div className="mb-4 flex justify-end">
         <Link
           href={showImages ? `/decks/${id}` : `/decks/${id}?layout=images`}
           scroll={false}
-          className="rounded-lg border border-ink-300 px-3 py-1.5 text-sm text-ink-700 hover:border-ink-500 dark:border-ink-700 dark:text-ink-300 dark:hover:border-ink-500"
+          className={`${OUTLINE_BUTTON} hover:border-ink-500`}
         >
           {showImages ? "Show as text" : "Show as images"}
         </Link>
@@ -129,9 +155,11 @@ export default async function DeckPage({
         <DeckSectionsList sections={view.sections} />
       )}
 
+      {versions.length > 1 && <VersionHistory versions={versions} current={deck.id} />}
+
       <details className="mt-12 rounded-xl border border-ink-200 p-4 dark:border-ink-800">
         <summary className="cursor-pointer text-sm font-medium">Decklist as text</summary>
-        <pre className="mt-3 overflow-x-auto text-sm">{asText(deck.cards)}</pre>
+        <pre className="mt-3 overflow-x-auto text-sm">{deckAsText(deck.cards)}</pre>
       </details>
 
       <p className="mt-8 text-xs text-ink-500 dark:text-ink-400">
@@ -145,9 +173,31 @@ export default async function DeckPage({
   );
 }
 
-function asText(cards: Parameters<typeof buildDeckView>[0]["cards"]): string {
-  const lines = (board: string) =>
-    cards.filter((c) => c.board === board).map((c) => `${c.quantity} ${c.name}`);
-  const side = lines("side");
-  return [...lines("main"), ...(side.length > 0 ? ["", "Sideboard", ...side] : [])].join("\n");
+function VersionHistory({ versions, current }: { versions: readonly Deck[]; current: DeckId }) {
+  return (
+    <section aria-labelledby="versions" className="mt-12">
+      <h2 id="versions" className="mb-3 text-sm font-semibold">
+        Version history ({versions.length})
+      </h2>
+      <ol className="divide-y divide-ink-200 rounded-xl border border-ink-200 text-sm dark:divide-ink-800 dark:border-ink-800">
+        {[...versions].reverse().map((version, i) => (
+          <li key={version.id}>
+            <Link
+              href={`/decks/${version.id}`}
+              aria-current={version.id === current ? "page" : undefined}
+              className="flex items-center justify-between gap-4 px-4 py-2.5 hover:bg-ink-50 aria-[current=page]:font-medium dark:hover:bg-ink-900"
+            >
+              <span>
+                Version {versions.length - i}
+                {i === 0 && " (latest)"} · {version.name}
+              </span>
+              <span className="text-xs text-ink-500 dark:text-ink-400">
+                {formatDate(version.createdAt)}
+              </span>
+            </Link>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
 }

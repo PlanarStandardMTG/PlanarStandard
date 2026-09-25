@@ -3,12 +3,13 @@ import type {
   CardIndex,
   Color,
   DeckWithCards,
+  FormatRules,
   FormatVersionDetail,
   LegalityVerdict,
   ResolvedDeck,
 } from "@ps/contracts";
 import {
-  checkDeck,
+  checkDeckInFormat,
   colorIdentity,
   deckSections,
   frontImage,
@@ -42,8 +43,20 @@ export interface DeckView {
   readonly mainCount: number;
   readonly sideCount: number;
   readonly colors: readonly Color[];
-  /** Null when there is no format in force to check against. */
+  /** Null when a Planar Standard deck has no version in force to check against. */
   readonly verdict: LegalityVerdict | null;
+}
+
+/** The rules of the Planar Standard version in force, or null when none is. */
+export function formatRules(format: FormatVersionDetail | null): FormatRules | null {
+  return format === null
+    ? null
+    : resolveFormat({
+        formatVersionId: format.version.id,
+        legalSets: format.legalSets,
+        cardRules: format.cardRules,
+        ...(format.constraints === null ? {} : { constraints: format.constraints }),
+      });
 }
 
 export function toResolvedDeck(deck: DeckWithCards): ResolvedDeck {
@@ -101,18 +114,6 @@ export function buildDeckView(
     mainCount: count("main"),
     sideCount: count("side"),
     colors: colorIdentity(resolved, index),
-    verdict:
-      format === null
-        ? null
-        : checkDeck(
-            resolved,
-            resolveFormat({
-              formatVersionId: format.version.id,
-              legalSets: format.legalSets,
-              cardRules: format.cardRules,
-              ...(format.constraints === null ? {} : { constraints: format.constraints }),
-            }),
-            index,
-          ),
+    verdict: checkDeckInFormat(resolved, deck.format, formatRules(format), index),
   };
 }
