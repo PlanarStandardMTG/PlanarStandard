@@ -122,6 +122,18 @@ export {
   utf8ByteLength,
 } from "./auth/password-policy/index";
 export type { PasswordCheck, PasswordProblem } from "./auth/password-policy/index";
+export { checkModeration } from "./auth/moderation/index";
+export type { ModerationCheck, ModerationProblem } from "./auth/moderation/index";
+
+// content — where a post goes (E14.6)
+export {
+  REVIEWER_ROLE,
+  canReview,
+  isReviewDecision,
+  reviewedStatus,
+  submissionStatus,
+} from "./content/post-workflow/index";
+export type { ReviewDecision, SubmittedStatus } from "./content/post-workflow/index";
 
 // metrics — deck to numbers (§8.3)
 export { bucketFor, manaCurve } from "./metrics/mana-curve/index";

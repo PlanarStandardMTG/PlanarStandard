@@ -226,15 +226,16 @@ Worth knowing before this handles anyone's data but your own:
 
 ## Access control, table by table
 
-`rls.test.ts` in `packages/db` is the allow-deny matrix (E14.5) — 115 assertions
+`rls.test.ts` in `packages/db` is the allow-deny matrix (E14.5) — 124 assertions
 across real sessions, one per role, and **a release blocker when red**.
 
 | Who                   | May write                                                                                                                                                    |
 | --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| anon, reader          | nothing at all                                                                                                                                               |
-| writer                | nothing yet — E20.2 adds `posts`                                                                                                                             |
+| anon                  | nothing at all                                                                                                                                               |
+| reader                | their own `posts`, at `draft` or `review` only, and only while unpublished                                                                                   |
+| writer                | their own `posts` at any status, and the review queue through `review_post`                                                                                  |
 | organizer (and admin) | `tournaments`, `result_imports`, `staged_matches`, `players`, `player_identities`; **insert only** into `matches`, `tournament_entries`, `match_corrections` |
-| admin                 | the format tables, `seasons`, `archetypes`, `rating_config`, identity curation, and role grants                                                              |
+| admin                 | the format tables, `seasons`, `archetypes`, `rating_config`, identity curation, `official` posts, and role grants and bans — never their own                 |
 | service-role          | everything — it bypasses RLS, which is the point of it                                                                                                       |
 
 Three absences are load-bearing, and an absence is invisible, so the matrix
@@ -250,6 +251,11 @@ asserts each one:
   organizer who could delete a match by hand could quietly move a rating.
 - **`external_event_syncs` has no policy at all, including for reads.** It is the
   calendar request budget, and it is the server's.
+
+**A banned member is on no rung.** `has_role` returns false for them at every
+level, `reader` included, so every policy that calls it shuts at once and none of
+them had to change (E14.7). They keep their account and their data, and can still
+export or erase it.
 
 The role check is `public.has_role(required)`, which is `security definer` — so a
 policy on `profiles` that reads `profiles` does not recurse — and `stable`, so
@@ -337,8 +343,26 @@ changes — which is why callers ask it instead of comparing roles themselves.
 **Nobody can grant themselves a role.** `updateProfile` omits the column, and
 `profiles_self_update`'s `with check` clause refuses a change to it even from a
 client that goes straight at the table. Both are asserted in
-`packages/db/repos/profiles/index.test.ts`. Granting is admin-only and lands with
-E14.4; until then it is an `update` in the SQL editor.
+`packages/db/repos/profiles/index.test.ts`. Granting is admin-only, from
+`/admin/users` (E20.21).
+
+**Nor can an admin change their own role or ban themselves.**
+`profiles_admin_update` matches only other people's rows, so the one making a
+change always survives it and the site cannot lose its last admin. The same rule
+is `core/auth/moderation`, so the page can say why rather than fail.
+
+## Posts: who publishes
+
+Anyone signed in may submit an article. A writer's submission publishes at once;
+anybody below writer lands in `review`, and a writer or above approves it or sends
+it back as a draft from `/dashboard/review`. The split is `core/content/post-workflow`
+for the pages and the `posts_*` policies in migration 0019 for the database.
+
+Reviewing is a function, `review_post`, not an update policy. A rejected post is a
+draft only its author may read, and PostgREST reads an updated row back — so a
+reviewer's rejection would be refused after the fact. A policy would also have let
+a reviewer edit any column of somebody else's post; the function changes one.
+`posts_guard_write` keeps `author_id` fixed and stamps `published_at`.
 
 ## Working on this locally
 
@@ -366,6 +390,8 @@ variables named in `supabase.config.toml` before `pnpm db:start`.
 | `core/auth/meets-role`                    | does this role clear that bar                           |
 | `core/auth/profile-handle`                | what a person may call themselves in a URL              |
 | `core/auth/password-policy`               | what we require of a password, mirrored from Supabase   |
+| `core/auth/moderation`                    | whether an admin may act on this member                 |
+| `core/content/post-workflow`              | where a submitted or reviewed post lands                |
 | `db/repos/profiles`                       | read a profile, save a person's own edits               |
 | `db/migrations/0016_profile_bootstrap`    | the trigger that makes the row                          |
 | `db/templates/`                           | the four emails, and why they are not the defaults      |
@@ -383,4 +409,6 @@ variables named in `supabase.config.toml` before `pnpm db:start`.
 | `web/lib/account/personal-data.server.ts` | everything we hold about one person, as a file          |
 | `db/migrations/0017_profile_erasure`      | the tombstone, and the trigger behind every delete path |
 | `db/migrations/0018_access_control`       | `has_role`, and every write policy                      |
+| `db/migrations/0019_moderation`           | bans, the posts policies, `review_post`                 |
+| `web/lib/auth/admin-sections.ts`          | what is on the admin page, and who each part is for     |
 | `db/rls.test.ts`                          | the allow-deny matrix — a release blocker when red      |

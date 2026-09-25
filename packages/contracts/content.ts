@@ -23,6 +23,12 @@ export interface Profile {
    * a byline, and there is no longer a person behind it (E16.10).
    */
   readonly deletedAt: IsoDateTime | null;
+  /**
+   * When an admin banned this member, or null. A banned member keeps their
+   * account and their data but clears no rung of the role ladder, so nothing a
+   * role grants is open to them (E14.7).
+   */
+  readonly bannedAt: IsoDateTime | null;
 }
 
 export type PostStatus = "draft" | "review" | "published" | "archived";

@@ -1,4 +1,4 @@
-import { createClient } from "@supabase/supabase-js";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import {
@@ -6,6 +6,9 @@ import {
   getProfile,
   getProfileByHandle,
   getProfileByUserId,
+  listMembers,
+  setMemberBanned,
+  setMemberRole,
   updateProfile,
 } from "./index";
 
@@ -330,5 +333,105 @@ suite("erase_own_profile", () => {
   it("does not take the bystander with it", async () => {
     const bystander = await getProfileByUserId(service, bystanderId);
     expect(bystander?.displayName).toBe("Still Here");
+  });
+});
+
+/**
+ * Role grants and bans (E14.7), acted on by the seeded admin against a member
+ * made for the purpose — not a seeded one, which other suites sign in as.
+ */
+suite("repos/profiles — moderation", () => {
+  const password = `moderation-${Date.now()}`;
+  let admin: SupabaseClient;
+  let adminProfileId = "";
+  let member: SupabaseClient;
+  let memberUserId = "";
+  let memberProfileId = "";
+
+  beforeAll(async () => {
+    admin = createClient(url, anonKey, { auth: { persistSession: false } });
+    const signedIn = await admin.auth.signInWithPassword({
+      email: "newsdesk@planarstandard.test",
+      password: "seed-password-not-a-secret",
+    });
+    if (signedIn.error !== null) throw new Error(`admin sign-in: ${signedIn.error.message}`);
+    adminProfileId = (await getProfileByUserId(service, signedIn.data.user.id))?.id ?? "";
+
+    const created = await service.auth.admin.createUser({
+      email: `moderated-${Date.now()}@example.test`,
+      password,
+      email_confirm: true,
+      user_metadata: { full_name: "Moderated Member" },
+    });
+    memberUserId = created.data.user?.id ?? "";
+    memberProfileId = (await getProfileByUserId(service, memberUserId))?.id ?? "";
+
+    member = createClient(url, anonKey, { auth: { persistSession: false } });
+    const own = await member.auth.signInWithPassword({
+      email: created.data.user?.email ?? "",
+      password,
+    });
+    if (own.error !== null) throw new Error(`member sign-in: ${own.error.message}`);
+  });
+
+  afterAll(async () => {
+    if (memberUserId !== "") await service.auth.admin.deleteUser(memberUserId);
+    if (memberProfileId !== "") await service.from("profiles").delete().eq("id", memberProfileId);
+  });
+
+  it("lists members, admins first, and no tombstones", async () => {
+    const members = await listMembers(admin);
+
+    expect(members[0]?.role).toBe("admin");
+    expect(members.some((m) => m.id === memberProfileId)).toBe(true);
+    expect(members.every((m) => m.deletedAt === null)).toBe(true);
+  });
+
+  it("lets an admin grant a role", async () => {
+    expect((await setMemberRole(admin, memberProfileId, "writer")).role).toBe("writer");
+    expect((await setMemberRole(admin, memberProfileId, "reader")).role).toBe("reader");
+  });
+
+  it("refuses an admin changing their own role", async () => {
+    await expect(setMemberRole(admin, adminProfileId, "reader")).rejects.toThrow();
+    expect((await getProfile(service, adminProfileId))?.role).toBe("admin");
+  });
+
+  it("refuses an admin banning themselves", async () => {
+    await expect(setMemberBanned(admin, adminProfileId, true)).rejects.toThrow();
+  });
+
+  it("refuses a member granting a role to anybody", async () => {
+    await expect(setMemberRole(member, adminProfileId, "reader")).rejects.toThrow();
+  });
+
+  it("takes every rung from a banned member, and gives it back", async () => {
+    await setMemberRole(admin, memberProfileId, "writer");
+    expect((await setMemberBanned(admin, memberProfileId, true)).bannedAt).not.toBeNull();
+
+    const banned = await member.rpc("has_role", { required: "reader" });
+    expect(banned.data).toBe(false);
+
+    // Nor may they edit their public profile while banned.
+    await expect(
+      updateProfile(member, memberProfileId, { displayName: "Renamed", handle: null, bio: null }),
+    ).rejects.toThrow();
+
+    expect((await setMemberBanned(admin, memberProfileId, false)).bannedAt).toBeNull();
+    const restored = await member.rpc("has_role", { required: "writer" });
+    expect(restored.data).toBe(true);
+  });
+
+  it("does not let a member lift their own ban", async () => {
+    await setMemberBanned(admin, memberProfileId, true);
+    const { error } = await member
+      .from("profiles")
+      .update({ banned_at: null })
+      .eq("id", memberProfileId);
+
+    // The self-update policy matches no row for a banned member, so nothing moves.
+    expect(error).toBeNull();
+    expect((await getProfile(service, memberProfileId))?.bannedAt).not.toBeNull();
+    await setMemberBanned(admin, memberProfileId, false);
   });
 });

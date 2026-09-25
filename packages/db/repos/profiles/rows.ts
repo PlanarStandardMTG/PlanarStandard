@@ -10,10 +10,11 @@ export interface ProfileRow {
   readonly role: UserRole;
   readonly created_at: string;
   readonly deleted_at: string | null;
+  readonly banned_at: string | null;
 }
 
 export const PROFILE_COLUMNS =
-  "id, display_name, handle, avatar_url, bio, role, created_at, deleted_at";
+  "id, display_name, handle, avatar_url, bio, role, created_at, deleted_at, banned_at";
 
 export function toProfile(row: ProfileRow): Profile {
   return {
@@ -25,5 +26,6 @@ export function toProfile(row: ProfileRow): Profile {
     role: row.role,
     createdAt: row.created_at,
     deletedAt: row.deleted_at,
+    bannedAt: row.banned_at,
   };
 }

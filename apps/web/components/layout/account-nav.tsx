@@ -1,3 +1,4 @@
+import { meetsRole } from "@ps/core";
 import Link from "next/link";
 
 import { loginHref } from "@/lib/auth/next-path";
@@ -28,6 +29,22 @@ export async function AccountNav() {
 
   return (
     <div className="flex shrink-0 items-center gap-3 text-sm">
+      {viewer.profile.bannedAt === null && (
+        <Link
+          href="/dashboard"
+          className="text-ink-600 hover:text-ink-900 dark:text-ink-400 dark:hover:text-ink-100"
+        >
+          Dashboard
+        </Link>
+      )}
+      {viewer.profile.bannedAt === null && meetsRole(viewer.profile.role, "admin") && (
+        <Link
+          href="/admin"
+          className="text-ink-600 hover:text-ink-900 dark:text-ink-400 dark:hover:text-ink-100"
+        >
+          Admin
+        </Link>
+      )}
       <Link
         href="/profile"
         className="font-medium text-ink-700 hover:text-ink-900 dark:text-ink-300 dark:hover:text-ink-100"

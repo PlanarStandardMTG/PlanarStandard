@@ -34,6 +34,7 @@ const ERRORS: Readonly<Record<string, string>> = {
     "A handle can use letters, numbers, hyphens, and underscores, and has to start and end with a letter or number.",
   "handle-reserved": "That handle is reserved.",
   "handle-taken": "Somebody already has that handle.",
+  banned: "A banned account cannot edit its profile.",
 };
 
 const ROLE_BLURBS: Readonly<Record<string, string>> = {

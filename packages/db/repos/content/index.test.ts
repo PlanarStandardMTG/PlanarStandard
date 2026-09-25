@@ -1,11 +1,16 @@
-import { createClient } from "@supabase/supabase-js";
-import { describe, expect, it } from "vitest";
+import type { ProfileId } from "@ps/contracts";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import {
+  createPost,
   getPublishedPostBySlug,
+  listPostsAwaitingReview,
+  listPostsByAuthor,
   listPublishedPostSlugs,
   listPublishedPostsByKind,
   listRecentPublishedPosts,
+  reviewPost,
 } from "./index";
 
 /**
@@ -26,6 +31,11 @@ const reachable = await fetch(`${url}/rest/v1/`, {
 })
   .then((r) => r.ok)
   .catch(() => false);
+
+/** See `repos/events` — deliberately not the production service-role variable (E1.7). */
+const serviceKey =
+  process.env["SUPABASE_LOCAL_SERVICE_KEY"] ??
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU";
 
 const client = createClient(url, anonKey);
 
@@ -75,5 +85,120 @@ describe.skipIf(!reachable)("repos/content", () => {
 
     expect(slugs).toHaveLength(recent.length);
     expect(slugs.every((s) => s.kind === "official" || s.kind === "community")).toBe(true);
+  });
+});
+
+/**
+ * The submission queue (E14.6), as the seeded accounts in `seed/0001_profiles.sql`.
+ * Every post made here is removed again by slug prefix.
+ */
+describe.skipIf(!reachable)("repos/content — submission and review", () => {
+  const service = createClient(url, serviceKey, { auth: { persistSession: false } });
+  const prefix = `queue-test-${Date.now()}`;
+  let reader: SupabaseClient;
+  let writer: SupabaseClient;
+  let readerId: ProfileId;
+  let writerId: ProfileId;
+
+  async function signIn(email: string): Promise<[SupabaseClient, ProfileId]> {
+    const session = createClient(url, anonKey, { auth: { persistSession: false } });
+    const { data, error } = await session.auth.signInWithPassword({
+      email,
+      password: "seed-password-not-a-secret",
+    });
+    if (error !== null) throw new Error(`could not sign in as ${email}: ${error.message}`);
+    const { data: profile } = await service
+      .from("profiles")
+      .select("id")
+      .eq("user_id", data.user.id)
+      .single();
+    return [session, (profile as { id: ProfileId }).id];
+  }
+
+  function draft(suffix: string, authorId: ProfileId, status: "review" | "published") {
+    return {
+      slug: `${prefix}-${suffix}`,
+      title: `Queue test ${suffix}`,
+      excerpt: null,
+      bodyMarkdown: "Test body.",
+      tags: [],
+      status,
+      kind: "community" as const,
+      authorId,
+    };
+  }
+
+  beforeAll(async () => {
+    [reader, readerId] = await signIn("reader@planarstandard.test");
+    [writer, writerId] = await signIn("wrenfield@planarstandard.test");
+  });
+
+  afterAll(async () => {
+    await service.from("posts").delete().like("slug", `${prefix}%`);
+  });
+
+  it("holds a reader's submission for review and shows it to its author", async () => {
+    const post = await createPost(reader, draft("held", readerId, "review"));
+
+    expect(post.status).toBe("review");
+    expect(post.publishedAt).toBeNull();
+    expect((await listPostsByAuthor(reader, readerId)).map((p) => p.slug)).toContain(post.slug);
+  });
+
+  it("refuses a reader who asks to publish", async () => {
+    await expect(createPost(reader, draft("sneaky", readerId, "published"))).rejects.toThrow(
+      /row-level security/,
+    );
+  });
+
+  it("refuses a submission under somebody else's name", async () => {
+    await expect(createPost(reader, draft("forged", writerId, "review"))).rejects.toThrow(
+      /row-level security/,
+    );
+  });
+
+  it("publishes a writer's submission and stamps the date", async () => {
+    const post = await createPost(writer, draft("direct", writerId, "published"));
+
+    expect(post.status).toBe("published");
+    expect(post.publishedAt).not.toBeNull();
+  });
+
+  it("shows the queue to a writer and not to a reader", async () => {
+    await createPost(reader, draft("queued", readerId, "review"));
+
+    const seen = (await listPostsAwaitingReview(writer)).map((p) => p.slug);
+    expect(seen).toContain(`${prefix}-queued`);
+
+    // The reader sees their own, since they wrote it — but not the seeded one.
+    const readerSees = await listPostsAwaitingReview(reader);
+    expect(readerSees.every((p) => p.authorId === readerId)).toBe(true);
+  });
+
+  it("lets a writer approve, and publishes with a date", async () => {
+    const post = await createPost(reader, draft("approved", readerId, "review"));
+    await reviewPost(writer, post.id, "published");
+
+    const live = await getPublishedPostBySlug(client, post.slug);
+    expect(live?.publishedAt).not.toBeNull();
+  });
+
+  it("lets a writer send one back to its author as a draft", async () => {
+    const post = await createPost(reader, draft("rejected", readerId, "review"));
+    await reviewPost(writer, post.id, "draft");
+
+    const mine = await listPostsByAuthor(reader, readerId);
+    expect(mine.find((p) => p.id === post.id)?.status).toBe("draft");
+  });
+
+  it("does not let a reader review, not even their own", async () => {
+    const post = await createPost(reader, draft("self-approved", readerId, "review"));
+    await expect(reviewPost(reader, post.id, "published")).rejects.toThrow();
+  });
+
+  it("says so when the post has already left the queue", async () => {
+    const post = await createPost(reader, draft("twice", readerId, "review"));
+    await reviewPost(writer, post.id, "published");
+    await expect(reviewPost(writer, post.id, "draft")).rejects.toThrow(/not awaiting review/);
   });
 });

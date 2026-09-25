@@ -1,10 +1,10 @@
-import type { PostKind, PostWithAuthor, ProfileId } from "@ps/contracts";
+import type { PostId, PostKind, PostStatus, PostWithAuthor, ProfileId } from "@ps/contracts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { POST_COLUMNS, toPostWithAuthor, type PostRow } from "./rows";
 
 /**
- * Reads over `posts` and `post_revisions`.
+ * Reads and writes over `posts` and `post_revisions`.
  *
  * Every function here answers one question the site actually asks. There is no
  * generic query function on purpose: the day a caller needs a different filter,
@@ -102,4 +102,75 @@ export async function listPostsByAuthor(
 
   if (error !== null) throw new Error(`listPostsByAuthor failed: ${error.message}`);
   return (data as unknown as PostRow[]).map(toPostWithAuthor);
+}
+
+/** What an author supplies. Status is decided by the caller from the author's role. */
+export interface NewPost {
+  readonly slug: string;
+  readonly title: string;
+  readonly excerpt: string | null;
+  readonly bodyMarkdown: string;
+  readonly tags: readonly string[];
+  readonly status: Extract<PostStatus, "draft" | "review" | "published">;
+  readonly kind: PostKind;
+  readonly authorId: ProfileId;
+}
+
+/**
+ * Submit a post (E14.6).
+ *
+ * Under the author's own client, so `posts_author_insert` decides whether the
+ * status is theirs to choose — a reader asking for `published` is refused by
+ * the database, whatever the caller computed. `published_at` is stamped by the
+ * `posts_guard_write` trigger.
+ */
+export async function createPost(client: SupabaseClient, post: NewPost): Promise<PostWithAuthor> {
+  const { data, error } = await client
+    .from("posts")
+    .insert({
+      slug: post.slug,
+      title: post.title,
+      excerpt: post.excerpt,
+      body_markdown: post.bodyMarkdown,
+      tags: post.tags,
+      status: post.status,
+      kind: post.kind,
+      author_id: post.authorId,
+    })
+    .select(POST_COLUMNS)
+    .single();
+
+  if (error !== null) throw new Error(`createPost failed: ${error.message}`);
+  return toPostWithAuthor(data as unknown as PostRow);
+}
+
+/** The review queue, oldest first so nothing waits behind newer work. */
+export async function listPostsAwaitingReview(
+  client: SupabaseClient,
+): Promise<readonly PostWithAuthor[]> {
+  const { data, error } = await client
+    .from("posts")
+    .select(POST_COLUMNS)
+    .eq("status", "review")
+    .order("created_at", { ascending: true });
+
+  if (error !== null) throw new Error(`listPostsAwaitingReview failed: ${error.message}`);
+  return (data as unknown as PostRow[]).map(toPostWithAuthor);
+}
+
+/**
+ * Move a post out of the queue — to `published`, or back to its author as a
+ * `draft` — through `review_post` (migration 0019), which checks the caller is
+ * a writer or above. Only a post still in `review` matches, so two reviewers
+ * acting at once cannot both win; the second is told so.
+ */
+export async function reviewPost(
+  client: SupabaseClient,
+  id: PostId,
+  status: Extract<PostStatus, "published" | "draft">,
+): Promise<void> {
+  const { data, error } = await client.rpc("review_post", { post_id: id, outcome: status });
+
+  if (error !== null) throw new Error(`reviewPost failed: ${error.message}`);
+  if (data !== true) throw new Error(`reviewPost failed: post ${id} is not awaiting review`);
 }

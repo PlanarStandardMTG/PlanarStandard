@@ -1,4 +1,4 @@
-import type { Profile, ProfileId } from "@ps/contracts";
+import type { Profile, ProfileId, UserRole } from "@ps/contracts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { PROFILE_COLUMNS, toProfile, type ProfileRow } from "./rows";
@@ -10,7 +10,7 @@ import { PROFILE_COLUMNS, toProfile, type ProfileRow } from "./rows";
  * `auth.users`, so a row exists before any request could ask for one — these
  * functions may assume that a signed-in visitor has one.
  *
- * `role` is readable here and never writable. A person may rename themselves;
+ * `updateProfile` never writes `role`. A person may rename themselves;
  * granting a role is an admin action with its own policy (E14.4), and leaving
  * the column out of the update is what makes that true in the repository as
  * well as in RLS.
@@ -112,4 +112,61 @@ export async function getProfileByUserId(
 export async function eraseOwnProfile(client: SupabaseClient): Promise<void> {
   const { error } = await client.rpc("erase_own_profile");
   if (error !== null) throw new Error(`eraseOwnProfile failed: ${error.message}`);
+}
+
+/**
+ * Every member with an account, for the admin users page (E14.7).
+ *
+ * Tombstones are left out: there is nobody behind one to promote or ban.
+ * Highest role first, then by name, so the people who can do the most are the
+ * first thing an admin reviews.
+ */
+export async function listMembers(client: SupabaseClient): Promise<readonly Profile[]> {
+  const { data, error } = await client
+    .from("profiles")
+    .select(PROFILE_COLUMNS)
+    .is("deleted_at", null)
+    .order("role", { ascending: false })
+    .order("display_name", { ascending: true });
+
+  if (error !== null) throw new Error(`listMembers failed: ${error.message}`);
+  return (data as unknown as ProfileRow[]).map(toProfile);
+}
+
+/**
+ * Grant a role. Under the admin's own client, so `profiles_admin_update` decides
+ * — including that nobody changes their own. A refusal matches no row, which
+ * `.single()` reports as an error rather than a silent no-op.
+ */
+export async function setMemberRole(
+  client: SupabaseClient,
+  id: ProfileId,
+  role: UserRole,
+): Promise<Profile> {
+  const { data, error } = await client
+    .from("profiles")
+    .update({ role })
+    .eq("id", id)
+    .select(PROFILE_COLUMNS)
+    .single();
+
+  if (error !== null) throw new Error(`setMemberRole failed: ${error.message}`);
+  return toProfile(data as unknown as ProfileRow);
+}
+
+/** Ban or lift a ban. Same policy, same refusal, as `setMemberRole`. */
+export async function setMemberBanned(
+  client: SupabaseClient,
+  id: ProfileId,
+  banned: boolean,
+): Promise<Profile> {
+  const { data, error } = await client
+    .from("profiles")
+    .update({ banned_at: banned ? new Date().toISOString() : null })
+    .eq("id", id)
+    .select(PROFILE_COLUMNS)
+    .single();
+
+  if (error !== null) throw new Error(`setMemberBanned failed: ${error.message}`);
+  return toProfile(data as unknown as ProfileRow);
 }

@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { safeNextPath } from "@/lib/auth/next-path";
 import { currentViewer } from "@/lib/auth/viewer";
+import { formatDate } from "@/lib/format-date";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,8 @@ export const metadata: Metadata = {
  * says which account they are using, what that account would need, and who
  * changes it. Both parameters are display-only and both are validated anyway —
  * the page grants nothing, so the worst a forged one does is show a sentence
- * that is not true.
+ * that is not true. A banned member gets their own answer, read from their
+ * profile rather than the query string (E14.7).
  */
 const ASKS: Readonly<Record<string, string>> = {
   reader: "an account",
@@ -44,6 +46,36 @@ export default async function UnauthorizedPage({
 
   const rawNeed = typeof params["need"] === "string" ? params["need"] : null;
   const need = isUserRole(rawNeed) ? rawNeed : null;
+
+  if (viewer !== null && viewer.profile.bannedAt !== null) {
+    return (
+      <Container className="py-16">
+        <div className="mx-auto max-w-md">
+          <h1 className="font-serif text-3xl font-semibold tracking-tight">
+            This account is banned
+          </h1>
+          <p className="mt-3 text-ink-600 dark:text-ink-400">
+            An admin banned it on {formatDate(viewer.profile.bannedAt)}. You can still read the
+            site, and export or delete your data from{" "}
+            <Link
+              href="/profile"
+              className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
+            >
+              your profile
+            </Link>
+            . To ask about it, contact the admins in{" "}
+            <a
+              href="https://discord.gg/eeYH9XMCjT"
+              className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
+            >
+              the Discord
+            </a>
+            .
+          </p>
+        </div>
+      </Container>
+    );
+  }
 
   return (
     <Container className="py-16">

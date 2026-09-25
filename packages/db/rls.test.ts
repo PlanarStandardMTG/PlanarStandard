@@ -58,6 +58,7 @@ const ROLES: readonly UserRole[] = ["reader", "writer", "organizer", "admin"];
 
 suite("RLS — the allow-deny matrix", () => {
   const clients = new Map<UserRole, SupabaseClient>();
+  const profileIds = new Map<UserRole, string>();
   const userIds: string[] = [];
   /**
    * `players` is the one table every column of which has a default, so the write
@@ -99,10 +100,21 @@ suite("RLS — the allow-deny matrix", () => {
       if (signIn !== null) throw new Error(`could not sign in as ${role}: ${signIn.message}`);
 
       clients.set(role, client);
+
+      const { data: profile } = await service
+        .from("profiles")
+        .select("id")
+        .eq("user_id", id)
+        .single();
+      profileIds.set(role, (profile as { id: string }).id);
     }
   });
 
   afterAll(async () => {
+    await service
+      .from("posts")
+      .delete()
+      .in("author_id", [...profileIds.values()]);
     for (const id of userIds) await service.auth.admin.deleteUser(id);
     // Deleting an account leaves a tombstone by design (E16.10). These are test
     // rows and nothing references them, so they go too — otherwise every run
@@ -247,12 +259,70 @@ suite("RLS — the allow-deny matrix", () => {
     });
 
     /** Their write paths are E20.2 and E20.7; until those land, nobody writes. */
-    it.each(["posts", "post_revisions", "decks"] as const)(
+    it.each(["post_revisions", "decks"] as const)(
       "refuses %s until its own story adds a policy",
       async (table) => {
         expect(await writeRefused(as("admin"), table)).toBe(true);
       },
     );
+  });
+
+  /**
+   * E14.6. Real rows rather than the empty-insert probe: `posts` has not-null
+   * columns with no default, so `{}` would fail on a constraint and say nothing
+   * about the policy.
+   */
+  describe("post submission", () => {
+    async function submit(
+      client: SupabaseClient,
+      author: UserRole,
+      status: "review" | "published",
+      kind: "community" | "official" = "community",
+    ): Promise<string | null> {
+      const { error } = await client.from("posts").insert({
+        slug: `rls-${author}-${status}-${kind}-${Date.now()}-${Math.random()}`,
+        title: "RLS probe",
+        status,
+        kind,
+        author_id: profileIds.get(author),
+      });
+      return error?.code ?? null;
+    }
+
+    it("lets every rung submit for review", async () => {
+      for (const role of ROLES) expect(await submit(as(role), role, "review")).toBeNull();
+    });
+
+    it("refuses a reader who publishes directly", async () => {
+      expect(await submit(as("reader"), "reader", "published")).toBe(RLS_REFUSED);
+    });
+
+    it.each(["writer", "organizer", "admin"] as const)(
+      "lets a %s publish directly",
+      async (role) => {
+        expect(await submit(as(role), role, "published")).toBeNull();
+      },
+    );
+
+    it("refuses a post under somebody else's name", async () => {
+      expect(await submit(as("writer"), "reader", "review")).toBe(RLS_REFUSED);
+    });
+
+    it("keeps the format's own voice to admins", async () => {
+      expect(await submit(as("organizer"), "organizer", "published", "official")).toBe(RLS_REFUSED);
+      expect(await submit(as("admin"), "admin", "published", "official")).toBeNull();
+    });
+
+    it("refuses a signed-out visitor", async () => {
+      expect(await submit(anon, "reader", "review")).toBe(RLS_REFUSED);
+    });
+
+    it("keeps review_post from readers and from anon", async () => {
+      const args = { post_id: "00000000-0000-0000-0000-000000000000", outcome: "published" };
+      expect((await as("reader").rpc("review_post", args)).error?.code).toBe(RLS_REFUSED);
+      expect((await anon.rpc("review_post", args)).error).not.toBeNull();
+      expect((await as("writer").rpc("review_post", args)).data).toBe(false);
+    });
   });
 
   describe("organizer-gated writes", () => {
@@ -354,6 +424,20 @@ suite("RLS — the allow-deny matrix", () => {
       const { error } = await organizer
         .from("profiles")
         .update({ role: "admin" })
+        .eq("user_id", me.user?.id ?? "");
+
+      expect(error?.code).toBe(RLS_REFUSED);
+    });
+
+    it("refuses to let an admin demote themselves", async () => {
+      const admin = as("admin");
+      const { data: me } = await admin.auth.getUser();
+
+      // The self-update policy is the only one that matches an admin's own row,
+      // and it keeps `role` fixed — so the site can never lose its last admin.
+      const { error } = await admin
+        .from("profiles")
+        .update({ role: "reader" })
         .eq("user_id", me.user?.id ?? "");
 
       expect(error?.code).toBe(RLS_REFUSED);

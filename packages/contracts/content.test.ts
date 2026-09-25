@@ -82,6 +82,7 @@ describe("content contracts", () => {
       role: "organizer",
       createdAt: "2026-02-01T00:00:00.000Z",
       deletedAt: null,
+      bannedAt: null,
     } satisfies Profile;
     expectTypeOf(organizer).toExtend<Profile>();
   });
@@ -98,6 +99,7 @@ describe("content contracts", () => {
       role: "reader",
       createdAt: "2026-02-01T00:00:00.000Z",
       deletedAt: "2026-09-16T00:00:00.000Z",
+      bannedAt: null,
     } satisfies Profile;
     expectTypeOf(erased).toExtend<Profile>();
   });

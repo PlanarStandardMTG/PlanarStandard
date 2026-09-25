@@ -25,6 +25,8 @@ const BIO_MAX = 280;
 
 export async function saveProfile(form: FormData): Promise<never> {
   const viewer = await requireViewer();
+  // `profiles_self_update` refuses this too (E14.7); saying so beats a 500.
+  if (viewer.profile.bannedAt !== null) redirect("/profile?error=banned");
 
   const displayName = (form.get("displayName")?.toString() ?? "").trim();
   const rawHandle = (form.get("handle")?.toString() ?? "").trim();

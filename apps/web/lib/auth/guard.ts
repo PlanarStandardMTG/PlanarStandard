@@ -53,7 +53,9 @@ export async function requireViewer(): Promise<Viewer> {
  */
 export async function requireRole(required: UserRole): Promise<Viewer> {
   const viewer = await requireViewer();
-  if (meetsRole(viewer.profile.role, required)) return viewer;
+  // A banned member clears no rung, `reader` included — `has_role` says the
+  // same in the database (E14.7). `/unauthorized` tells them which it was.
+  if (viewer.profile.bannedAt === null && meetsRole(viewer.profile.role, required)) return viewer;
 
   const from = await currentPath();
   redirect(`/unauthorized?from=${encodeURIComponent(from)}&need=${required}`);

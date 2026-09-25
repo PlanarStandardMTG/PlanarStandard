@@ -33,13 +33,13 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
 | E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | ✅ 23/23 |
-| E14  | RLS and access control                | 1     | E13          | ✅ 5/5   |
+| E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 12/13 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | ⬜ 0/19  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 2/20  |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 4/22  |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | ✅ 12/12 |
@@ -598,9 +598,25 @@ row back with `.select()` adds a `RETURNING`, and with one Postgres evaluates th
 not-null constraint — which made the probe report refusals that never happened. And a read that returns
 nothing is indistinguishable from an empty table, so denials are only asserted where rows exist to be
 hidden.
-_Outstanding:_ `posts`, `post_revisions` and `decks` still take no writes from anybody. Their write
-paths are E20.2 and E20.7, and a policy written now would be a guess at a flow that does not exist —
-the matrix asserts the current refusal so that adding one is a deliberate change.
+_Outstanding:_ `post_revisions` and `decks` still take no writes from anybody. Their write paths are
+E20.2 and E20.7, and a policy written now would be a guess at a flow that does not exist — the matrix
+asserts the current refusal so that adding one is a deliberate change. `posts` got its policies at
+E14.6.
+✅ **E14.6 — Post submission and review policies** · M · Deps: E14.5 — _AC:_ any member may submit;
+only writer and up may publish directly; a writer or above approves or returns what is in `review`;
+nobody publishes under another member's name.
+_Note:_ approval is a `security definer` function, `review_post`, not an update policy. A rejected
+post becomes a draft only its author can read, and PostgREST reads an updated row back, so a policy
+refused the rejection after making it; a policy would also have let a reviewer edit any column of
+somebody else's post. A trigger keeps `author_id` fixed and stamps `published_at`. `official` posts
+are admin-only, since that kind is the format's own voice. The rule is also `core/content/post-workflow`,
+for the pages.
+✅ **E14.7 — Bans, and no admin acting on themselves** · S · Deps: E14.4 — _AC:_ a banned member
+clears no rung and cannot edit their profile; an admin cannot change their own role or ban themselves.
+_Note:_ `profiles.banned_at`, with `has_role` returning false for a banned caller at every rung, so
+every existing policy shut without an edit. The account and its data are kept, and export and
+erasure still work. Enforced in RLS only: a banned member can still sign in and read what anybody
+can, and Supabase's own auth-level ban is not used.
 
 ---
 
@@ -708,7 +724,7 @@ them are written up in `docs/modules/auth.md`; each one had already been hit.
 _Outstanding:_ Discord identity pairing is designed, not built — no story owns it until a feature
 needs it. Google and Discord are verified against the settings endpoint and the local config, but
 neither has been run against a real provider application; the email flows have been run end to end.
-_Outstanding:_ E14.4 still owns role granting, so promotion is an `update` in the SQL editor.
+_Note:_ role granting was an `update` in the SQL editor until `/admin/users` (E20.21).
 _Note:_ account deletion, data export and the privacy notice landed as E16.10–E16.12.
 ✅ **E16.8 — Error, empty, and loading states as shared components** · S · Deps: E16.1
 ✅ **E16.13 — Local sign-in as any seeded account** · S · Deps: E16.9 — _AC:_ under `next dev` the
@@ -846,6 +862,17 @@ account with nowhere to go after signing in is not a finished flow. The handle i
 validated by `core/auth/profile-handle`; role escalation is refused by `profiles_self_update`'s
 `with check` clause, asserted from the signed-in side in `repos/profiles`. The form is a server
 action with no client component, so it works with JavaScript off like the rest of the slice.
+✅ **E20.21 — `admin`: `/admin` and `/admin/users`** · M · Deps: E14.7 — an admin-only area with a
+section per job; the first changes roles and bans members. _AC:_ each section is a row in
+`lib/auth/admin-sections.ts`; an admin cannot act on themselves.
+_Note:_ added outside the plan. The review queue is listed as an admin section but lives at
+`/dashboard/review`, because writers review too and `/admin` is admin-only.
+✅ **E20.22 — `content`: submission and review queue, scaffolded** · M · Deps: E14.6 —
+`/dashboard/articles` (any member) and `/dashboard/review` (writer and up). _AC:_ a reader's
+submission waits for approval, a writer's publishes, and approval or return happens from the queue.
+_Note:_ submitting sends a generated sample (`lib/content/sample-article.ts`) instead of real input.
+The status decision, the policies and the queue are real; E20.2 replaces the sample with the editor.
+The dashboard now admits every member, not only writers, since anyone may submit.
 
 ---
 
@@ -1090,9 +1117,9 @@ credentials are unset. See [`docs/modules/events.md`](docs/modules/events.md).
 
 **Auth is in, so every gated story now has somewhere to put its gate.** E16.2–E16.6, E16.9 and E20.1
 are merged: four ways to sign in, a profile row per account, `requireViewer` / `requireRole`, and a
-dashboard shell whose four sections are all still empty. Anything that needed a signed-in person can now ask
-for one in a line — E18.8 (the self-service paste path), E20.2 (article authoring), E20.15 (the
-import dashboard), E20.16 and E20.18 (the two admin slices). Each of those is a page under
+dashboard shell open to every member. Anything that needed a signed-in person can now ask
+for one in a line — E18.8 (the self-service paste path), E20.2 (the article editor, which replaces E20.22's sample with real input — the policies and the review queue are already there), E20.15 (the
+import dashboard), E20.16 and E20.18 (the two admin slices, which could equally become sections of `/admin` — see `lib/auth/admin-sections.ts`). Each of those is a page under
 `/dashboard` that calls `requireRole` and fills in one entry in `lib/auth/dashboard-sections.ts`.
 
 **E14 is complete**, so the admin slices have their access control waiting for them: an admin can edit
@@ -1134,16 +1161,16 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | ---- | ------- | ---- | ---- | ------- | ---- |
 | E1   | 9       | 9    | E12  | 10      | 6    |
 | E2   | 9       | 9    | E13  | 23      | 23   |
-| E3   | 7       | 7    | E14  | 5       | 5    |
+| E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
 | E5   | 6       | 6    | E16  | 13      | 12   |
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 19      | 0    |
 | E8   | 6       | 6    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 20      | 2    |
+| E9   | 9       | 9    | E20  | 22      | 4    |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**152 of 234 stories done across 24 epics.**
+**156 of 238 stories done across 24 epics.**

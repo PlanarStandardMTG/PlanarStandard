@@ -26,10 +26,19 @@ export const DASHBOARD_SECTIONS: readonly DashboardSection[] = [
   {
     href: "/dashboard/articles",
     label: "Articles",
-    description: "Write, revise, and publish community articles.",
+    description:
+      "Submit community articles. A writer's publish at once; anyone else's wait for review.",
+    role: "reader",
+    built: true,
+    story: "E20.22",
+  },
+  {
+    href: "/dashboard/review",
+    label: "Review queue",
+    description: "Approve members' submissions for publication, or send them back.",
     role: "writer",
-    built: false,
-    story: "E20.2",
+    built: true,
+    story: "E20.22",
   },
   {
     href: "/dashboard/tournaments",
@@ -57,5 +66,8 @@ export const DASHBOARD_SECTIONS: readonly DashboardSection[] = [
   },
 ];
 
-/** The lowest rung with anything to do here. The layout guards at this. */
-export const DASHBOARD_MINIMUM: UserRole = "writer";
+/**
+ * The lowest rung with anything to do here. The layout guards at this. Every
+ * member since E20.22, because anyone may submit an article.
+ */
+export const DASHBOARD_MINIMUM: UserRole = "reader";
