@@ -37,9 +37,9 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 12/13 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
-| E18  | Services                              | 5–8   | E3–E13       | 🚧 1/20  |
+| E18  | Services                              | 5–8   | E3–E13       | 🚧 2/20  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 14/34 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 14/35 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 13/14 |
@@ -841,7 +841,13 @@ deterministic; re-ingesting an event supersedes it (E18.5).
 
 ### recompute
 
-⬜ **E18.12 — `recompute-ratings`** · L · Deps: E8.4, E13.20 — full replay resolving identities at read time; writes `rating_runs`. ADR 004.
+✅ **E18.12 — `recompute-ratings`** · L · Deps: E8.4, E13.20 — full replay resolving identities at read time; writes `rating_runs`. ADR 004.
+_Note:_ the ladder is the **current season's** rated matches, a product decision taken with this
+story, so `repos/seasons` arrived with it (`getCurrentSeason`, and `findSeasonForDate` for E18.20).
+With no current season the recompute empties the ladder rather than keeping a stale one — and
+production has none until E20.35, since `db push` never seeds. `lib/ratings/recompute-ratings.server.ts`
+takes a `trigger` string for `rating_runs`; its test stubs the repositories, because a real
+recompute replaces every rating and would pull them out from under the db suites running beside it.
 ⬜ **E18.13 — `recompute-metrics`** · L · Deps: E6.7, E13.21 — deck metrics, card stats, archetype stats.
 ⬜ **E18.14 — `recompute-similarity-and-layout`** · M · Deps: E7.4, E13.21
 ⬜ **E18.15 — `recompute-matchups`** · M · Deps: E13.9, E10.1 — requires `tournament_entries`; degrades to empty when the deck link is missing.
@@ -1014,6 +1020,10 @@ applies migrations and never seeds. `0023_admin_format_versions.sql` adds `save_
 ⬜ **E20.34 — `admin`: rate or unrate a tournament** · S · Deps: E8.7, E18.12 — flip
 `tournaments.is_rated` after E8.7 guessed it, and recompute. _AC:_ admin-only; the leaderboard
 reflects the change once the recompute finishes, with no deploy.
+⬜ **E20.35 — `admin`: open and close seasons** · S · Deps: E18.12 — create a season, set its dates,
+mark it current. _AC:_ the leaderboard is scoped to the current season (E18.12), so marking a new
+one current recomputes, and the ladder resets with no deploy; an event's season comes from its date
+(`findSeasonForDate`).
 
 ---
 
@@ -1248,12 +1258,11 @@ can start today, in rough order of how much it unblocks.
   reviewed. Nothing in E14–E21 is waiting on schema or on storage any more.
 - **E19 can start.** `repos/stats` is in, so every chart in the epic has something to read — but see
   E19.1 first, which sets the fixture conventions the other thirteen components inherit.
-- **The Elo path, end to end:** E8.7, E12.12, E12.10 and E18.3 are in, so next is E18.12 →
-  E18.20 fills in `onTournamentCompleted`, and E18.16 → E20.16 is the admin merge view. Challonge
+- **The Elo path, end to end:** E8.7, E12.12, E12.10, E18.3 and E18.12 are in, so next is
+  E18.20, which fills in `onTournamentCompleted`; E18.16 → E20.16 is the admin merge view. Challonge
   results (E12.13–E12.14) follow the same shape. Only Monthlies are rated; every event is ingested.
-- **E18.12 — `recompute-ratings`,** now fully supplied: `listLedgerMatchesBySeason` reads the
-  matches, `core/elo/replay` rates them, `replaceRatings` stores the result and `recordRatingRun`
-  logs it. The service is the four calls in order.
+- **E20.35 — seasons,** before the ladder can show anything in production: the recompute rates
+  only the current season, and production has no season rows.
 - **E24.5 — the real podium — now waits on one thing only.** Its schema is all in; what is missing is
   something to _write_ an entry, which is E18.4. The query itself could be written today and would
   correctly return nothing.
@@ -1330,12 +1339,12 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E4   | 7       | 5    | E15  | 5       | 1    |
 | E5   | 6       | 6    | E16  | 13      | 12   |
 | E6   | 8       | 8    | E17  | 13      | 12   |
-| E7   | 5       | 5    | E18  | 20      | 1    |
+| E7   | 5       | 5    | E18  | 20      | 2    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 34      | 14   |
+| E9   | 9       | 9    | E20  | 35      | 14   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
 |      |         |      | E23  | 14      | 13   |
 |      |         |      | E24  | 7       | 4    |
 
-**172 of 258 stories done across 24 epics.**
+**173 of 259 stories done across 24 epics.**

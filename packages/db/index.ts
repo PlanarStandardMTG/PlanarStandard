@@ -10,6 +10,7 @@ export * from "./repos/format/index";
 export * from "./repos/events/index";
 export * from "./repos/decks/index";
 export * from "./repos/archetypes/index";
+export * from "./repos/seasons/index";
 export * from "./repos/tournaments/index";
 export * from "./repos/results/index";
 export * from "./repos/ratings/index";
