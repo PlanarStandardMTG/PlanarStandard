@@ -7,6 +7,7 @@ import { cache } from "react";
 
 import { ColorPips } from "@/components/decks/color-pips";
 import { DeckLegality } from "@/components/decks/deck-legality";
+import { DeleteDeckButton } from "@/components/decks/delete-deck-button";
 import { DeckSectionsGrid } from "@/components/decks/deck-sections-grid";
 import { DeckSectionsList } from "@/components/decks/deck-sections-list";
 import { Badge } from "@/components/ui/badge";
@@ -17,8 +18,6 @@ import { deckAsText } from "@/lib/decks/deck-text";
 import { loadCurrentFormat } from "@/lib/format/current-format";
 import { formatDate } from "@/lib/format-date";
 import { createSessionClient } from "@/lib/supabase/session";
-
-import { deleteDeck } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -117,15 +116,7 @@ export default async function DeckPage({
                 Edit deck
               </Link>
             )}
-            <form action={deleteDeck}>
-              <input type="hidden" name="id" value={deck.id} />
-              <button
-                type="submit"
-                className={`${OUTLINE_BUTTON} hover:border-red-400 hover:text-red-700 dark:hover:text-red-400`}
-              >
-                Delete deck
-              </button>
-            </form>
+            <DeleteDeckButton deckId={deck.id} deckName={deck.name} versions={versions.length} />
           </div>
         )}
       </header>

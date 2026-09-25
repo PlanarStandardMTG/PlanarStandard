@@ -935,7 +935,7 @@ why a list is not legal as it is typed, and saves one anyway after a confirmatio
 shows the format with ✓ or ✗ and nothing more.
 _Note:_ added outside the plan, and separate from a tournament registration's lock-and-fork (ADR 013).
 `0021_deck_versions_and_formats.sql` adds `decks.format` and `decks_one_successor`, so a history is a
-line, not a tree. Deleting a deck deletes every version. A name that does not resolve no longer blocks
+line, not a tree. Deleting a deck deletes every version, after a confirmation. A name that does not resolve no longer blocks
 a save, which changes E20.28: Kitchen Table allows cards outside the dataset, so an unknown name is
 reported with suggestions, confirmed, and stored unresolved.
 
