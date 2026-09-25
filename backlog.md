@@ -31,7 +31,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E9   | Identity signals and scoring          | 4     | E2           | ✅ 9/9   |
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
-| E12  | Source adapters                       | 5     | E2           | 🚧 7/14  |
+| E12  | Source adapters                       | 5     | E2           | 🚧 8/14  |
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | ✅ 23/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
@@ -379,10 +379,13 @@ document (`swagger/docs/v0.3.64.190`). `lib/melee/transport.server.ts` sends eve
 copy an allowlist; `.dependency-cruiser.cjs`' `melee-transport-is-private` fails CI on any import of
 the transport from outside `lib/melee/`. The decklist list carries each player's final rank and
 record, so it is the roster and the standings as well as the lists.
-⬜ **E12.12 — `melee-api`: keep the player's username** · S · Deps: E12.11 — the one personal field
+✅ **E12.12 — `melee-api`: keep the player's username** · S · Deps: E12.11 — the one personal field
 the scrub lets through, because identity needs a handle to resolve (E18.20) and an admin needs one to
 merge (E20.16). _AC:_ each competitor carries melee's public username; legal names, Discord, Arena,
 email and pronouns are still dropped, and a test asserts each of them is absent.
+_Note:_ `Username` — the account's handle — rather than `DisplayName`, which can be the
+player's real name. Competitors now carry `players: { id, username }[]` in
+place of `playerIds`, and a decklist carries `username` from `OwnerUsername`.
 ⬜ **E12.13 — Challonge results endpoints, fetched and scrubbed** · M · Deps: E23.7 — a finished
 tournament's participants and matches, through `lib/challonge/` as E12.11 did for melee. _AC:_ each
 participant keeps its Challonge id and username only; two requests per event, counted against the
@@ -1232,7 +1235,7 @@ can start today, in rough order of how much it unblocks.
   reviewed. Nothing in E14–E21 is waiting on schema or on storage any more.
 - **E19 can start.** `repos/stats` is in, so every chart in the epic has something to read — but see
   E19.1 first, which sets the fixture conventions the other thirteen components inherit.
-- **The Elo path, end to end:** E8.7 is in and E12.12 needs nothing, then E12.10 → E18.3 → E18.12 →
+- **The Elo path, end to end:** E8.7 and E12.12 are in, so next is E12.10 → E18.3 → E18.12 →
   E18.20 fills in `onTournamentCompleted`, and E18.16 → E20.16 is the admin merge view. Challonge
   results (E12.13–E12.14) follow the same shape. Only Monthlies are rated; every event is ingested.
 - **E18.12 — `recompute-ratings`,** now fully supplied: `listLedgerMatchesBySeason` reads the
@@ -1282,7 +1285,7 @@ four ways in are an email, and so is every password reset. See
 **E12.10 is what is left of melee.gg.** E23.12 took the tournament _listing_, so an event run there
 shows up on the schedule; E12.10 wants the _results_ — match history, standings, decklists — so it can
 be imported. E12.11 found and wired the endpoints — a tournament, its matches, its decklists — behind
-functions that scrub every personal detail, so what is still missing is a committed fixture that
+functions that scrub every personal detail but the username (E12.12), so what is still missing is a committed fixture that
 names no real player, and then the adapter itself.
 
 **The home page shows one thing it does not have.** The top-four-decks section runs on a hand-written
@@ -1310,7 +1313,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
-| E1   | 9       | 9    | E12  | 14      | 7    |
+| E1   | 9       | 9    | E12  | 14      | 8    |
 | E2   | 9       | 9    | E13  | 23      | 23   |
 | E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
@@ -1324,4 +1327,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 14      | 13   |
 |      |         |      | E24  | 7       | 4    |
 
-**169 of 258 stories done across 24 epics.**
+**170 of 258 stories done across 24 epics.**

@@ -23,7 +23,6 @@ const PERSONAL = {
   NameLastFirst: "Lovelace, Ada",
   DisplayName: "adal",
   DisplayNameLastFirst: "adal",
-  Username: "adal-user",
   ScreenName: "adal#11111",
   ArenaScreenName: "adal#11111",
   MtgoScreenName: "adal-mtgo",
@@ -34,6 +33,9 @@ const PERSONAL = {
   NotYetInvented: "a field melee adds next year",
 };
 const LEAKS = Object.values(PERSONAL);
+
+/** The one field about a person that is kept (E12.12). Shares no text with `PERSONAL`. */
+const USERNAME = "pilot-7";
 
 function assertNoPersonalData(value: unknown) {
   const text = JSON.stringify(value);
@@ -56,7 +58,7 @@ const rawMatch = {
       TeamId: 900,
       GameWins: 2,
       GameByes: 0,
-      Team: { ID: 900, Players: [{ ID: 1001, TeamId: 900, ...PERSONAL }] },
+      Team: { ID: 900, Players: [{ ID: 1001, TeamId: 900, Username: USERNAME, ...PERSONAL }] },
       Decklists: [{ DecklistId: "deck-1", PlayerId: 1001, DecklistName: "Bant" }],
     },
   ],
@@ -79,7 +81,7 @@ const rawDecklist = {
   OwnerLastName: PERSONAL.LastName,
   OwnerNameFirstLast: PERSONAL.Name,
   OwnerNameLastFirst: PERSONAL.NameLastFirst,
-  OwnerUsername: PERSONAL.Username,
+  OwnerUsername: USERNAME,
   OwnerDisplayName: PERSONAL.DisplayName,
   OwnerPronounsDescription: PERSONAL.PronounsDescription,
   DiscordUsername: PERSONAL.DiscordUsername,
@@ -96,7 +98,7 @@ const rawDecklist = {
 };
 
 describe("lib/melee/results — scrubbing", () => {
-  it("keeps a match's result and melee ids, and no person", () => {
+  it("keeps a match's result, melee ids and usernames, and nothing else about a person", () => {
     const match = scrubMatch(rawMatch);
 
     expect(match).toEqual({
@@ -110,18 +112,25 @@ describe("lib/melee/results — scrubbing", () => {
       type: "Best of Three",
       byeReason: null,
       competitors: [
-        { playerIds: [1001], teamId: 900, gameWins: 2, gameByes: 0, decklistIds: ["deck-1"] },
+        {
+          players: [{ id: 1001, username: USERNAME }],
+          teamId: 900,
+          gameWins: 2,
+          gameByes: 0,
+          decklistIds: ["deck-1"],
+        },
       ],
     });
     assertNoPersonalData(match);
   });
 
-  it("keeps a decklist's cards, standing and melee player id, and no person", () => {
+  it("keeps a decklist's cards, standing, melee player id and username, and nothing else", () => {
     const decklist = scrubDecklist(rawDecklist);
 
     expect(decklist).toMatchObject({
       guid: "deck-1",
       playerId: 1001,
+      username: USERNAME,
       deckName: "Bant",
       archetypes: ["Artifacts"],
       rank: 3,

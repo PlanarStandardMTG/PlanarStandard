@@ -10,8 +10,11 @@ import { meleeGet, meleeGetAllPages, type MeleeFetch } from "./transport.server"
  * a blocklist. A field melee adds tomorrow is dropped until someone decides it
  * belongs here, instead of leaking until someone notices it.
  *
- * Players are their melee player id and nothing else: no name, handle, email or
- * Discord. The deck's own name stays — it labels a deck, not a person — and so
+ * Players are their melee player id and their melee username, and nothing else:
+ * no legal name, display name, email, Discord, Arena or pronouns. The username is
+ * the one exception because identity needs a handle to resolve and an admin needs
+ * one to merge (E12.12); it is the account's chosen handle, not a real name. The
+ * deck's own name stays — it labels a deck, not a person — and so
  * does the archetype melee attached to it. `ResultString` is dropped because it
  * spells the winner's display name.
  *
@@ -50,9 +53,14 @@ export interface MeleeTournament {
   readonly phases: readonly MeleePhase[];
 }
 
+export interface MeleePlayer {
+  readonly id: number;
+  readonly username: string | null;
+}
+
 export interface MeleeCompetitor {
-  /** melee player ids; one per player, more than one only in team events. */
-  readonly playerIds: readonly number[];
+  /** One per player; more than one only in team events. */
+  readonly players: readonly MeleePlayer[];
   readonly teamId: number | null;
   readonly gameWins: number;
   readonly gameByes: number;
@@ -84,6 +92,7 @@ export interface MeleeDecklist {
   readonly guid: string;
   readonly tournamentId: number | null;
   readonly playerId: number | null;
+  readonly username: string | null;
   readonly teamId: number | null;
   readonly formatId: string | null;
   readonly format: string | null;
@@ -220,7 +229,7 @@ function scrubCompetitor(raw: unknown): MeleeCompetitor | null {
   const team = isRecord(raw["Team"]) ? raw["Team"] : {};
 
   return {
-    playerIds: arrayOf(team["Players"], (player) => (isRecord(player) ? int(player["ID"]) : null)),
+    players: arrayOf(team["Players"], scrubPlayer),
     teamId: int(raw["TeamId"]),
     gameWins: int(raw["GameWins"]) ?? 0,
     gameByes: int(raw["GameByes"]) ?? 0,
@@ -228,6 +237,12 @@ function scrubCompetitor(raw: unknown): MeleeCompetitor | null {
       isRecord(decklist) ? str(decklist["DecklistId"]) : null,
     ),
   };
+}
+
+function scrubPlayer(raw: unknown): MeleePlayer | null {
+  if (!isRecord(raw)) return null;
+  const id = int(raw["ID"]);
+  return id === null ? null : { id, username: str(raw["Username"]) };
 }
 
 export function scrubDecklist(raw: unknown): MeleeDecklist | null {
@@ -239,6 +254,7 @@ export function scrubDecklist(raw: unknown): MeleeDecklist | null {
     guid,
     tournamentId: int(raw["TournamentId"]),
     playerId: int(raw["PlayerId"]),
+    username: str(raw["OwnerUsername"]),
     teamId: int(raw["TeamId"]),
     formatId: str(raw["FormatId"]),
     format: str(raw["FormatName"]),
