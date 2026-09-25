@@ -241,6 +241,15 @@ export interface Season {
   readonly isCurrent: boolean;
 }
 
+/** What an admin saves on `/admin/seasons` (E20.35), checked by `core/events/check-season-draft`. */
+export interface SeasonDraft {
+  readonly name: string;
+  readonly startsOn: IsoDate;
+  /** Null for a season still running. */
+  readonly endsOn: IsoDate | null;
+  readonly isCurrent: boolean;
+}
+
 /** A `tournaments` row — the site's own record of an event that happened (§13). */
 export interface Tournament {
   readonly id: TournamentId;

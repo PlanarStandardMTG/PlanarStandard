@@ -30,6 +30,12 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
     role: "admin",
   },
   {
+    href: "/admin/seasons",
+    label: "Seasons",
+    description: "Open and close seasons. The leaderboard rates the current one.",
+    role: "admin",
+  },
+  {
     href: "/admin/processing",
     label: "Tournament processing",
     description:

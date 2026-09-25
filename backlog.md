@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 3/20  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 14/35 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 15/35 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 13/14 |
@@ -1037,10 +1037,17 @@ applies migrations and never seeds. `0023_admin_format_versions.sql` adds `save_
 ⬜ **E20.34 — `admin`: rate or unrate a tournament** · S · Deps: E8.7, E18.12 — flip
 `tournaments.is_rated` after E8.7 guessed it, and recompute. _AC:_ admin-only; the leaderboard
 reflects the change once the recompute finishes, with no deploy.
-⬜ **E20.35 — `admin`: open and close seasons** · S · Deps: E18.12 — create a season, set its dates,
+✅ **E20.35 — `admin`: open and close seasons** · S · Deps: E18.12 — create a season, set its dates,
 mark it current. _AC:_ the leaderboard is scoped to the current season (E18.12), so marking a new
 one current recomputes, and the ladder resets with no deploy; an event's season comes from its date
 (`findSeasonForDate`).
+_Note:_ `/admin/seasons` lists, creates and edits; there is no delete, since tournaments and decks
+reference a season. `core/events/check-season-draft` refuses overlapping seasons, ends inclusive, so
+a date belongs to at most one. `saveSeason` also re-files tournaments by date — events ingested
+before their season existed join it — and every save recomputes. The form receives its action as a
+prop: the action reaches the service-role client, and `check-server-only` refuses a client module
+that imports it. `SeasonDraft` is new in `@ps/contracts`. The season's format version is not on the
+form and stays as it was.
 
 ---
 
@@ -1276,11 +1283,9 @@ can start today, in rough order of how much it unblocks.
 - **E19 can start.** `repos/stats` is in, so every chart in the epic has something to read — but see
   E19.1 first, which sets the fixture conventions the other thirteen components inherit.
 - **The Elo path runs end to end for melee.gg:** a finished event is fetched, ingested and, if it
-  is a Monthly, rated (E18.20). What is left: E20.35 so production has a season to rate, E23.14 so
+  is a Monthly, rated (E18.20). What is left: a current season in production (`/admin/seasons`, E20.35), E23.14 so
   the queue runs on its own, E20.12 to show the ladder, and E18.16 → E20.16 for the admin merge
   view. Challonge results (E12.13–E12.14) follow the same shape.
-- **E20.35 — seasons,** before the ladder can show anything in production: the recompute rates
-  only the current season, and production has no season rows.
 - **E24.5 — the real podium — now waits on one thing only.** Its schema is all in; what is missing is
   something to _write_ an entry, which is E18.4. The query itself could be written today and would
   correctly return nothing.
@@ -1359,10 +1364,10 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 20      | 3    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 35      | 14   |
+| E9   | 9       | 9    | E20  | 35      | 15   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
 |      |         |      | E23  | 14      | 13   |
 |      |         |      | E24  | 7       | 4    |
 
-**174 of 259 stories done across 24 epics.**
+**175 of 259 stories done across 24 epics.**
