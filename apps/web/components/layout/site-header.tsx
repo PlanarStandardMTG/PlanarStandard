@@ -13,6 +13,7 @@ import { DevAccountSwitcher } from "./dev-account-switcher";
 const NAV = [
   { href: "/news", label: "News" },
   { href: "/community", label: "Community" },
+  { href: "/decks", label: "Decks" },
   // One info page is in the header by editorial choice rather than by
   // `navOrder`: "what is legal right now" is the question the format gets most.
   // The full generated list is in the footer.

@@ -1,10 +1,21 @@
-import type { DeckCard, DeckId, OracleId, PlayerId, SeasonId, SetCode } from "@ps/contracts";
-import { createClient } from "@supabase/supabase-js";
+import type {
+  DeckCard,
+  DeckId,
+  OracleId,
+  PlayerId,
+  ProfileId,
+  SeasonId,
+  SetCode,
+} from "@ps/contracts";
+import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
+  createMemberDeck,
+  deleteMemberDeck,
   getDeckWithCards,
   insertDeck,
+  listDecksByOwner,
   listDecksByPlayer,
   listPublicDecksBySeason,
   type NewDeck,
@@ -221,5 +232,106 @@ describe.skipIf(!reachable)("repos/decks", () => {
     expect(
       await getDeckWithCards(client, "00000000-0000-4000-8000-000000000000" as DeckId),
     ).toBeNull();
+  });
+});
+
+/** A member importing their own list (E20.28), as the seeded reader and writer. */
+describe.skipIf(!reachable)("repos/decks — member imports", () => {
+  const mine: DeckId[] = [];
+  let reader: SupabaseClient;
+  let writer: SupabaseClient;
+  let readerId: ProfileId;
+
+  async function signIn(email: string): Promise<[SupabaseClient, ProfileId]> {
+    const session = createClient(url, anonKey, { auth: { persistSession: false } });
+    const { data, error } = await session.auth.signInWithPassword({
+      email,
+      password: "seed-password-not-a-secret",
+    });
+    if (error !== null) throw new Error(`could not sign in as ${email}: ${error.message}`);
+    const { data: profile } = await service
+      .from("profiles")
+      .select("id")
+      .eq("user_id", data.user.id)
+      .single();
+    return [session, (profile as { id: ProfileId }).id];
+  }
+
+  const member = (name: string, visibility: "public" | "private" = "private") => ({
+    name,
+    visibility,
+    rawImport: "4 Swamp",
+    formatVersionId: null,
+  });
+
+  afterEach(async () => {
+    if (mine.length === 0) return;
+    await service.from("decks").delete().in("id", mine);
+    mine.length = 0;
+  });
+
+  it("writes the deck and its list as the member, who can read it back while private", async () => {
+    [reader, readerId] = await signIn("reader@planarstandard.test");
+    const id = await createMemberDeck(reader, member("Mono Black"), [
+      card({ name: "Swamp", quantity: 20 }),
+      card({ name: "Duress", quantity: 2, board: "side" }),
+    ]);
+    mine.push(id);
+
+    const stored = await getDeckWithCards(reader, id);
+    expect(stored).toMatchObject({
+      name: "Mono Black",
+      ownerId: readerId,
+      visibility: "private",
+      submittedVia: "import",
+      playerId: null,
+      isLegal: null,
+    });
+    expect(stored?.cards).toHaveLength(2);
+    expect((await listDecksByOwner(reader, readerId)).map((d) => d.id)).toContain(id);
+
+    // Private means private: not even another member sees it.
+    [writer] = await signIn("wrenfield@planarstandard.test");
+    expect(await getDeckWithCards(writer, id)).toBeNull();
+    expect(await getDeckWithCards(client, id)).toBeNull();
+  });
+
+  it("writes nothing when the list fails, because it is one transaction", async () => {
+    [reader, readerId] = await signIn("reader@planarstandard.test");
+    const before = await listDecksByOwner(reader, readerId);
+
+    await expect(
+      createMemberDeck(reader, member("Broken"), [card({ name: "Swamp", quantity: 0 })]),
+    ).rejects.toThrow(/createMemberDeck failed/);
+
+    expect(await listDecksByOwner(reader, readerId)).toHaveLength(before.length);
+  });
+
+  it("refuses a signed-out import, a verdict the member wrote, and a claimed player", async () => {
+    await expect(createMemberDeck(client, member("Anon"), [])).rejects.toThrow();
+
+    [reader, readerId] = await signIn("reader@planarstandard.test");
+    const forged = await reader
+      .from("decks")
+      .insert({ name: "Forged", owner_id: readerId, submitted_via: "import", is_legal: true });
+    expect(forged.error).not.toBeNull();
+
+    const someoneElse = await reader
+      .from("decks")
+      .insert({ name: "Not mine", owner_id: null, submitted_via: "import" });
+    expect(someoneElse.error).not.toBeNull();
+  });
+
+  it("lets only the owner delete a deck", async () => {
+    [reader] = await signIn("reader@planarstandard.test");
+    const id = await createMemberDeck(reader, member("Shortlived", "public"), [
+      card({ name: "Swamp" }),
+    ]);
+    mine.push(id);
+
+    [writer] = await signIn("wrenfield@planarstandard.test");
+    expect(await deleteMemberDeck(writer, id)).toBe(false);
+    expect(await deleteMemberDeck(reader, id)).toBe(true);
+    expect(await getDeckWithCards(service, id)).toBeNull();
   });
 });

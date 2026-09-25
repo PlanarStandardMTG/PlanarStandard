@@ -20,7 +20,8 @@ home page is made of (E24); `lib/` holds helpers, the two Supabase clients,
 `info-pages/` — the reader, whitelist, and renderer behind `content/pages/*.mdx`
 (E17), `format/`, the one read behind `<LegalSets />` and `<Banlist />`,
 `challonge/` plus `events/`, the read-through cache behind `/events` (E23),
-`podium/`, and `auth/` — the guards, the viewer, and the two path helpers behind
+`podium/`, `cards/` — the card index, loaded from `data/cards/` by path from `cwd` like
+`content/pages/` — `decks/`, which shapes a stored deck for its page, and `auth/` — the guards, the viewer, and the two path helpers behind
 every protected route (E16). Feature slices (§11, E20) will move route-owned code out of
 `components/content` as they land.
 

@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | ⬜ 0/19  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 8/27  |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 10/28 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | ✅ 12/12 |
@@ -601,7 +601,8 @@ hidden.
 _Outstanding:_ `post_revisions` and `decks` still take no writes from anybody. Their write paths are
 E20.2 and E20.7, and a policy written now would be a guess at a flow that does not exist — the matrix
 asserts the current refusal so that adding one is a deliberate change. `posts` got its policies at
-E14.6.
+E14.6, and `decks` a member's own-deck policies at E20.28 (`repos/decks` tests them); an organizer's
+write path is still E20.7.
 ✅ **E14.6 — Post submission and review policies** · M · Deps: E14.5 — _AC:_ any member may submit;
 only writer and up may publish directly; a writer or above approves or returns what is in `review`;
 nobody publishes under another member's name.
@@ -850,7 +851,13 @@ _Note:_ it is the editor's Reddit tab, with a Discord one beside it, both throug
 `core/content/export-post` so components expand first.
 ⬜ **E20.4 — `cards`: `/cards` browse, filter, sort** · L · Deps: E4.7 — _AC:_ filtering happens in-app against the loaded index, not in SQL.
 ⬜ **E20.5 — `cards`: `/cards/[oracleId]` detail** · M · Deps: E19.9, E20.4
-⬜ **E20.6 — `decks`: `/decks/[id]`** · M · Deps: E19.13
+✅ **E20.6 — `decks`: `/decks/[id]`** · M · Deps: E19.13
+_Note:_ built before E19.13, and with card images rather than E19.13's text list, because the deck page
+was asked to show the cards. Each image is Scryfall's `normal`, whole and uncovered, with the count
+beneath it and a link to Scryfall; the text list is a `<details>` under the grid. Legality is checked
+live against the current format (`checkDeck`), so a later ban shows without a re-save. Sections come
+from `core/decklist/deck-sections`, the picture from `pick-printing`. E19.13 can still replace the
+grid's text half when it lands.
 ⬜ **E20.7 — `decks`: submission flow** · M · Deps: E18.8
 ⬜ **E20.8 — `meta`: `/meta`** · M · Deps: E19.3, E19.4
 ⬜ **E20.9 — `meta`: `/meta/map`** · M · Deps: E19.10
@@ -907,6 +914,14 @@ no data moved. The editor's code went generic (`PostEditor`, `savePost`), since 
 `?kind=official` opens it for a news post, admins only. Signed out, the Community feed offers
 "Sign in to write a community post" and returns to the editor after; News shows its button to
 admins and nobody else. Story titles above that name `/articles` are left as written.
+✅ **E20.28 — `decks`: import a deck from a text list** · M · Deps: E4.7, E13.16 — `/decks`,
+`/decks/new`. _AC:_ any member pastes `4 Card Name` lines (a `Sideboard` line splits the boards);
+every line must parse and every name resolve, with "did you mean" on a miss; the deck is theirs at
+the visibility they chose, and a private one is invisible to everybody else.
+_Note:_ added outside the plan, ahead of E20.7's organizer registration. `core/legality/resolve-deck`
+and `check-deck-import` decide; `0020_member_decks.sql` lets a member insert, read and delete their
+own deck, and not set its player, lock or legality verdict. `create_deck` is an invoker RPC so the
+deck and its list are one transaction. Other formats arrive as adapters behind the same form.
 
 ---
 
@@ -1129,6 +1144,8 @@ can start today, in rough order of how much it unblocks.
 - **E24.5 — the real podium — now waits on one thing only.** Its schema is all in; what is missing is
   something to _write_ an entry, which is E18.4. The query itself could be written today and would
   correctly return nothing.
+- **E20.24 — the decklist component,** now that members have decks (E20.28) and a deck page (E20.6)
+  to link to. The picker is `listDecksByOwner`.
 - **E19.13 — `DeckVisualizer`,** now that `repos/decks` can hand it a deck. It takes shaped lines as
   props like every E19 component, so it needs no card data of its own — but see E19.1 first, which
   sets the fixture conventions the other thirteen components inherit.
@@ -1201,10 +1218,10 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 19      | 0    |
 | E8   | 6       | 6    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 27      | 8    |
+| E9   | 9       | 9    | E20  | 28      | 10   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**160 of 243 stories done across 24 epics.**
+**162 of 244 stories done across 24 epics.**

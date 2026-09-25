@@ -5,7 +5,6 @@ import type {
   FormatCardRule,
   FormatVersionId,
   OracleId,
-  ResolvedCard,
   ResolvedDeck,
   SetCode,
 } from "@ps/contracts";
@@ -15,7 +14,9 @@ import { parseDecklist } from "../decklist/parse-decklist/index";
 import { buildCardIndex, normalizeSetCode } from "./build-card-index/index";
 import { checkCard, copyLimit, isInPool } from "./check-card/index";
 import { checkDeck } from "./check-deck/index";
+import { DECK_NAME_MAX, DECKLIST_MAX, checkDeckImport } from "./check-deck-import/index";
 import { MAX_CANDIDATES, resolveCardName } from "./resolve-card-name/index";
+import { resolveDeck } from "./resolve-deck/index";
 import { DEFAULT_CONSTRAINTS, resolveFormat } from "./resolve-format/index";
 
 const fixture = (path: string): string =>
@@ -37,26 +38,8 @@ const format = (cardRules: readonly FormatCardRule[] = []) =>
 const oracleOf = (name: string): OracleId =>
   DATASET.oracle.find((c) => c.name === name)?.oracleId as OracleId;
 
-function resolvedDeck(document: string): ResolvedDeck {
-  const parsed = parseDecklist(document);
-  const cards: ResolvedCard[] = parsed.lines.map((line) => {
-    const resolution = resolveCardName(line.name, INDEX);
-    const base = {
-      qty: line.qty,
-      name: line.name,
-      oracleId: resolution.ok ? resolution.oracleId : null,
-      foil: line.foil,
-      board: line.board,
-      lineNumber: line.lineNumber,
-    };
-    return (line.set === undefined ? base : { ...base, set: line.set }) as ResolvedCard;
-  });
-  return {
-    cards,
-    issues: parsed.issues,
-    hasUnresolvedCards: cards.some((c) => c.oracleId === null),
-  };
-}
+const resolvedDeck = (document: string): ResolvedDeck =>
+  resolveDeck(parseDecklist(document), INDEX);
 
 describe("core/legality/build-card-index", () => {
   it("indexes every card by oracle id, with its printings", () => {
@@ -348,5 +331,81 @@ describe("core/legality/check-deck", () => {
     const verdict = checkDeck({ cards: [], issues: [], hasUnresolvedCards: false }, rules, INDEX);
     expect(verdict.legal).toBe(false);
     expect(verdict.deckIssues.map((i) => i.code)).toContain("maindeck_too_small");
+  });
+});
+
+describe("core/legality/resolve-deck", () => {
+  it("resolves every line and keeps its provenance", () => {
+    const deck = resolveDeck(parseDecklist("4 Stock Up (DFT) 67\nSIDEBOARD:\n2 Negate\n"), INDEX);
+
+    expect(deck.hasUnresolvedCards).toBe(false);
+    expect(deck.cards[0]).toMatchObject({
+      qty: 4,
+      name: "Stock Up",
+      oracleId: oracleOf("Stock Up"),
+      set: "DFT",
+      collector: "67",
+      board: "main",
+    });
+    expect(deck.cards[1]).toMatchObject({ name: "Negate", board: "side" });
+    expect(deck.cards[1]).not.toHaveProperty("set");
+  });
+
+  it("keeps a miss with its candidates instead of guessing", () => {
+    const deck = resolveDeck(parseDecklist("4 Stokk Up\n"), INDEX);
+
+    expect(deck.hasUnresolvedCards).toBe(true);
+    expect(deck.cards[0]?.oracleId).toBeNull();
+    expect(deck.cards[0]?.candidates?.[0]?.name).toBe("Stock Up");
+  });
+});
+
+describe("core/legality/check-deck-import", () => {
+  const input = { name: "  Azorius  ", visibility: "unlisted", decklist: "4 island\n4 plains\n" };
+
+  it("accepts a plain list, trimming the name", () => {
+    const check = checkDeckImport(input, INDEX);
+
+    expect(check.ok).toBe(true);
+    if (!check.ok) return;
+    expect(check.value.name).toBe("Azorius");
+    expect(check.value.visibility).toBe("unlisted");
+    expect(check.value.deck.cards.map((c) => c.oracleId)).toEqual([
+      oracleOf("Island"),
+      oracleOf("Plains"),
+    ]);
+  });
+
+  it("does not check legality — an eight-card brew still saves", () => {
+    expect(checkDeckImport(input, INDEX).ok).toBe(true);
+  });
+
+  it("names every line it could not read and every card it could not find, in line order", () => {
+    const check = checkDeckImport(
+      { ...input, decklist: "2 Stokk Up\nfour Plains\n4 Island\n" },
+      INDEX,
+    );
+
+    expect(check.ok).toBe(false);
+    if (check.ok) return;
+    expect(check.problems).toEqual([
+      expect.objectContaining({ code: "unknown-card", lineNumber: 1, name: "Stokk Up" }),
+      expect.objectContaining({ code: "unparsed-line", lineNumber: 2, line: "four Plains" }),
+    ]);
+    const unknown = check.problems[0];
+    expect(unknown && "suggestions" in unknown ? unknown.suggestions[0] : null).toBe("Stock Up");
+  });
+
+  it("refuses an empty list, a missing or long name, and an unknown visibility", () => {
+    const codes = (overrides: Partial<typeof input>) => {
+      const check = checkDeckImport({ ...input, ...overrides }, INDEX);
+      return check.ok ? [] : check.problems.map((p) => `${p.field}:${p.code}`);
+    };
+
+    expect(codes({ decklist: "\n\n" })).toEqual(["decklist:empty"]);
+    expect(codes({ name: " " })).toEqual(["name:empty"]);
+    expect(codes({ name: "x".repeat(DECK_NAME_MAX + 1) })).toEqual(["name:long"]);
+    expect(codes({ visibility: "secret" })).toEqual(["visibility:invalid"]);
+    expect(codes({ decklist: "x".repeat(DECKLIST_MAX + 1) })).toEqual(["decklist:long"]);
   });
 });

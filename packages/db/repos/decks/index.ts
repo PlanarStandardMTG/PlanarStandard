@@ -181,3 +181,50 @@ export async function listDecksByOwner(
   if (error !== null) throw new Error(`listDecksByOwner failed: ${error.message}`);
   return (data as unknown as DeckRow[]).map(toDeck);
 }
+
+/** What a member supplies when importing a deck; the database fills in the rest. */
+export interface MemberDeck {
+  readonly name: string;
+  readonly visibility: Deck["visibility"];
+  readonly rawImport: string;
+  readonly formatVersionId: Deck["formatVersionId"];
+}
+
+/**
+ * A member's own import, written as the member (E20.28).
+ *
+ * Takes the signed-in client, so `decks_member_insert` decides: the owner is
+ * the caller and a member cannot set a player, a lock or a verdict. One RPC,
+ * so the deck and its list are written in one transaction.
+ */
+export async function createMemberDeck(
+  client: SupabaseClient,
+  deck: MemberDeck,
+  cards: readonly DeckCard[],
+): Promise<DeckId> {
+  const { data, error } = await client.rpc("create_deck", {
+    deck_name: deck.name,
+    deck_visibility: deck.visibility,
+    raw_import: deck.rawImport,
+    format_version_id: deck.formatVersionId,
+    cards: cards.map((card) => ({
+      oracle_id: card.oracleId,
+      card_name: card.name,
+      quantity: card.quantity,
+      board: card.board,
+      set_code: card.set,
+      collector_number: card.collector,
+    })),
+  });
+
+  if (error !== null) throw new Error(`createMemberDeck failed: ${error.message}`);
+  return data as DeckId;
+}
+
+/** Delete one of the caller's own unlocked decks. False when there was none to delete. */
+export async function deleteMemberDeck(client: SupabaseClient, deckId: DeckId): Promise<boolean> {
+  const { data, error } = await client.from("decks").delete().eq("id", deckId).select("id");
+
+  if (error !== null) throw new Error(`deleteMemberDeck failed: ${error.message}`);
+  return (data ?? []).length > 0;
+}

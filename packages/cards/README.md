@@ -15,6 +15,8 @@ contracts ◄── core ◄── cards
 `web` and `jobs` depend on it; nothing else does.
 
 **Deploying.** `apps/web` reads these files at runtime, so a serverless build has
-to trace them. Next's file tracing does not follow a path built from
-`import.meta.url`, which means `outputFileTracingIncludes` has to name
-`data/cards/` explicitly (E20.4).
+to trace them, and `next.config.ts` names `data/cards/` in
+`outputFileTracingIncludes`. Inside Next a module's `import.meta.url` is a build
+chunk, so the site passes its own `dir` (`apps/web/lib/cards/card-index.ts`), and
+the default is built from path segments because Turbopack reads
+`new URL("literal", import.meta.url)` as an asset it cannot bundle (E20.28).

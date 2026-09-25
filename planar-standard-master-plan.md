@@ -295,7 +295,7 @@ Each slice owns its routes, components, and hooks. Slices don't import from each
 | `auth`           | login, callback                                       |
 | `content`        | `/community/*`, MDX `/(info)/[...slug]`               |
 | `cards`          | `/cards`, `/cards/[oracleId]`                         |
-| `decks`          | `/decks/[id]`, submission                             |
+| `decks`          | `/decks`, `/decks/new` (import), `/decks/[id]`        |
 | `meta`           | `/meta`, `/meta/map`, `/meta/cards`, `/meta/matchups` |
 | `leaderboard`    | `/leaderboard`, `/players/[slug]`                     |
 | `tournaments`    | `/tournaments/[slug]`, import dashboard               |

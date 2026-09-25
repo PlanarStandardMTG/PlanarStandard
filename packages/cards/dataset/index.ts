@@ -1,4 +1,6 @@
 import { readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import { fileURLToPath, pathToFileURL } from "node:url";
 
 import type {
   CardDataset,
@@ -22,8 +24,18 @@ import { buildCardIndex } from "@ps/core";
  * milliseconds on one call in the life of the process.
  */
 
-/** The repo's `data/cards/`, resolved from this file rather than from `cwd`. */
-const DEFAULT_DIR = new URL("../../../data/cards/", import.meta.url);
+/**
+ * The repo's `data/cards/`, resolved from this file rather than from `cwd`.
+ *
+ * Built from path segments, not `new URL("../…", import.meta.url)`: a bundler
+ * reads that form as an asset to bundle, and Turbopack cannot bundle a
+ * directory. Inside Next a module's URL is a build chunk anyway, so the site
+ * passes its own `dir` (`apps/web/lib/cards/card-index.ts`).
+ */
+function defaultDir(): URL {
+  const here = dirname(fileURLToPath(import.meta.url));
+  return pathToFileURL(`${join(here, "..", "..", "..", "data", "cards")}/`);
+}
 
 const datasets = new Map<string, CardDataset>();
 const indexes = new Map<string, CardIndex>();
@@ -50,7 +62,7 @@ function read<T>(dir: URL, file: string): T {
  * `dir` exists for tests and for a job pointing at a freshly built artifact. A
  * caller in the app passes nothing.
  */
-export function loadCardDataset(dir: URL = DEFAULT_DIR): CardDataset {
+export function loadCardDataset(dir: URL = defaultDir()): CardDataset {
   const key = dir.href;
   const cached = datasets.get(key);
   if (cached !== undefined) return cached;
@@ -73,7 +85,7 @@ export function loadCardDataset(dir: URL = DEFAULT_DIR): CardDataset {
  * 2,916 printings — so memoizing the dataset without memoizing this would leave
  * most of the cost in place.
  */
-export function loadCardIndex(dir: URL = DEFAULT_DIR): CardIndex {
+export function loadCardIndex(dir: URL = defaultDir()): CardIndex {
   const key = dir.href;
   const cached = indexes.get(key);
   if (cached !== undefined) return cached;
