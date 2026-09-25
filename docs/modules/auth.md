@@ -348,8 +348,12 @@ whole sign-up, magic link, and reset surface works with no external account at
 all.
 
 The seeded accounts have passwords (`seed-password-not-a-secret`) and cover
-writer, organizer, and admin, so the role-aware parts of the UI have something to
-render for every rung.
+reader, writer, organizer, and admin, so the role-aware parts of the UI have
+something to render for every rung. Under `next dev` the header has a **Dev**
+dropdown that signs in as any of them in one click (E16.13); it fills in the
+password form and nothing more, and a production build does not render it. The
+list is `web/lib/auth/dev-accounts.ts`, and a test fails if it drifts from the
+seed.
 
 To exercise an OAuth provider locally, register an application with it, point its
 redirect URI at `http://127.0.0.1:54321/auth/v1/callback`, and export the two

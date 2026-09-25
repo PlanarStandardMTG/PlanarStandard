@@ -34,8 +34,8 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E12  | Source adapters                       | 5     | E2           | 🚧 6/10  |
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | ✅ 23/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 5/5   |
-| E15  | Seed data and local dev               | 0     | E13          | ⬜ 0/5   |
-| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 11/12 |
+| E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
+| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 12/13 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | ⬜ 0/19  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
@@ -610,7 +610,10 @@ The five-minute rule from §17. This is what makes every other contribution poss
 
 ⬜ **E15.1 — Anonymization script for Season II** · L · Deps: E3.5 — real decklists and archetype distribution, synthetic handles and pairings.
 ⬜ **E15.2 — Seed loader** · M · Deps: E15.1, E13.12 — `pnpm db:reset` produces a populated site.
-⬜ **E15.3 — Local Supabase scripts** · S · Deps: E13.1 — `db:start`, `db:reset`, `dev`.
+✅ **E15.3 — Local Supabase scripts** · S · Deps: E13.1 — `db:start`, `db:reset`, `dev`.
+_Note:_ plus `dev:db`, which chains all three with `env:web` (writes `apps/web/.env.local` from the
+example when there is none) — one command from a fresh clone, or a stopped stack, to a seeded site on
+:3000. It resets every run, so local data does not survive a restart; `pnpm dev` alone keeps it.
 ⬜ **E15.4 — `CONTRIBUTING.md`** · M · Deps: E15.3 — the zero-credential path first, the full stack second, the two tasks that genuinely need secrets last.
 ⬜ **E15.5 — Freshness test for the seed** · S · Deps: E15.2 — _AC:_ CI fails if a migration lands that the seed no longer satisfies.
 
@@ -657,9 +660,9 @@ lists `/meta`: the shape is worth advertising to the people who will use it. The
 `writer`, the lowest rung with anything to do here, and each section will guard itself again at what
 it actually needs, because a layout cannot express "organizer here, admin there".
 ⬜ **E16.7 — Deploy pipeline and preview environments** · M · Deps: E16.1 — _AC:_ production deploy from `main`, preview per PR, environment variables documented.
-*Blocked:* needs the hosted Supabase project's URL configuration, which is a dashboard setting and not
+_Blocked:_ needs the hosted Supabase project's URL configuration, which is a dashboard setting and not
 a file in this repository. The four settings and why each one fails silently are written up under
-*Configuring a deployment* in [`docs/modules/auth.md`](docs/modules/auth.md); what is left for this
+_Configuring a deployment_ in [`docs/modules/auth.md`](docs/modules/auth.md); what is left for this
 story is making the preview environments work against them.
 ✅ **E16.10 — Account deletion** · M · Deps: E16.9 — _AC:_ erasure removes every identifying field and
 the account itself, in one transaction, and cannot be aimed at anybody else.
@@ -708,6 +711,12 @@ neither has been run against a real provider application; the email flows have b
 _Outstanding:_ E14.4 still owns role granting, so promotion is an `update` in the SQL editor.
 _Note:_ account deletion, data export and the privacy notice landed as E16.10–E16.12.
 ✅ **E16.8 — Error, empty, and loading states as shared components** · S · Deps: E16.1
+✅ **E16.13 — Local sign-in as any seeded account** · S · Deps: E16.9 — _AC:_ under `next dev` the
+header offers one-click sign-in as each seeded account, covering every rung from reader to admin; no
+production build renders it.
+_Note:_ the switcher posts the seed password to the ordinary `/auth/password` route rather than
+minting a session, so it adds no way in that production lacks. Adds a `reader` seed account, the one
+rung the seed did not cover.
 
 ---
 
@@ -1126,8 +1135,8 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E1   | 9       | 9    | E12  | 10      | 6    |
 | E2   | 9       | 9    | E13  | 23      | 23   |
 | E3   | 7       | 7    | E14  | 5       | 5    |
-| E4   | 7       | 5    | E15  | 5       | 0    |
-| E5   | 6       | 6    | E16  | 12      | 11   |
+| E4   | 7       | 5    | E15  | 5       | 1    |
+| E5   | 6       | 6    | E16  | 13      | 12   |
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 19      | 0    |
 | E8   | 6       | 6    | E19  | 14      | 0    |
@@ -1137,4 +1146,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 12      | 12   |
 |      |         |      | E24  | 7       | 4    |
 
-**150 of 233 stories done across 24 epics.**
+**152 of 234 stories done across 24 epics.**

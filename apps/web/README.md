@@ -3,11 +3,15 @@
 The Next.js site (E16.1). App Router, Tailwind v4, React 19.
 
 ```bash
-pnpm db:start        # once, from the repo root — Docker
-pnpm db:reset        # migrations + seed
-cp apps/web/.env.example apps/web/.env.local
-pnpm dev             # http://localhost:3000
+pnpm dev:db          # from the repo root — Docker; starts, resets, and seeds, then http://localhost:3000
 ```
+
+It resets the database every run. To keep what you have made locally, `pnpm dev`
+starts only the site.
+
+To sign in, use the **Dev** dropdown in the header — one click per seeded
+account, reader through admin. It exists only under `next dev`; see
+[`docs/modules/auth.md`](../../docs/modules/auth.md#working-on-this-locally).
 
 **Layout.** `app/` is routes only. `components/ui/` holds primitives that know
 nothing about the domain; `components/content/` holds the post components that

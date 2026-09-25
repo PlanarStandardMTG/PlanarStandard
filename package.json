@@ -19,6 +19,8 @@
     "db:stop": "supabase stop",
     "db:reset": "pnpm db:setup && supabase db reset",
     "dev": "pnpm --filter web dev",
+    "dev:db": "pnpm db:start && pnpm db:reset && pnpm env:web && pnpm dev",
+    "env:web": "tsx scripts/web-env.ts",
     "db:setup": "tsx scripts/db-setup.ts",
     "content:sync": "tsx apps/web/lib/info-pages/sync.ts"
   },

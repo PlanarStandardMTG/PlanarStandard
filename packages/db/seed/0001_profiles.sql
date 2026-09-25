@@ -12,7 +12,8 @@
 -- has a profile by the time the second statement runs. The upsert below is that
 -- trigger working, not a collision to route around: it makes the default row
 -- into a specific person, and it sets the one thing the trigger will not — the
--- role. Every writer and organizer the seeded site needs comes from here.
+-- role. Every reader, writer, organizer, and admin the seeded site needs comes
+-- from here.
 
 -- The token columns are set to '' and not left to default. GoTrue scans them
 -- into Go strings and a NULL is a 500 on sign-in — "Database error querying
@@ -43,7 +44,8 @@ from (values
   ('11111111-1111-4111-8111-000000000002'::uuid, 'wrenfield@planarstandard.test'),
   ('11111111-1111-4111-8111-000000000003'::uuid, 'tallowmere@planarstandard.test'),
   ('11111111-1111-4111-8111-000000000004'::uuid, 'quillfeather@planarstandard.test'),
-  ('11111111-1111-4111-8111-000000000005'::uuid, 'brackwater@planarstandard.test')
+  ('11111111-1111-4111-8111-000000000005'::uuid, 'brackwater@planarstandard.test'),
+  ('11111111-1111-4111-8111-000000000006'::uuid, 'reader@planarstandard.test')
 ) as u(id, email);
 
 insert into profiles (id, display_name, handle, avatar_url, bio, role) values
@@ -86,6 +88,16 @@ insert into profiles (id, display_name, handle, avatar_url, bio, role) values
     null,
     'Aggro apologist.',
     'writer'
+  ),
+  -- The bottom rung: signed in, and short of every guard. Writes nothing, so it
+  -- appears in no other seed file.
+  (
+    '11111111-1111-4111-8111-000000000006',
+    'Rook Pellwater',
+    'pellwater',
+    null,
+    'Reads everything, posts nothing.',
+    'reader'
   )
 on conflict (id) do update set
   display_name = excluded.display_name,

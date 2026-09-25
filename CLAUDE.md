@@ -59,17 +59,19 @@ pnpm --filter core test -- -t "test name"     # vitest run; per-package, no root
 Full stack (needs Docker):
 
 ```bash
+pnpm dev:db                       # the usual one: start + reset + .env.local + dev, from anywhere
 pnpm db:start / pnpm db:stop      # supabase start/stop (local)
 pnpm db:reset                     # migrations + seed
-pnpm dev                          # --filter web dev — http://localhost:3000
+pnpm dev                          # --filter web dev — http://localhost:3000, keeps local data
 ```
 
 `supabase/` is gitignored, so `pnpm db:setup` (run automatically by `db:start` and `db:reset`)
 materialises `config.toml` and a `migrations/` symlink from `packages/db`, which stays the single
 source of truth. Seeds are read in place from `packages/db/seed/*.sql`.
 
-`apps/web` needs `.env.local`; copy `apps/web/.env.example`, which holds the Supabase CLI's published
-local demo keys.
+`apps/web` needs `.env.local`; `dev:db` copies it from `apps/web/.env.example`, which holds the
+Supabase CLI's published local demo keys. Under `next dev` the header's **Dev** dropdown signs in as
+any seeded account, reader through admin (E16.13).
 
 CI (`.github/workflows/ci.yml`) runs `lint`, `depcruise`, `guard:server-only`, `test`, `build` in that
 order. Match it locally before pushing.

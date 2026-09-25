@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Container } from "@/components/ui/container";
 
 import { AccountNav } from "./account-nav";
+import { DevAccountSwitcher } from "./dev-account-switcher";
 
 /**
  * `soon` routes are in the plan but not built. Shown greyed rather than linked,
@@ -23,7 +24,7 @@ const NAV = [
 
 export async function SiteHeader() {
   return (
-    <header className="border-b border-ink-200 bg-white/80 backdrop-blur dark:border-ink-800 dark:bg-ink-950/80">
+    <header className="relative z-40 border-b border-ink-200 bg-white/80 backdrop-blur dark:border-ink-800 dark:bg-ink-950/80">
       <Container className="flex h-14 items-center justify-between gap-6">
         <Link
           href="/"
@@ -58,7 +59,10 @@ export async function SiteHeader() {
           </ul>
         </nav>
 
-        <AccountNav />
+        <div className="flex shrink-0 items-center gap-3">
+          <DevAccountSwitcher />
+          <AccountNav />
+        </div>
       </Container>
     </header>
   );
