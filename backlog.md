@@ -37,7 +37,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 12/13 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
-| E18  | Services                              | 5–8   | E3–E13       | 🚧 2/20  |
+| E18  | Services                              | 5–8   | E3–E13       | 🚧 3/20  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
 | E20  | Feature slices                        | 3–10  | E18          | 🚧 14/35 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
@@ -394,7 +394,9 @@ participant keeps its Challonge id and username only; two requests per event, co
 500-a-month budget the calendar already spends from.
 ⬜ **E12.14 — `challonge-api` adapter** · M · Deps: E12.13 — the E12.13 payload → `ParsedEvent`, matches
 and standings, no decklists (Challonge has none). _AC:_ a fixture with invented participants in the
-captured shape and its expected `ParsedEvent`.
+captured shape and its expected `ParsedEvent`; `onTournamentCompleted` ingests a Challonge event the
+way it does a melee.gg one, and the release notes say to press "Re-run everything" once, since
+Challonge events finished before this were marked processed with nothing done.
 
 ---
 
@@ -821,7 +823,7 @@ when E18.2 and E18.4 use this.
 ⬜ **E18.4 — Review queue UI contract and commit** · L · Deps: E18.3 — staged → `matches`; sets `is_rated` from capabilities.
 ⬜ **E18.5 — Supersede on re-import** · M · Deps: E18.4 — _AC:_ wholesale replacement, never a merge; prior import marked `superseded`.
 ⬜ **E18.6 — Corrections with audit and recompute** · M · Deps: E18.4 — _AC:_ reason required; writes `match_corrections`; triggers recompute; Discord notice if a public rank moves.
-⬜ **E18.20 — `ingest-completed-event`** · L · Deps: E8.7, E12.10, E18.3, E18.12 — what
+✅ **E18.20 — `ingest-completed-event`** · L · Deps: E8.7, E12.10, E18.3, E18.12 — what
 `onTournamentCompleted` (E23.13) does: fetch, parse, write the tournament, resolve handles, commit
 matches, then run two independent follow-ups — ratings (E18.12) when the tournament is rated, and deck
 processing (E18.13–E18.15) when it has decklists, which on melee.gg is sometimes and on Challonge
@@ -830,6 +832,21 @@ existing player **only** on an exact normalized match (E9.1) — same platform f
 — and otherwise creates a new player, so fuzzy signals (E9.2–E9.6) never merge anything on their own;
 an API import commits straight to the ledger without E18.4's review queue, because resolution is
 deterministic; re-ingesting an event supersedes it (E18.5).
+_Note:_ `lib/results/ingest-event.server.ts` does it for any adapter's `ParsedEvent`, and
+`onTournamentCompleted` feeds it melee.gg events through `lib/melee/results-input.server.ts`.
+Migration `0025_tournament_source.sql` adds `tournaments.source` / `external_id` so a re-ingest
+finds its row; `saveSourcedTournament` refreshes what the platform knows and keeps what people
+decided — slug, `is_rated`, a status past `results_imported`. A tournament is rated when
+`rated-by-default` says so **and** it has pairings. Identical bytes are an idempotent no-op (the
+content hash); staged rows are written with `raw` for provenance. `core/results/ledger-matches`
+leaves out a match with no result or an unresolved side, and every issue lands in
+`result_imports.errors`. `onFullRerun` now rebuilds the ladder from the ledger. Challonge events
+are marked processed with nothing done until E12.14.
+_Outstanding:_ two things this does not write yet. `tournament_entries` — standings and the
+podium (E24.5) — which needs a standing's handle resolved to a player, and the deck path, which is a
+named no-op (`onDecklistsIngested`) until E18.13–E18.15. The assembled payload is not archived
+(E18.1 has not chosen where raw bytes live); melee.gg can be asked again, which "Re-run everything"
+does.
 
 ### import-decklists
 
@@ -1258,9 +1275,10 @@ can start today, in rough order of how much it unblocks.
   reviewed. Nothing in E14–E21 is waiting on schema or on storage any more.
 - **E19 can start.** `repos/stats` is in, so every chart in the epic has something to read — but see
   E19.1 first, which sets the fixture conventions the other thirteen components inherit.
-- **The Elo path, end to end:** E8.7, E12.12, E12.10, E18.3 and E18.12 are in, so next is
-  E18.20, which fills in `onTournamentCompleted`; E18.16 → E20.16 is the admin merge view. Challonge
-  results (E12.13–E12.14) follow the same shape. Only Monthlies are rated; every event is ingested.
+- **The Elo path runs end to end for melee.gg:** a finished event is fetched, ingested and, if it
+  is a Monthly, rated (E18.20). What is left: E20.35 so production has a season to rate, E23.14 so
+  the queue runs on its own, E20.12 to show the ladder, and E18.16 → E20.16 for the admin merge
+  view. Challonge results (E12.13–E12.14) follow the same shape.
 - **E20.35 — seasons,** before the ladder can show anything in production: the recompute rates
   only the current season, and production has no season rows.
 - **E24.5 — the real podium — now waits on one thing only.** Its schema is all in; what is missing is
@@ -1339,7 +1357,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E4   | 7       | 5    | E15  | 5       | 1    |
 | E5   | 6       | 6    | E16  | 13      | 12   |
 | E6   | 8       | 8    | E17  | 13      | 12   |
-| E7   | 5       | 5    | E18  | 20      | 2    |
+| E7   | 5       | 5    | E18  | 20      | 3    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
 | E9   | 9       | 9    | E20  | 35      | 14   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
@@ -1347,4 +1365,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 14      | 13   |
 |      |         |      | E24  | 7       | 4    |
 
-**173 of 259 stories done across 24 epics.**
+**174 of 259 stories done across 24 epics.**

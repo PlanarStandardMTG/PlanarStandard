@@ -70,8 +70,14 @@ const run = Date.now();
 async function makeSeason(): Promise<SeasonId> {
   const { data, error } = await service
     .from("seasons")
-    // `ordinal` is unique and the seed holds the low numbers.
-    .insert({ name: `vitest stats ${run}`, ordinal: 9000 + (run % 900), starts_on: "2025-01-01" })
+    // `ordinal` is unique and the seed holds the low numbers. One day long, so
+    // `repos/seasons`' date lookups, running beside this, never land in it.
+    .insert({
+      name: `vitest stats ${run}`,
+      ordinal: 9000 + (run % 900),
+      starts_on: "2025-01-01",
+      ends_on: "2025-01-01",
+    })
     .select("id")
     .single();
   if (error !== null) throw new Error(`could not create a season: ${error.message}`);

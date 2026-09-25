@@ -1,4 +1,11 @@
-import type { SeasonId, Tournament, TournamentEntry, TournamentId } from "@ps/contracts";
+import type {
+  IsoDate,
+  SeasonId,
+  Tournament,
+  TournamentEntry,
+  TournamentId,
+  TournamentStatus,
+} from "@ps/contracts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import {
@@ -126,4 +133,82 @@ export async function listTournamentEntries(
 
   if (error !== null) throw new Error(`listTournamentEntries failed: ${error.message}`);
   return (data as unknown as TournamentEntryRow[]).map(toTournamentEntry);
+}
+
+/** An event as a platform reported it, keyed by that platform's id for it (E18.20). */
+export interface SourcedTournament {
+  readonly source: string;
+  readonly externalId: string;
+  readonly name: string;
+  /** Used only when the row is new; a tournament's URL never changes under it. */
+  readonly slug: string;
+  readonly eventDate: IsoDate;
+  readonly seasonId: SeasonId | null;
+  readonly platform: string | null;
+  readonly externalUrl: string | null;
+  readonly structure: string | null;
+  readonly rounds: number | null;
+  readonly playerCount: number | null;
+  /** Used only when the row is new: after that, `is_rated` is an admin's call (E20.34). */
+  readonly isRated: boolean;
+}
+
+/** Statuses an ingest moves on to `results_imported`. Verified or archived is a person's call, and stays. */
+const PRE_RESULTS_STATUSES: readonly TournamentStatus[] = ["draft", "awaiting_results"];
+
+/**
+ * Create or refresh the tournament a platform event became.
+ *
+ * Found by `(source, external_id)`, so ingesting an event twice updates one row.
+ * A refresh rewrites what the platform knows — name, date, season, shape — and
+ * leaves what people decided alone: the slug, `is_rated`, and a status past
+ * `results_imported`. A new row fails on a taken slug; the caller retries with
+ * another.
+ */
+export async function saveSourcedTournament(
+  serviceClient: SupabaseClient,
+  tournament: SourcedTournament,
+): Promise<Tournament> {
+  const { data: existing, error: findError } = await serviceClient
+    .from("tournaments")
+    .select(TOURNAMENT_COLUMNS)
+    .eq("source", tournament.source)
+    .eq("external_id", tournament.externalId)
+    .maybeSingle();
+  if (findError !== null) throw new Error(`saveSourcedTournament failed: ${findError.message}`);
+
+  const reported = {
+    name: tournament.name,
+    event_date: tournament.eventDate,
+    season_id: tournament.seasonId,
+    platform: tournament.platform,
+    external_url: tournament.externalUrl,
+    structure: tournament.structure,
+    rounds: tournament.rounds,
+    player_count: tournament.playerCount,
+  };
+
+  const write =
+    existing === null
+      ? serviceClient.from("tournaments").insert({
+          ...reported,
+          source: tournament.source,
+          external_id: tournament.externalId,
+          slug: tournament.slug,
+          is_rated: tournament.isRated,
+          status: "results_imported",
+        })
+      : serviceClient
+          .from("tournaments")
+          .update({
+            ...reported,
+            ...(PRE_RESULTS_STATUSES.includes((existing as unknown as TournamentRow).status)
+              ? { status: "results_imported" }
+              : {}),
+          })
+          .eq("id", (existing as unknown as TournamentRow).id);
+
+  const { data, error } = await write.select(TOURNAMENT_COLUMNS).single();
+  if (error !== null) throw new Error(`saveSourcedTournament failed: ${error.message}`);
+  return toTournament(data as unknown as TournamentRow);
 }

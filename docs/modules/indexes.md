@@ -156,6 +156,7 @@ query is on a page rather than in an export.
 | `seasons`             | `seasons_one_current` (unique, partial)               | one current season, enforced not asserted          |
 | `tournaments`         | `tournaments_season_date_idx`                         | a season's events, newest first                    |
 | `tournaments`         | `tournaments_date_idx`                                | the home page and the calendar                     |
+| `tournaments`         | `tournaments_source_external_id` (unique, partial)    | finding a platform event again on re-ingest        |
 | `players`             | `players_merged_into_idx` (partial)                   | finding what merged into a player                  |
 | `player_identities`   | `player_identities_player_idx`                        | a player's handles                                 |
 | `player_identities`   | `(platform, normalized)` (unique)                     | resolving a handle on import — the hot import path |

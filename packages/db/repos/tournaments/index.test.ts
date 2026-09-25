@@ -1,6 +1,6 @@
-import type { PlayerId, SeasonId, TournamentId } from "@ps/contracts";
+import type { IsoDate, PlayerId, SeasonId, TournamentId } from "@ps/contracts";
 import { createClient } from "@supabase/supabase-js";
-import { afterEach, describe, expect, it } from "vitest";
+import { afterAll, afterEach, describe, expect, it } from "vitest";
 
 import {
   getLatestTournamentWithResults,
@@ -8,6 +8,8 @@ import {
   listRatedTournamentsBySeason,
   listTournamentEntries,
   listTournamentsBySeason,
+  saveSourcedTournament,
+  type SourcedTournament,
 } from "./index";
 
 /**
@@ -191,5 +193,81 @@ describe.skipIf(!reachable)("repos/tournaments", () => {
   it("is empty for an event with no standings", async () => {
     const showcase = await tournamentId("community-showcase");
     expect(await listTournamentEntries(client, showcase)).toEqual([]);
+  });
+});
+
+/**
+ * Dated 2020, before every seeded event and in no season, so a row made here
+ * never becomes another suite's "latest" or joins a season listing mid-run.
+ */
+describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () => {
+  const run = Date.now();
+  const made: string[] = [];
+  afterAll(async () => {
+    if (made.length > 0) await service.from("tournaments").delete().in("id", made);
+  });
+
+  const sourced = (over: Partial<SourcedTournament> = {}): SourcedTournament => ({
+    source: "melee",
+    externalId: `vitest-${run}`,
+    name: "Monthly Championship Series - Test",
+    slug: `vitest-sourced-${run}`,
+    eventDate: "2020-01-04" as IsoDate,
+    seasonId: null,
+    platform: "melee",
+    externalUrl: null,
+    structure: "swiss",
+    rounds: 3,
+    playerCount: 8,
+    isRated: true,
+    ...over,
+  });
+
+  it("creates the row on first sight, with the results in", async () => {
+    const created = await saveSourcedTournament(service, sourced());
+    made.push(created.id);
+
+    expect(created).toMatchObject({ isRated: true, status: "results_imported", rounds: 3 });
+  });
+
+  it("refreshes the same row on a second ingest, keeping what people decided", async () => {
+    const first = await saveSourcedTournament(
+      service,
+      sourced({ externalId: `again-${run}`, slug: `vitest-again-${run}` }),
+    );
+    made.push(first.id);
+    await service
+      .from("tournaments")
+      .update({ is_rated: false, status: "verified" })
+      .eq("id", first.id);
+
+    const second = await saveSourcedTournament(
+      service,
+      sourced({
+        externalId: `again-${run}`,
+        slug: "ignored",
+        name: "Renamed",
+        rounds: 5,
+        isRated: true,
+      }),
+    );
+
+    expect(second.id).toBe(first.id);
+    expect(second).toMatchObject({
+      name: "Renamed",
+      rounds: 5,
+      slug: `vitest-again-${run}`,
+      isRated: false,
+      status: "verified",
+    });
+  });
+
+  it("fails on a taken slug so the caller can pick another", async () => {
+    await expect(
+      saveSourcedTournament(
+        service,
+        sourced({ externalId: `clash-${run}`, slug: "planar-standard-weekly-40" }),
+      ),
+    ).rejects.toThrow(/tournaments_slug_key/);
   });
 });

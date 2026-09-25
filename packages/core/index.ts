@@ -138,6 +138,7 @@ export type {
 // events — an external calendar to a schedule (E23)
 export { parseChallongeEvents } from "./events/parse-challonge-events/index";
 export { parseMeleeEvents } from "./events/parse-melee-events/index";
+export { eventSlug } from "./events/event-slug/index";
 export { EVENT_SYNC_INTERVAL_MS, isSyncDue, syncCutoff } from "./events/sync-window/index";
 export { newlyCompleted } from "./events/newly-completed/index";
 export type { CachedEventState } from "./events/newly-completed/index";
@@ -231,3 +232,7 @@ export { averageMv } from "./metrics/average-mv/index";
 export type { AverageMv } from "./metrics/average-mv/index";
 export { computeDeckMetrics } from "./metrics/compute-deck-metrics/index";
 export type { ComputeOptions } from "./metrics/compute-deck-metrics/index";
+
+// results — an import's parse to the ledger (E18.20)
+export { ledgerMatches } from "./results/ledger-matches/index";
+export type { LedgerMatches } from "./results/ledger-matches/index";

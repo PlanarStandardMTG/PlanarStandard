@@ -128,7 +128,11 @@ The refresh only queues — it runs inside a page render and has a visitor
 waiting. Working the queue is `processCompletedEvents`, which claims rows with a
 fifteen-minute lease, calls `onTournamentCompleted` once per event, and marks it
 processed; a failure releases the row for a later run, up to five attempts.
-`onTournamentCompleted` is a no-op for now and names what it will coordinate.
+`onTournamentCompleted` fetches a melee.gg event's scrubbed results and ingests
+them (E18.20), which recomputes the ladder when the event is rated. A Challonge
+event is marked processed with nothing done until its results can be fetched
+(E12.13–E12.14); "Re-run everything" picks those up afterwards, and itself
+rebuilds the ladder from the ledger first.
 
 Nothing is tied to a scheduler. `/api/jobs/process-completed-events` runs one
 pass for anyone presenting `Authorization: Bearer $CRON_SECRET` — Vercel Cron
@@ -176,5 +180,5 @@ invented ahead of time.
 | `web/lib/melee/client.server.ts`                   | melee.gg's tournament list, for the calendar              |
 | `web/lib/events/sync-events.server.ts`             | the `CALENDARS` table, and the order of operations        |
 | `web/lib/events/process-completions.server.ts`     | work the queue of finished tournaments                    |
-| `web/lib/events/on-tournament-completed.server.ts` | what happens once an event ends — a no-op for now         |
+| `web/lib/events/on-tournament-completed.server.ts` | what happens once an event ends: ingest its results       |
 | `web/lib/jobs/authorize.server.ts`                 | whether a request may run a job (`CRON_SECRET`)           |

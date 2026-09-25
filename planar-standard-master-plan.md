@@ -474,8 +474,10 @@ create table tournaments (
   weight numeric not null default 1.0,
   is_rated boolean not null default false,
   status tournament_status not null default 'draft',
+  source text, external_id text,            -- the platform event it came from (E18.20)
   created_at timestamptz not null default now()
 );
+-- unique (source, external_id) where source is not null
 
 create table result_imports (
   id uuid primary key default gen_random_uuid(),
