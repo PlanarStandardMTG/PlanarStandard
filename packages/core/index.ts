@@ -69,6 +69,9 @@ export type { LayoutNode, LayoutOptions } from "./similarity/force-layout/index"
 
 // identity — handles to suggested merges (§8.6)
 export { normalizeHandle } from "./identity/normalize-handle/index";
+export { resolveHandles } from "./identity/resolve-handles/index";
+export { playerSlug } from "./identity/player-slug/index";
+export type { HandleResolution, ResolvedHandles } from "./identity/resolve-handles/index";
 export type { HandleObservation, SignalContext, SignalScorer } from "./identity/signals/types";
 export { parenthetical } from "./identity/signals/parenthetical/index";
 export { deckFingerprint } from "./identity/signals/deck-fingerprint/index";

@@ -21,6 +21,9 @@ result and no error.
   `core/identity/normalize-handle` to produce it — the dependency rule points the
   other way. The two are pinned to `fixtures/identity/normalized-handles.json`
   and `generated-columns.test.ts` asserts they agree.
+- **`listIdentitiesByNormalized` is not scoped to a platform.** It is the batch
+  read an import resolves a whole event from, and a handle's other-platform
+  matches are part of the answer (E18.20); `core/identity/resolve-handles` picks.
 - **A miss is a normal answer.** An unseen handle is a new person until somebody
   merges it (Part IX answer 6), so the caller's next move is
   `createPlayerWithIdentity` rather than an error.

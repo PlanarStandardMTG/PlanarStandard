@@ -114,6 +114,29 @@ export async function findIdentityByNormalizedHandle(
   return data === null ? null : toIdentityRef(data as unknown as IdentityRow);
 }
 
+/**
+ * Every identity, on any platform, whose normalized handle is one of these.
+ *
+ * One read for a whole event's handles, and across platforms because a handle
+ * seen on Challonge and melee.gg under the same normalized form is the same
+ * person (E18.20). Which of these an import reuses is `core/identity/resolve-handles`'
+ * decision, not this function's.
+ */
+export async function listIdentitiesByNormalized(
+  client: SupabaseClient,
+  normalized: readonly string[],
+): Promise<readonly IdentityRef[]> {
+  if (normalized.length === 0) return [];
+  const { data, error } = await client
+    .from("player_identities")
+    .select(IDENTITY_COLUMNS)
+    .in("normalized", [...new Set(normalized)])
+    .order("created_at", { ascending: true });
+
+  if (error !== null) throw new Error(`listIdentitiesByNormalized failed: ${error.message}`);
+  return (data as unknown as IdentityRow[]).map(toIdentityRef);
+}
+
 /** Every handle one player has been seen under, primary first. */
 export async function listIdentitiesByPlayer(
   client: SupabaseClient,

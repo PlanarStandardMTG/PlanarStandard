@@ -189,16 +189,18 @@ Basics excluded, non-basic lands included, maindeck only, default threshold 0.5.
 
 #### 8.6 `core/identity` — handles → suggested merges
 
-| Module                     | One-line job                                            |
-| -------------------------- | ------------------------------------------------------- |
-| `normalize-handle`         | Lowercase, strip non-alphanumerics                      |
-| `signals/parenthetical`    | `Zaunus13 (LikoRS)` → explicit pairing, confidence 0.95 |
-| `signals/deck-fingerprint` | Same 75 under two handles across events → 0.90          |
-| `signals/trigram`          | String similarity → 0.60                                |
-| `signals/containment`      | `Liko` ⊂ `LikoRS` → 0.55                                |
-| `signals/temporal`         | A's last event precedes B's first → 0.30                |
-| `score-candidates`         | Combines signals, applies exclusions, ranks             |
-| `co-appearance-exclusions` | Two handles in one event ⇒ **never the same person**    |
+| Module                     | One-line job                                                              |
+| -------------------------- | ------------------------------------------------------------------------- |
+| `normalize-handle`         | Lowercase, strip non-alphanumerics                                        |
+| `signals/parenthetical`    | `Zaunus13 (LikoRS)` → explicit pairing, confidence 0.95                   |
+| `signals/deck-fingerprint` | Same 75 under two handles across events → 0.90                            |
+| `signals/trigram`          | String similarity → 0.60                                                  |
+| `signals/containment`      | `Liko` ⊂ `LikoRS` → 0.55                                                  |
+| `signals/temporal`         | A's last event precedes B's first → 0.30                                  |
+| `score-candidates`         | Combines signals, applies exclusions, ranks                               |
+| `co-appearance-exclusions` | Two handles in one event ⇒ **never the same person**                      |
+| `resolve-handles`          | An event's handles → reuse, attach or create; exact normalized match only |
+| `player-slug`              | A new player's URL key from their first handle                            |
 
 `signals/` is the best contribution surface in the repo: each file is one scoring function with an obvious test, and adding one is a self-contained PR.
 

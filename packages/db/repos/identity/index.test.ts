@@ -6,6 +6,7 @@ import {
   addIdentity,
   createPlayerWithIdentity,
   findIdentityByNormalizedHandle,
+  listIdentitiesByNormalized,
   getPlayer,
   getPlayerBySlug,
   listExclusions,
@@ -131,6 +132,27 @@ describe.skipIf(!reachable)("repos/identity", () => {
     expect(
       (await findIdentityByNormalizedHandle(service, "melee", norm("Sunsett")))?.playerId,
     ).toBe(player.playerId);
+  });
+
+  it("reads a batch of normalized handles across every platform", async () => {
+    const onChallonge = await aPlayer("Crossover");
+    const other = await aPlayer("unrelated");
+    const onMelee = await addIdentity(service, other.playerId, {
+      platform: "melee",
+      handle: raw("cross-over"),
+      source: "import_inferred",
+    });
+
+    const found = await listIdentitiesByNormalized(service, [
+      norm("Crossover"),
+      norm("Crossover"),
+      `unseen${run}`,
+    ]);
+
+    expect(found.map((identity) => identity.id).sort()).toEqual(
+      [onChallonge.id, onMelee.id].sort(),
+    );
+    expect(await listIdentitiesByNormalized(service, [])).toEqual([]);
   });
 
   it("refuses a handle the platform has already given somebody", async () => {

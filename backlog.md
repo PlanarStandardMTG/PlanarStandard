@@ -37,7 +37,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 12/13 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
-| E18  | Services                              | 5–8   | E3–E13       | ⬜ 0/20  |
+| E18  | Services                              | 5–8   | E3–E13       | 🚧 1/20  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
 | E20  | Feature slices                        | 3–10  | E18          | 🚧 14/34 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
@@ -806,7 +806,18 @@ Thin coordinators only. If a service contains business logic, that logic belongs
 
 ⬜ **E18.1 — Upload, hash, archive raw bytes** · M · Deps: E13.18 — _AC:_ content-hash idempotency; raw bytes archived permanently.
 ⬜ **E18.2 — Detect adapter and parse to staging** · M · Deps: E18.1, E12.1 — _AC:_ `raw jsonb` retained per row so parser fixes re-run without the original file.
-⬜ **E18.3 — Resolve handles to identities** · L · Deps: E18.2, E13.19 — auto-create on miss; record method and confidence per side.
+✅ **E18.3 — Resolve handles to identities** · L · Deps: E18.2, E13.19 — auto-create on miss; record method and confidence per side.
+_Note:_ built ahead of E18.2, over an event's handles rather than its staged rows, because the
+API path (E18.20) does not stage. `core/identity/resolve-handles` decides — reuse the platform's
+identity on an exact normalized match, else attach to the one player another platform knows by it,
+else create — and `lib/results/resolve-handles.server.ts` carries it out, with
+`listIdentitiesByNormalized` as the one read. Two handles in one event that normalize alike get no
+identity and an error, since joining them would have someone play themselves; a handle two players
+hold elsewhere creates rather than guesses. `core/identity/player-slug` names new players, and the
+service retries `-2`, `-3`… when a slug is taken.
+_Outstanding:_ method and confidence per side are not written. Every resolution is an exact match,
+so there is nothing to record yet; the staged upload path writes them through `resolveStagedMatch`
+when E18.2 and E18.4 use this.
 ⬜ **E18.4 — Review queue UI contract and commit** · L · Deps: E18.3 — staged → `matches`; sets `is_rated` from capabilities.
 ⬜ **E18.5 — Supersede on re-import** · M · Deps: E18.4 — _AC:_ wholesale replacement, never a merge; prior import marked `superseded`.
 ⬜ **E18.6 — Corrections with audit and recompute** · M · Deps: E18.4 — _AC:_ reason required; writes `match_corrections`; triggers recompute; Discord notice if a public rank moves.
@@ -1237,7 +1248,7 @@ can start today, in rough order of how much it unblocks.
   reviewed. Nothing in E14–E21 is waiting on schema or on storage any more.
 - **E19 can start.** `repos/stats` is in, so every chart in the epic has something to read — but see
   E19.1 first, which sets the fixture conventions the other thirteen components inherit.
-- **The Elo path, end to end:** E8.7, E12.12 and E12.10 are in, so next is E18.3 → E18.12 →
+- **The Elo path, end to end:** E8.7, E12.12, E12.10 and E18.3 are in, so next is E18.12 →
   E18.20 fills in `onTournamentCompleted`, and E18.16 → E20.16 is the admin merge view. Challonge
   results (E12.13–E12.14) follow the same shape. Only Monthlies are rated; every event is ingested.
 - **E18.12 — `recompute-ratings`,** now fully supplied: `listLedgerMatchesBySeason` reads the
@@ -1319,7 +1330,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E4   | 7       | 5    | E15  | 5       | 1    |
 | E5   | 6       | 6    | E16  | 13      | 12   |
 | E6   | 8       | 8    | E17  | 13      | 12   |
-| E7   | 5       | 5    | E18  | 20      | 0    |
+| E7   | 5       | 5    | E18  | 20      | 1    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
 | E9   | 9       | 9    | E20  | 34      | 14   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
@@ -1327,4 +1338,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 14      | 13   |
 |      |         |      | E24  | 7       | 4    |
 
-**171 of 258 stories done across 24 epics.**
+**172 of 258 stories done across 24 epics.**
