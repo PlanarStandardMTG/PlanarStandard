@@ -1,4 +1,10 @@
-import type { IdentityId, IdentityPlatform, IdentityRef, ParseIssue } from "@ps/contracts";
+import type {
+  IdentityId,
+  IdentityPlatform,
+  IdentityRef,
+  ParseIssue,
+  PlayerId,
+} from "@ps/contracts";
 import { normalizeHandle, playerSlug, resolveHandles } from "@ps/core";
 import { addIdentity, createPlayerWithIdentity, listIdentitiesByNormalized } from "@ps/db";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -12,6 +18,8 @@ import type { SupabaseClient } from "@supabase/supabase-js";
  */
 export interface EventIdentities {
   readonly identities: ReadonlyMap<string, IdentityId>;
+  /** Each resolved handle's player, for the standings (E18.21). */
+  readonly players: ReadonlyMap<string, PlayerId>;
   readonly issues: readonly ParseIssue[];
 }
 
@@ -26,25 +34,26 @@ export async function resolveEventHandles(
   const known = await listIdentitiesByNormalized(service, handles.map(normalizeHandle));
   const { resolutions, issues } = resolveHandles(platform, handles, known);
 
+  const owners = new Map(known.map((ref) => [ref.id, ref.playerId]));
   const identities = new Map<string, IdentityId>();
+  const players = new Map<string, PlayerId>();
   for (const resolution of resolutions) {
     const { handle } = resolution;
-    const identity =
+    const identity: Pick<IdentityRef, "id" | "playerId"> =
       resolution.kind === "existing"
-        ? resolution.identityId
+        ? { id: resolution.identityId, playerId: owners.get(resolution.identityId) as PlayerId }
         : resolution.kind === "attach"
-          ? (
-              await addIdentity(service, resolution.playerId, {
-                platform,
-                handle,
-                source: "import_inferred",
-              })
-            ).id
-          : (await createPlayer(service, platform, handle)).id;
-    identities.set(handle, identity);
+          ? await addIdentity(service, resolution.playerId, {
+              platform,
+              handle,
+              source: "import_inferred",
+            })
+          : await createPlayer(service, platform, handle);
+    identities.set(handle, identity.id);
+    players.set(handle, identity.playerId);
   }
 
-  return { identities, issues };
+  return { identities, players, issues };
 }
 
 async function createPlayer(

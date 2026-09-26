@@ -244,3 +244,5 @@ export type { ComputeOptions } from "./metrics/compute-deck-metrics/index";
 // results — an import's parse to the ledger (E18.20)
 export { ledgerMatches } from "./results/ledger-matches/index";
 export type { LedgerMatches } from "./results/ledger-matches/index";
+export { eventEntries } from "./results/event-entries/index";
+export type { EventEntry } from "./results/event-entries/index";

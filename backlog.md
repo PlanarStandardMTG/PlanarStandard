@@ -37,7 +37,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 12/13 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
-| E18  | Services                              | 5–8   | E3–E13       | 🚧 4/20  |
+| E18  | Services                              | 5–8   | E3–E13       | 🚧 5/21  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
 | E20  | Feature slices                        | 3–10  | E18          | 🚧 17/35 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
@@ -842,11 +842,19 @@ content hash); staged rows are written with `raw` for provenance. `core/results/
 leaves out a match with no result or an unresolved side, and every issue lands in
 `result_imports.errors`. `onFullRerun` now rebuilds the ladder from the ledger. Challonge events
 are marked processed with nothing done until E12.14.
-_Outstanding:_ two things this does not write yet. `tournament_entries` — standings and the
-podium (E24.5) — which needs a standing's handle resolved to a player, and the deck path, which is a
-named no-op (`onDecklistsIngested`) until E18.13–E18.15. The assembled payload is not archived
+_Outstanding:_ the deck path is a named no-op (`onDecklistsIngested`) until E18.13–E18.15.
+`tournament_entries` is written since E18.21. The assembled payload is not archived
 (E18.1 has not chosen where raw bytes live); melee.gg can be asked again, which "Re-run everything"
 does.
+
+✅ **E18.21 — Standings from an ingest** · M · Deps: E18.20 — every ingest writes the event's
+`tournament_entries`: one per player, with a placement and a record. _AC:_ the source's placements
+when it reported any, else a clean single-elimination playoff's (1, 2, then 3 shared); a record the
+source did not give is tallied from the pairings; a re-ingest keeps each entry's id and deck, so a
+merge's undo still finds them; an already-committed payload still writes its standings, so events
+ingested before this gain them on a re-run.
+_Note:_ `core/results/event-entries` decides, `replaceTournamentEntries` upserts on
+`(tournament_id, player_id)` and prunes, and `resolveEventHandles` now returns each handle's player.
 
 ### import-decklists
 
@@ -1305,9 +1313,8 @@ can start today, in rough order of how much it unblocks.
 - **The Elo path runs end to end for melee.gg:** a finished event is fetched, ingested and, if it
   is a Monthly, rated (E18.20). Handles are merged at `/admin/players` (E20.16). What is left: E23.14 so the
   queue runs on its own. Challonge results (E12.13–E12.14) follow the same shape.
-- **E24.5 — the real podium — now waits on one thing only.** Its schema is all in; what is missing is
-  something to _write_ an entry, which is E18.4. The query itself could be written today and would
-  correctly return nothing.
+- **E24.5 — the real podium.** Every melee.gg ingest now writes its standings (E18.21), so the
+  query has rows to read; decks join in once E18.13 stores them.
 - **E23.14 — scheduling the completed-events job,** now that `/api/jobs/process-completed-events`
   exists: pick the scheduler, set `CRON_SECRET` in Vercel and in it, and choose an interval. The queue
   makes any interval safe.
@@ -1381,7 +1388,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E4   | 7       | 5    | E15  | 5       | 1    |
 | E5   | 6       | 6    | E16  | 13      | 12   |
 | E6   | 8       | 8    | E17  | 13      | 12   |
-| E7   | 5       | 5    | E18  | 20      | 4    |
+| E7   | 5       | 5    | E18  | 21      | 5    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
 | E9   | 9       | 9    | E20  | 35      | 17   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
@@ -1389,4 +1396,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 14      | 13   |
 |      |         |      | E24  | 7       | 4    |
 
-**178 of 259 stories done across 24 epics.**
+**179 of 260 stories done across 24 epics.**

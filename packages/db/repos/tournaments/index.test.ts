@@ -7,8 +7,11 @@ import {
   getTournamentBySlug,
   listRatedTournamentsBySeason,
   listTournamentEntries,
+  listTournamentFinishers,
   listTournamentsByIds,
   listTournamentsBySeason,
+  listTournamentsWithResults,
+  replaceTournamentEntries,
   saveSourcedTournament,
   type SourcedTournament,
 } from "./index";
@@ -206,6 +209,7 @@ describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () =>
   const made: string[] = [];
   afterAll(async () => {
     if (made.length > 0) await service.from("tournaments").delete().in("id", made);
+    if (created.length > 0) await service.from("players").delete().in("id", created);
   });
 
   const sourced = (over: Partial<SourcedTournament> = {}): SourcedTournament => ({
@@ -281,6 +285,57 @@ describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () =>
     const events = await listTournamentsByIds(service, [later.id, earlier.id]);
     expect(events.map((event) => event.id)).toEqual([earlier.id, later.id]);
     expect(await listTournamentsByIds(service, [])).toEqual([]);
+  });
+
+  it("replaces an event's standings in place, keeping each entry's id and deck", async () => {
+    const event = await saveSourcedTournament(
+      service,
+      sourced({ externalId: `entries-${run}`, slug: `vitest-entries-${run}` }),
+    );
+    made.push(event.id);
+    const [winner, runnerUp, gone] = await Promise.all([
+      makePlayer("winner"),
+      makePlayer("runner-up"),
+      makePlayer("gone"),
+    ]);
+    const entry = (playerId: PlayerId, placement: number | null) => ({
+      playerId,
+      placement,
+      matchWins: 3,
+      matchLosses: 1,
+      matchDraws: 0,
+      gameWins: 6,
+      gameLosses: 3,
+      dropped: false,
+    });
+
+    await replaceTournamentEntries(service, event.id, [
+      entry(winner, 2),
+      entry(runnerUp, 1),
+      entry(gone, null),
+    ]);
+    const [before] = await listTournamentEntries(service, event.id);
+    await replaceTournamentEntries(service, event.id, [entry(winner, 1), entry(runnerUp, 2)]);
+
+    const after = await listTournamentEntries(service, event.id);
+    expect(after.map((e) => [e.playerId, e.placement])).toEqual([
+      [winner, 1],
+      [runnerUp, 2],
+    ]);
+    expect(after.find((e) => e.playerId === runnerUp)?.id).toBe(before?.id);
+
+    const finishers = await listTournamentFinishers(client, event.id, 1);
+    expect(finishers).toEqual([
+      expect.objectContaining({ placement: 1, playerId: winner, displayName: "winner" }),
+    ]);
+  });
+
+  it("lists the newest events with results for a picker", async () => {
+    const events = await listTournamentsWithResults(client, 50);
+    expect(events.every((e) => ["results_imported", "verified"].includes(e.status))).toBe(true);
+    expect(events.map((e) => e.eventDate)).toEqual(
+      [...events.map((e) => e.eventDate)].sort().reverse(),
+    );
   });
 
   it("fails on a taken slug so the caller can pick another", async () => {

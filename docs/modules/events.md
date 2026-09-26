@@ -129,7 +129,9 @@ waiting. Working the queue is `processCompletedEvents`, which claims rows with a
 fifteen-minute lease, calls `onTournamentCompleted` once per event, and marks it
 processed; a failure releases the row for a later run, up to five attempts.
 `onTournamentCompleted` fetches a melee.gg event's scrubbed results and ingests
-them (E18.20), which recomputes the ladder when the event is rated. A Challonge
+them (E18.20), which writes its standings (E18.21) and recomputes the ladder
+when the event is rated. Standings are the source's placements when it sent
+any, otherwise the top of a clean playoff bracket. A Challonge
 event is marked processed with nothing done until its results can be fetched
 (E12.13–E12.14); "Re-run everything" picks those up afterwards, and itself
 rebuilds the ladder from the ledger first.

@@ -4,20 +4,23 @@ import type {
   EventSource,
   IsoDate,
   ParsedEvent,
+  PlayerId,
   RawInput,
   ResultsAdapter,
   Tournament,
 } from "@ps/contracts";
-import { eventSlug, ledgerMatches, ratedByDefault } from "@ps/core";
+import { eventEntries, eventSlug, ledgerMatches, ratedByDefault } from "@ps/core";
 import {
   createImport,
   findImportByContentHash,
   findSeasonForDate,
   replaceStagedMatches,
+  replaceTournamentEntries,
   replaceTournamentMatches,
   saveSourcedTournament,
   supersedeOtherImports,
   updateImportStatus,
+  type NewTournamentEntry,
 } from "@ps/db";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -29,6 +32,9 @@ import { resolveEventHandles } from "@/lib/results/resolve-handles.server";
  * import, its players' identities and its matches, then two independent
  * follow-ups — ratings when the event is rated, and deck processing when it
  * brought decklists.
+ *
+ * The standings are written on every run, a skipped one included, so an event
+ * ingested before they were (E18.21) gains them on its next "Re-run".
  *
  * Every event is ingested; only a Monthly is rated by default (E8.7), and only
  * when it has pairings (ADR 006). An API import commits without E18.4's review
@@ -81,6 +87,8 @@ export async function ingestEvent(
   const contentHash = createHash("sha256").update(event.input.bytes).digest("hex");
   const existing = await findImportByContentHash(service, tournament.id, contentHash);
   if (existing?.status === "committed") {
+    const resolved = await resolveEventHandles(service, event.source, eventHandles(parsed));
+    await writeEntries(service, tournament, parsed, resolved.players);
     return { tournament, written: false, matches: 0, issues: parsed.issues, rated: false };
   }
 
@@ -115,10 +123,7 @@ export async function ingestEvent(
     })),
   );
 
-  const handles = parsedMatches.flatMap((match) =>
-    match.p2Handle === undefined ? [match.p1Handle] : [match.p1Handle, match.p2Handle],
-  );
-  const resolved = await resolveEventHandles(service, event.source, handles);
+  const resolved = await resolveEventHandles(service, event.source, eventHandles(parsed));
   const ledger = ledgerMatches(parsedMatches, resolved.identities);
   const committed = await replaceTournamentMatches(
     service,
@@ -134,6 +139,7 @@ export async function ingestEvent(
     committedAt: new Date().toISOString(),
   });
   await supersedeOtherImports(service, tournament.id, upload.id);
+  await writeEntries(service, tournament, parsed, resolved.players);
 
   if (tournament.isRated) {
     await recomputeRatings(service, `ingest:${event.source}:${event.externalId}`);
@@ -143,6 +149,38 @@ export async function ingestEvent(
   }
 
   return { tournament, written: true, matches: committed, issues, rated: tournament.isRated };
+}
+
+/** Everyone the pairings or the standings name. */
+function eventHandles(parsed: ParsedEvent): string[] {
+  return [
+    ...(parsed.matches ?? []).flatMap((match) =>
+      match.p2Handle === undefined ? [match.p1Handle] : [match.p1Handle, match.p2Handle],
+    ),
+    ...(parsed.standings ?? []).map((standing) => standing.handle),
+  ];
+}
+
+/**
+ * One entry per player. Two handles resolving to one player cannot both have
+ * finished (the co-appearance rule), but if they did, the better finish stands.
+ */
+async function writeEntries(
+  service: SupabaseClient,
+  tournament: Tournament,
+  parsed: ParsedEvent,
+  players: ReadonlyMap<string, PlayerId>,
+): Promise<void> {
+  const byPlayer = new Map<PlayerId, NewTournamentEntry>();
+  for (const { handle, ...entry } of eventEntries(parsed)) {
+    const playerId = players.get(handle);
+    if (playerId === undefined) continue;
+    const kept = byPlayer.get(playerId);
+    if (kept === undefined || (entry.placement ?? Infinity) < (kept.placement ?? Infinity)) {
+      byPlayer.set(playerId, { ...entry, playerId });
+    }
+  }
+  await replaceTournamentEntries(service, tournament.id, [...byPlayer.values()]);
 }
 
 /**

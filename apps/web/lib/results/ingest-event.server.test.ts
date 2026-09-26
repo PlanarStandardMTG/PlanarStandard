@@ -58,6 +58,22 @@ const source = (input: RawInput, externalId = `vitest-${tag}`) => ({
 
 const tournaments = new Set<string>();
 
+/** Placed finishers by handle. */
+async function placements(tournamentId: string): Promise<Record<string, number>> {
+  const { data } = await service
+    .from("tournament_entries")
+    .select("placement, players (player_identities (handle))")
+    .eq("tournament_id", tournamentId)
+    .not("placement", "is", null);
+  const rows = (data ?? []) as unknown as {
+    placement: number;
+    players: { player_identities: { handle: string }[] };
+  }[];
+  return Object.fromEntries(
+    rows.map((r) => [r.players.player_identities[0]?.handle ?? "", r.placement]),
+  );
+}
+
 describe.skipIf(!reachable)("lib/results/ingest-event", () => {
   afterAll(async () => {
     const ids = [...tournaments];
@@ -108,14 +124,22 @@ describe.skipIf(!reachable)("lib/results/ingest-event", () => {
     expect(players?.map((p) => p.handle).sort()).toEqual(
       ["Arcane Owl", "Mossback", "pilot-7", "zed_zed"].map((h) => `${h}-${tag}`).sort(),
     );
+    expect(await placements(report.tournament.id)).toEqual({
+      [`pilot-7-${tag}`]: 1,
+      [`Mossback-${tag}`]: 3,
+      [`Arcane Owl-${tag}`]: 4,
+    });
   });
 
-  it("does nothing for a payload it has already committed", async () => {
+  it("writes nothing new for a payload it has already committed but its standings", async () => {
     recomputeRatings.mockClear();
+    const [id] = [...tournaments];
+    await service.from("tournament_entries").delete().eq("tournament_id", id);
     const report = await ingestEvent(service, source(bundle()));
 
     expect(report.written).toBe(false);
     expect(recomputeRatings).not.toHaveBeenCalled();
+    expect(Object.keys(await placements(report.tournament.id))).toHaveLength(3);
   });
 
   it("supersedes the earlier import and replaces the matches on a changed payload", async () => {
