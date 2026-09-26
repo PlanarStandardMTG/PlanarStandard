@@ -49,6 +49,12 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
     role: "admin",
   },
   {
+    href: "/admin/events",
+    label: "Event dates",
+    description: "Start times for melee.gg events, which its API leaves out.",
+    role: "admin",
+  },
+  {
     href: "/dashboard/review",
     label: "Community review",
     description: "Members' submissions waiting for a writer or above to approve them.",

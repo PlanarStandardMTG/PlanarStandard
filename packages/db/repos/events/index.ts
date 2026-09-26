@@ -65,6 +65,51 @@ export async function listAllCachedEvents(
   return (data as unknown as ExternalEventRow[]).map(toExternalEvent);
 }
 
+/** A cached event, and the start time an admin gave it where the source gave none (E23.15). */
+export interface ScheduledEvent {
+  readonly event: ExternalEvent;
+  readonly manualStartsAt: string | null;
+}
+
+/** Every cached event for a source with the admin's start time beside it — the admin's schedule page. */
+export async function listScheduledEvents(
+  client: SupabaseClient,
+  source: EventSource,
+): Promise<readonly ScheduledEvent[]> {
+  const { data, error } = await client
+    .from("external_events")
+    .select(EVENT_COLUMNS)
+    .eq("source", source)
+    .order("name");
+
+  if (error !== null) throw new Error(`listScheduledEvents failed: ${error.message}`);
+  return (data as unknown as ExternalEventRow[]).map((row) => ({
+    event: toExternalEvent(row),
+    manualStartsAt: row.starts_at_manual,
+  }));
+}
+
+/**
+ * Set or clear an event's start time by hand (E23.15). A column the calendar
+ * refresh never writes, so the next fetch leaves it be. False when the event
+ * is not in the cache.
+ */
+export async function setEventStartTime(
+  serviceClient: SupabaseClient,
+  key: { readonly source: EventSource; readonly externalId: string },
+  startsAt: string | null,
+): Promise<boolean> {
+  const { data, error } = await serviceClient
+    .from("external_events")
+    .update({ starts_at_manual: startsAt })
+    .eq("source", key.source)
+    .eq("external_id", key.externalId)
+    .select("id");
+
+  if (error !== null) throw new Error(`setEventStartTime failed: ${error.message}`);
+  return (data ?? []).length > 0;
+}
+
 /** When this source was last fetched. Null when the ledger row is somehow missing. */
 export async function getSyncState(
   client: SupabaseClient,

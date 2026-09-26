@@ -14,6 +14,7 @@ export interface ExternalEventRow {
   readonly url: string | null;
   readonly state: ExternalEvent["state"];
   readonly starts_at: string | null;
+  readonly starts_at_manual: string | null;
   readonly participant_count: number;
   readonly structure: string | null;
   readonly fetched_at: string;
@@ -28,7 +29,8 @@ export interface SyncRow {
 }
 
 export const EVENT_COLUMNS =
-  "id, source, external_id, name, url, state, starts_at, participant_count, structure, fetched_at";
+  "id, source, external_id, name, url, state, starts_at, starts_at_manual, participant_count, structure, " +
+  "fetched_at";
 
 export const SYNC_COLUMNS = "source, last_attempted_at, last_succeeded_at, last_error, event_count";
 
@@ -40,7 +42,7 @@ export function toExternalEvent(row: ExternalEventRow): ExternalEvent {
     name: row.name,
     url: row.url,
     state: row.state,
-    startsAt: row.starts_at,
+    startsAt: row.starts_at_manual ?? row.starts_at,
     participantCount: row.participant_count,
     structure: row.structure,
     fetchedAt: row.fetched_at,

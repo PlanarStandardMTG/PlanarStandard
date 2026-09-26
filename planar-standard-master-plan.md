@@ -644,6 +644,7 @@ create table external_events (
   name text not null, url text,
   state external_event_state not null,
   starts_at timestamptz, participant_count int not null default 0, structure text,
+  starts_at_manual timestamptz,              -- an admin's start time; the refresh never writes it (E23.15)
   fetched_at timestamptz not null default now(),
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now(),

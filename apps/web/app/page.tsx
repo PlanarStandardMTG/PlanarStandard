@@ -22,8 +22,8 @@ export const dynamic = "force-dynamic";
 
 const NEWS_COUNT = 4;
 const ARTICLE_COUNT = 3;
-/** The next event gets the tile; these are the ones listed under it. */
-const FOLLOWING_EVENT_COUNT = 2;
+/** How many events the tile's carousel steps through. */
+const UPCOMING_EVENT_COUNT = 3;
 
 /**
  * Four regions, and each one is loaded independently.
@@ -45,8 +45,8 @@ export default async function HomePage() {
     load(() => listPublishedPostsByKind(client, "community", ARTICLE_COUNT)),
   ]);
 
-  // One ordered list of what a player can still turn up to: the head leads the
-  // event tile, the next couple sit under it.
+  // One ordered list of what a player can still turn up to; the tile shows the
+  // first few, one to a slide.
   const ahead = events.ok ? upcomingEvents(events.value.schedule) : [];
 
   return (
@@ -71,10 +71,7 @@ export default async function HomePage() {
             <PlanarMark className="absolute -top-6 left-1/2 hidden size-64 -translate-x-1/2 text-gold-400 lg:block" />
             <div className="relative">
               {events.ok ? (
-                <NextEventPanel
-                  event={ahead[0] ?? null}
-                  then={ahead.slice(1, 1 + FOLLOWING_EVENT_COUNT)}
-                />
+                <NextEventPanel events={ahead.slice(0, UPCOMING_EVENT_COUNT)} />
               ) : (
                 <ErrorState title="Could not load the schedule" detail={events.error} />
               )}

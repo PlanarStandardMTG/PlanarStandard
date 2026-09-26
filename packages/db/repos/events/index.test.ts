@@ -14,8 +14,10 @@ import {
   recordCompletions,
   recordSyncResult,
   requeueAllCompletions,
+  listScheduledEvents,
   replaceEvents,
   setCompletionLine,
+  setEventStartTime,
 } from "./index";
 
 /**
@@ -156,6 +158,47 @@ describe.skipIf(!reachable)("repos/events", () => {
     expect(cached).toHaveLength(1);
     expect(cached[0]?.state).toBe("live");
     expect(cached[0]?.participantCount).toBe(24);
+  });
+
+  it("keeps an admin's start time through a refresh, and prefers it to the source's", async () => {
+    const key = { source: TEST_SOURCE, externalId: "1001" };
+    await replaceEvents(
+      service,
+      TEST_SOURCE,
+      [{ ...event("1001", "Undated"), startsAt: null }],
+      FETCHED_AT,
+    );
+    expect(await setEventStartTime(service, key, "2026-10-03T17:00:00.000Z")).toBe(true);
+
+    await replaceEvents(
+      service,
+      TEST_SOURCE,
+      [{ ...event("1001", "Undated"), startsAt: null }],
+      FETCHED_AT,
+    );
+    const [scheduled] = await listScheduledEvents(client, TEST_SOURCE);
+    expect(Date.parse(scheduled?.event.startsAt ?? "")).toBe(Date.parse("2026-10-03T17:00:00Z"));
+    expect(scheduled?.manualStartsAt).not.toBeNull();
+
+    await replaceEvents(service, TEST_SOURCE, [event("1001", "Dated")], FETCHED_AT);
+    expect(Date.parse((await listCachedEvents(client, TEST_SOURCE))[0]?.startsAt ?? "")).toBe(
+      Date.parse("2026-10-03T17:00:00Z"),
+    );
+
+    await setEventStartTime(service, key, null);
+    expect(Date.parse((await listCachedEvents(client, TEST_SOURCE))[0]?.startsAt ?? "")).toBe(
+      Date.parse("2026-10-01T18:00:00Z"),
+    );
+  });
+
+  it("sets no time on an event that is not cached, and not from the public client", async () => {
+    await replaceEvents(service, TEST_SOURCE, [event("1001", "Weekly")], FETCHED_AT);
+    expect(
+      await setEventStartTime(service, { source: TEST_SOURCE, externalId: "404" }, FETCHED_AT),
+    ).toBe(false);
+    expect(
+      await setEventStartTime(client, { source: TEST_SOURCE, externalId: "1001" }, FETCHED_AT),
+    ).toBe(false);
   });
 
   it("gives the claim to exactly one of two simultaneous callers", async () => {

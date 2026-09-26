@@ -35,14 +35,14 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | ✅ 23/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
-| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 13/14 |
+| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 14/15 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 7/23  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
 | E20  | Feature slices                        | 3–10  | E18          | 🚧 27/40 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
-| E23  | Upcoming events                       | 2     | E13.1        | 🚧 13/14 |
+| E23  | Upcoming events                       | 2     | E13.1        | 🚧 14/15 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 
 ---
@@ -782,6 +782,10 @@ the season ring (a star a month, `core/events/season-progress`), the star rule, 
 `PageHeader` is shared by the ledger pages. The leaderboard's two tables became tabs. The home page is
 now a hero with the next event, the podium as separate cards, then news beside community posts, which
 replaces E24.1's grid.
+✅ **E16.15 — The home page's events tile is a carousel** · S · Deps: E16.14 — _AC:_ the tile steps
+through the next three events, one to a slide, each showing only its own details; arrows and dots step
+it and a phone swipes it; "The full schedule" sits under the slides and shows on every one.
+_Note:_ added outside the plan. It replaces the "then" list of the following two events under the lead.
 
 ---
 
@@ -1152,7 +1156,7 @@ linking a second says so rather than failing.
 ✅ **E20.40 — `decks`: browse public decks** · M · Deps: E20.28 — `/decks` opens on a Browse tab
 of every public deck at its newest version, ten to a page; a Your decks tab holds a member's own decks,
 the events they played, and the import button. _AC:_ a filter menu narrows by colour (every ticked
-colour in a maindeck spell's mana cost, lands ignored) and by card names separated by semicolons, and
+colour in a spell's mana cost, sideboard included, lands ignored) and by card names separated by semicolons, and
 the filter survives paging because it lives in the URL.
 _Note:_ added outside the plan. Filtering runs in the app against the card index
 (`core/decklist/match-deck-filter`), since cards are not in Postgres, so the page loads every public
@@ -1308,6 +1312,11 @@ also holds imports the queue cannot recreate. E18.20 has since filled in both th
 `/api/jobs/process-completed-events` on a schedule in production, with `CRON_SECRET` set in Vercel and
 in the scheduler; the choice of scheduler, and its interval, is recorded here. A GitHub Actions cron
 with `workflow_dispatch` is the plan's default (§7).
+✅ **E23.15 — Admin: melee.gg start times** · S · Deps: E23.12 — melee.gg's API sends no start time.
+_AC:_ `/admin/events` lists every cached melee.gg event, undated first and then newest first, with a
+UTC date-and-time field to set or clear its start; a calendar refresh keeps what was set.
+_Note:_ added outside the plan. The time is `external_events.starts_at_manual` (migration 0030), a
+column the refresh's upsert never names, and it wins over the source's `starts_at` where both exist.
 
 ---
 
@@ -1469,14 +1478,14 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E2   | 9       | 9    | E13  | 23      | 23   |
 | E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
-| E5   | 6       | 6    | E16  | 14      | 13   |
+| E5   | 6       | 6    | E16  | 15      | 14   |
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 23      | 7    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
 | E9   | 9       | 9    | E20  | 40      | 27   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
-|      |         |      | E23  | 14      | 13   |
+|      |         |      | E23  | 15      | 14   |
 |      |         |      | E24  | 7       | 6    |
 
-**195 of 268 stories done across 24 epics.**
+**197 of 270 stories done across 24 epics.**
