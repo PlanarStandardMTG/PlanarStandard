@@ -33,6 +33,11 @@ result and no error.
   rating tables either, for a different reason: those are derived, and a merge is
   followed by a recompute rather than by moving a rating from one player to
   another (ADR 004).
+- **`undoPlayerMerge` moves back by id, never by owner** — only the rows the merge's
+  `moved` lists — and stamps `undone_at` rather than deleting the audit row.
+- **`listPlayersForMerging` includes hidden players,** so it needs a client that
+  can see them. `listIdentityAppearances` reads `matches`, the fact itself, for the
+  merge's co-appearance check.
 - **`markPlayerMerged` does not delete the loser.** The row stays so an old link
   and an old `rating_event` both still resolve; the leaderboard reads
   `merged_into is null` and so the merged row is absent rather than deleted.

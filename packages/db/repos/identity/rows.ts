@@ -73,6 +73,8 @@ export interface PlayerMergeRow {
   readonly moved: unknown;
   readonly merged_by: string | null;
   readonly created_at: string;
+  readonly undone_at: string | null;
+  readonly undone_by: string | null;
 }
 
 export const PLAYER_COLUMNS =
@@ -85,7 +87,8 @@ export const EXCLUSION_COLUMNS = "identity_a, identity_b, reason, tournament_id"
 export const SUGGESTION_COLUMNS =
   "id, player_a, player_b, confidence, evidence, status, reviewed_by, reviewed_at";
 
-export const MERGE_COLUMNS = "id, winner_id, loser_id, reason, moved, merged_by, created_at";
+export const MERGE_COLUMNS =
+  "id, winner_id, loser_id, reason, moved, merged_by, created_at, undone_at, undone_by";
 
 export function toPlayer(row: PlayerRow): Player {
   return {
@@ -146,5 +149,7 @@ export function toPlayerMerge(row: PlayerMergeRow): PlayerMerge {
     moved: row.moved as MergeMoves,
     mergedBy: row.merged_by as ProfileId | null,
     createdAt: row.created_at,
+    undoneAt: row.undone_at,
+    undoneBy: row.undone_by as ProfileId | null,
   };
 }

@@ -30,6 +30,12 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
     role: "admin",
   },
   {
+    href: "/admin/players",
+    label: "Players",
+    description: "Merge handles that belong to one person, and undo a merge.",
+    role: "admin",
+  },
+  {
     href: "/admin/seasons",
     label: "Seasons",
     description: "Open and close seasons. The leaderboard rates the current one.",

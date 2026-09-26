@@ -71,6 +71,7 @@ export type { LayoutNode, LayoutOptions } from "./similarity/force-layout/index"
 export { normalizeHandle } from "./identity/normalize-handle/index";
 export { resolveHandles } from "./identity/resolve-handles/index";
 export { playerSlug } from "./identity/player-slug/index";
+export { mergeBlockers } from "./identity/merge-blockers/index";
 export type { HandleResolution, ResolvedHandles } from "./identity/resolve-handles/index";
 export type { HandleObservation, SignalContext, SignalScorer } from "./identity/signals/types";
 export { parenthetical } from "./identity/signals/parenthetical/index";

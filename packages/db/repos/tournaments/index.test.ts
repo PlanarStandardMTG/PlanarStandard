@@ -7,6 +7,7 @@ import {
   getTournamentBySlug,
   listRatedTournamentsBySeason,
   listTournamentEntries,
+  listTournamentsByIds,
   listTournamentsBySeason,
   saveSourcedTournament,
   type SourcedTournament,
@@ -260,6 +261,26 @@ describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () =>
       isRated: false,
       status: "verified",
     });
+  });
+
+  it("reads events back by id, oldest first", async () => {
+    const later = await saveSourcedTournament(
+      service,
+      sourced({
+        externalId: `later-${run}`,
+        slug: `vitest-later-${run}`,
+        eventDate: "2020-03-01" as IsoDate,
+      }),
+    );
+    const earlier = await saveSourcedTournament(
+      service,
+      sourced({ externalId: `earlier-${run}`, slug: `vitest-earlier-${run}` }),
+    );
+    made.push(later.id, earlier.id);
+
+    const events = await listTournamentsByIds(service, [later.id, earlier.id]);
+    expect(events.map((event) => event.id)).toEqual([earlier.id, later.id]);
+    expect(await listTournamentsByIds(service, [])).toEqual([]);
   });
 
   it("fails on a taken slug so the caller can pick another", async () => {

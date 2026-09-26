@@ -1,5 +1,6 @@
 import type {
   Exclusion,
+  IdentityId,
   IdentityPlatform,
   IdentityRef,
   IdentitySource,
@@ -11,8 +12,10 @@ import type {
   Player,
   PlayerId,
   PlayerMerge,
+  PlayerMergeId,
   PlayerVisibility,
   ProfileId,
+  TournamentId,
 } from "@ps/contracts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -450,4 +453,177 @@ export async function listPlayerMerges(
 
   if (error !== null) throw new Error(`listPlayerMerges failed: ${error.message}`);
   return (data as unknown as PlayerMergeRow[]).map(toPlayerMerge);
+}
+
+// ── the merge grid (E18.16, E20.16) ─────────────────────────────────────────
+
+/** These players, merged or not — for naming both sides of a merge in its history. */
+export async function listPlayersByIds(
+  client: SupabaseClient,
+  ids: readonly PlayerId[],
+): Promise<readonly Player[]> {
+  if (ids.length === 0) return [];
+  const { data, error } = await client.from("players").select(PLAYER_COLUMNS).in("id", ids);
+
+  if (error !== null) throw new Error(`listPlayersByIds failed: ${error.message}`);
+  return (data as unknown as PlayerRow[]).map(toPlayer);
+}
+
+/** One row of the admin merge grid: a player, every handle they hold, and their rating if any. */
+export interface PlayerForMerging {
+  readonly player: Player;
+  readonly handles: readonly { readonly platform: IdentityPlatform; readonly handle: string }[];
+  readonly rating: number | null;
+  readonly matchesPlayed: number;
+}
+
+/**
+ * Unmerged players for the merge grid, by name, matching `search` on a display
+ * name or any handle. Hidden players are included — a merge is about who
+ * somebody is, not whether they are listed — so this needs a client that can
+ * see them: the admin's own, or service-role.
+ */
+export async function listPlayersForMerging(
+  client: SupabaseClient,
+  options: { readonly search?: string; readonly limit: number },
+): Promise<readonly PlayerForMerging[]> {
+  let query = client
+    .from("players")
+    .select(
+      `${PLAYER_COLUMNS}, player_identities (platform, handle), player_ratings (rating, matches_played)`,
+    )
+    .is("merged_into", null)
+    .order("display_name", { ascending: true })
+    .limit(options.limit);
+
+  // Only characters a handle is made of: the term goes inside a PostgREST `or`,
+  // where a comma or parenthesis would change the filter rather than the match.
+  const term = (options.search ?? "").replace(/[^\p{L}\p{N} _.-]/gu, "").trim();
+  if (term !== "") {
+    const { data: holders, error } = await client
+      .from("player_identities")
+      .select("player_id")
+      .ilike("handle", `%${term}%`);
+    if (error !== null) throw new Error(`listPlayersForMerging failed: ${error.message}`);
+    const ids = [...new Set((holders as { player_id: string }[]).map((row) => row.player_id))];
+    query = query.or(
+      ids.length === 0
+        ? `display_name.ilike.%${term}%`
+        : `display_name.ilike.%${term}%,id.in.(${ids.join(",")})`,
+    );
+  }
+
+  const { data, error } = await query;
+  if (error !== null) throw new Error(`listPlayersForMerging failed: ${error.message}`);
+
+  return (data as unknown as MergingRow[]).map((row) => {
+    const rating = Array.isArray(row.player_ratings) ? row.player_ratings[0] : row.player_ratings;
+    return {
+      player: toPlayer(row),
+      handles: row.player_identities.map((identity) => ({
+        platform: identity.platform as IdentityPlatform,
+        handle: identity.handle,
+      })),
+      rating: rating === null || rating === undefined ? null : Number(rating.rating),
+      matchesPlayed: rating?.matches_played ?? 0,
+    };
+  });
+}
+
+interface MergingRow extends PlayerRow {
+  readonly player_identities: readonly { readonly platform: string; readonly handle: string }[];
+  readonly player_ratings:
+    | { readonly rating: number | string; readonly matches_played: number }
+    | readonly { readonly rating: number | string; readonly matches_played: number }[]
+    | null;
+}
+
+/**
+ * Which of these identities played in which tournament, from the ledger — what
+ * `core/identity/co-appearance-exclusions` reads to refuse a merge of two people
+ * who played in the same event. Read from `matches` rather than
+ * `identity_exclusions` because it is the fact itself, not a copy of it.
+ */
+export async function listIdentityAppearances(
+  client: SupabaseClient,
+  identityIds: readonly IdentityId[],
+): Promise<
+  readonly { readonly tournamentId: TournamentId; readonly identityIds: readonly IdentityId[] }[]
+> {
+  if (identityIds.length === 0) return [];
+  const list = identityIds.join(",");
+  const { data, error } = await client
+    .from("matches")
+    .select("tournament_id, p1_identity_id, p2_identity_id")
+    .or(`p1_identity_id.in.(${list}),p2_identity_id.in.(${list})`);
+  if (error !== null) throw new Error(`listIdentityAppearances failed: ${error.message}`);
+
+  const wanted = new Set<string>(identityIds);
+  const byTournament = new Map<string, Set<string>>();
+  for (const row of data as {
+    tournament_id: string;
+    p1_identity_id: string;
+    p2_identity_id: string | null;
+  }[]) {
+    const seen = byTournament.get(row.tournament_id) ?? new Set<string>();
+    for (const id of [row.p1_identity_id, row.p2_identity_id]) {
+      if (id !== null && wanted.has(id)) seen.add(id);
+    }
+    byTournament.set(row.tournament_id, seen);
+  }
+
+  return [...byTournament].map(([tournamentId, ids]) => ({
+    tournamentId: tournamentId as TournamentId,
+    identityIds: [...ids] as IdentityId[],
+  }));
+}
+
+export async function getPlayerMerge(
+  serviceClient: SupabaseClient,
+  mergeId: PlayerMergeId,
+): Promise<PlayerMerge | null> {
+  const { data, error } = await serviceClient
+    .from("player_merges")
+    .select(MERGE_COLUMNS)
+    .eq("id", mergeId)
+    .maybeSingle();
+
+  if (error !== null) throw new Error(`getPlayerMerge failed: ${error.message}`);
+  return data === null ? null : toPlayerMerge(data as unknown as PlayerMergeRow);
+}
+
+/**
+ * Take a merge back: move exactly the rows it moved onto the loser again, clear
+ * the loser's `merged_into`, and stamp the audit row. By id, never by owner —
+ * only what this merge moved goes back. Not atomic; running it again finishes
+ * the job, since each step is idempotent.
+ */
+export async function undoPlayerMerge(
+  serviceClient: SupabaseClient,
+  merge: PlayerMerge,
+  undoneBy: ProfileId | null,
+): Promise<void> {
+  const back = async (table: string, ids: readonly string[]) => {
+    if (ids.length === 0) return;
+    const { error } = await serviceClient
+      .from(table)
+      .update({ player_id: merge.loserId })
+      .in("id", ids);
+    if (error !== null) throw new Error(`undoPlayerMerge failed on ${table}: ${error.message}`);
+  };
+  await back("player_identities", merge.moved.identities);
+  await back("tournament_entries", merge.moved.entries);
+  await back("decks", merge.moved.decks);
+
+  const { error: playerError } = await serviceClient
+    .from("players")
+    .update({ merged_into: null })
+    .eq("id", merge.loserId);
+  if (playerError !== null) throw new Error(`undoPlayerMerge failed: ${playerError.message}`);
+
+  const { error } = await serviceClient
+    .from("player_merges")
+    .update({ undone_at: new Date().toISOString(), undone_by: undoneBy })
+    .eq("id", merge.id);
+  if (error !== null) throw new Error(`undoPlayerMerge failed: ${error.message}`);
 }

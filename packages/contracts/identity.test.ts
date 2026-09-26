@@ -256,6 +256,8 @@ describe("identity contracts", () => {
       moved,
       mergedBy: "aa11bb22-cc33-4d44-8e55-ff6677889900",
       createdAt: "2025-07-19T18:06:00Z",
+      undoneAt: null,
+      undoneBy: null,
     } satisfies PlayerMerge;
 
     // ADR 003 and ADR 004, as a type: matches are not moved because they point

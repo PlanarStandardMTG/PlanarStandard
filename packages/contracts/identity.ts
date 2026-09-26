@@ -151,6 +151,9 @@ export interface PlayerMerge {
   readonly moved: MergeMoves;
   readonly mergedBy: ProfileId | null;
   readonly createdAt: IsoDateTime;
+  /** Set when an admin took the merge back (E18.16). The row stays as the record that it happened. */
+  readonly undoneAt: IsoDateTime | null;
+  readonly undoneBy: ProfileId | null;
 }
 
-export type NewPlayerMerge = Omit<PlayerMerge, "id" | "createdAt">;
+export type NewPlayerMerge = Omit<PlayerMerge, "id" | "createdAt" | "undoneAt" | "undoneBy">;

@@ -37,9 +37,9 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 12/13 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
-| E18  | Services                              | 5–8   | E3–E13       | 🚧 3/20  |
+| E18  | Services                              | 5–8   | E3–E13       | 🚧 4/20  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 16/35 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 17/35 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 13/14 |
@@ -871,7 +871,14 @@ recompute replaces every rating and would pull them out from under the db suites
 
 ### other
 
-⬜ **E18.16 — `merge-players`** · L · Deps: E13.19 — repoint identities, recompute, write `player_merges.moved`. _AC:_ co-appearance exclusion blocks the merge at service level; reversible.
+✅ **E18.16 — `merge-players`** · L · Deps: E13.19 — repoint identities, recompute, write `player_merges.moved`. _AC:_ co-appearance exclusion blocks the merge at service level; reversible.
+_Note:_ `lib/identity/merge-players.server.ts`. The co-appearance check reads the ledger through
+`listIdentityAppearances` and `core/identity/merge-blockers`, not `identity_exclusions`, which
+nothing writes yet; `merge-blockers` asks every event rather than once per pair of handles, so a
+refusal names each shared event. Reversible is `undoMerge`: migration `0027_merge_undo.sql` adds
+`player_merges.undone_at` / `undone_by`, and `undoPlayerMerge` moves back exactly the ids in `moved`.
+An undo is refused once either player has been merged again. Runs with the service-role client, since
+it moves decks and standings. `PlayerMerge` gains `undoneAt` / `undoneBy` in `@ps/contracts`.
 ⬜ **E18.17 — Merge-suggestion generation job** · M · Deps: E9.8, E18.16
 ⬜ **E18.18 — `publish-post`** · M · Deps: E13.22 — status transition plus Discord notify.
 ⬜ **E18.19 — `notify-discord`** · S — webhook wrapper with a no-op mode when the secret is absent.
@@ -949,7 +956,13 @@ not links yet — `/players/[slug]` is E20.13. The header's Leaderboard link is 
 ⬜ **E20.13 — `leaderboard`: `/players/[slug]`** · M · Deps: E19.12
 ⬜ **E20.14 — `tournaments`: `/tournaments/[slug]`** · M · Deps: E13.17
 ⬜ **E20.15 — `tournaments`: import dashboard** · L · Deps: E18.4
-⬜ **E20.16 — `identity-admin`: merge grid** · L · Deps: E18.16
+✅ **E20.16 — `identity-admin`: merge grid** · L · Deps: E18.16
+_Note:_ `/admin/players`, not a dashboard page — the other admin slices already live under `/admin`.
+Every unmerged player with their handles and rating, searchable by name or handle
+(`listPlayersForMerging`); tick players, choose the one to keep, add an optional reason, and they
+merge one by one, stopping at the first refusal and saying which events blocked it. Recent merges
+list below with Undo. Server components and forms only, so no client module reaches the
+service-role action.
 ⬜ **E20.17 — `identity-admin`: CSV round-trip** · M · Deps: E20.16
 ⬜ **E20.18 — `format-admin`: `/dashboard/format`** · L · Deps: E13.15 — _AC:_ validates `format_legal_sets` against `data/sets.json` and warns when a selected set is absent from the dataset; bans and exceptions editable without a deploy.
 ⬜ **E20.19 — Site search** · M · Deps: E20.4
@@ -1282,17 +1295,16 @@ can start today, in rough order of how much it unblocks.
   E18.3 has the `findIdentityByNormalizedHandle` / `createPlayerWithIdentity` pair it needs to
   auto-create on a miss. E18.1 needs one more decision first: where archived raw bytes live. Supabase
   Storage is the obvious answer and nothing has written it down.
-- **E18.16 — `merge-players`,** now that `repointPlayerRows`, `markPlayerMerged` and
-  `recordPlayerMerge` exist. The reversibility its acceptance criterion asks for is the `moved` the
-  repoint returns; what the service adds is the exclusion check and the recompute.
+- **E22.9 — `replay-identity.test.ts`,** now that merging exists: two handles, two ratings, one
+  merge, one rating, and no `matches` row changed. `merge-players.server.test.ts` already asserts
+  the last part.
 - **E13 is complete.** Every table in Part IV exists, every repository is written, and the indexes are
   reviewed. Nothing in E14–E21 is waiting on schema or on storage any more.
 - **E19 can start.** `repos/stats` is in, so every chart in the epic has something to read — but see
   E19.1 first, which sets the fixture conventions the other thirteen components inherit.
 - **The Elo path runs end to end for melee.gg:** a finished event is fetched, ingested and, if it
-  is a Monthly, rated (E18.20). What is left: a current season in production (`/admin/seasons`, E20.35), E23.14 so
-  the queue runs on its own, and E18.16 → E20.16 for the admin merge
-  view. Challonge results (E12.13–E12.14) follow the same shape.
+  is a Monthly, rated (E18.20). Handles are merged at `/admin/players` (E20.16). What is left: E23.14 so the
+  queue runs on its own. Challonge results (E12.13–E12.14) follow the same shape.
 - **E24.5 — the real podium — now waits on one thing only.** Its schema is all in; what is missing is
   something to _write_ an entry, which is E18.4. The query itself could be written today and would
   correctly return nothing.
@@ -1369,12 +1381,12 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E4   | 7       | 5    | E15  | 5       | 1    |
 | E5   | 6       | 6    | E16  | 13      | 12   |
 | E6   | 8       | 8    | E17  | 13      | 12   |
-| E7   | 5       | 5    | E18  | 20      | 3    |
+| E7   | 5       | 5    | E18  | 20      | 4    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 35      | 16   |
+| E9   | 9       | 9    | E20  | 35      | 17   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
 |      |         |      | E23  | 14      | 13   |
 |      |         |      | E24  | 7       | 4    |
 
-**176 of 259 stories done across 24 epics.**
+**178 of 259 stories done across 24 epics.**

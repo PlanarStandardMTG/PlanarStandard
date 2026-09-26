@@ -41,6 +41,22 @@ export async function getTournamentBySlug(
   return data === null ? null : toTournament(data as unknown as TournamentRow);
 }
 
+/** These events, oldest first — for naming the ones a message is about. */
+export async function listTournamentsByIds(
+  client: SupabaseClient,
+  ids: readonly TournamentId[],
+): Promise<readonly Tournament[]> {
+  if (ids.length === 0) return [];
+  const { data, error } = await client
+    .from("tournaments")
+    .select(TOURNAMENT_COLUMNS)
+    .in("id", ids)
+    .order("event_date", { ascending: true });
+
+  if (error !== null) throw new Error(`listTournamentsByIds failed: ${error.message}`);
+  return (data as unknown as TournamentRow[]).map(toTournament);
+}
+
 /** Every event of a season, newest first — the season's index page. */
 export async function listTournamentsBySeason(
   client: SupabaseClient,
