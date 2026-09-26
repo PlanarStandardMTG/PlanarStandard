@@ -20,7 +20,12 @@ export interface SheetEntry<P> {
 }
 
 export interface DecklistSheet<P> {
-  readonly decks: readonly { readonly playerId: P; readonly deck: SheetDeck }[];
+  readonly decks: readonly {
+    readonly playerId: P;
+    readonly deck: SheetDeck;
+    /** From an optional `archetype` column: what the deck is called. */
+    readonly archetype?: string;
+  }[];
   /** One per row that was not used, numbered as a spreadsheet numbers them. */
   readonly issues: readonly { readonly row: number; readonly message: string }[];
 }
@@ -35,6 +40,7 @@ export function readDecklistSheet<P>(
   const hasHeader = header.includes("player") && header.includes("deck");
   const playerColumn = hasHeader ? header.indexOf("player") : 0;
   const deckColumn = hasHeader ? header.indexOf("deck") : 1;
+  const archetypeColumn = hasHeader ? header.indexOf("archetype") : -1;
 
   const byName = new Map<string, SheetEntry<P>[]>();
   for (const entry of entries) {
@@ -68,7 +74,8 @@ export function readDecklistSheet<P>(
       issues.push({ row, message: deck });
     } else {
       seen.add(entry.playerId);
-      decks.push({ playerId: entry.playerId, deck });
+      const archetype = cells[archetypeColumn]?.trim() ?? "";
+      decks.push({ playerId: entry.playerId, deck, ...(archetype === "" ? {} : { archetype }) });
     }
   });
 

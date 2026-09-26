@@ -15,15 +15,15 @@ describe("core/results/decklist-sheet", () => {
   it("reads a header in any order, and matches a name by any handle, ignoring punctuation", () => {
     const sheet = readDecklistSheet(
       [
-        ["Deck", "Player"],
-        ["4 Shock; 4 Opt", "zaunus-13"],
+        ["Deck", "Player", "Archetype"],
+        ["4 Shock; 4 Opt", "zaunus-13", " Izzet Tempo "],
         [`https://planarstandard.com/decks/${ID}`, "ZAUNUS_MELEE"],
         [ID.toUpperCase(), "Sunsett"],
       ],
       entries,
     );
     expect(sheet.decks).toEqual([
-      { playerId: "p1", deck: { kind: "text", text: "4 Shock\n4 Opt" } },
+      { playerId: "p1", deck: { kind: "text", text: "4 Shock\n4 Opt" }, archetype: "Izzet Tempo" },
       { playerId: "p2", deck: { kind: "saved", deckId: ID } },
     ]);
     expect(sheet.issues).toEqual([{ row: 3, message: expect.stringMatching(/earlier row/) }]);

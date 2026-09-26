@@ -43,7 +43,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 13/14 |
-| E24  | Home page                             | 2     | E16.1        | 🚧 4/7   |
+| E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 
 ---
 
@@ -1345,14 +1345,20 @@ hand-written podium for the seeded `planar-standard-weekly-40`, and the section 
 data" badge and says so in prose. The event, the handles, the archetypes and every card named are
 real Season II material; the placements and records are invented. E24.5 replaces the loader body.
 
-⬜ **E24.5 — Podium from the results ledger** · M · Deps: E13.7, E13.9, E18.21 — replace
+✅ **E24.5 — Podium from the results ledger** · M · Deps: E13.7, E13.9, E18.21 — replace
 `loadLatestPodium`'s body with the real read: the newest `tournaments` row whose status is
 `results_imported` or `verified`, joined to its entries and their decks.
 _AC:_ `sample` becomes false and the badge and the note disappear with it; an event whose import
 brought standings and no decks still renders a podium, with the deck fields empty; `null` when no
 event has results yet, and the section is absent rather than empty.
+_Note:_ narrowed to a showcase: the last **Monthly with decklists attached**, not the last event
+with results — `listTournamentsWithDecks`, then the first whose name `rated-by-default` calls a
+Monthly. So an event with standings and no decks is never picked, and the stand-in podium is gone
+rather than shown until one exists. Colours come from `colorIdentity` and the key cards from the
+new `core/metrics/key-cards`; the label is the deck's archetype, which an admin's sheet can now
+carry in an optional `archetype` column (E20.37).
 
-⬜ **E24.6 — Podium tiles link to the deck** · S · Deps: E24.5, E20.6 — `deckId` is already on the
+✅ **E24.6 — Podium tiles link to the deck** · S · Deps: E24.5, E20.6 — `deckId` is already on the
 contract and already null-safe. _AC:_ a finish with no deck stays unlinked rather than linking to a
 404, which is the state every standings-only import leaves.
 
@@ -1374,8 +1380,6 @@ can start today, in rough order of how much it unblocks.
   (`supersedeOtherImports`) and standings (E18.21). What is missing is a file an organizer uploads:
   archiving its bytes (E18.1 still needs a decision on where, and Supabase Storage now has a bucket
   pattern to copy from `post-images`), staging it, and the review queue. E20.15 and E22.12 wait on it.
-- **E24.5 — the real podium.** Every ingest now writes its standings (E18.21), so the query has rows
-  to read, and decks since the decklist line stores them (E18.23). E24.6 follows it.
 - **E23.14 — scheduling the completed-events job,** now that `/api/jobs/process-completed-events`
   exists: pick the scheduler, set `CRON_SECRET` in Vercel and in it, and choose an interval. The queue
   makes any interval safe. Until then a melee.gg event is ingested only when an admin presses
@@ -1465,6 +1469,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 14      | 13   |
-|      |         |      | E24  | 7       | 4    |
+|      |         |      | E24  | 7       | 6    |
 
-**192 of 267 stories done across 24 epics.**
+**194 of 267 stories done across 24 epics.**

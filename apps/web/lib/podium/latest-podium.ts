@@ -1,39 +1,58 @@
 import type { EventPodium } from "@ps/contracts";
+import { colorIdentity, keyCards, ratedByDefault } from "@ps/core";
+import { listDecksWithCards, listTournamentFinishers, listTournamentsWithDecks } from "@ps/db";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { SAMPLE_PODIUM } from "./sample-podium";
+import { cardIndex } from "@/lib/cards/card-index";
+import { toResolvedDeck } from "@/lib/decks/deck-view";
 
 /** How many finishers the home page shows. Four fills the row at every width. */
 export const PODIUM_SIZE = 4;
 
-export interface LatestPodium {
-  readonly podium: EventPodium;
-  /**
-   * True while these are stand-in finishers rather than an imported result. The
-   * section renders a label from this — see `sample-podium.ts` for why it is not
-   * optional.
-   */
-  readonly sample: boolean;
-}
+/** Recent events with decks to look through for a Monthly; decks come almost only from Monthlies. */
+const RECENT = 20;
 
 /**
- * The top finishers of the most recent event that has results.
- *
- * This is the seam, and today it is the whole feature: the real version is one
- * repository read — the newest `tournaments` row whose status is
- * `results_imported` or `verified`, joined to its `tournament_entries` and their
- * decks — and none of those tables exist yet (E13.7, E13.8, E24.5).
- *
- * Deliberately shaped as the eventual read rather than as a constant: async,
- * returning `null` for "no event has results yet", and sliced to `PODIUM_SIZE`
- * here rather than in the component. When the query replaces the body, nothing
- * above this function changes — which is the point of writing it this way while
- * the answer is a literal.
+ * The top finishers of the last Monthly with decklists attached, with their
+ * decks (E24.5). A Monthly is the whole word in the name, as `rated-by-default`
+ * reads it. Null when there is none yet, and the section is left out rather
+ * than shown empty.
  */
-export async function loadLatestPodium(): Promise<LatestPodium | null> {
-  const podium: EventPodium = {
-    ...SAMPLE_PODIUM,
-    finishes: SAMPLE_PODIUM.finishes.slice(0, PODIUM_SIZE),
-  };
+export async function loadLatestPodium(client: SupabaseClient): Promise<EventPodium | null> {
+  const event = (await listTournamentsWithDecks(client, RECENT)).find((t) =>
+    ratedByDefault(t.name),
+  );
+  if (event === undefined) return null;
 
-  return Promise.resolve({ podium, sample: true });
+  const finishers = (await listTournamentFinishers(client, event.id, PODIUM_SIZE)).slice(
+    0,
+    PODIUM_SIZE,
+  );
+  const decks = await listDecksWithCards(client, {
+    ids: finishers.flatMap((f) => (f.deckId === null ? [] : [f.deckId])),
+  });
+  const index = cardIndex();
+
+  return {
+    name: event.name,
+    slug: event.slug,
+    date: event.eventDate,
+    platform: event.platform,
+    externalUrl: event.externalUrl,
+    playerCount: event.playerCount,
+    finishes: finishers.map((finisher) => {
+      const deck = decks.find((d) => d.id === finisher.deckId);
+      const resolved = deck === undefined ? null : toResolvedDeck(deck);
+      return {
+        placement: finisher.placement,
+        handle: finisher.displayName ?? "Hidden player",
+        archetype: deck?.archetypeRaw ?? null,
+        deckName: deck?.name ?? null,
+        deckId: deck?.id ?? null,
+        record: finisher.record,
+        colors: resolved === null ? [] : colorIdentity(resolved, index),
+        keyCards: resolved === null ? [] : keyCards(resolved, index),
+      };
+    }),
+  };
 }

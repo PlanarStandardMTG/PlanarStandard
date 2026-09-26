@@ -167,6 +167,7 @@ Real cases from existing data that each needs to survive: missing set codes, `*F
 | `mana-curve`           | MV histogram, buckets 1–6 and 7+, non-lands only            |
 | `color-counts`         | Counts per colour of identity                               |
 | `type-counts`          | Land/Creature/Instant/…                                     |
+| `key-cards`            | A few most-played non-land cards that say what a deck is    |
 | `set-attribution`      | Attributes a card to its **legal** set, not its printed set |
 | `rarity-counts`        | C/U/R/MR                                                    |
 | `average-mv`           | Incl. lands, excl. lands, sideboard                         |

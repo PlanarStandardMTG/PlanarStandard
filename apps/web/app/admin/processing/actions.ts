@@ -112,7 +112,14 @@ export async function uploadDecklists(
     parseCsv(text).rows,
     await listNamedEntries(service, [tournament.id]),
   );
-  const report = await attachEventDecks(service, tournament, sheet.decks, "organizer");
+  const report = await attachEventDecks(
+    service,
+    tournament,
+    sheet.decks.map(({ archetype, ...deck }) =>
+      archetype === undefined ? deck : { ...deck, name: archetype, archetypeRaw: archetype },
+    ),
+    "organizer",
+  );
 
   revalidatePath("/", "layout");
   return {

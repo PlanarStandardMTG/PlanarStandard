@@ -262,6 +262,7 @@ export type { ExportInput } from "./content/export-post/index";
 export { bucketFor, manaCurve } from "./metrics/mana-curve/index";
 export { colorCounts, colorIdentity } from "./metrics/color-counts/index";
 export { typeCounts } from "./metrics/type-counts/index";
+export { keyCards } from "./metrics/key-cards/index";
 export { attributeCard, setAttribution } from "./metrics/set-attribution/index";
 export { rarityCounts } from "./metrics/rarity-counts/index";
 export { averageMv } from "./metrics/average-mv/index";

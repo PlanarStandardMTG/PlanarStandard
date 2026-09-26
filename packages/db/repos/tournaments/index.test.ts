@@ -11,6 +11,7 @@ import {
   listTournamentFinishers,
   listTournamentsByIds,
   listTournamentsBySeason,
+  listTournamentsWithDecks,
   listTournamentsWithResults,
   listNamedEntries,
   listPlayedEntries,
@@ -369,6 +370,9 @@ describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () =>
     const deckId = (deck as { id: DeckId }).id;
 
     await setEntryDecks(service, event.id, [{ playerId: player, deckId }]);
+    const withDecks = await listTournamentsWithDecks(service, 1000);
+    expect(withDecks.map((t) => t.id)).toContain(event.id);
+    expect(withDecks.map((t) => t.slug)).not.toContain("planar-standard-weekly-40");
 
     const [named] = await listNamedEntries(service, [event.id]);
     expect(named).toMatchObject({ displayName: "decked", handles: [`Decked${run}`], deckId });

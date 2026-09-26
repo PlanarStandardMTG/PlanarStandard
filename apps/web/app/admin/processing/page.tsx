@@ -197,8 +197,9 @@ async function MissingDecklists({
         {events.filter((event) => event.without.length > 0).length} of {events.length} events on the
         decklist line are missing decks. Upload a CSV with a{" "}
         <code className="font-mono">player</code> and a <code className="font-mono">deck</code>{" "}
-        column. A deck is a link to one on this site, its id, or the list written out — a card per
-        line, or <code className="font-mono">;</code> between cards. Each list is matched to the
+        column, and optionally an <code className="font-mono">archetype</code>. A deck is a link to
+        one on this site, its id, or the list written out — a card per line, or{" "}
+        <code className="font-mono">;</code> between cards. Each list is matched to the
         player&rsquo;s own saved decks first, and stored straight away.
       </p>
       <ul className="space-y-6">

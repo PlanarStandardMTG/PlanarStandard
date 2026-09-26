@@ -20,6 +20,7 @@ import { computeDeckMetrics } from "./compute-deck-metrics/index";
 import { bucketFor, manaCurve } from "./mana-curve/index";
 import { rarityCounts } from "./rarity-counts/index";
 import { attributeCard, setAttribution } from "./set-attribution/index";
+import { keyCards } from "./key-cards/index";
 import { typeCounts } from "./type-counts/index";
 
 /**
@@ -439,5 +440,23 @@ describe("core/metrics/compute-deck-metrics", () => {
     const a = computeDeckMetrics("d" as never, deck, INDEX, RULES, { computedAt });
     const b = computeDeckMetrics("d" as never, deck, INDEX, RULES, { computedAt });
     expect(b).toEqual(a);
+  });
+});
+
+describe("core/metrics/key-cards", () => {
+  it("names the most-played spells, the costliest first among equals, and never a land", () => {
+    const deck = deckOf(
+      [
+        ["Island", 20],
+        ["Tranquil Cove", 4],
+        ["Stock Up", 4],
+        ["Gene Pollinator", 4],
+        ["Ride's End", 4],
+        ["Ugin, Eye of the Storms", 1],
+      ],
+      [["Mazemind Tome", 4]],
+    );
+    expect(keyCards(deck, INDEX)).toEqual(["Gene Pollinator", "Stock Up", "Ride's End"]);
+    expect(keyCards(deck, INDEX, 1)).toEqual(["Gene Pollinator"]);
   });
 });

@@ -107,6 +107,28 @@ export async function listRatedTournamentsBySeason(
 }
 
 /**
+ * The newest events whose results are in and at least one of whose entries has
+ * a deck — what the home page's podium picks its Monthly from (E24.5). Same
+ * statuses as `getLatestTournamentWithResults`, for the same reason.
+ */
+export async function listTournamentsWithDecks(
+  client: SupabaseClient,
+  limit: number,
+): Promise<readonly Tournament[]> {
+  const { data, error } = await client
+    .from("tournaments")
+    .select(`${TOURNAMENT_COLUMNS}, tournament_entries!inner (deck_id)`)
+    .in("status", IMPORTED_STATUSES)
+    .not("tournament_entries.deck_id", "is", null)
+    .order("event_date", { ascending: false })
+    .order("slug", { ascending: true })
+    .limit(limit);
+
+  if (error !== null) throw new Error(`listTournamentsWithDecks failed: ${error.message}`);
+  return (data as unknown as TournamentRow[]).map(toTournament);
+}
+
+/**
  * The most recent event whose results are in.
  *
  * What the home page's podium reads (E24.5). "Results are in" means committed or

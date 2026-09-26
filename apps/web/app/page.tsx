@@ -41,7 +41,7 @@ export default async function HomePage() {
   const [news, events, podium, community] = await Promise.all([
     load(() => listPublishedPostsByKind(client, "official", NEWS_COUNT)),
     load(() => loadEvents(now)),
-    load(() => loadLatestPodium()),
+    load(() => loadLatestPodium(client)),
     load(() => listPublishedPostsByKind(client, "community", ARTICLE_COUNT)),
   ]);
 
@@ -87,9 +87,7 @@ export default async function HomePage() {
         {!podium.ok ? (
           <ErrorState title="Could not load the last event's decks" detail={podium.error} />
         ) : (
-          podium.value !== null && (
-            <EventPodium podium={podium.value.podium} sample={podium.value.sample} />
-          )
+          podium.value !== null && <EventPodium podium={podium.value} />
         )}
 
         <div className="grid items-start gap-12 lg:grid-cols-12">

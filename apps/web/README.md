@@ -87,14 +87,10 @@ special case of the other; §25's split rule decides which a document is.
   templates return the session in a URL fragment and a server-rendered site
   cannot read a fragment. Editing one has three traps in it — see
   [`docs/modules/auth.md`](../../docs/modules/auth.md) before you do.
-- **The home page's top-four-decks section is stand-in data**, and says so where a
-  reader can see it. `lib/podium/latest-podium.ts` is a seam shaped like the read
-  it will become — async, nullable, sliced there rather than in the component —
-  and `lib/podium/sample-podium.ts` is the hand-written podium behind it. The
-  real version is one query against tables that do not exist yet (E13.7, E13.8);
-  E24.5 replaces the function body and nothing above it. The `sample` flag is
-  what draws the badge, so removing the data and leaving the flag true is not a
-  way this goes quietly wrong.
+- **The home page's top four decks are the last Monthly with decklists attached**
+  (`lib/podium/latest-podium.ts`, E24.5): the newest event with a deck on an entry whose
+  name `rated-by-default` calls a Monthly. Until one exists the section is absent, never
+  filled with stand-in finishers.
 - Nothing on the schedule side branches on which platform an event came from.
   `EventSource` is a union, `listAllCachedEvents` is the read behind both pages,
   and the platform is a label next to a link — never a heading, a filter or a
