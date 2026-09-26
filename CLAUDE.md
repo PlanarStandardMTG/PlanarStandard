@@ -101,8 +101,9 @@ wrong, the design is wrong — don't work around it.
   is a breaking change and must be called out in the PR description.
 - **`packages/core`** (`@ps/core`) — pure functions, all testable with no infrastructure. Must never
   import `db`, `next`, `react`, or `@supabase/*`, and never does file I/O. **If a function needs data, it
-  takes it as an argument** — the card index is passed in; loading it is a `jobs`/`web` concern. Areas:
-  `decklist`, `legality`, `metrics`, `similarity`, `elo`, `identity`, `stats`, `reddit` (§8).
+  takes it as an argument** — the card index is passed in; loading it is `packages/cards`' job. Areas:
+  `decklist`, `legality`, `metrics`, `similarity`, `elo`, `identity`, `stats`, `reddit`, `results`,
+  `content`, `events`, `auth` (§8).
 - **`packages/adapters`** (`@ps/adapters`) — one file per results source, all implementing
   `ResultsAdapter`: `{ id, detect(RawInput), parse(RawInput), capabilities }`. Pure: `RawInput` in,
   `ParsedEvent` out. Depends on contracts + core only.
@@ -184,7 +185,9 @@ split it. Every module ships `index.ts` (usually under 60 lines), `index.test.ts
   a branch.
 - **Changing a metric definition also changes `content/pages/methodology.mdx`** — definitions are
   published verbatim next to the code.
-- **Decisions live in `docs/adr/`** (14 seeded, §21). Check there before reopening a settled question.
+- **Decisions are listed in §21 of the plan** (ADRs 001–014). `docs/adr/` is meant to hold one file
+  each but holds only its README until E22.6; until then §21 and the plan sections it points to are the
+  record. Check there before reopening a settled question.
 - TypeScript is strict with `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`; project
   references mean a type error in `contracts` breaks every dependent build.
 - `SUPABASE_SERVICE_ROLE_KEY` must be unreachable from any client bundle (guarded in CI by E1.7).

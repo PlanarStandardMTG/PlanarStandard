@@ -95,9 +95,10 @@ be called out in the PR description.
 
 ## Where decisions live
 
-`docs/adr/` — fourteen of them, one short file each. Check there before
-reopening a settled question; the format rules, the handles-not-people ledger,
-and the card-data-as-artifact decision all have one.
+§21 of `planar-standard-master-plan.md` lists fourteen settled decisions, from
+the format rules to the handles-not-people ledger and the card-data-as-artifact
+decision. Check there before reopening one. They are to become one short file
+each in `docs/adr/` (E22.6); for now that folder holds only its README.
 
 `planar-standard-master-plan.md` is the design and `backlog.md` is the work,
 sized so each story fits one sitting. Branch names and PR titles use the story
@@ -115,5 +116,7 @@ pnpm db:reset                    # migrations + seed
 pnpm dev                         # http://localhost:3000
 ```
 
-The seed ships an anonymised derivative of a real season, so the site comes up
-populated. Nobody can meaningfully improve a chart against an empty database.
+The seed carries accounts at every role, posts, a calendar, the format,
+archetypes, seasons and one tournament. It does not carry players, decks or
+matches yet: an anonymised derivative of a real season is E15.1–E15.2, because
+nobody can meaningfully improve a chart against an empty database.
