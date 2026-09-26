@@ -45,6 +45,8 @@ export { deckSections, sectionOf } from "./decklist/deck-sections/index";
 export type { DeckSection, DeckSectionKey, SectionCard } from "./decklist/deck-sections/index";
 export { latestVersions } from "./decklist/latest-versions/index";
 export type { LatestVersion, Versioned } from "./decklist/latest-versions/index";
+export { matchesDeckFilter } from "./decklist/match-deck-filter/index";
+export type { DeckFilter } from "./decklist/match-deck-filter/index";
 export { frontImage, pickPrinting } from "./decklist/pick-printing/index";
 
 // reddit — Markdown to Reddit-safe Markdown (§8.8)

@@ -19,7 +19,7 @@ export default async function NewDeckPage() {
   return (
     <Container className="max-w-3xl py-12">
       <Link
-        href="/decks"
+        href="/decks?view=mine"
         className="text-sm text-ink-500 hover:text-ink-800 dark:text-ink-400 dark:hover:text-ink-200"
       >
         <span aria-hidden="true">←</span> Your decks

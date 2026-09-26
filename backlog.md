@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 7/23  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 26/39 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 27/40 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 13/14 |
@@ -1149,6 +1149,14 @@ yet (E20.14), so the link is the event's `external_url`.
 ✅ **E20.39 — `admin`: link a player to a member** · S · Deps: E20.16 — `/admin/players` sets
 `players.profile_id` from a member's handle, or clears it. _AC:_ a member is one player at most;
 linking a second says so rather than failing.
+✅ **E20.40 — `decks`: browse public decks** · M · Deps: E20.28 — `/decks` opens on a Browse tab
+of every public deck at its newest version, ten to a page; a Your decks tab holds a member's own decks,
+the events they played, and the import button. _AC:_ a filter menu narrows by colour (every ticked
+colour in a maindeck spell's mana cost, lands ignored) and by card names separated by semicolons, and
+the filter survives paging because it lives in the URL.
+_Note:_ added outside the plan. Filtering runs in the app against the card index
+(`core/decklist/match-deck-filter`), since cards are not in Postgres, so the page loads every public
+deck with its list; a paged query is the fix once that is slow.
 
 ---
 
@@ -1465,10 +1473,10 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 23      | 7    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 39      | 26   |
+| E9   | 9       | 9    | E20  | 40      | 27   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 14      | 13   |
 |      |         |      | E24  | 7       | 6    |
 
-**194 of 267 stories done across 24 epics.**
+**195 of 268 stories done across 24 epics.**

@@ -206,6 +206,25 @@ export async function listMemberDecks(
   return (data as unknown as DeckRow[]).map(toDeck);
 }
 
+/**
+ * Every public deck with its list, newest first — the deck browser (E20.40),
+ * which filters by colour and card in the app, because cards are not in
+ * Postgres. Hidden decks are left out even where an event still names them.
+ */
+export async function listBrowsableDecks(
+  client: SupabaseClient,
+): Promise<readonly DeckWithCards[]> {
+  const { data, error } = await client
+    .from("decks")
+    .select(DECK_WITH_CARDS_COLUMNS)
+    .eq("visibility", "public")
+    .is("hidden_at", null)
+    .order("created_at", { ascending: false });
+
+  if (error !== null) throw new Error(`listBrowsableDecks failed: ${error.message}`);
+  return (data as unknown as DeckWithCardsRow[]).map(toDeckWithCards);
+}
+
 /** What a member supplies when importing a deck; the database fills in the rest. */
 export interface MemberDeck {
   readonly name: string;

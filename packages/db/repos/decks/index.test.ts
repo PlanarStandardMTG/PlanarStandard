@@ -20,6 +20,7 @@ import {
   isDeckInEvent,
   listDeckVersions,
   listDecksByPlayer,
+  listBrowsableDecks,
   listDecksWithCards,
   listMemberDecks,
   listPublicDecksBySeason,
@@ -212,6 +213,19 @@ describe.skipIf(!reachable)("repos/decks", () => {
 
     const browsable = await listPublicDecksBySeason(client, SEASON_II, 10);
     expect(browsable.map((d) => d.name)).toEqual(["Public"]);
+  });
+
+  it("browses public decks with their lists, and nothing unlisted, private or hidden", async () => {
+    const pub = await write(deck({ name: "Browse public" }), [card({ name: "Llanowar Elves" })]);
+    await write(deck({ name: "Browse unlisted", visibility: "unlisted" }), []);
+    await write(deck({ name: "Browse private", visibility: "private" }), []);
+    await write(deck({ name: "Browse hidden", hiddenAt: "2026-09-01T00:00:00Z" }), []);
+
+    const browsable = (await listBrowsableDecks(client)).filter((d) =>
+      d.name.startsWith("Browse "),
+    );
+    expect(browsable.map((d) => d.name)).toEqual(["Browse public"]);
+    expect(browsable[0]?.cards.map((c) => c.name)).toEqual(pub.cards.map((c) => c.name));
   });
 
   it("still serves an unlisted deck by id, because that is what unlisted means", async () => {

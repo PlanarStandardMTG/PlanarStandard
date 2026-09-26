@@ -122,5 +122,5 @@ export async function deleteDeckVersions(form: FormData): Promise<void> {
     versionIds,
   );
   revalidatePath("/decks");
-  redirect(left === null ? "/decks" : `/decks/${left}`);
+  redirect(left === null ? "/decks?view=mine" : `/decks/${left}`);
 }

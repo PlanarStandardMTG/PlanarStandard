@@ -131,16 +131,17 @@ Write these first. Once they exist, every other package can be built in parallel
 
 #### 8.1 `core/decklist` — text → structured deck
 
-| Module            | One-line job                                                              |
-| ----------------- | ------------------------------------------------------------------------- |
-| `tokenize-line`   | `"4 Bolt (FDN) 192 *F*"` → `{qty, name, set, collector, foil}`            |
-| `detect-board`    | Is this line a `SIDEBOARD:` / `Sideboard` / `SB:` / blank-line boundary?  |
-| `normalize-name`  | NFKC, case, punctuation, `//` handling, MDFC front/back faces             |
-| `parse-decklist`  | Composes the above over a document → `ParsedDeck`                         |
-| `parse-filename`  | `Player (alias)｜Deck｜Archetype｜W-L-D｜GW-GL` → structured metadata     |
-| `deck-sections`   | A deck split into the sections it is read in: maindeck by type, sideboard |
-| `pick-printing`   | Which printing of a card a deck page shows                                |
-| `latest-versions` | A member's decks as one entry each: the newest version                    |
+| Module              | One-line job                                                              |
+| ------------------- | ------------------------------------------------------------------------- |
+| `tokenize-line`     | `"4 Bolt (FDN) 192 *F*"` → `{qty, name, set, collector, foil}`            |
+| `detect-board`      | Is this line a `SIDEBOARD:` / `Sideboard` / `SB:` / blank-line boundary?  |
+| `normalize-name`    | NFKC, case, punctuation, `//` handling, MDFC front/back faces             |
+| `parse-decklist`    | Composes the above over a document → `ParsedDeck`                         |
+| `parse-filename`    | `Player (alias)｜Deck｜Archetype｜W-L-D｜GW-GL` → structured metadata     |
+| `deck-sections`     | A deck split into the sections it is read in: maindeck by type, sideboard |
+| `pick-printing`     | Which printing of a card a deck page shows                                |
+| `latest-versions`   | A member's decks as one entry each: the newest version                    |
+| `match-deck-filter` | Whether a deck casts every chosen colour and holds every named card       |
 
 Real cases from existing data that each needs to survive: missing set codes, `*F*` markers, promo sets (`PSOS`), alphanumeric collectors (`25p`, `WOE-273`), split cards (`Sanar, Unfinished Genius / Wild Idea`), fullwidth `｜` and `＞`, and filenames where the OS rewrote `｜` to `_`.
 
