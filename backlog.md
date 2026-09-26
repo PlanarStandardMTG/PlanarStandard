@@ -778,7 +778,7 @@ _Note:_ added outside the plan, from the proposal on the design canvas. `compone
 is the logo traced to one path. A `.night` class makes any region use the `dark:` palette
 (`globals.css`), so the header, footer, home hero, `/leaderboard`, `/events` and the tournament
 component went night without per-component colours. `components/ui/marks.tsx` holds the compass star,
-the season ring (`core/events/season-progress`), the star rule, dotted leaders and `Placement`;
+the season ring (a star a month, `core/events/season-progress`), the star rule, dotted leaders and `Placement`;
 `PageHeader` is shared by the ledger pages. The leaderboard's two tables became tabs. The home page is
 now a hero with the next event, the podium as separate cards, then news beside community posts, which
 replaces E24.1's grid.

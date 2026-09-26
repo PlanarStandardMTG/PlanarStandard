@@ -29,8 +29,8 @@ export function CompassStar({ className }: { className?: string }) {
 }
 
 /**
- * The season as a ring of stars, one lit per week, around the compass star. A
- * season with no end date yet draws a quarter's worth, adding a star a week past it.
+ * The season as a ring of stars, one lit per month, around the compass star. A
+ * season with no end date draws a year of them.
  */
 export function SeasonRing({
   progress,
@@ -39,7 +39,7 @@ export function SeasonRing({
   progress: SeasonProgress;
   className?: string;
 }) {
-  const count = progress.weeks ?? Math.max(progress.week, 12);
+  const count = progress.months ?? Math.max(progress.month, 12);
   return (
     <svg
       viewBox="0 0 56 56"
@@ -55,7 +55,7 @@ export function SeasonRing({
             cy={28 + 24 * Math.sin(angle)}
             r={i % 3 === 0 ? 3.6 : 2.6}
             className={
-              i < progress.week ? "fill-current" : "fill-none stroke-ink-400 dark:stroke-ink-600"
+              i < progress.month ? "fill-current" : "fill-none stroke-ink-400 dark:stroke-ink-600"
             }
           />
         );
