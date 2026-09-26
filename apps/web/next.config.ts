@@ -15,6 +15,9 @@ const config: NextConfig = {
   // dataset from `data/cards/` by `@ps/cards`. Tracing can only find a directory
   // it is told about.
   outputFileTracingRoot: REPO_ROOT,
+  // A post's image upload is a server action (E20.25). Storage caps a file at
+  // 4 MB; this leaves room for the multipart overhead, under Vercel's 4.5 MB.
+  experimental: { serverActions: { bodySizeLimit: "4.5mb" } },
   outputFileTracingIncludes: { "/**": ["../../content/pages/**", "../../data/cards/*.json"] },
   // Community posts lived at `/articles` until the rename. Links to them are
   // already out in the world — every Reddit export ends with one — so the old

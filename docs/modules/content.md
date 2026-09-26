@@ -35,9 +35,30 @@ A component is one line alone, attributes double-quoted:
 ```
 
 The shape `:::chart{…}` already had. Lines inside fenced code are text, so a
-post can show the syntax without invoking it. **None are live yet** — decklist,
-image, card and chart are listed as planned in the editor, with how each will
-export, and an article that uses one can be saved but not submitted.
+post can show the syntax without invoking it. Card and chart are listed as
+planned in the editor, with how each will export, and an article that uses one
+can be saved but not submitted.
+
+### The live components
+
+The editor's Components panel has a small form for each that writes the line;
+the line is all the post stores, so it can be edited by hand afterwards.
+
+| Component                              | Site                                                                                  | Reddit                                                                     | Discord                                     |
+| -------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------- |
+| `:::image{src alt caption}`            | the picture, with its caption                                                         | a link named by the alt text, the caption under it                         | the bare address, which Discord unfurls     |
+| `:::decklist{id title}`                | the list by section, with card previews                                               | a link and counts, then the list as an indented block                      | name, counts and link                       |
+| `:::tournament{slug show deck player}` | one card: winner, top 2 or top 4 (`show`), and the deck under `player` or beside them | the event and its finishers, then the deck exactly as `decklist` writes it | the event, finishers, its link and the deck |
+
+A tournament's finishers come from `tournament_entries`, which every ingest
+writes (E18.21). The deck picker lists the author's own decks; any deck can be
+placed by id. A private deck renders for its owner only, with a note saying
+readers cannot see it. Every renderer wears `not-prose`, which the post's
+typography (`in-prose:` in `globals.css`) stops at.
+
+Images are uploaded to the public `post-images` Storage bucket (migration
+0028), into a folder named by the writer's auth id, at most 4 MB of PNG, JPEG,
+WebP or GIF; or linked from anywhere by address.
 
 ### Adding one
 
@@ -64,8 +85,10 @@ component's `export` functions alike — which is how a decklist becomes a link
 and then the list as text on Reddit. If loading fails or returns null, the
 export must still produce something, usually a link back to the site.
 
-Images have no answer yet beyond a link: a Reddit self-post cannot inline one,
-and Discord unfurls a bare URL. Where uploads are stored is undecided.
+The editor's preview is JSX returned by a server action, and a route's client
+manifest lists only client components its own server tree imports — so
+`editor-page.tsx` imports `card-hover-link` for the decklist's sake. A new
+component whose render uses a client component needs the same line.
 
 ## Exporting a post
 
@@ -80,14 +103,18 @@ to compile until it answers for it.
 
 ## Modules
 
-| Module                                    | Job                                                |
-| ----------------------------------------- | -------------------------------------------------- |
-| `core/content/embed-syntax`               | find and rewrite `:::name{…}` lines                |
-| `core/content/embed-registry`             | what a component is; `expandEmbeds`                |
-| `core/content/embed-catalogue`            | the live components, and the planned ones          |
-| `core/content/export-post`                | a body for Reddit or Discord                       |
-| `core/content/post-draft`                 | whether input can be saved or submitted; the slug  |
-| `core/content/post-workflow`              | which status a submission, save or review lands in |
-| `web/components/content/post-editor`      | the editor                                         |
-| `web/components/content/embeds/`          | renderers, loading, and how a line becomes a block |
-| `web/app/dashboard/community/actions.tsx` | `savePost`, `previewPost`                          |
+| Module                                    | Job                                                                                           |
+| ----------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `core/content/embed-syntax`               | find and rewrite `:::name{…}` lines                                                           |
+| `core/content/embed-registry`             | what a component is; `expandEmbeds`                                                           |
+| `core/content/embed-catalogue`            | the live components, and the planned ones                                                     |
+| `core/content/embed-image`                | `:::image`                                                                                    |
+| `core/content/embed-decklist`             | `:::decklist`, and the deck text both decks share                                             |
+| `core/content/embed-tournament`           | `:::tournament`                                                                               |
+| `core/content/export-post`                | a body for Reddit or Discord                                                                  |
+| `core/content/post-draft`                 | whether input can be saved or submitted; the slug                                             |
+| `core/content/post-workflow`              | which status a submission, save or review lands in                                            |
+| `web/components/content/post-editor`      | the editor                                                                                    |
+| `web/components/content/embeds/`          | renderers, loading, and how a line becomes a block                                            |
+| `web/components/content/embed-inserters`  | the editor's form per component                                                               |
+| `web/app/dashboard/community/actions.tsx` | `savePost`, `previewPost`, the image upload, and a tournament's finishers for the deck picker |

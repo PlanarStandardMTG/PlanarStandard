@@ -8,27 +8,30 @@ import { cn } from "@/lib/cn";
  * Hand-rolled rather than `@tailwindcss/typography`: the rules that matter here
  * are a dozen lines, and the plugin's opinions would have to be overridden about
  * as often as they are used.
+ *
+ * `in-prose:` (globals.css) stops every rule at `.not-prose`, which a post's
+ * components (E20.23) wear so their own headings, lists and links stay theirs.
  */
 export function Prose({ children, className }: { children: ReactNode; className?: string }) {
   return (
     <div
       className={cn(
         "max-w-prose text-[15px]/7 text-ink-800 dark:text-ink-200",
-        "[&_h2]:mt-10 [&_h2]:mb-3 [&_h2]:font-serif [&_h2]:text-xl [&_h2]:font-semibold [&_h2]:tracking-tight",
-        "[&_h3]:mt-8 [&_h3]:mb-2 [&_h3]:font-semibold",
-        "[&_p]:my-4",
-        "[&_ul]:my-4 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:my-4 [&_ol]:list-decimal [&_ol]:pl-6",
-        "[&_li]:my-1.5 [&_li]:pl-1",
-        "[&_strong]:font-semibold [&_strong]:text-ink-900 dark:[&_strong]:text-ink-100",
-        "[&_a]:font-medium [&_a]:text-eclipse-700 [&_a]:underline [&_a]:underline-offset-2 dark:[&_a]:text-eclipse-400",
-        "[&_blockquote]:my-5 [&_blockquote]:border-l-2 [&_blockquote]:border-eclipse-500 [&_blockquote]:pl-4 [&_blockquote]:italic",
-        "[&_code]:rounded [&_code]:bg-ink-100 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-[13px] dark:[&_code]:bg-ink-800",
-        "[&_pre]:my-5 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-ink-100 [&_pre]:p-4 [&_pre]:text-[13px] dark:[&_pre]:bg-ink-900",
-        "[&_pre_code]:bg-transparent [&_pre_code]:p-0",
-        "[&_table]:w-full [&_table]:border-collapse [&_table]:text-left [&_table]:text-sm",
-        "[&_th]:border-b [&_th]:border-ink-300 [&_th]:py-2 [&_th]:pr-4 [&_th]:font-semibold dark:[&_th]:border-ink-700",
-        "[&_td]:border-b [&_td]:border-ink-200 [&_td]:py-2 [&_td]:pr-4 [&_td]:align-top dark:[&_td]:border-ink-800",
-        "[&_hr]:my-8 [&_hr]:border-ink-200 dark:[&_hr]:border-ink-800",
+        "[&_h2]:in-prose:mt-10 [&_h2]:in-prose:mb-3 [&_h2]:in-prose:font-serif [&_h2]:in-prose:text-xl [&_h2]:in-prose:font-semibold [&_h2]:in-prose:tracking-tight",
+        "[&_h3]:in-prose:mt-8 [&_h3]:in-prose:mb-2 [&_h3]:in-prose:font-semibold",
+        "[&_p]:in-prose:my-4",
+        "[&_ul]:in-prose:my-4 [&_ul]:in-prose:list-disc [&_ul]:in-prose:pl-6 [&_ol]:in-prose:my-4 [&_ol]:in-prose:list-decimal [&_ol]:in-prose:pl-6",
+        "[&_li]:in-prose:my-1.5 [&_li]:in-prose:pl-1",
+        "[&_strong]:in-prose:font-semibold [&_strong]:in-prose:text-ink-900 dark:[&_strong]:in-prose:text-ink-100",
+        "[&_a]:in-prose:font-medium [&_a]:in-prose:text-eclipse-700 [&_a]:in-prose:underline [&_a]:in-prose:underline-offset-2 dark:[&_a]:in-prose:text-eclipse-400",
+        "[&_blockquote]:in-prose:my-5 [&_blockquote]:in-prose:border-l-2 [&_blockquote]:in-prose:border-eclipse-500 [&_blockquote]:in-prose:pl-4 [&_blockquote]:in-prose:italic",
+        "[&_code]:in-prose:rounded [&_code]:in-prose:bg-ink-100 [&_code]:in-prose:px-1.5 [&_code]:in-prose:py-0.5 [&_code]:in-prose:text-[13px] dark:[&_code]:in-prose:bg-ink-800",
+        "[&_pre]:in-prose:my-5 [&_pre]:in-prose:overflow-x-auto [&_pre]:in-prose:rounded-lg [&_pre]:in-prose:bg-ink-100 [&_pre]:in-prose:p-4 [&_pre]:in-prose:text-[13px] dark:[&_pre]:in-prose:bg-ink-900",
+        "[&_pre_code]:in-prose:bg-transparent [&_pre_code]:in-prose:p-0",
+        "[&_table]:in-prose:w-full [&_table]:in-prose:border-collapse [&_table]:in-prose:text-left [&_table]:in-prose:text-sm",
+        "[&_th]:in-prose:border-b [&_th]:in-prose:border-ink-300 [&_th]:in-prose:py-2 [&_th]:in-prose:pr-4 [&_th]:in-prose:font-semibold dark:[&_th]:in-prose:border-ink-700",
+        "[&_td]:in-prose:border-b [&_td]:in-prose:border-ink-200 [&_td]:in-prose:py-2 [&_td]:in-prose:pr-4 [&_td]:in-prose:align-top dark:[&_td]:in-prose:border-ink-800",
+        "[&_hr]:in-prose:my-8 [&_hr]:in-prose:border-ink-200 dark:[&_hr]:in-prose:border-ink-800",
         className,
       )}
     >

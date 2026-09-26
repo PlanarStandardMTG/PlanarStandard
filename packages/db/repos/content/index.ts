@@ -226,3 +226,45 @@ export async function updatePost(
   if (error !== null) throw new Error(`updatePost failed: ${error.message}`);
   return toPostWithAuthor(data as unknown as PostRow);
 }
+
+/** The Storage bucket a post's uploaded images live in (migration 0028). */
+export const POST_IMAGE_BUCKET = "post-images";
+
+/** Types the bucket accepts, and the extension each is stored under. */
+export const POST_IMAGE_TYPES: Readonly<Record<string, string>> = {
+  "image/png": "png",
+  "image/jpeg": "jpg",
+  "image/webp": "webp",
+  "image/gif": "gif",
+};
+
+/** The bucket's own limit; Storage refuses anything larger whatever the caller checked. */
+export const POST_IMAGE_MAX_BYTES = 4 * 1024 * 1024;
+
+/** Whatever Storage's upload accepts — a `File` from a form, in practice. `db` compiles without the DOM. */
+type UploadBody = Parameters<ReturnType<SupabaseClient["storage"]["from"]>["upload"]>[1];
+
+/**
+ * Store one image for a post and return its public address (E20.25).
+ *
+ * Written with the session client under `<auth user id>/<name>` — the auth id,
+ * not the profile's — because that is the folder the bucket's policy lets the
+ * writer use; the policy, not this function, is what decides.
+ */
+export async function storePostImage(
+  client: SupabaseClient,
+  image: { readonly name: string; readonly body: UploadBody; readonly contentType: string },
+): Promise<string> {
+  const { data: auth, error: authError } = await client.auth.getUser();
+  if (authError !== null || auth.user === null) {
+    throw new Error("storePostImage failed: not signed in");
+  }
+
+  const path = `${auth.user.id}/${image.name}`;
+  const { error } = await client.storage
+    .from(POST_IMAGE_BUCKET)
+    .upload(path, image.body, { contentType: image.contentType, upsert: false });
+
+  if (error !== null) throw new Error(`storePostImage failed: ${error.message}`);
+  return client.storage.from(POST_IMAGE_BUCKET).getPublicUrl(path).data.publicUrl;
+}

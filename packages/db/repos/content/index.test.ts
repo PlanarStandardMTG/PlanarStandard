@@ -3,6 +3,8 @@ import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import {
+  POST_IMAGE_BUCKET,
+  storePostImage,
   createPost,
   getPostForEditing,
   getPublishedPostBySlug,
@@ -231,5 +233,27 @@ describe.skipIf(!reachable)("repos/content — submission and review", () => {
     });
 
     expect(await getPostForEditing(reader, post.id)).toBeNull();
+  });
+
+  it("stores an image in the member's own folder and serves it publicly", async () => {
+    const png = new Blob([new Uint8Array([0x89, 0x50, 0x4e, 0x47])], { type: "image/png" });
+    const address = await storePostImage(reader, {
+      name: `${prefix}.png`,
+      body: png,
+      contentType: "image/png",
+    });
+
+    expect(address).toMatch(new RegExp(`/post-images/[0-9a-f-]{36}/${prefix}\\.png$`));
+    expect((await fetch(address)).status).toBe(200);
+    await reader.storage.from(POST_IMAGE_BUCKET).remove([address.split("/post-images/")[1] ?? ""]);
+  });
+
+  it("refuses an image written into somebody else's folder", async () => {
+    const { error } = await reader.storage
+      .from(POST_IMAGE_BUCKET)
+      .upload(`00000000-0000-4000-8000-000000000000/${prefix}.png`, new Blob(["x"]), {
+        contentType: "image/png",
+      });
+    expect(error).not.toBeNull();
   });
 });

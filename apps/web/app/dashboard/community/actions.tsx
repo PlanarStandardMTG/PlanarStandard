@@ -3,16 +3,28 @@
 import type { PostKind, PostWithAuthor } from "@ps/contracts";
 import {
   EMBED_REGISTRY,
+  TOURNAMENT_SHOW,
   canEditOwnPost,
   canWriteKind,
   checkPostDraft,
   exportPost,
+  ordinal,
   postSlug,
   savedStatus,
   type DraftProblem,
   type PostDraftInput,
 } from "@ps/core";
-import { createPost, getPostForEditing, updatePost } from "@ps/db";
+import {
+  POST_IMAGE_MAX_BYTES,
+  POST_IMAGE_TYPES,
+  createPost,
+  getPostForEditing,
+  getTournamentBySlug,
+  listTournamentFinishers,
+  storePostImage,
+  updatePost,
+} from "@ps/db";
+import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import type { ReactNode } from "react";
@@ -157,6 +169,59 @@ export async function previewPost(
     reddit: exportPost(exported, "reddit"),
     discord: exportPost(exported, "discord"),
   };
+}
+
+export type UploadResult =
+  { readonly ok: true; readonly url: string } | { readonly ok: false; readonly problem: string };
+
+/** One picture for the image component (E20.25), into the author's own folder. */
+export async function uploadPostImage(form: FormData): Promise<UploadResult> {
+  await requireRole("reader");
+  const file = form.get("image");
+  if (!(file instanceof File) || file.size === 0) return { ok: false, problem: "Choose an image." };
+
+  const extension = POST_IMAGE_TYPES[file.type];
+  if (extension === undefined) {
+    return { ok: false, problem: "Use a PNG, JPEG, WebP or GIF image." };
+  }
+  if (file.size > POST_IMAGE_MAX_BYTES) {
+    return { ok: false, problem: "That image is over 4 MB." };
+  }
+
+  try {
+    const url = await storePostImage(await createSessionClient(), {
+      name: `${randomUUID()}.${extension}`,
+      body: file,
+      contentType: file.type,
+    });
+    return { ok: true, url };
+  } catch {
+    return { ok: false, problem: "The upload failed. Try again, or link an image instead." };
+  }
+}
+
+export interface FinisherOption {
+  readonly playerSlug: string;
+  readonly label: string;
+}
+
+/** Who finished within `show`, for attaching a deck to one of them (E20.36). */
+export async function listFinisherOptions(
+  slug: string,
+  show: string,
+): Promise<readonly FinisherOption[]> {
+  await requireRole("reader");
+  const session = await createSessionClient();
+  const event = await getTournamentBySlug(session, slug);
+  if (event === null) return [];
+
+  const through = TOURNAMENT_SHOW[show as keyof typeof TOURNAMENT_SHOW]?.through ?? 4;
+  const finishers = await listTournamentFinishers(session, event.id, through);
+  return finishers.flatMap((f) =>
+    f.playerSlug === null || f.displayName === null
+      ? []
+      : [{ playerSlug: f.playerSlug, label: `${f.displayName} (${ordinal(f.placement)})` }],
+  );
 }
 
 function isDuplicate(cause: unknown): boolean {

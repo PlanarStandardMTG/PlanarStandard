@@ -43,6 +43,7 @@ export default async function NewPostPage({
       </header>
 
       <EditorFor
+        authorId={viewer.profile.id}
         id={null}
         kind={official ? "official" : "community"}
         slug=""

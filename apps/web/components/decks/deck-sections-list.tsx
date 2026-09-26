@@ -11,9 +11,16 @@ const byCopiesThenName = (a: DeckViewCard, b: DeckViewCard) =>
  * A deck as a text list, section by section, flowed into as many columns as
  * the screen fits. Hovering a name shows its card.
  */
-export function DeckSectionsList({ sections }: { sections: readonly DeckSection<DeckViewCard>[] }) {
+export function DeckSectionsList({
+  sections,
+  compact = false,
+}: {
+  sections: readonly DeckSection<DeckViewCard>[];
+  /** Two columns at most, for a list inside a post's measure. */
+  compact?: boolean;
+}) {
   return (
-    <div className="gap-x-8 sm:columns-2 lg:columns-3">
+    <div className={compact ? "gap-x-6 text-sm sm:columns-2" : "gap-x-8 sm:columns-2 lg:columns-3"}>
       {sections.map((section) => (
         <section
           key={section.key}

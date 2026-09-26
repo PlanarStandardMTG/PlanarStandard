@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 
+import { EMBED_REGISTRY } from "../embed-catalogue/index";
 import { defineEmbed } from "../embed-registry/index";
 import { DISCORD_MESSAGE_LIMIT, exportPost } from "./index";
 
@@ -29,6 +30,56 @@ describe("exportPost for Reddit", () => {
     expect(out).toContain("> **Note:** hello");
     expect(out).toContain("[link](https://example.test/meta)");
     expect(out.trimEnd().endsWith(`[${canonicalUrl}](${canonicalUrl})*`)).toBe(true);
+  });
+});
+
+describe("exportPost for Reddit, with the live components", () => {
+  const deck = "3f2a0000-0000-4000-8000-000000000001";
+  const tournament = `:::tournament{slug="monthly-october" show="winner" deck="${deck}" player="ann"}`;
+  const image = ':::image{src="https://cdn.example.test/a.png" alt="The final"}';
+  const data = new Map<string, unknown>([
+    [
+      tournament,
+      {
+        name: "Monthly October",
+        date: "2026-10-04",
+        playerCount: 8,
+        url: null,
+        finishers: [
+          { placement: 1, playerSlug: "ann", name: "Ann", record: { wins: 3, losses: 0 } },
+        ],
+        deck: {
+          name: "Mono-Red",
+          cards: [
+            { quantity: 20, name: "Mountain", board: "main" },
+            { quantity: 2, name: "Abrade", board: "side" },
+          ],
+        },
+      },
+    ],
+  ]);
+
+  it("separates the event and its deck, and the list survives the pipeline line for line", () => {
+    const out = exportPost(
+      {
+        markdown: `${tournament}
+
+${image}`,
+        canonicalUrl,
+        registry: EMBED_REGISTRY,
+        data,
+      },
+      "reddit",
+    );
+    expect(out).toContain(
+      "**Monthly October** · 4 October 2026 · 8 players\n\n- **1st** Ann (3-0)",
+    );
+    expect(out).toContain(
+      `**Ann's deck (1st):** [Mono-Red](https://example.test/decks/${deck}) · 20 cards, 2 sideboard\n\n` +
+        "    20 Mountain\n\n    Sideboard\n    2 Abrade",
+    );
+    expect(out).toContain("[Image: The final](https://cdn.example.test/a.png)");
+    expect(out).not.toContain(":::");
   });
 });
 

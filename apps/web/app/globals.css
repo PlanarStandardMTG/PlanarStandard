@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Prose's rules, everywhere but inside a `.not-prose` block — see `components/ui/prose.tsx`. */
+@custom-variant in-prose (&:not(.not-prose, .not-prose *));
+
 /*
  * One palette, defined once. Season names in this format lean on eclipse
  * imagery, so: ink, parchment, and a single violet accent for anything the

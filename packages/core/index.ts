@@ -228,6 +228,30 @@ export type {
 export { EMBEDS, EMBED_REGISTRY, PLANNED_EMBEDS } from "./content/embed-catalogue/index";
 export type { EmbedName, PlannedEmbed } from "./content/embed-catalogue/index";
 export { DISCORD_MESSAGE_LIMIT, exportPost } from "./content/export-post/index";
+export { imageEmbed, parseImageEmbed } from "./content/embed-image/index";
+export type { ImageEmbed } from "./content/embed-image/index";
+export {
+  deckCounts,
+  deckHref,
+  decklistEmbed,
+  parseDecklistEmbed,
+} from "./content/embed-decklist/index";
+export type { DecklistEmbed, DecklistEmbedData } from "./content/embed-decklist/index";
+export {
+  TOURNAMENT_SHOW,
+  deckOwner,
+  formatRecord,
+  longDate,
+  ordinal,
+  parseTournamentEmbed,
+  tournamentEmbed,
+} from "./content/embed-tournament/index";
+export type {
+  TournamentEmbed,
+  TournamentEmbedData,
+  TournamentFinish,
+  TournamentShow,
+} from "./content/embed-tournament/index";
 export type { ExportInput } from "./content/export-post/index";
 
 // metrics — deck to numbers (§8.3)

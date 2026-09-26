@@ -17,6 +17,14 @@ import {
 } from "@/app/dashboard/community/actions";
 import { cn } from "@/lib/cn";
 
+import {
+  DecklistInserter,
+  ImageInserter,
+  TournamentInserter,
+  type DeckOption,
+  type TournamentOption,
+} from "./embed-inserters";
+
 /**
  * The post editor (E20.2), for community and news posts alike: Markdown in, with the published page and both
  * exports one tab away.
@@ -44,6 +52,9 @@ export interface PostEditorProps {
   readonly statusNote: string;
   readonly liveComponents: readonly EditorComponent[];
   readonly plannedComponents: readonly PlannedEmbed[];
+  /** The author's own decks and the events with results, for the component pickers. */
+  readonly decks: readonly DeckOption[];
+  readonly tournaments: readonly TournamentOption[];
 }
 
 type Tab = "write" | "preview" | "reddit" | "discord";
@@ -218,6 +229,8 @@ export function PostEditor(props: PostEditorProps) {
           <ComponentsPanel
             live={props.liveComponents}
             planned={props.plannedComponents}
+            decks={props.decks}
+            tournaments={props.tournaments}
             insert={(line) =>
               edit((text, start) => {
                 const before = text.slice(0, start).replace(/\n*$/, "");
@@ -342,10 +355,14 @@ function Toolbar({ edit }: { edit: Edit }) {
 function ComponentsPanel({
   live,
   planned,
+  decks,
+  tournaments,
   insert,
 }: {
   live: readonly EditorComponent[];
   planned: readonly PlannedEmbed[];
+  decks: readonly DeckOption[];
+  tournaments: readonly TournamentOption[];
   insert: (line: string) => void;
 }) {
   return (
@@ -366,21 +383,11 @@ function ComponentsPanel({
           . The site shows it live; Reddit and Discord get a text version of it.
         </p>
 
-        {live.map((component) => (
-          <div key={component.name} className="flex items-start justify-between gap-4">
-            <div>
-              <p className="font-medium">{component.label}</p>
-              <p className="text-ink-600 dark:text-ink-400">{component.description}</p>
-            </div>
-            <button
-              type="button"
-              onClick={() => insert(component.example)}
-              className="shrink-0 cursor-pointer rounded-md border border-ink-300 px-2.5 py-1 text-xs font-medium hover:bg-ink-100 dark:border-ink-700 dark:hover:bg-ink-900"
-            >
-              Insert
-            </button>
-          </div>
-        ))}
+        <div className="grid gap-2">
+          <ImageInserter insert={insert} />
+          <DecklistInserter insert={insert} decks={decks} />
+          <TournamentInserter insert={insert} decks={decks} tournaments={tournaments} />
+        </div>
 
         <ul className="space-y-4">
           {planned.map((component) => (

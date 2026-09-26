@@ -7,14 +7,28 @@ import {
   type PostDraftInput,
 } from "@ps/core";
 
+import type { ProfileId } from "@ps/contracts";
+import { listMemberDecks, listTournamentsWithResults } from "@ps/db";
+
+// The preview is JSX from a server action, and a route's client manifest lists
+// only the client components its own server tree imports. A decklist in the
+// preview needs this one, so the editor's tree imports it.
+import "@/components/decks/card-hover-link";
+import { createSessionClient } from "@/lib/supabase/session";
+
 import { PostEditor } from "./post-editor";
+
+/** Enough recent events for a picker; an older one can still be typed as a slug by hand. */
+const TOURNAMENT_CHOICES = 40;
 
 /**
  * What the editor is told about the author and the post — the labels that say
- * where a save will land, and the component catalogue flattened to data that
- * can cross into the browser (definitions carry functions; these do not).
+ * where a save will land, the component catalogue flattened to data that can
+ * cross into the browser (definitions carry functions; these do not), and the
+ * author's decks and recent events for the component pickers.
  */
-export function EditorFor({
+export async function EditorFor({
+  authorId,
   id,
   kind,
   slug,
@@ -22,6 +36,7 @@ export function EditorFor({
   role,
   initial,
 }: {
+  authorId: ProfileId;
   id: string | null;
   kind: PostKind;
   slug: string;
@@ -31,6 +46,11 @@ export function EditorFor({
 }) {
   const direct = submissionStatus(role) === "published";
   const live = status === "published";
+  const session = await createSessionClient();
+  const [decks, tournaments] = await Promise.all([
+    listMemberDecks(session, authorId),
+    listTournamentsWithResults(session, TOURNAMENT_CHOICES),
+  ]);
 
   return (
     <PostEditor
@@ -59,6 +79,8 @@ export function EditorFor({
         ),
       }))}
       plannedComponents={PLANNED_EMBEDS}
+      decks={decks.map((deck) => ({ id: deck.id, name: deck.name, visibility: deck.visibility }))}
+      tournaments={tournaments.map((t) => ({ slug: t.slug, name: t.name, date: t.eventDate }))}
     />
   );
 }

@@ -71,6 +71,7 @@ export default async function EditPostPage({
 
       {editable ? (
         <EditorFor
+          authorId={viewer.profile.id}
           id={post.id}
           kind={post.kind}
           slug={post.slug}

@@ -1,4 +1,7 @@
+import { decklistEmbed } from "../embed-decklist/index";
+import { imageEmbed } from "../embed-image/index";
 import type { RegisteredEmbed } from "../embed-registry/index";
+import { tournamentEmbed } from "../embed-tournament/index";
 
 /**
  * Every component an article may place (E20.23), and the ones planned.
@@ -10,7 +13,11 @@ import type { RegisteredEmbed } from "../embed-registry/index";
  *   3. Its site renderer in `web/components/content/embeds/renderers.tsx`; the
  *      type there requires one for every name here, and a test checks it.
  */
-export const EMBEDS = [] as const satisfies readonly RegisteredEmbed[];
+export const EMBEDS = [
+  imageEmbed,
+  decklistEmbed,
+  tournamentEmbed,
+] as const satisfies readonly RegisteredEmbed[];
 
 export type EmbedName = (typeof EMBEDS)[number]["name"];
 
@@ -30,24 +37,6 @@ export interface PlannedEmbed {
 }
 
 export const PLANNED_EMBEDS: readonly PlannedEmbed[] = [
-  {
-    name: "decklist",
-    label: "Decklist",
-    description: "One of your decks, by id. The picker will list your own decks first.",
-    example: ':::decklist{id="…"}',
-    site: "The deck visualizer (E19.13): the list by type, with card previews on hover.",
-    reddit: "A link to the deck, then the list as plain text — Reddit keeps the cards.",
-    discord: "A link to the deck with its name and record; the list is too long for a message.",
-  },
-  {
-    name: "image",
-    label: "Image",
-    description: "An uploaded picture, with a caption.",
-    example: ':::image{src="…" alt="…" caption="…"}',
-    site: "The image, sized to the column, with its caption.",
-    reddit: "A link labelled with the alt text — a self-post cannot show an image inline.",
-    discord: "The bare image URL on its own line, which Discord unfurls into a preview.",
-  },
   {
     name: "card",
     label: "Card",

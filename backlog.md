@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 5/21  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 17/35 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 20/36 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 13/14 |
@@ -999,11 +999,25 @@ without a Reddit and a Discord export; planned ones are listed in the editor wit
 _Note:_ no component is live. `core/content/embed-*` holds the syntax, the registry and the catalogue;
 `web/components/content/embeds` the renderers. Submission refuses a component that is not live, so
 nothing unrenderable is published. How to add one: [`docs/modules/content.md`](docs/modules/content.md).
-⬜ **E20.24 — Decklist component** · M · Deps: E20.23, E19.13, E20.7 — `:::decklist{id}`; the picker
+✅ **E20.24 — Decklist component** · M · Deps: E20.23, E19.13, E20.7 — `:::decklist{id}`; the picker
 lists the author's own decks first. _AC:_ Reddit gets a link and the list as text; Discord a link
 with the deck's name and record.
-⬜ **E20.25 — Image component** · M · Deps: E20.23 — `:::image{src alt caption}`. Needs a decision on
+_Note:_ built on E20.6's deck sections rather than E19.13's `DeckVisualizer`, which does not exist
+yet. Reddit's list is a four-space indented block so every line survives and pastes into a client.
+Discord gets the name and card counts: a deck on its own has no record. A private deck renders for
+its owner only, with a note that readers cannot see it.
+✅ **E20.25 — Image component** · M · Deps: E20.23 — `:::image{src alt caption}`. Needs a decision on
 where uploads are stored (Supabase Storage is the obvious one) and on size limits.
+_Note:_ decided: a public `post-images` Storage bucket (migration `0028_post_images.sql`), a folder
+per writer's auth id enforced by policy, 4 MB of PNG, JPEG, WebP or GIF — under Vercel's 4.5 MB
+request cap, which the upload server action passes through. An image can also be linked by address.
+Alt text is required.
+✅ **E20.36 — Tournament component** · M · Deps: E20.23, E20.24, E18.21 —
+`:::tournament{slug show deck player}`: an event's winner, top 2 or top 4 as one card, with a deck
+either under a finisher or paired beside the results. _AC:_ on the site the deck sits inside the
+tournament card; every export writes the event and its finishers, then the deck separately, the way
+the decklist component does; an event with no standings says so rather than showing an empty list.
+
 ⬜ **E20.26 — Card component** · S · Deps: E20.23, E4.7 — `:::card{name}`, resolved against the card
 index. _AC:_ exports as the name linked to Scryfall.
 ✅ **E20.27 — `content`: "Articles" becomes "Community", with a way in from every feed** · S · Deps:
@@ -1318,8 +1332,6 @@ can start today, in rough order of how much it unblocks.
 - **E23.14 — scheduling the completed-events job,** now that `/api/jobs/process-completed-events`
   exists: pick the scheduler, set `CRON_SECRET` in Vercel and in it, and choose an interval. The queue
   makes any interval safe.
-- **E20.24 — the decklist component,** now that members have decks (E20.28) and a deck page (E20.6)
-  to link to. The picker is `listDecksByOwner`.
 - **E19.13 — `DeckVisualizer`,** now that `repos/decks` can hand it a deck. It takes shaped lines as
   props like every E19 component, so it needs no card data of its own — but see E19.1 first, which
   sets the fixture conventions the other thirteen components inherit.
@@ -1343,7 +1355,7 @@ credentials are unset. See [`docs/modules/events.md`](docs/modules/events.md).
 **Auth is in, so every gated story now has somewhere to put its gate.** E16.2–E16.6, E16.9 and E20.1
 are merged: four ways to sign in, a profile row per account, `requireViewer` / `requireRole`, and a
 dashboard shell open to every member. Anything that needed a signed-in person can now ask
-for one in a line — E18.8 (the self-service paste path), E20.24–E20.26 (the first article components — see `docs/modules/content.md` for the three steps), E20.15 (the
+for one in a line — E18.8 (the self-service paste path), E20.26 (the card component — see `docs/modules/content.md` for the three steps), E20.15 (the
 import dashboard), E20.16 and E20.18 (the two admin slices, which could equally become sections of `/admin` — see `lib/auth/admin-sections.ts`). Each of those is a page under
 `/dashboard` that calls `requireRole` and fills in one entry in `lib/auth/dashboard-sections.ts`.
 
@@ -1390,10 +1402,10 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 21      | 5    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 35      | 17   |
+| E9   | 9       | 9    | E20  | 36      | 20   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 2    |
 |      |         |      | E23  | 14      | 13   |
 |      |         |      | E24  | 7       | 4    |
 
-**179 of 260 stories done across 24 epics.**
+**182 of 261 stories done across 24 epics.**
