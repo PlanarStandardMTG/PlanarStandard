@@ -21,7 +21,10 @@ export async function DevAccountSwitcher() {
         className="cursor-pointer list-none rounded-md border border-dashed border-amber-400 px-2 py-1 text-xs font-medium text-amber-700 dark:border-amber-700 dark:text-amber-400"
         title="Local development only"
       >
-        Dev: {viewer === null ? "sign in as…" : viewer.profile.role}
+        Dev
+        <span className="hidden sm:inline">
+          : {viewer === null ? "sign in as…" : viewer.profile.role}
+        </span>
       </summary>
       <ul className="absolute right-0 z-50 mt-2 w-64 rounded-lg border border-ink-200 bg-white p-1 shadow-lg dark:border-ink-800 dark:bg-ink-950">
         {DEV_ACCOUNTS.map((account) => (
