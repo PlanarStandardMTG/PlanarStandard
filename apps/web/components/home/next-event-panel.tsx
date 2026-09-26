@@ -95,7 +95,10 @@ export function NextEventPanel({
               >
                 {/* The column is narrow enough that a long name will clip, so
                     the full one stays reachable on hover. */}
-                <span title={later.name} className="truncate text-ink-600 dark:text-ink-400">
+                <span
+                  title={later.name}
+                  className="min-w-0 truncate text-ink-600 dark:text-ink-400"
+                >
                   {later.name}
                 </span>
                 {later.startsAt !== null && (

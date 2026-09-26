@@ -62,9 +62,11 @@ export default async function HomePage() {
 
       {/* The lead tile takes two of three columns, so it reads as the larger
           square next to the event rather than as a row of two equal cards. Both
-          stretch to the taller of the two. */}
+          stretch to the taller of the two. `min-w-0` on both: a grid cell is
+          otherwise as wide as its longest unbreakable line, and a truncated
+          event name held both cards 50px past a phone's margin. */}
       <div className="mt-8 grid items-stretch gap-4 lg:grid-cols-3">
-        <div className="lg:col-span-2">
+        <div className="min-w-0 lg:col-span-2">
           {news.ok ? (
             <LatestNewsPanel posts={news.value} />
           ) : (
@@ -72,7 +74,7 @@ export default async function HomePage() {
           )}
         </div>
 
-        <div>
+        <div className="min-w-0">
           {events.ok ? (
             <NextEventPanel
               event={ahead[0] ?? null}
