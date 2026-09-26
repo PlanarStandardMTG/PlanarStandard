@@ -17,7 +17,7 @@ A community site for the Magic: The Gathering format **Planar Standard**.
 | **Metagame analytics** | Live charts and an interactive archetype map, replacing a hand-maintained spreadsheet driven by simple imported data |
 | **Leaderboard**        | Elo ratings computed from tournament results                                                                         |
 | **Decklists**          | Import, validate, visualize                                                                                          |
-| **Articles**           | Ambassadors write metagame recaps, one-click copy to Reddit                                                          |
+| **Posts**              | News from the format and community posts under members' own bylines, one-click copy to Reddit                        |
 | **Info pages**         | Rules, FAQ, methodology — versioned in the repo                                                                      |
 
 ### 2. The three data streams
@@ -26,8 +26,8 @@ They are independent on purpose. Each can be built, broken, and fixed without to
 
 ```
 RESULTS  ──► Melee.gg data ──► matches ledger ──► Elo replay ──► leaderboard
-DECKS    ──► ~ decklists in Google Drive? ──► deck_cards ──► metrics/stats ──► charts, map, card scores
-CONTENT  ──► MDX pages (repo) + posts (database) ──► articles, rules, methodology
+DECKS    ──► member imports, melee.gg lists, backfill ──► deck_cards ──► metrics/stats ──► charts, map, card scores
+CONTENT  ──► MDX pages (repo) + posts (database) ──► news, community posts, rules, methodology
 ```
 
 **Optionally:** They meet in exactly one optional place: `tournament_entries` links a player to the deck they piloted, which yields the matchup matrix. If that link is missing, everything else still works.
@@ -52,6 +52,7 @@ planar-standard/
 │   ├── contracts/     types only. zero runtime dependencies.
 │   ├── core/          pure functions. depends on contracts ONLY.
 │   ├── adapters/      source parsers. depends on contracts + core.
+│   ├── cards/         loads data/cards/ once per process. depends on contracts + core.
 │   └── db/            schema, migrations, repositories. depends on contracts.
 ├── apps/
 │   ├── web/           Next.js. depends on everything.
@@ -109,16 +110,18 @@ Every module in the system. **Pure** modules need no infrastructure to develop o
 
 ### 7. `packages/contracts` — types only
 
-| Module     | Exports                                                                                    |
-| ---------- | ------------------------------------------------------------------------------------------ |
-| `cards`    | `OracleCard`, `CardPrinting`, `CardIndex`, `OracleId`, `Rarity`, `Layout`                  |
-| `decks`    | `ParsedDeck`, `ParsedLine`, `ResolvedDeck`, `Board`                                        |
-| `format`   | `FormatVersion`, `FormatRules`, `LegalityVerdict`, `Issue`                                 |
-| `results`  | `RawInput`, `ParsedEvent`, `ParsedMatch`, `ParsedStanding`, `Capability`, `ResultsAdapter` |
-| `identity` | `Handle`, `IdentityRef`, `MergeSuggestion`, `Signal`, `Exclusion`                          |
-| `ratings`  | `RatingConfig`, `RatingEvent`, `PlayerRating`, `LedgerMatch`                               |
-| `metrics`  | `DeckMetrics`, `CardStats`, `ArchetypeStats`, `SimilarityEdge`                             |
-| `content`  | `Post`, `PostStatus`, `InfoPageFrontmatter`                                                |
+| Module       | Exports                                                                                    |
+| ------------ | ------------------------------------------------------------------------------------------ |
+| `cards`      | `OracleCard`, `CardPrinting`, `CardIndex`, `OracleId`, `Rarity`, `Layout`                  |
+| `decks`      | `ParsedDeck`, `ParsedLine`, `ResolvedDeck`, `Board`, `Deck`, `DeckFormat`                  |
+| `format`     | `FormatVersion`, `FormatRules`, `LegalityVerdict`, `Issue`                                 |
+| `results`    | `RawInput`, `ParsedEvent`, `ParsedMatch`, `ParsedStanding`, `Capability`, `ResultsAdapter` |
+| `identity`   | `Handle`, `IdentityRef`, `MergeSuggestion`, `Signal`, `Exclusion`, `PlayerMerge`           |
+| `ratings`    | `RatingConfig`, `RatingEvent`, `PlayerRating`, `LedgerMatch`                               |
+| `metrics`    | `DeckMetrics`, `CardStats`, `ArchetypeStats`, `SimilarityEdge`                             |
+| `content`    | `Post`, `PostKind`, `PostStatus`, `Profile`, `UserRole`, `InfoPageFrontmatter`             |
+| `events`     | `EventSource`, `ExternalEvent`, `EventSchedule`, `EventCompletion`                         |
+| `primitives` | `IsoDate` and the branded ids — `PlayerId`, `TournamentId`, `DeckId`, …                    |
 
 Write these first. Once they exist, every other package can be built in parallel.
 
@@ -128,25 +131,32 @@ Write these first. Once they exist, every other package can be built in parallel
 
 #### 8.1 `core/decklist` — text → structured deck
 
-| Module           | One-line job                                                             |
-| ---------------- | ------------------------------------------------------------------------ |
-| `tokenize-line`  | `"4 Bolt (FDN) 192 *F*"` → `{qty, name, set, collector, foil}`           |
-| `detect-board`   | Is this line a `SIDEBOARD:` / `Sideboard` / `SB:` / blank-line boundary? |
-| `normalize-name` | NFKC, case, punctuation, `//` handling, MDFC front/back faces            |
-| `parse-decklist` | Composes the above over a document → `ParsedDeck`                        |
-| `parse-filename` | `Player (alias)｜Deck｜Archetype｜W-L-D｜GW-GL` → structured metadata    |
+| Module            | One-line job                                                              |
+| ----------------- | ------------------------------------------------------------------------- |
+| `tokenize-line`   | `"4 Bolt (FDN) 192 *F*"` → `{qty, name, set, collector, foil}`            |
+| `detect-board`    | Is this line a `SIDEBOARD:` / `Sideboard` / `SB:` / blank-line boundary?  |
+| `normalize-name`  | NFKC, case, punctuation, `//` handling, MDFC front/back faces             |
+| `parse-decklist`  | Composes the above over a document → `ParsedDeck`                         |
+| `parse-filename`  | `Player (alias)｜Deck｜Archetype｜W-L-D｜GW-GL` → structured metadata     |
+| `deck-sections`   | A deck split into the sections it is read in: maindeck by type, sideboard |
+| `pick-printing`   | Which printing of a card a deck page shows                                |
+| `latest-versions` | A member's decks as one entry each: the newest version                    |
 
 Real cases from existing data that each needs to survive: missing set codes, `*F*` markers, promo sets (`PSOS`), alphanumeric collectors (`25p`, `WOE-273`), split cards (`Sanar, Unfinished Genius / Wild Idea`), fullwidth `｜` and `＞`, and filenames where the OS rewrote `｜` to `_`.
 
 #### 8.2 `core/legality` — deck + rules → verdict
 
-| Module              | One-line job                                                                                                       |
-| ------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `build-card-index`  | Dataset arrays → lookup maps by oracle id, normalized name, and set. Pure: takes the parsed dataset as an argument |
-| `resolve-card-name` | Parsed decklist name → `oracle_id`, with fuzzy "did you mean" candidates                                           |
-| `resolve-format`    | Format version rows → a flat `FormatRules` object                                                                  |
-| `check-card`        | One card against the pool, banlist, and exceptions                                                                 |
-| `check-deck`        | Sizes, copy limits, basic-land exemption; composes `check-card`                                                    |
+| Module                 | One-line job                                                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| `build-card-index`     | Dataset arrays → lookup maps by oracle id, normalized name, and set. Pure: takes the parsed dataset as an argument |
+| `resolve-card-name`    | Parsed decklist name → `oracle_id`, with fuzzy "did you mean" candidates                                           |
+| `resolve-format`       | Format version rows → a flat `FormatRules` object                                                                  |
+| `check-card`           | One card against the pool, banlist, and exceptions                                                                 |
+| `check-deck`           | Sizes, copy limits, basic-land exemption; composes `check-card`                                                    |
+| `resolve-deck`         | `ParsedDeck` → `ResolvedDeck`, resolving every line's name                                                         |
+| `check-deck-in-format` | A deck against the format it was built for: Planar Standard is checked, Kitchen Table is not                       |
+| `check-deck-import`    | Whether a pasted list, with its name, visibility and format, can be saved                                          |
+| `check-format-draft`   | Whether an admin's format version form can be saved; card rules by name, with "did you mean"                       |
 
 **The format rule, confirmed from real data:** a card is legal if its oracle card has _any_ printing in a legal set. Any printing may then be played. (EG: Season II tracks six sets (SOS, ECL, EOE, TDM, DFT, FDN) while printings come from FIN, ONE, M19, PLST, and promos.)
 
@@ -199,6 +209,7 @@ Basics excluded, non-basic lands included, maindeck only, default threshold 0.5.
 | `signals/temporal`         | A's last event precedes B's first → 0.30                                  |
 | `score-candidates`         | Combines signals, applies exclusions, ranks                               |
 | `co-appearance-exclusions` | Two handles in one event ⇒ **never the same person**                      |
+| `merge-blockers`           | The events that prove two players are two people, read from the ledger    |
 | `resolve-handles`          | An event's handles → reuse, attach or create; exact normalized match only |
 | `player-slug`              | A new player's URL key from their first handle                            |
 
@@ -227,7 +238,54 @@ Basics excluded, non-basic lands included, maindeck only, default threshold 0.5.
 
 Five tiny transforms and a pipeline. Each is a two-minute PR with a before/after fixture.
 
-#### 8.9 `packages/cards` — the loader that `core` may not be
+#### 8.9 `core/results` — a parsed event → the ledger's rows
+
+| Module           | One-line job                                                                                     |
+| ---------------- | ------------------------------------------------------------------------------------------------ |
+| `ledger-matches` | Parsed pairings → `matches` rows, leaving out a match with no result or an unresolved side       |
+| `event-entries`  | Parsed event → one standing per player; placements from the source, else a clean playoff bracket |
+
+`event-entries` reads finishes off pairings, never pairings off finishes (ADR 006).
+
+#### 8.10 `core/content` — posts and the components in them
+
+| Module             | One-line job                                                                    |
+| ------------------ | ------------------------------------------------------------------------------- |
+| `embed-syntax`     | Find the `:::name{key="value"}` lines where a post places a component           |
+| `embed-registry`   | What a component is and how it exports; `defineEmbed` requires both exports     |
+| `embed-catalogue`  | The live components (`image`, `decklist`, `tournament`) and the planned ones    |
+| `embed-image`      | `:::image{src alt caption}`                                                     |
+| `embed-decklist`   | `:::decklist{id title}`                                                         |
+| `embed-tournament` | `:::tournament{slug show deck player}`: winner, top 2 or top 4, with a deck     |
+| `export-post`      | A post body for Reddit or Discord: expand components, then `to-reddit-markdown` |
+| `post-draft`       | Whether an author's input can be saved or submitted                             |
+| `post-workflow`    | The status a post lands in when it is submitted or reviewed                     |
+
+A component renders on the site through a renderer in `apps/web` and exports as text through core, so a post always copies to Reddit whole.
+
+#### 8.11 `core/events` — platform calendars → a schedule
+
+| Module                   | One-line job                                                        |
+| ------------------------ | ------------------------------------------------------------------- |
+| `parse-challonge-events` | Challonge's community-tournaments payload → canonical events        |
+| `parse-melee-events`     | melee.gg's tournament list → canonical events                       |
+| `sync-window`            | Whether a calendar is due a refresh                                 |
+| `event-schedule`         | Cached events grouped into live / upcoming / past; the next one     |
+| `newly-completed`        | Which fetched events have just finished — the trigger for ingesting |
+| `completion-status`      | Where one finished event stands in the processing queue             |
+| `event-slug`             | A new tournament's slug from its name                               |
+| `check-season-draft`     | Whether an admin's season form can be saved; seasons never overlap  |
+
+#### 8.12 `core/auth` — who may do what
+
+| Module            | One-line job                                                     |
+| ----------------- | ---------------------------------------------------------------- |
+| `meets-role`      | Whether a role clears a bar: reader < writer < organizer < admin |
+| `moderation`      | Whether an admin may change a member's role or ban them          |
+| `password-policy` | Whether a password is acceptable, before it is sent              |
+| `profile-handle`  | Validate the handle a person chooses for themselves              |
+
+#### 8.13 `packages/cards` — the loader that `core` may not be
 
 `core` takes the card index as an argument and never reads a file, which is what makes every module above testable with no infrastructure. Something still has to read `data/cards/` off disk, and it cannot be `apps/jobs` either, because `apps/web` may not import it.
 
@@ -248,8 +306,11 @@ One file per source. All implement `ResultsAdapter` from contracts; all are pure
 | `melee-csv`          | matches, standings, roster            | second                          |
 | `melee-api`          | matches, standings, roster, decklists | second — scrubbed API results   |
 | `challonge-csv`      | matches, standings, roster            | second                          |
+| `challonge-api`      | matches, standings, roster            | second — scrubbed API results   |
 | `legacy-xlsx`        | standings                             | one-time backfill               |
 | `archetype-map-html` | decklists                             | one-time backfill               |
+
+Beside them sit the shared pieces every adapter uses: `registry` (detect dispatch, with `generic-csv` as the declared fallback), `parse-csv`, `normalize-result` and `raw-input`. The API adapters read a document the site assembles from scrubbed fetches, never a raw response, because a raw response names people.
 
 **Adding an adapter is the ideal first contribution:** drop a real export into `fixtures/`, write `detect` and `parse`, write the expected `ParsedEvent` JSON, done. No database, no UI, no coordination.
 
@@ -263,13 +324,16 @@ One repository module per aggregate. Each exposes narrow, intention-revealing fu
 | ------------------- | ------------------------------------------------------------------------------------------- |
 | `repos/format`      | `format_versions`, `format_legal_sets`, `format_card_rules`, `format_constraints`           |
 | `repos/decks`       | `decks`, `deck_cards`, `deck_metrics`                                                       |
-| `repos/tournaments` | `tournaments`, `tournament_entries`, `seasons`                                              |
+| `repos/tournaments` | `tournaments`, `tournament_entries`                                                         |
+| `repos/seasons`     | `seasons`                                                                                   |
 | `repos/results`     | `result_imports`, `staged_matches`, `matches`, `match_corrections`                          |
 | `repos/identity`    | `players`, `player_identities`, `identity_exclusions`, `merge_suggestions`, `player_merges` |
 | `repos/ratings`     | `rating_events`, `player_ratings`, `rating_config`, `rating_runs`                           |
 | `repos/stats`       | `card_stats`, `archetype_stats`, `deck_similarity`, `deck_map_layout`, `matchup_stats`      |
-| `repos/content`     | `posts`, `post_revisions`                                                                   |
+| `repos/content`     | `posts`, `post_revisions`, and the `post-images` Storage bucket                             |
 | `repos/archetypes`  | `archetypes`, `archetype_aliases`                                                           |
+| `repos/profiles`    | `profiles`                                                                                  |
+| `repos/events`      | `external_events`, `external_event_syncs`, `event_completions`                              |
 
 Plus `migrations/` (numbered, forward-only) and `seed/` (§17).
 
@@ -277,34 +341,42 @@ Plus `migrations/` (numbered, forward-only) and `seed/` (§17).
 
 #### 11.1 Services — the only impure orchestration
 
-| Service             | Job                                                                                                   |
-| ------------------- | ----------------------------------------------------------------------------------------------------- |
-| `import-results`    | adapter → stage → resolve → review → commit                                                           |
-| `import-decklists`  | folder drop / paste → parse → resolve → commit                                                        |
-| `recompute-ratings` | full Elo replay, resolving identities at read time                                                    |
-| `recompute-metrics` | deck metrics, card stats, archetype stats, similarity, layout                                         |
-| `merge-players`     | repoint identities, recompute, audit                                                                  |
-| `build-card-data`   | Runs in `apps/jobs`, not the web app. Fetches Scryfall bulk, prunes, commits `data/cards/`. See §14.1 |
-| `publish-post`      | status transition + Discord notify                                                                    |
-| `notify-discord`    | webhook wrapper                                                                                       |
+| Service               | Job                                                                                                   |
+| --------------------- | ----------------------------------------------------------------------------------------------------- |
+| `import-results`      | adapter → stage → resolve → review → commit                                                           |
+| `ingest-event`        | a finished platform event → tournament, ledger and standings, then ratings; no review queue (§26)     |
+| `sync-events`         | refresh a platform calendar within its request budget; queue the events that just finished            |
+| `process-completions` | work that queue: each finished event is handled once, retried on failure                              |
+| `import-decklists`    | folder drop / paste → parse → resolve → commit                                                        |
+| `recompute-ratings`   | full Elo replay, resolving identities at read time                                                    |
+| `recompute-metrics`   | deck metrics, card stats, archetype stats, similarity, layout                                         |
+| `merge-players`       | repoint identities, recompute, audit                                                                  |
+| `build-card-data`     | Runs in `apps/jobs`, not the web app. Fetches Scryfall bulk, prunes, commits `data/cards/`. See §14.1 |
+| `publish-post`        | status transition + Discord notify                                                                    |
+| `notify-discord`      | webhook wrapper                                                                                       |
 
-Each service is a thin coordinator: load data via repos, call pure core functions, write results via repos. **If a service contains business logic, that logic is in the wrong place** — it belongs in `core`.
+Services live in `apps/web/lib/<area>/<name>.server.ts`. Each is a thin coordinator: load data via repos, call pure core functions, write results via repos. **If a service contains business logic, that logic is in the wrong place** — it belongs in `core`.
 
 #### 11.2 Feature slices
 
 Each slice owns its routes, components, and hooks. Slices don't import from each other; shared UI goes to `components/ui`.
 
-| Slice            | Routes                                                |
-| ---------------- | ----------------------------------------------------- |
-| `auth`           | login, callback                                       |
-| `content`        | `/community/*`, MDX `/(info)/[...slug]`               |
-| `cards`          | `/cards`, `/cards/[oracleId]`                         |
-| `decks`          | `/decks`, `/decks/new` (import), `/decks/[id]`        |
-| `meta`           | `/meta`, `/meta/map`, `/meta/cards`, `/meta/matchups` |
-| `leaderboard`    | `/leaderboard`, `/players/[slug]`                     |
-| `tournaments`    | `/tournaments/[slug]`, import dashboard               |
-| `identity-admin` | `/dashboard/identities`, merge grid, CSV round-trip   |
-| `format-admin`   | `/dashboard/format`                                   |
+| Slice            | Routes                                                                                            |
+| ---------------- | ------------------------------------------------------------------------------------------------- |
+| `auth`           | `/login`, `/signup`, `/forgot-password`, `/auth/*`, `/profile`, `/account/*`                      |
+| `home`           | `/` — latest news, the next event, the last event's podium                                        |
+| `content`        | `/news/*`, `/community/*`, `/dashboard/community/*`, `/dashboard/review`, MDX `/(info)/[...slug]` |
+| `events`         | `/events`                                                                                         |
+| `cards`          | `/cards`, `/cards/[oracleId]`                                                                     |
+| `decks`          | `/decks`, `/decks/new` (import), `/decks/[id]`, `/decks/[id]/edit`                                |
+| `meta`           | `/meta`, `/meta/map`, `/meta/cards`, `/meta/matchups`                                             |
+| `leaderboard`    | `/leaderboard`, `/players/[slug]`                                                                 |
+| `tournaments`    | `/tournaments/[slug]`, import dashboard                                                           |
+| `admin`          | `/admin`, `/admin/users`, `/admin/seasons`, `/admin/processing`                                   |
+| `identity-admin` | `/admin/players` — merge grid and undo; CSV round-trip                                            |
+| `format-admin`   | `/admin/formats`                                                                                  |
+
+Admin-only slices live under `/admin`; `/dashboard` is every signed-in member's.
 
 #### 11.3 Chart components
 
@@ -320,7 +392,7 @@ All rate-displaying components import `suppress-small-n` and render Wilson inter
 
 Grouped by owning module. Full DDL lives in `packages/db/migrations/`; this is the shape.
 
-Sections below are ordered by module, not by dependency — several forward-reference tables defined later. Migrations create them in this order: `profiles` → `cards`, `card_printings` → `format_*` → `archetypes` → `seasons` → `players`, `player_identities` → `tournaments` → `decks`, `deck_cards` → `result_imports`, `staged_matches`, `matches` → `tournament_entries`, `identity_exclusions` → derived tables → views.
+Sections below are ordered by module, not by dependency — several forward-reference tables defined later. The first fourteen migrations create them in this order: `profiles` → `posts` → `external_events` → `format_*` → `archetypes` → `seasons` → `tournaments` → `players`, `player_identities` → `decks`, `deck_cards` → `result_imports`, `staged_matches`, `matches`, `match_corrections` → `tournament_entries` → `identity_exclusions`, `merge_suggestions`, `player_merges` → ratings and the `leaderboard` view → derived tables. Later ones add what features needed, in the order they needed it; the DDL below shows the result.
 
 ### 12. Identity and ratings
 
@@ -381,7 +453,8 @@ create table player_merges (
   loser_id  uuid not null references players(id),
   reason text, moved jsonb not null,
   merged_by uuid references profiles(id),
-  created_at timestamptz not null default now()
+  created_at timestamptz not null default now(),
+  undone_at timestamptz, undone_by uuid references profiles(id)
 );
 ```
 
@@ -392,9 +465,9 @@ create table rating_config (
   k_provisional int not null default 40,
   k_standard    int not null default 24,
   k_elite       int not null default 16,
-  provisional_matches int not null default 15,
+  provisional_matches int not null default 5,   -- about one Monthly (E20.12)
   elite_threshold int not null default 2100,
-  min_matches_for_leaderboard int not null default 10,
+  min_matches_for_leaderboard int not null default 5,
   inactive_after_days int not null default 120,
   count_byes boolean not null default false,
   count_elimination_rounds boolean not null default true
@@ -445,6 +518,14 @@ where p.visibility = 'public'
   and p.merged_into is null
   and not r.is_provisional
   and r.matches_played >= (select min_matches_for_leaderboard from rating_config where id = 1);
+
+-- The complement under the same visibility rules, for /leaderboard's "Not ranked yet".
+create view provisional_ratings as
+select ... -- the same columns
+where p.visibility = 'public'
+  and p.merged_into is null
+  and (r.is_provisional
+       or r.matches_played < (select min_matches_for_leaderboard from rating_config where id = 1));
 ```
 
 ### 13. Results ledger
@@ -547,6 +628,37 @@ create table tournament_entries (
   deck_missing_reason text,
   unique (tournament_id, player_id)
 );
+
+-- The platform calendars (E23), a cache replaced wholesale on each refresh,
+-- and the queue of finished events kept apart from it so a refresh cannot erase it.
+create type external_event_state as enum ('scheduled','live','complete');
+
+create table external_events (
+  id uuid primary key default gen_random_uuid(),
+  source text not null, external_id text not null,
+  name text not null, url text,
+  state external_event_state not null,
+  starts_at timestamptz, participant_count int not null default 0, structure text,
+  fetched_at timestamptz not null default now(),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now(),
+  unique (source, external_id)
+);
+
+create table external_event_syncs (          -- one row per source: its request budget
+  source text primary key,
+  last_attempted_at timestamptz, last_succeeded_at timestamptz, last_error text,
+  event_count int not null default 0,
+  updated_at timestamptz not null default now()
+);
+
+create table event_completions (             -- each finished event, handled once (E23.13)
+  source text not null, external_id text not null, name text not null,
+  detected_at timestamptz not null default now(),
+  claimed_at timestamptz, processed_at timestamptz,
+  attempts int not null default 0, last_error text,
+  primary key (source, external_id)
+);
 ```
 
 ### 14. Cards, format, decks
@@ -639,8 +751,14 @@ create table decks (
   submitted_via text check (submitted_via in ('registration','organizer','backfill','import')),
   locked_at timestamptz, parent_deck_id uuid references decks(id),
   is_legal boolean, validation jsonb,
+  format text not null default 'planar_standard'
+    check (format in ('planar_standard','kitchen_table')),
+  hidden_at timestamptz,                       -- "deleted" by its owner; the row stays (E20.31)
   created_at timestamptz not null default now()
 );
+-- A member's edits make a line of versions, never a tree (E20.30).
+create unique index decks_one_successor on decks (parent_deck_id)
+  where parent_deck_id is not null and submitted_via = 'import' and hidden_at is null;
 create table deck_cards (
   id uuid primary key default gen_random_uuid(),
   deck_id uuid not null references decks(id) on delete cascade,
@@ -725,11 +843,15 @@ create table matchup_stats (
 ```sql
 create type user_role   as enum ('reader','writer','organizer','admin');
 create type post_status as enum ('draft','review','published','archived');
+create type post_kind   as enum ('official','community');   -- who is speaking: /news or /community
 
 create table profiles (
-  id uuid primary key references auth.users(id) on delete cascade,
+  id uuid primary key,                         -- the profile's own id; outlives the account
+  user_id uuid unique references auth.users(id) on delete set null,
   display_name text not null, handle text unique, avatar_url text, bio text,
   role user_role not null default 'reader',
+  deleted_at timestamptz,                      -- erased: a tombstone (E16.10)
+  banned_at timestamptz,
   created_at timestamptz not null default now()
 );
 
@@ -739,6 +861,7 @@ create table posts (
   body_markdown text not null default '', excerpt text, hero_image_url text,
   tags text[] not null default '{}',
   status post_status not null default 'draft',
+  kind post_kind not null default 'community',
   author_id uuid not null references profiles(id),
   published_at timestamptz, reddit_url text, reddit_posted_at timestamptz,
   created_at timestamptz not null default now(),
@@ -752,11 +875,14 @@ create table post_revisions (
   edited_by uuid references profiles(id),
   created_at timestamptz not null default now()
 );
+
+-- Storage, not a table: the public `post-images` bucket holds the image component's
+-- uploads, one folder per auth user, 4 MB of PNG, JPEG, WebP or GIF (E20.25).
 ```
 
 **RLS summary.** Public select on `format_*`, `archetypes`, all derived stats, the `leaderboard` view, public decks, and published posts. Service-role write on every derived table and the ledger. Organizer-gated writes on tournaments and imports. Admin-only on merges, format edits, and role grants.
 
-`packages/db/tests/rls.test.ts` hits every table as anon / reader / writer / organizer / admin and asserts the full allow-deny matrix. It runs in CI.
+`packages/db/rls.test.ts` hits every table as anon / reader / writer / organizer / admin and asserts the full allow-deny matrix. It runs in CI.
 
 ---
 
@@ -775,12 +901,15 @@ pnpm --filter adapters test     # ✅ works immediately, zero setup
 For the full stack:
 
 ```bash
+pnpm dev:db                     # all of the below, plus apps/web/.env.local, in one command
 pnpm db:start                   # supabase start (local Docker)
 pnpm db:reset                   # migrations + seed
 pnpm dev                        # http://localhost:3000
 ```
 
-**The seed matters.** `packages/db/seed/` ships an anonymized derivative of Season II — real decklists, real archetype distribution, synthetic handles and synthetic pairings. A contributor gets a site with a populated leaderboard, a working archetype map, and real charts on first run. Nobody can meaningfully improve a chart against an empty database.
+Under `next dev` the header's **Dev** menu signs in as any seeded account, reader through admin (E16.13).
+
+**The seed matters.** `packages/db/seed/` is to ship an anonymized derivative of Season II (E15.1–E15.2; today it carries accounts, posts, a calendar, the format, archetypes, seasons and one tournament, but no players, decks or matches) — real decklists, real archetype distribution, synthetic handles and synthetic pairings. A contributor gets a site with a populated leaderboard, a working archetype map, and real charts on first run. Nobody can meaningfully improve a chart against an empty database.
 
 Only the Discord webhook needs real credentials, and only for the task that posts to it. Sign-in does not: local Supabase accepts email and password, and its mail catcher holds the confirmation and magic links, so the whole auth surface can be worked on offline (E16.9). OAuth providers are optional everywhere — the sign-in page renders whichever ones the project has configured and offers email either way. Card data is committed to the repo, so legality and metrics work offline on a fresh clone too.
 
@@ -903,15 +1032,15 @@ Condensed. Detail per module lives in `docs/modules/`.
 
 ### 25. Content
 
-**MDX in `content/pages/`** — about, rules, getting-started, faq, methodology, ratings-explained, organizers, resources. Version-controlled, PR-reviewed, and able to embed live components (`<LegalSets />`, `<Banlist />`, `<Chart />`) so the rules page can't go stale after a B&R. Start with `@next/mdx`; graduate to Velite or content-collections if typed frontmatter and generated nav become worth it. Whitelist the MDX component set — MDX executes.
+**MDX in `content/pages/`** — about, rules, getting-started, faq, methodology, ratings-explained, organizers, resources, privacy. Version-controlled, PR-reviewed, and able to embed live components (`<LegalSets />`, `<Banlist />`, `<Chart />`) so the rules page can't go stale after a B&R. Compiled with `@mdx-js/mdx` directly rather than `@next/mdx`, which only reads `.mdx` inside `app/` (E17.1). Whitelist the MDX component set — MDX executes — and enforce it on the compiled tree, not through MDX's `components` prop.
 
-**Posts in Postgres** — ambassador articles, MDXEditor, draft → review → published, `to-reddit-markdown` behind a "Copy for Reddit" button, Discord webhook on publish.
+**Posts in Postgres** — two kinds: `official` news at `/news`, admins only, and `community` posts at `/community` under a member's own byline. Draft → review → published; a writer publishes directly, a reader's post waits for review. The editor is a Markdown textarea with Preview, Reddit and Discord tabs rather than a rich-text editor, so nothing garbles a component line. A post places components one per line — `:::image`, `:::decklist`, `:::tournament` (§8.10) — which render on the site and export as text; `export-post` expands them before `to-reddit-markdown`, so "Copy for Reddit" always copies the whole post. Discord webhook on publish is still to come (E18.18).
 
 > **The split rule:** if a non-technical ambassador needs to publish it this week without a PR, it's a post. If it describes how the site or format works and should be reviewed before changing, it's an MDX page.
 
 ### 26. Ingestion flows
 
-**Results:** upload → detect adapter → parse → stage → resolve handles → review → commit → recompute. Content-hash idempotency; raw bytes archived permanently; `raw jsonb` retained so parser fixes re-run without the original file. Re-imports supersede wholesale and never merge. Corrections require a reason, write an audit row, trigger recompute, and post to Discord if any public rank moves.
+**Results:** upload → detect adapter → parse → stage → resolve handles → review → commit → recompute. A finished event on a platform with an API takes a shorter path: the calendar refresh queues it, the queue fetches its scrubbed results once, and `ingest-event` commits them with no review step, because handles resolve by exact normalized match only; it writes the standings too, and recomputes ratings when the event is rated. Content-hash idempotency; raw bytes archived permanently; `raw jsonb` retained so parser fixes re-run without the original file. Re-imports supersede wholesale and never merge. Corrections require a reason, write an audit row, trigger recompute, and post to Discord if any public rank moves.
 
 **Decklists:** three paths, all optional to the ratings pipeline — folder drop with filename-encoded metadata, self-service paste, organizer entry. Unresolved card names keep the row, flag the deck, and exclude it from `card_stats` until fixed.
 

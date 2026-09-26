@@ -39,9 +39,9 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 5/21  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 20/36 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 21/36 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
-| E22  | Governance and docs                   | 0     | —            | 🚧 2/12  |
+| E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 13/14 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 4/7   |
 
@@ -215,9 +215,9 @@ reach for.
 _Note:_ a new depcruise rule, `only-cards-reads-a-file`, forbids `node:fs` anywhere in
 `contracts`, `core`, `adapters` or `db` outside a test. Self-tested: adding an `fs` import to
 `build-card-index` fails the cruise.
-_Outstanding:_ `apps/web` reads these files at runtime and Next's tracing does not follow a path
-built from `import.meta.url`, so a serverless deploy needs `outputFileTracingIncludes` to name
-`data/cards/`. That belongs with the first page that loads it (E20.4).
+_Note:_ `apps/web` reads these files at runtime and Next's tracing does not follow a path built
+from `import.meta.url`, so `outputFileTracingIncludes` in `next.config.ts` names `data/cards/`. It
+arrived with the first pages that load the index, the deck import and format admin, not E20.4.
 
 ---
 
@@ -342,7 +342,7 @@ Stream D. One file per source, all pure, all fixture-tested. ADR 005, ADR 006.
 ✅ **E12.1 — Adapter registry and `detect` dispatch** · M · Deps: E2.4 — try each adapter's `detect`, return the match or an actionable "unrecognized format" error. _AC:_ ambiguous matches are reported, not silently resolved by registration order.
 _Note:_ `generic-csv` reads any delimited file, so on `detect` alone it is ambiguous with every CSV source in §9. It is marked `fallback` in the registry and consulted only once no specific adapter has claimed the input — a declared role, not a position in the list, and the ambiguity test asserts the outcome is unchanged with the registry reversed.
 ✅ **E12.2 — `generic-csv`** · L · Deps: E12.1 — manual column mapping, matches or standings. _AC:_ the permanent floor: any CSV with player/opponent/result columns imports after mapping; mapping persists to `result_imports.column_mapping`.
-_Outstanding:_ the adapter reads `RawInput.columnMapping` and the fixture tests round-trip one, but nothing persists it yet — `result_imports` arrives with E13.5.
+_Outstanding:_ the adapter reads `RawInput.columnMapping` and the fixture tests round-trip one, and `createImport` stores one in `result_imports.column_mapping`, but nothing passes one until the upload path (E18.1–E18.2) exists.
 ✅ **E12.3 — `manual-entry`** · M · Deps: E12.1 — structured input → `ParsedEvent`, always available.
 ⛔ **E12.4 — `melee-csv`** · M · Deps: E12.1 — matches, standings, roster. Priority source. _AC:_ real export committed to `fixtures/melee/`; expected `ParsedEvent` JSON asserted.
 _Blocked:_ needs a real melee.gg export committed to `fixtures/melee/`.
@@ -666,6 +666,8 @@ _Note:_ plus `dev:db`, which chains all three with `env:web` (writes `apps/web/.
 example when there is none) — one command from a fresh clone, or a stopped stack, to a seeded site on
 :3000. It resets every run, so local data does not survive a restart; `pnpm dev` alone keeps it.
 ⬜ **E15.4 — `CONTRIBUTING.md`** · M · Deps: E15.3 — the zero-credential path first, the full stack second, the two tasks that genuinely need secrets last.
+A draft has been in the repo since E1.9 with the first two parts. It has no secrets section, and it
+describes fourteen ADRs and a populated seed, neither of which exists yet (E22.6, E15.1–E15.2).
 ⬜ **E15.5 — Freshness test for the seed** · S · Deps: E15.2 — _AC:_ CI fails if a migration lands that the seed no longer satisfies.
 
 ---
@@ -681,8 +683,8 @@ _Note:_ three server clients and no browser client. `createPublicClient` is anon
 construction, `createServiceRoleClient` bypasses RLS, and `createSessionClient` (E16.2, `@supabase/ssr`)
 carries the session cookies so `auth.uid()` is populated. There is no browser client because nothing
 needs one yet: sign-in and sign-out are form POSTs to route handlers, so the whole flow works with
-JavaScript disabled and no `'use client'` module can reach a Supabase key at all. `middleware.ts`
-refreshes the token — a Server Component cannot set cookies, so without it an hour-old session is
+JavaScript disabled and no `'use client'` module can reach a Supabase key at all. `proxy.ts` (Next 16's name for
+`middleware.ts`) refreshes the token — a Server Component cannot set cookies, so without it an hour-old session is
 silently signed out mid-visit.
 ✅ **E16.3 — Discord OAuth login and callback** · M · Deps: E16.2
 _Note:_ shipped Discord-only, per §17 as it then read. **Superseded by E16.9**, which makes Discord
@@ -710,7 +712,7 @@ they are E20.2, E20.15, E20.16 and E20.18. Listed rather than hidden, the same w
 lists `/meta`: the shape is worth advertising to the people who will use it. The layout guards at
 `writer`, the lowest rung with anything to do here, and each section will guard itself again at what
 it actually needs, because a layout cannot express "organizer here, admin there".
-⬜ **E16.7 — Deploy pipeline and preview environments** · M · Deps: E16.1 — _AC:_ production deploy from `main`, preview per PR, environment variables documented.
+⛔ **E16.7 — Deploy pipeline and preview environments** · M · Deps: E16.1 — _AC:_ production deploy from `main`, preview per PR, environment variables documented.
 _Blocked:_ needs the hosted Supabase project's URL configuration, which is a dashboard setting and not
 a file in this repository. The four settings and why each one fails silently are written up under
 _Configuring a deployment_ in [`docs/modules/auth.md`](docs/modules/auth.md); what is left for this
@@ -782,9 +784,9 @@ both the nav and the body. The whitelist is enforced on the compiled tree by
 `remarkInfoPageWhitelist`, **not** by MDX's `components` prop: that prop only intercepts
 Markdown-derived elements, so a literal `<script>` compiles straight past it.
 ✅ **E17.2 — `<LegalSets />`** · S · Deps: E17.1, E13.15
-_Outstanding:_ set codes only. The names (`FDN` → Foundations) live in `data/cards/`, which E4 fills; the hand-written role column on `/rules` is gone rather than being carried alongside live data it would contradict.
+_Outstanding:_ set codes only. The names (`FDN` → Foundations) live in `data/cards/`, which E4.7's loader now reads, so this is a sitting's work; the hand-written role column on `/rules` is gone rather than being carried alongside live data it would contradict.
 ✅ **E17.3 — `<Banlist />`** · S · Deps: E17.1, E13.15
-_Outstanding:_ a rule renders its `oracle_id`, not the card's name — `oracle_id` carries no foreign key by design (§14.1) and the name comes from `data/cards/` at E4. The empty banlist, which is the state today, renders in full.
+_Outstanding:_ a rule renders its `oracle_id`, not the card's name — `oracle_id` carries no foreign key by design (§14.1) and the name comes from `data/cards/`, which E4.7's loader now reads. This matters since E20.33: an admin bans a card by name at `/admin/formats` and `/rules` shows its id. The empty banlist, which is the state today, renders in full.
 ⬜ **E17.4 — `<Chart />` embed** · M · Deps: E17.1, E19
 ✅ **E17.5 — `/(info)/[...slug]` route and nav generation** · M · Deps: E17.1 — pages are prerendered from `generateStaticParams`; the footer nav is generated from frontmatter `navOrder`.
 _Note:_ the route became `force-dynamic` at E17.2. `generateStaticParams` still enumerates the pages, so `dynamicParams: false` still 404s an unknown slug, but `/rules` reads the format tables and a pool or a ban baked at build time is the staleness those rows exist to prevent.
@@ -972,7 +974,10 @@ merge one by one, stopping at the first refusal and saying which events blocked 
 list below with Undo. Server components and forms only, so no client module reaches the
 service-role action.
 ⬜ **E20.17 — `identity-admin`: CSV round-trip** · M · Deps: E20.16
-⬜ **E20.18 — `format-admin`: `/dashboard/format`** · L · Deps: E13.15 — _AC:_ validates `format_legal_sets` against `data/sets.json` and warns when a selected set is absent from the dataset; bans and exceptions editable without a deploy.
+✅ **E20.18 — `format-admin`: `/dashboard/format`** · L · Deps: E13.15 — _AC:_ validates `format_legal_sets` against `data/sets.json` and warns when a selected set is absent from the dataset; bans and exceptions editable without a deploy.
+_Note:_ delivered by E20.33 at `/admin/formats`, not `/dashboard/format`. The legal sets are checkboxes
+over the sets the card data holds; a set it does not hold can only be typed into a separate field
+labelled for exactly that, which is the warning, rather than a message after the fact.
 ⬜ **E20.19 — Site search** · M · Deps: E20.4
 ✅ **E20.20 — `auth`: `/profile`** · M · Deps: E16.5 — the page every signed-in account has: display
 name, handle, bio, role, and what that role can do. _AC:_ a person may edit their own profile and
@@ -1117,6 +1122,8 @@ _Blocked:_ needs the GitHub org/team handle for each `area:` label.
 ✅ **E22.5 — PR template encoding the Definition of Done** · S — the §19 checklist verbatim.
 ⬜ **E22.6 — ADRs 001–014** · L — one short file each. _Split into three PRs of four or five if review drags._
 ⬜ **E22.7 — `docs/modules/` index** · S — one page per module, linked from each module README.
+The index exists (`docs/modules/README.md`), with one page per area rather than per module; 23 of the
+102 module READMEs link to it.
 
 ### Release-blocker tests
 
@@ -1125,7 +1132,8 @@ These four are called out in §22. Write them as early as their dependencies all
 ⛔ **E22.8 — `metrics-golden.test.ts`** · L · Deps: E6.7, E21.1 — import the `2026-08-01` decklists, assert computed `deck_metrics` match the existing spreadsheet column for column.
 _Blocked:_ needs the community spreadsheet to assert against.
 ⬜ **E22.9 — `replay-identity.test.ts`** · L · Deps: E18.12, E18.16 — two handles with separate histories produce two ratings; bind them to one player, re-run, assert one merged rating **and that no row in `matches` changed**. Encodes ADR 003 and 004.
-⬜ **E22.10 — `rls.test.ts`** · see E14.5.
+✅ **E22.10 — `rls.test.ts`** · see E14.5.
+_Note:_ delivered as E14.5, at `packages/db/rls.test.ts` rather than under `tests/`.
 ⬜ **E22.11 — `dataset-integrity.test.ts`** · M · Deps: E4.4, E13.12 — every `oracle_id` in Postgres exists in `data/cards/`; every set in `format_legal_sets` is present in `data/sets.json`. This replaces the foreign keys the card tables would have provided.
 ⬜ **E22.12 — Playwright end-to-end happy path** · L · Deps: E15.2, E20.15 — import an event, commit it, see the leaderboard move.
 
@@ -1233,7 +1241,7 @@ everyone when the secret is unset. `/admin/processing` shows the queue, runs a p
 and re-queues every finished tournament ("Re-run everything", typed confirmation), backfilling complete
 calendar events that were never queued. The re-run clears derived data through `onFullRerun`, a no-op
 until E18 writes any, and never the ledger: re-importing an event supersedes it (§26), and the ledger
-also holds imports the queue cannot recreate.
+also holds imports the queue cannot recreate. E18.20 has since filled in both the hook and `onFullRerun`.
 ⬜ **E23.14 — schedule the completed-events job** · S · Deps: E23.13 — _AC:_ something calls
 `/api/jobs/process-completed-events` on a schedule in production, with `CRON_SECRET` set in Vercel and
 in the scheduler; the choice of scheduler, and its interval, is recorded here. A GitHub Actions cron
@@ -1283,14 +1291,14 @@ hand-written podium for the seeded `planar-standard-weekly-40`, and the section 
 data" badge and says so in prose. The event, the handles, the archetypes and every card named are
 real Season II material; the placements and records are invented. E24.5 replaces the loader body.
 
-⬜ **E24.5 — Podium from the results ledger** · M · Deps: E13.7, E13.9, E18.4 — replace
+⬜ **E24.5 — Podium from the results ledger** · M · Deps: E13.7, E13.9, E18.21 — replace
 `loadLatestPodium`'s body with the real read: the newest `tournaments` row whose status is
 `results_imported` or `verified`, joined to its entries and their decks.
 _AC:_ `sample` becomes false and the badge and the note disappear with it; an event whose import
 brought standings and no decks still renders a podium, with the deck fields empty; `null` when no
 event has results yet, and the section is absent rather than empty.
 
-⬜ **E24.6 — Podium tiles link to the deck** · S · Deps: E19.13, E20.6 — `deckId` is already on the
+⬜ **E24.6 — Podium tiles link to the deck** · S · Deps: E24.5, E20.6 — `deckId` is already on the
 contract and already null-safe. _AC:_ a finish with no deck stays unlinked rather than linking to a
 404, which is the state every standings-only import leaves.
 
@@ -1307,71 +1315,68 @@ can start today, in rough order of how much it unblocks.
 
 **Unblocks the most**
 
-- **E4.5–E4.7 — finishing the card dataset.** E4.1–E4.4 are merged and `data/cards/` now holds the
-  real pool: 1,826 oracle cards, 2,916 printings, 2.4 MB. `build-card-index`, `resolve-card-name`,
-  `set-attribution` and `rarity-counts` can now be proven against it rather than `fixtures/cards/`.
-  **E4.7 (the loader) unblocks the most** — E19.13, E20.4 and E22.11 all wait on it. E4.5 moves the
-  build to CI; E4.6 sets the size ceiling, for which 10 MB gives ~4x headroom over today's artifact.
-- **E18.1–E18.5 — the import pipeline.** `repos/results` and `repos/identity` are both in, so the
-  whole chain — upload, detect, stage, resolve, review, commit, supersede — now has its storage, and
-  E18.3 has the `findIdentityByNormalizedHandle` / `createPlayerWithIdentity` pair it needs to
-  auto-create on a miss. E18.1 needs one more decision first: where archived raw bytes live. Supabase
-  Storage is the obvious answer and nothing has written it down.
+- **E18.1, E18.2, E18.4, E18.5 — the upload path.** The API path already runs end to end (E18.20):
+  content-hash idempotency, staged rows with `raw`, handle resolution (E18.3), supersede
+  (`supersedeOtherImports`) and standings (E18.21). What is missing is a file an organizer uploads:
+  archiving its bytes (E18.1 still needs a decision on where, and Supabase Storage now has a bucket
+  pattern to copy from `post-images`), staging it, and the review queue. E20.15 and E22.12 wait on it.
+- **E24.5 — the real podium.** Every ingest now writes its standings (E18.21), so the query has rows
+  to read; decks join in once E18.13 stores them. E24.6 follows it.
+- **E23.14 — scheduling the completed-events job,** now that `/api/jobs/process-completed-events`
+  exists: pick the scheduler, set `CRON_SECRET` in Vercel and in it, and choose an interval. The queue
+  makes any interval safe. Until then a melee.gg event is ingested only when an admin presses
+  "Process now" at `/admin/processing`.
+- **E12.13–E12.14 — Challonge results,** the same shape as melee.gg's. Challonge events are marked
+  processed with nothing done until then.
 - **E22.9 — `replay-identity.test.ts`,** now that merging exists: two handles, two ratings, one
   merge, one rating, and no `matches` row changed. `merge-players.server.test.ts` already asserts
   the last part.
-- **E13 is complete.** Every table in Part IV exists, every repository is written, and the indexes are
-  reviewed. Nothing in E14–E21 is waiting on schema or on storage any more.
 - **E19 can start.** `repos/stats` is in, so every chart in the epic has something to read — but see
   E19.1 first, which sets the fixture conventions the other thirteen components inherit.
-- **The Elo path runs end to end for melee.gg:** a finished event is fetched, ingested and, if it
-  is a Monthly, rated (E18.20). Handles are merged at `/admin/players` (E20.16). What is left: E23.14 so the
-  queue runs on its own. Challonge results (E12.13–E12.14) follow the same shape.
-- **E24.5 — the real podium.** Every melee.gg ingest now writes its standings (E18.21), so the
-  query has rows to read; decks join in once E18.13 stores them.
-- **E23.14 — scheduling the completed-events job,** now that `/api/jobs/process-completed-events`
-  exists: pick the scheduler, set `CRON_SECRET` in Vercel and in it, and choose an interval. The queue
-  makes any interval safe.
-- **E19.13 — `DeckVisualizer`,** now that `repos/decks` can hand it a deck. It takes shaped lines as
-  props like every E19 component, so it needs no card data of its own — but see E19.1 first, which
-  sets the fixture conventions the other thirteen components inherit.
+- **E19.13 — `DeckVisualizer`.** E20.29's text list already links each card to Scryfall and shows it on
+  hover; what E19.13 adds is mana cost per line, the Spells | Lands | Sideboard grouping, and a
+  component that takes shaped lines as props.
+- **E20.4, E20.26, E22.11 — the card dataset's other readers,** now that E4.7 loads it: `/cards`, the
+  card component in posts, and the integrity test.
 - **E17.4 — `<Chart />`,** the last thing between E17 and a finished epic. It waits on E19.
 
 **Needs nothing but a sitting**
 
+- The _Outstanding:_ lines on E17.2 and E17.3: set and card names on `/rules`. The banlist shows an
+  oracle id, and since E20.33 lets an admin ban a card by name, the first real ban will show as a uuid.
+- E20.34 — rate or unrate a tournament from `/admin`.
+- E4.5–E4.6 — the dataset build in CI, and its size ceiling (10 MB gives ~4x headroom).
 - E21.1 — the Season II decklist backfill. `archetype-map-html` reads the map, so what is left is
   running it over the real `frontend/public/InteractiveArchetypeMap*.html` in the parent repo —
   417 decklists, against the 3 in `fixtures/archetype-map/`.
-- E22.4, E22.6, E22.7 — issue templates, the fourteen ADRs, the module-doc index.
+- E22.4, E22.6, E22.7, E15.4 — issue templates, the fourteen ADRs (`docs/adr/` holds only its README),
+  linking the module-doc index, and finishing `CONTRIBUTING.md`.
 
 **Waiting on a person, not on code**
 
-E12.4, E12.5, E12.6, E22.2, E22.3, E22.8 — each carries a _Blocked:_ line naming exactly what it needs.
+E12.4, E12.5, E12.6, E16.7, E22.2, E22.3, E22.8 — each carries a _Blocked:_ line naming exactly what it
+needs.
 
-E23 is complete, and both calendars are live: `/events` and the home page fetch Challonge and
-melee.gg independently, each against its own ledger row, and render from the seed anywhere the
-credentials are unset. See [`docs/modules/events.md`](docs/modules/events.md).
+**Where things stand**
 
-**Auth is in, so every gated story now has somewhere to put its gate.** E16.2–E16.6, E16.9 and E20.1
-are merged: four ways to sign in, a profile row per account, `requireViewer` / `requireRole`, and a
-dashboard shell open to every member. Anything that needed a signed-in person can now ask
-for one in a line — E18.8 (the self-service paste path), E20.26 (the card component — see `docs/modules/content.md` for the three steps), E20.15 (the
-import dashboard), E20.16 and E20.18 (the two admin slices, which could equally become sections of `/admin` — see `lib/auth/admin-sections.ts`). Each of those is a page under
-`/dashboard` that calls `requireRole` and fills in one entry in `lib/auth/dashboard-sections.ts`.
-
-**E14 is complete**, so the admin slices have their access control waiting for them: an admin can edit
-the format tables and grant roles, an organizer can create tournaments and import results, and
-`rls.test.ts` is the release blocker that says so. Production still needs **real SMTP** — two of the
-four ways in are an email, and so is every password reset. See
-[`docs/modules/auth.md`](docs/modules/auth.md).
-
-**melee.gg results can be read.** E12.11 fetches and scrubs them, E12.12 keeps the username, and
-E12.10's adapter turns them into a `ParsedEvent`. What is missing is the service that stores one,
-E18.20.
-
-**The home page shows one thing it does not have.** The top-four-decks section runs on a hand-written
-podium (E24.4's _Outstanding:_ line) and says so on the page. E24.5 is the swap, and it is the
-clearest reason to want E13.7 and E13.8 finished.
+- **Results and ratings.** A finished melee.gg event is fetched, ingested with its standings and, if it
+  is a Monthly, rated (E18.20, E18.21). The ladder is the current season's (E18.12), seasons are opened
+  at `/admin/seasons` (E20.35), and handles are merged, and unmerged, at `/admin/players` (E20.16).
+- **Events.** E23 is complete bar E23.14: `/events` and the home page fetch Challonge and melee.gg
+  independently, each against its own ledger row, and render from the seed anywhere the credentials
+  are unset. See [`docs/modules/events.md`](docs/modules/events.md).
+- **Posts.** News and community posts are written in one editor (E20.2, E20.27) with image, decklist
+  and tournament components (E20.24, E20.25, E20.36), and export whole to Reddit and Discord. See
+  [`docs/modules/content.md`](docs/modules/content.md).
+- **Decks.** Members import, edit, version and remove their decks (E20.28–E20.31); admins edit the
+  format at `/admin/formats` (E20.33).
+- **Auth and access.** E14 and E16 are in bar E16.7: four ways to sign in, `requireViewer` /
+  `requireRole`, a dashboard every member can open, and `/admin` for admins. A new gated page calls
+  `requireRole` and adds one entry to `lib/auth/dashboard-sections.ts` or `admin-sections.ts`.
+  Production still needs **real SMTP** — two of the four ways in are an email, and so is every
+  password reset. See [`docs/modules/auth.md`](docs/modules/auth.md).
+- **The home page shows one thing it does not have.** The top-four-decks section runs on a
+  hand-written podium (E24.4's _Outstanding:_ line) and says so on the page. E24.5 is the swap.
 
 ## Phase 0 merge order
 
@@ -1383,9 +1388,9 @@ The ordering originally suggested for the first ten merges, kept for reference:
 4. ✅ E2.1–E2.8 contracts
 5. ✅ E22.5 PR template
 6. ✅ E3.1 decklist fixture corpus
-7. ⬜ E4.1 `data/sets.json`
-8. ⬜ E4.3 + E4.4 dataset build
-9. ⬜ E13.1–E13.2 first migrations
+7. ✅ E4.1 `data/sets.json`
+8. ✅ E4.3 + E4.4 dataset build
+9. ✅ E13.1–E13.2 first migrations
 10. 🚧 E16.1 scaffold ✅ · E16.7 deploy ⬜
 
 The eight parallel streams from §18 are open; the backlog has stopped being a queue.
@@ -1402,10 +1407,10 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 21      | 5    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 36      | 20   |
+| E9   | 9       | 9    | E20  | 36      | 21   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
-| E11  | 6       | 6    | E22  | 12      | 2    |
+| E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 14      | 13   |
 |      |         |      | E24  | 7       | 4    |
 
-**182 of 261 stories done across 24 epics.**
+**184 of 261 stories done across 24 epics.**
