@@ -14,10 +14,10 @@ const COLORS: readonly Color[] = ["W", "U", "B", "R", "G"];
 
 /**
  * Whether a deck passes the browser's filter (E20.40). A colour counts when a
- * maindeck spell has it in its mana cost — hybrid and Phyrexian symbols count
- * for each colour they name — so a land's identity never puts a deck in a
- * colour it does not cast. A name may be on any board, and an unresolved line
- * still matches by the name it was written with.
+ * spell on any board has it in its mana cost — hybrid and Phyrexian symbols
+ * count for each colour they name — so a land's identity never puts a deck in a
+ * colour it does not cast. An unresolved line still matches by the name it was
+ * written with.
  */
 export function matchesDeckFilter(
   deck: ResolvedDeck,
@@ -30,8 +30,8 @@ export function matchesDeckFilter(
   }));
 
   const colors = new Set<Color>();
-  for (const { entry, card } of cards) {
-    if (entry.board !== "main" || card === undefined || /\bland\b/i.test(card.typeLine)) continue;
+  for (const { card } of cards) {
+    if (card === undefined || /\bland\b/i.test(card.typeLine)) continue;
     for (const color of costColors(card)) colors.add(color);
   }
   if (!filter.colors.every((color) => colors.has(color))) return false;

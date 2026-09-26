@@ -79,9 +79,9 @@ describe("core/decklist/match-deck-filter", () => {
     expect(matchesDeckFilter(lands, INDEX, filter(["G"]))).toBe(false);
   });
 
-  it("counts a sideboard card's name but not its colour", () => {
+  it("counts a sideboard card's colour and name", () => {
     const deck = deckOf(["Llanowar Elves"], ["Shock", "side"]);
-    expect(matchesDeckFilter(deck, INDEX, filter(["R"]))).toBe(false);
+    expect(matchesDeckFilter(deck, INDEX, filter(["R", "G"]))).toBe(true);
     expect(matchesDeckFilter(deck, INDEX, filter([], ["shock"]))).toBe(true);
   });
 
