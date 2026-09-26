@@ -4,30 +4,60 @@
 @custom-variant in-prose (&:not(.not-prose, .not-prose *));
 
 /*
- * One palette, defined once. Season names in this format lean on eclipse
- * imagery, so: ink, parchment, and a single violet accent for anything the
- * format itself is saying.
+ * `dark:` means the reader's dark theme, or anything inside a `.night` region.
+ * The ledger pages, the header and the footer are night in both themes; the
+ * reading pages follow the reader.
+ */
+@custom-variant dark {
+  @media (prefers-color-scheme: dark) {
+    @slot;
+  }
+  &:where(.night, .night *) {
+    @slot;
+  }
+}
+
+/*
+ * One palette, defined once, taken from the mark (`components/ui/planar-mark.tsx`):
+ * ink runs from parchment to night, gold is the format speaking, and eclipse is
+ * the violet for links and focus.
  */
 @theme {
-  --color-ink-50: #f6f6f8;
-  --color-ink-100: #eceded;
-  --color-ink-200: #d5d7db;
-  --color-ink-300: #b0b4bb;
-  --color-ink-400: #848b95;
-  --color-ink-500: #666d79;
-  --color-ink-600: #515762;
-  --color-ink-700: #434751;
-  --color-ink-800: #393c44;
-  --color-ink-900: #24262c;
-  --color-ink-950: #16171b;
+  --color-ink-50: #f3eee3;
+  --color-ink-100: #eae3d3;
+  --color-ink-200: #d8cfbb;
+  --color-ink-300: #b3a98f;
+  --color-ink-400: #8c8598;
+  --color-ink-500: #6b6678;
+  --color-ink-600: #4f4a5e;
+  --color-ink-700: #3a3650;
+  --color-ink-800: #2b2946;
+  --color-ink-900: #16152a;
+  --color-ink-950: #0d0c17;
 
-  --color-eclipse-400: #a78bfa;
-  --color-eclipse-500: #8b5cf6;
-  --color-eclipse-600: #7c3aed;
-  --color-eclipse-700: #6d28d9;
+  --color-paper: #fbf8f1;
 
-  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  --font-serif: ui-serif, Georgia, Cambria, "Times New Roman", serif;
+  --color-gold-400: #e3a83b;
+  --color-gold-500: #c98f24;
+  --color-gold-700: #8a5e0e;
+
+  --color-eclipse-400: #a792ff;
+  --color-eclipse-500: #8e74ff;
+  --color-eclipse-600: #6f52e8;
+  --color-eclipse-700: #5b3fd6;
+}
+
+/* The faces come from next/font in `app/layout.tsx`. */
+@theme inline {
+  --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
+}
+
+@utility night {
+  color-scheme: dark;
+  background-color: var(--color-ink-950);
+  color: var(--color-ink-100);
 }
 
 :root {

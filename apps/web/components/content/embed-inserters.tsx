@@ -30,7 +30,7 @@ export interface TournamentOption {
 type Insert = (line: string) => void;
 
 const INPUT =
-  "w-full rounded-md border border-ink-300 bg-white px-2.5 py-1.5 text-sm " +
+  "w-full rounded-md border border-ink-300 bg-paper px-2.5 py-1.5 text-sm " +
   "focus:border-eclipse-500 focus:outline-none dark:border-ink-700 dark:bg-ink-950";
 const BUTTON =
   "cursor-pointer rounded-md border border-ink-300 px-2.5 py-1 text-xs font-medium " +

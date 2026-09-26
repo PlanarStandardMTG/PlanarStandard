@@ -12,12 +12,12 @@ import { saveFormat, type FormatSaveState } from "@/app/admin/formats/actions";
  * is the server action's.
  */
 const FIELD =
-  "mt-1.5 w-full rounded-lg border border-ink-300 bg-white px-3 py-2 text-sm " +
+  "mt-1.5 w-full rounded-lg border border-ink-300 bg-paper px-3 py-2 text-sm " +
   "focus:border-eclipse-500 focus:outline-none dark:border-ink-700 dark:bg-ink-950";
 
 const BUTTON =
   "rounded-lg bg-ink-900 px-4 py-2 text-sm font-medium text-white hover:bg-ink-700 " +
-  "disabled:opacity-60 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-white";
+  "disabled:opacity-60 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-paper";
 
 const RULINGS: ReadonlyArray<{ readonly value: CardRuling; readonly label: string }> = [
   { value: "banned", label: "Banned" },

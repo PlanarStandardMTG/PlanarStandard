@@ -43,7 +43,7 @@ export function PostListSkeleton({ count = 3 }: { count?: number }) {
       {Array.from({ length: count }, (_, i) => (
         <div
           key={i}
-          className="rounded-xl border border-ink-200 bg-white p-5 dark:border-ink-800 dark:bg-ink-900"
+          className="rounded-xl border border-ink-200 bg-paper p-5 dark:border-ink-800 dark:bg-ink-900"
         >
           <Skeleton className="h-4 w-40" />
           <Skeleton className="mt-3 h-5 w-3/4" />

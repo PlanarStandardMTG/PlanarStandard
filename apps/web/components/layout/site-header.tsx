@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Container } from "@/components/ui/container";
+import { PlanarMark } from "@/components/ui/planar-mark";
 
 import { AccountNav } from "./account-nav";
 import { DevAccountSwitcher } from "./dev-account-switcher";
@@ -33,13 +34,16 @@ const LINK = "text-ink-600 hover:text-ink-900 dark:text-ink-400 dark:hover:text-
  */
 export async function SiteHeader() {
   return (
-    <header className="relative z-40 border-b border-ink-200 bg-white/80 backdrop-blur dark:border-ink-800 dark:bg-ink-950/80">
-      <Container className="flex h-14 items-center justify-between gap-3 sm:gap-6">
+    <header className="night relative z-40 border-b border-ink-800">
+      <Container className="flex h-16 items-center justify-between gap-3 sm:gap-6">
         <Link
           href="/"
-          className="shrink-0 font-serif text-base font-semibold tracking-tight whitespace-nowrap"
+          className="flex shrink-0 items-center gap-2.5 font-serif text-xl tracking-tight whitespace-nowrap"
         >
-          Planar <span className="text-eclipse-600 dark:text-eclipse-400">Standard</span>
+          <PlanarMark className="size-8 text-gold-400" />
+          <span>
+            Planar <em className="text-gold-400">Standard</em>
+          </span>
         </Link>
 
         <nav aria-label="Main" className="hidden xl:block">

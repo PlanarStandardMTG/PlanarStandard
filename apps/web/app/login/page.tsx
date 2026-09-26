@@ -87,7 +87,7 @@ export default async function LoginPage({
               type="password"
               autoComplete="current-password"
               required
-              className="mt-1.5 w-full rounded-lg border border-ink-300 bg-white px-3 py-2 text-sm focus:border-eclipse-500 focus:outline-none dark:border-ink-700 dark:bg-ink-950"
+              className="mt-1.5 w-full rounded-lg border border-ink-300 bg-paper px-3 py-2 text-sm focus:border-eclipse-500 focus:outline-none dark:border-ink-700 dark:bg-ink-950"
             />
           </div>
           <SubmitButton>Sign in</SubmitButton>

@@ -41,7 +41,7 @@ export default async function AdminPage() {
   return (
     <>
       <header className="mb-8">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight">Admin</h1>
+        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Admin</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
           Who can do what on the site, and what is waiting on somebody to decide.
         </p>

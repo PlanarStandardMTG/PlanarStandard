@@ -21,12 +21,12 @@ import { FORMAT_LABELS } from "@/components/decks/format-labels";
  * only keeps the list from being lost on the way back.
  */
 const FIELD =
-  "mt-1.5 w-full rounded-lg border border-ink-300 bg-white px-3 py-2 text-sm " +
+  "mt-1.5 w-full rounded-lg border border-ink-300 bg-paper px-3 py-2 text-sm " +
   "focus:border-eclipse-500 focus:outline-none dark:border-ink-700 dark:bg-ink-950";
 
 const BUTTON =
   "rounded-lg bg-ink-900 px-4 py-2 text-sm font-medium text-white hover:bg-ink-700 " +
-  "disabled:opacity-60 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-white";
+  "disabled:opacity-60 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-paper";
 
 const QUIET_BUTTON =
   "rounded-lg border border-ink-300 px-4 py-2 text-sm text-ink-700 hover:border-ink-500 " +
@@ -247,7 +247,7 @@ export function DeckEditorForm({
       <dialog
         ref={dialogRef}
         aria-labelledby="confirm-title"
-        className="m-auto w-full max-w-md rounded-xl border border-ink-200 bg-white p-6 text-ink-900 backdrop:bg-black/40 dark:border-ink-800 dark:bg-ink-950 dark:text-ink-100"
+        className="m-auto w-full max-w-md rounded-xl border border-ink-200 bg-paper p-6 text-ink-900 backdrop:bg-black/40 dark:border-ink-800 dark:bg-ink-950 dark:text-ink-100"
       >
         <h2 id="confirm-title" className="font-semibold">
           {state.confirm?.verdict?.legal === false

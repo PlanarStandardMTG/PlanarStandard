@@ -5,7 +5,9 @@ import { PostList } from "@/components/content/post-list";
 import { EventPodium } from "@/components/home/event-podium";
 import { LatestNewsPanel } from "@/components/home/latest-news-panel";
 import { NextEventPanel } from "@/components/home/next-event-panel";
+import { SeasonBadge } from "@/components/layout/season-badge";
 import { Container } from "@/components/ui/container";
+import { PlanarMark } from "@/components/ui/planar-mark";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { ErrorState } from "@/components/ui/states";
 import { loadEvents } from "@/lib/events/sync-events.server";
@@ -48,45 +50,40 @@ export default async function HomePage() {
   const ahead = events.ok ? upcomingEvents(events.value.schedule) : [];
 
   return (
-    <Container className="py-10 sm:py-14">
-      <section className="max-w-2xl">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight text-balance sm:text-4xl">
-          The record of the{" "}
-          <span className="text-eclipse-600 dark:text-eclipse-400">Planar Standard</span> format
-        </h1>
-        <p className="mt-3 text-lg text-ink-600 dark:text-ink-400">
-          Metagame analytics, an Elo leaderboard, and decklist validation — computed from every
-          event, by code you can read.
-        </p>
+    <>
+      <section className="night relative overflow-hidden">
+        <PlanarMark className="pointer-events-none absolute -top-48 -right-56 size-[46rem] text-ink-900" />
+        <Container className="relative grid items-center gap-10 py-14 lg:grid-cols-[1fr_20rem] lg:py-20">
+          <div>
+            <SeasonBadge />
+            <h1 className="mt-6 font-serif text-5xl/[0.98] tracking-tight text-balance sm:text-6xl/[0.95]">
+              The record of the <em className="text-gold-400">Planar Standard</em> format
+            </h1>
+            <p className="mt-5 max-w-xl text-lg text-ink-300">
+              Metagame analytics, an Elo leaderboard, and decklist validation — computed from every
+              event, by code you can read.
+            </p>
+          </div>
+
+          {/* `min-w-0`: a grid cell is otherwise as wide as its longest
+              unbreakable line, and a long event name pushed past a phone's margin. */}
+          <div className="relative min-w-0 lg:pt-44">
+            <PlanarMark className="absolute -top-6 left-1/2 hidden size-64 -translate-x-1/2 text-gold-400 lg:block" />
+            <div className="relative">
+              {events.ok ? (
+                <NextEventPanel
+                  event={ahead[0] ?? null}
+                  then={ahead.slice(1, 1 + FOLLOWING_EVENT_COUNT)}
+                />
+              ) : (
+                <ErrorState title="Could not load the schedule" detail={events.error} />
+              )}
+            </div>
+          </div>
+        </Container>
       </section>
 
-      {/* The lead tile takes two of three columns, so it reads as the larger
-          square next to the event rather than as a row of two equal cards. Both
-          stretch to the taller of the two. `min-w-0` on both: a grid cell is
-          otherwise as wide as its longest unbreakable line, and a truncated
-          event name held both cards 50px past a phone's margin. */}
-      <div className="mt-8 grid items-stretch gap-4 lg:grid-cols-3">
-        <div className="min-w-0 lg:col-span-2">
-          {news.ok ? (
-            <LatestNewsPanel posts={news.value} />
-          ) : (
-            <ErrorState title="Could not load the latest news" detail={news.error} />
-          )}
-        </div>
-
-        <div className="min-w-0">
-          {events.ok ? (
-            <NextEventPanel
-              event={ahead[0] ?? null}
-              then={ahead.slice(1, 1 + FOLLOWING_EVENT_COUNT)}
-            />
-          ) : (
-            <ErrorState title="Could not load the schedule" detail={events.error} />
-          )}
-        </div>
-      </div>
-
-      <div className="mt-12">
+      <Container className="space-y-14 py-12">
         {!podium.ok ? (
           <ErrorState title="Could not load the last event's decks" detail={podium.error} />
         ) : (
@@ -94,25 +91,35 @@ export default async function HomePage() {
             <EventPodium podium={podium.value.podium} sample={podium.value.sample} />
           )
         )}
-      </div>
 
-      <section className="mt-12">
-        <SectionHeading href="/community" linkLabel="All community posts">
-          From the community
-        </SectionHeading>
+        <div className="grid items-start gap-12 lg:grid-cols-12">
+          <section className="min-w-0 lg:col-span-7">
+            <SectionHeading>From the format</SectionHeading>
+            {news.ok ? (
+              <LatestNewsPanel posts={news.value} />
+            ) : (
+              <ErrorState title="Could not load the latest news" detail={news.error} />
+            )}
+          </section>
 
-        {community.ok ? (
-          <PostList
-            posts={community.value}
-            compact
-            showKind={false}
-            emptyTitle="No community posts yet"
-            emptyBody="Members write these under their own byline. Announcements from the format are in news."
-          />
-        ) : (
-          <ErrorState title="Could not load recent community posts" detail={community.error} />
-        )}
-      </section>
-    </Container>
+          <section className="min-w-0 lg:col-span-5">
+            <SectionHeading href="/community" linkLabel="All">
+              From the community
+            </SectionHeading>
+            {community.ok ? (
+              <PostList
+                posts={community.value}
+                compact
+                showKind={false}
+                emptyTitle="No community posts yet"
+                emptyBody="Members write these under their own byline. Announcements from the format are in news."
+              />
+            ) : (
+              <ErrorState title="Could not load recent community posts" detail={community.error} />
+            )}
+          </section>
+        </div>
+      </Container>
+    </>
   );
 }

@@ -3,6 +3,7 @@ import type { PostWithAuthor } from "@ps/contracts";
 
 import { PostMeta } from "@/components/content/post-meta";
 import { Card } from "@/components/ui/card";
+import { DotLeader } from "@/components/ui/marks";
 import { EmptyState } from "@/components/ui/states";
 import { dateAttribute, formatDate } from "@/lib/format-date";
 import { postHref } from "@/lib/post-url";
@@ -32,7 +33,7 @@ export function LatestNewsPanel({ posts }: { posts: readonly PostWithAuthor[] })
       <article className="relative flex flex-1 flex-col p-6 sm:p-7">
         <PostMeta post={lead} showKind={false} className="mb-3" />
 
-        <h2 className="font-serif text-2xl/snug font-semibold tracking-tight text-balance sm:text-3xl/tight">
+        <h2 className="font-serif text-3xl/tight tracking-tight text-balance sm:text-4xl/tight">
           <Link
             href={postHref(lead)}
             className="after:absolute after:inset-0 group-hover/panel:text-eclipse-700 dark:group-hover/panel:text-eclipse-400"
@@ -59,13 +60,14 @@ export function LatestNewsPanel({ posts }: { posts: readonly PostWithAuthor[] })
                     whole card, and these sit on top of it or they are unclickable. */}
                 <Link
                   href={postHref(post)}
-                  className="relative z-10 -mx-2 flex items-baseline justify-between gap-4 rounded-md px-2 py-2 hover:bg-ink-100/70 dark:hover:bg-ink-800/60"
+                  className="relative z-10 -mx-2 flex items-baseline gap-2 rounded-md px-2 py-2 hover:bg-ink-100/70 dark:hover:bg-ink-800/60"
                 >
                   <span className="text-sm/snug font-medium">{post.title}</span>
+                  <DotLeader />
                   {post.publishedAt !== null && (
                     <time
                       dateTime={dateAttribute(post.publishedAt)}
-                      className="shrink-0 text-xs text-ink-500 tabular-nums dark:text-ink-400"
+                      className="shrink-0 font-mono text-xs text-ink-500 dark:text-ink-400"
                     >
                       {formatDate(post.publishedAt)}
                     </time>

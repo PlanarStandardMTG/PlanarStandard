@@ -35,7 +35,7 @@ const STATUS: Readonly<Record<CompletionStatus, string>> = {
 
 const BUTTON =
   "rounded-lg bg-ink-900 px-4 py-2 text-sm font-medium text-white hover:bg-ink-700 " +
-  "dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-white";
+  "dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-paper";
 
 /** The queue of finished tournaments, and the two ways an admin moves it (E23.13). */
 export default async function AdminProcessingPage({
@@ -58,7 +58,7 @@ export default async function AdminProcessingPage({
   return (
     <>
       <header className="mb-8">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight">Tournament processing</h1>
+        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Tournament processing</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
           When the calendar sees a tournament finish, it queues it here once. Each queued tournament
           has its results fetched and processed a single time, by the scheduled job or by the button

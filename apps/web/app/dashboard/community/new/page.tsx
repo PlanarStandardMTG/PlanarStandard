@@ -32,7 +32,7 @@ export default async function NewPostPage({
         >
           <span aria-hidden="true">←</span> Your community posts
         </Link>
-        <h1 className="mt-2 font-serif text-3xl font-semibold tracking-tight">
+        <h1 className="mt-2 font-serif text-4xl tracking-tight sm:text-5xl">
           {official ? "New news post" : "New community post"}
         </h1>
         {official && (

@@ -24,7 +24,7 @@ export default async function NewSeasonPage() {
       >
         <span aria-hidden="true">←</span> Seasons
       </Link>
-      <h1 className="mt-2 mb-8 font-serif text-3xl font-semibold tracking-tight">New season</h1>
+      <h1 className="mt-2 mb-8 font-serif text-4xl tracking-tight sm:text-5xl">New season</h1>
       <SeasonForm
         id={null}
         initial={{ name: "", startsOn: "", endsOn: "", isCurrent: true }}

@@ -49,7 +49,7 @@ export default async function ReviewQueuePage({
   return (
     <>
       <header className="mb-8">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight">Review queue</h1>
+        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Review queue</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
           Submissions waiting for approval. Approving one publishes it under its author&rsquo;s
           name; sending one back returns it to them as a draft.
@@ -84,7 +84,7 @@ export default async function ReviewQueuePage({
                         type="submit"
                         name="decision"
                         value="approve"
-                        className="cursor-pointer rounded-lg bg-ink-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-ink-700 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-white"
+                        className="cursor-pointer rounded-lg bg-ink-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-ink-700 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-paper"
                       >
                         Approve
                       </button>

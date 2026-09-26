@@ -93,7 +93,7 @@ export default async function DeckPage({
       <header className="mt-4 mb-8 flex flex-wrap items-start justify-between gap-4 border-b border-ink-200 pb-6 dark:border-ink-800">
         <div>
           <div className="flex flex-wrap items-center gap-3">
-            <h1 className="font-serif text-3xl font-semibold tracking-tight">{deck.name}</h1>
+            <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">{deck.name}</h1>
             {deck.visibility !== "public" && (
               <Badge variant="outline" className="capitalize">
                 {deck.visibility}

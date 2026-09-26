@@ -57,7 +57,7 @@ export default async function EditFormatPage({
         <span aria-hidden="true">←</span> Formats
       </Link>
       <header className="mt-2 mb-8 flex flex-wrap items-start justify-between gap-4">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight">{version.name}</h1>
+        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">{version.name}</h1>
         <DeleteFormatButton id={version.id} name={version.name} />
       </header>
 

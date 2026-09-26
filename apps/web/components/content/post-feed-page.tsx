@@ -31,7 +31,7 @@ export function PostFeedPage({
     <Container className="py-12">
       <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-semibold tracking-tight">{title}</h1>
+          <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">{title}</h1>
           <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">{description}</p>
         </div>
         {action}

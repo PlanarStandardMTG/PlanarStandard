@@ -4,7 +4,6 @@ import {
   deckOwner,
   formatRecord,
   longDate,
-  ordinal,
   parseDecklistEmbed,
   parseImageEmbed,
   parseTournamentEmbed,
@@ -15,6 +14,8 @@ import { getTournamentBySlug, listTournamentFinishers } from "@ps/db";
 import type { ReactNode } from "react";
 
 import { createSessionClient } from "@/lib/supabase/session";
+
+import { DotLeader, Placement } from "@/components/ui/marks";
 
 import { DeckPanel } from "./deck-panel";
 import { loadDeck, type LoadedDeck } from "./load-deck";
@@ -47,7 +48,10 @@ export interface EmbedRenderer {
 
 type LoadedTournament = TournamentEmbedData & { readonly deck: LoadedDeck | null };
 
-const CARD = "not-prose my-6 rounded-xl border border-ink-200 p-4 sm:p-5 dark:border-ink-800";
+const CARD =
+  "not-prose my-6 rounded-lg border font-sans text-base border-ink-200 bg-paper p-4 sm:p-5 dark:border-ink-800 dark:bg-ink-900";
+/** An event is a ledger, so it is night on any page. */
+const NIGHT_CARD = `${CARD} night`;
 
 export const EMBED_RENDERERS: { readonly [N in EmbedName]: EmbedRenderer } = {
   image: {
@@ -129,7 +133,7 @@ export const EMBED_RENDERERS: { readonly [N in EmbedName]: EmbedRenderer } = {
       const event = data as LoadedTournament | null;
       if (!call.ok || event === null) {
         return (
-          <section className={CARD}>
+          <section className={NIGHT_CARD}>
             <Missing>This tournament could not be found.</Missing>
           </section>
         );
@@ -140,9 +144,9 @@ export const EMBED_RENDERERS: { readonly [N in EmbedName]: EmbedRenderer } = {
       const missingDeck = call.value.deck !== null && deck === null;
 
       return (
-        <section className={CARD}>
+        <section className={NIGHT_CARD}>
           <header className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h3 className="min-w-0 font-serif text-lg font-semibold text-ink-900 dark:text-ink-100">
+            <h3 className="min-w-0 font-serif text-2xl text-ink-900 dark:text-ink-100">
               {event.url === null ? (
                 event.name
               ) : (
@@ -168,17 +172,16 @@ export const EMBED_RENDERERS: { readonly [N in EmbedName]: EmbedRenderer } = {
             <ol className="mt-4 divide-y divide-ink-100 dark:divide-ink-800/60">
               {event.finishers.map((finish) => (
                 <li key={`${finish.placement}-${finish.playerSlug}`} className="py-2">
-                  <div className="flex items-center gap-3">
-                    <span className="w-9 shrink-0 text-sm font-semibold text-eclipse-700 tabular-nums dark:text-eclipse-400">
-                      {ordinal(finish.placement)}
-                    </span>
-                    <span className="min-w-0 flex-1 truncate font-medium">{finish.name}</span>
-                    <span className="shrink-0 text-sm text-ink-500 tabular-nums dark:text-ink-400">
+                  <div className="flex items-center gap-2">
+                    <Placement place={finish.placement} className="text-xl" />
+                    <span className="min-w-0 truncate font-semibold">{finish.name}</span>
+                    <DotLeader />
+                    <span className="shrink-0 font-mono text-sm">
                       {formatRecord(finish.record)}
                     </span>
                   </div>
                   {deck !== null && owner?.playerSlug === finish.playerSlug && (
-                    <div className="mt-3 mb-1 rounded-lg bg-ink-50 p-3 sm:ml-12 dark:bg-ink-900/60">
+                    <div className="mt-3 mb-1 rounded-lg bg-ink-50 p-3 sm:ml-12 dark:bg-ink-950/70">
                       <DeckPanel deck={deck} />
                     </div>
                   )}

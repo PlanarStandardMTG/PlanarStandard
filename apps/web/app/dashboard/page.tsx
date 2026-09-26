@@ -28,7 +28,7 @@ export default async function DashboardPage() {
   return (
     <>
       <header className="mb-8">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight">Dashboard</h1>
+        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Dashboard</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
           Everything a {role} account can do here. Nothing on these pages is edited by deploying the
           site — that is the point of it.

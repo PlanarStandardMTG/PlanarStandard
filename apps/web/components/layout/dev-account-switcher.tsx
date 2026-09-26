@@ -26,7 +26,7 @@ export async function DevAccountSwitcher() {
           : {viewer === null ? "sign in as…" : viewer.profile.role}
         </span>
       </summary>
-      <ul className="absolute right-0 z-50 mt-2 w-64 rounded-lg border border-ink-200 bg-white p-1 shadow-lg dark:border-ink-800 dark:bg-ink-950">
+      <ul className="absolute right-0 z-50 mt-2 w-64 rounded-lg border border-ink-200 bg-paper p-1 shadow-lg dark:border-ink-800 dark:bg-ink-950">
         {DEV_ACCOUNTS.map((account) => (
           <li key={account.email}>
             <form method="post" action="/auth/password">

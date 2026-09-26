@@ -14,7 +14,7 @@ export function newPostHref(kind: PostKind): string {
 
 const BUTTON =
   "inline-block shrink-0 rounded-lg bg-ink-900 px-4 py-2 text-sm font-medium text-white " +
-  "hover:bg-ink-700 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-white";
+  "hover:bg-ink-700 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-paper";
 
 /**
  * The way into the editor from a feed. Anyone may write a community post, so a

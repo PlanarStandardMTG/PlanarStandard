@@ -52,7 +52,7 @@ export default async function EditPostPage({
         >
           <span aria-hidden="true">←</span> Your community posts
         </Link>
-        <h1 className="mt-2 font-serif text-3xl font-semibold tracking-tight">Edit post</h1>
+        <h1 className="mt-2 font-serif text-4xl tracking-tight sm:text-5xl">Edit post</h1>
         {post.status === "published" && (
           <Link
             href={postHref(post)}

@@ -35,7 +35,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | ✅ 23/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
-| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 12/13 |
+| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 13/14 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 5/21  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
@@ -770,6 +770,18 @@ production build renders it.
 _Note:_ the switcher posts the seed password to the ordinary `/auth/password` route rather than
 minting a session, so it adds no way in that production lacks. Adds a `reader` seed account, the one
 rung the seed did not cover.
+✅ **E16.14 — The Planar Compass look** · L · Deps: E16.1 — the site takes its iconography from the
+original logo: the vortex mark, its compass star and its ring of stars. _AC:_ one palette (parchment
+to night, gold for the format, violet for links) and three self-hosted faces; the ledger pages are
+night in both themes and the reading pages follow the reader; no route or data changes.
+_Note:_ added outside the plan, from the proposal on the design canvas. `components/ui/planar-mark.tsx`
+is the logo traced to one path. A `.night` class makes any region use the `dark:` palette
+(`globals.css`), so the header, footer, home hero, `/leaderboard`, `/events` and the tournament
+component went night without per-component colours. `components/ui/marks.tsx` holds the compass star,
+the season ring (`core/events/season-progress`), the star rule, dotted leaders and `Placement`;
+`PageHeader` is shared by the ledger pages. The leaderboard's two tables became tabs. The home page is
+now a hero with the next event, the podium as separate cards, then news beside community posts, which
+replaces E24.1's grid.
 
 ---
 
@@ -1403,7 +1415,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E2   | 9       | 9    | E13  | 23      | 23   |
 | E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
-| E5   | 6       | 6    | E16  | 13      | 12   |
+| E5   | 6       | 6    | E16  | 14      | 13   |
 | E6   | 8       | 8    | E17  | 13      | 12   |
 | E7   | 5       | 5    | E18  | 21      | 5    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
@@ -1413,4 +1425,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 14      | 13   |
 |      |         |      | E24  | 7       | 4    |
 
-**184 of 261 stories done across 24 epics.**
+**185 of 262 stories done across 24 epics.**

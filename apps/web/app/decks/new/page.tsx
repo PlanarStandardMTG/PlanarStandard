@@ -24,7 +24,7 @@ export default async function NewDeckPage() {
       >
         <span aria-hidden="true">←</span> Your decks
       </Link>
-      <h1 className="mt-2 font-serif text-3xl font-semibold tracking-tight">Import a deck</h1>
+      <h1 className="mt-2 font-serif text-4xl tracking-tight sm:text-5xl">Import a deck</h1>
       <p className="mt-1 mb-8 text-sm text-ink-600 dark:text-ink-400">
         Paste a list from Arena, MTGO or a text file. It is checked against the format you choose as
         you type, and a deck that isn’t legal can still be saved.

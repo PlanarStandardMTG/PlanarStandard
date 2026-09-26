@@ -30,7 +30,7 @@ export function MobileMenu({ children }: { children: ReactNode }) {
         </span>
         Menu
       </summary>
-      <div className="absolute inset-x-0 top-full border-b border-ink-200 bg-white shadow-lg dark:border-ink-800 dark:bg-ink-950">
+      <div className="absolute inset-x-0 top-full border-b border-ink-200 bg-paper shadow-lg dark:border-ink-800 dark:bg-ink-950">
         {children}
       </div>
     </details>

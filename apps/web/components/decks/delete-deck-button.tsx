@@ -59,7 +59,7 @@ export function DeleteDeckButton({
       <dialog
         ref={dialogRef}
         aria-labelledby="delete-title"
-        className="m-auto w-full max-w-md rounded-xl border border-ink-200 bg-white p-6 text-ink-900 backdrop:bg-black/40 dark:border-ink-800 dark:bg-ink-950 dark:text-ink-100"
+        className="m-auto w-full max-w-md rounded-xl border border-ink-200 bg-paper p-6 text-ink-900 backdrop:bg-black/40 dark:border-ink-800 dark:bg-ink-950 dark:text-ink-100"
       >
         <form action={deleteDeckVersions}>
           <input type="hidden" name="id" value={deckId} />

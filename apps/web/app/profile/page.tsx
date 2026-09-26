@@ -45,7 +45,7 @@ const ROLE_BLURBS: Readonly<Record<string, string>> = {
 };
 
 const FIELD =
-  "mt-1.5 w-full rounded-lg border border-ink-300 bg-white px-3 py-2 text-sm " +
+  "mt-1.5 w-full rounded-lg border border-ink-300 bg-paper px-3 py-2 text-sm " +
   "focus:border-eclipse-500 focus:outline-none dark:border-ink-700 dark:bg-ink-950";
 
 export default async function ProfilePage({
@@ -80,7 +80,7 @@ export default async function ProfilePage({
             />
           )}
           <div>
-            <h1 className="font-serif text-3xl font-semibold tracking-tight">
+            <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">
               {profile.displayName}
             </h1>
             <p className="text-sm text-ink-500 dark:text-ink-400">
@@ -201,7 +201,7 @@ export default async function ProfilePage({
 
             <button
               type="submit"
-              className="rounded-lg bg-ink-900 px-4 py-2 text-sm font-medium text-white hover:bg-ink-700 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-white"
+              className="rounded-lg bg-ink-900 px-4 py-2 text-sm font-medium text-white hover:bg-ink-700 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-paper"
             >
               Save changes
             </button>

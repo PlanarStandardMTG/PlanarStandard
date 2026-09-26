@@ -22,7 +22,7 @@ const DONE: Readonly<Record<string, string>> = {
 
 const BUTTON =
   "inline-block shrink-0 rounded-lg bg-ink-900 px-4 py-2 text-sm font-medium text-white " +
-  "hover:bg-ink-700 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-white";
+  "hover:bg-ink-700 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-paper";
 
 /** Every season, newest first, the current one marked (E20.35). */
 export default async function AdminSeasonsPage({
@@ -38,7 +38,7 @@ export default async function AdminSeasonsPage({
     <>
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-semibold tracking-tight">Seasons</h1>
+          <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Seasons</h1>
           <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
             The leaderboard rates the current season’s Monthlies, and every tournament belongs to
             the season its date falls in.

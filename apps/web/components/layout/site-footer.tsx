@@ -1,4 +1,6 @@
 import { Container } from "@/components/ui/container";
+import { StarRule } from "@/components/ui/marks";
+import { PlanarMark } from "@/components/ui/planar-mark";
 
 import { InfoNav } from "./info-nav";
 
@@ -11,8 +13,12 @@ const LINKS = [
 
 export function SiteFooter() {
   return (
-    <footer className="mt-20 border-t border-ink-200 py-10 text-sm dark:border-ink-800">
+    <footer className="night py-10 text-sm">
       <Container className="flex flex-col gap-6">
+        <div className="flex items-center gap-4">
+          <PlanarMark className="size-8 text-gold-400" />
+          <StarRule />
+        </div>
         <InfoNav />
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

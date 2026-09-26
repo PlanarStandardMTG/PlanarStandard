@@ -24,7 +24,7 @@ export function DeleteFormatButton({ id, name }: { id: string; name: string }) {
       <dialog
         ref={dialogRef}
         aria-labelledby="delete-format-title"
-        className="m-auto w-full max-w-md rounded-xl border border-ink-200 bg-white p-6 text-ink-900 backdrop:bg-black/40 dark:border-ink-800 dark:bg-ink-950 dark:text-ink-100"
+        className="m-auto w-full max-w-md rounded-xl border border-ink-200 bg-paper p-6 text-ink-900 backdrop:bg-black/40 dark:border-ink-800 dark:bg-ink-950 dark:text-ink-100"
       >
         <h2 id="delete-format-title" className="font-semibold">
           Delete “{name}”?

@@ -23,7 +23,7 @@ const DONE: Readonly<Record<string, string>> = {
 
 const BUTTON =
   "inline-block shrink-0 rounded-lg bg-ink-900 px-4 py-2 text-sm font-medium text-white " +
-  "hover:bg-ink-700 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-white";
+  "hover:bg-ink-700 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-paper";
 
 /** Every version of the format's rules, the one in force first (E20.33). */
 export default async function AdminFormatsPage({
@@ -39,7 +39,7 @@ export default async function AdminFormatsPage({
     <>
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-semibold tracking-tight">Formats</h1>
+          <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Formats</h1>
           <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
             Each version of Planar Standard’s rules: its legal sets, deck limits and card rules.
             Decks and the rules page check against the one in force. Kitchen Table has no rules to

@@ -1,6 +1,8 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { StarRule } from "./marks";
+
 /**
  * A section title with an optional link out to the full listing.
  *
@@ -17,8 +19,9 @@ export function SectionHeading({
   linkLabel?: string;
 }) {
   return (
-    <div className="mb-5 flex items-baseline justify-between gap-4 border-b border-ink-200 pb-2 dark:border-ink-800">
-      <h2 className="font-serif text-xl font-semibold tracking-tight">{children}</h2>
+    <div className="mb-5 flex items-center gap-4">
+      <h2 className="font-serif text-2xl tracking-tight">{children}</h2>
+      <StarRule />
       {href !== undefined && (
         <Link
           href={href}

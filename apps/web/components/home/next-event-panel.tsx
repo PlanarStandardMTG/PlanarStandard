@@ -3,6 +3,7 @@ import type { ExternalEvent } from "@ps/contracts";
 
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { DotLeader } from "@/components/ui/marks";
 import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";
 import { formatDate, formatDateTime } from "@/lib/format-date";
 
@@ -46,7 +47,7 @@ export function NextEventPanel({
   const live = event.state === "live";
 
   return (
-    <Card className="group/panel flex h-full flex-col transition-colors hover:border-eclipse-500/60 dark:hover:border-eclipse-500/60">
+    <Card className="group/panel flex h-full flex-col border-t-2 border-t-gold-700 transition-colors hover:border-eclipse-500/60 dark:border-t-gold-400 dark:hover:border-eclipse-500/60">
       <article className="relative flex flex-1 flex-col p-6 sm:p-7">
         <div className="mb-3 flex flex-wrap items-center gap-2">
           <Badge variant={live ? "accent" : "outline"}>{live ? "Happening now" : "Up next"}</Badge>
@@ -57,7 +58,7 @@ export function NextEventPanel({
           )}
         </div>
 
-        <h2 className="font-serif text-xl/snug font-semibold tracking-tight text-balance">
+        <h2 className="font-serif text-2xl/snug tracking-tight text-balance">
           {event.url !== null ? (
             <a
               href={event.url}
@@ -72,7 +73,7 @@ export function NextEventPanel({
           )}
         </h2>
 
-        <p className="mt-2 text-sm text-ink-600 dark:text-ink-400">
+        <p className="mt-2 font-mono text-sm text-ink-600 dark:text-ink-400">
           {event.startsAt === null ? (
             "Date to be announced"
           ) : (
@@ -89,10 +90,7 @@ export function NextEventPanel({
         {then.length > 0 && (
           <ul className="mt-6 space-y-px border-t border-ink-200 pt-3 dark:border-ink-800">
             {then.map((later) => (
-              <li
-                key={later.id}
-                className="flex items-baseline justify-between gap-3 py-1.5 text-sm"
-              >
+              <li key={later.id} className="flex items-baseline gap-2 py-1.5 text-sm">
                 {/* The column is narrow enough that a long name will clip, so
                     the full one stays reachable on hover. */}
                 <span
@@ -101,10 +99,11 @@ export function NextEventPanel({
                 >
                   {later.name}
                 </span>
+                <DotLeader />
                 {later.startsAt !== null && (
                   <time
                     dateTime={later.startsAt}
-                    className="shrink-0 text-xs text-ink-500 tabular-nums dark:text-ink-400"
+                    className="shrink-0 font-mono text-xs text-ink-500 dark:text-ink-400"
                   >
                     {formatDate(later.startsAt)}
                   </time>

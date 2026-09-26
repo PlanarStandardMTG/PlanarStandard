@@ -48,7 +48,7 @@ export default async function AdminUsersPage({
   return (
     <>
       <header className="mb-8">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight">Users</h1>
+        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Users</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
           Roles are a ladder — each one can do everything the ones below it can. A ban takes every
           rung away without deleting anything.
@@ -99,7 +99,7 @@ export default async function AdminUsersPage({
                           id={`role-${member.id}`}
                           name="role"
                           defaultValue={member.role}
-                          className="rounded-md border border-ink-300 bg-white px-2 py-1 text-sm dark:border-ink-700 dark:bg-ink-950"
+                          className="rounded-md border border-ink-300 bg-paper px-2 py-1 text-sm dark:border-ink-700 dark:bg-ink-950"
                         >
                           {ROLE_LADDER.map((role) => (
                             <option key={role} value={role}>

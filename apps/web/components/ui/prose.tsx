@@ -16,8 +16,8 @@ export function Prose({ children, className }: { children: ReactNode; className?
   return (
     <div
       className={cn(
-        "max-w-prose text-[15px]/7 text-ink-800 dark:text-ink-200",
-        "[&_h2]:in-prose:mt-10 [&_h2]:in-prose:mb-3 [&_h2]:in-prose:font-serif [&_h2]:in-prose:text-xl [&_h2]:in-prose:font-semibold [&_h2]:in-prose:tracking-tight",
+        "max-w-prose font-serif text-[17px]/8 text-ink-800 dark:text-ink-200",
+        "[&_h2]:in-prose:mt-10 [&_h2]:in-prose:mb-3 [&_h2]:in-prose:font-serif [&_h2]:in-prose:text-2xl [&_h2]:in-prose:tracking-tight",
         "[&_h3]:in-prose:mt-8 [&_h3]:in-prose:mb-2 [&_h3]:in-prose:font-semibold",
         "[&_p]:in-prose:my-4",
         "[&_ul]:in-prose:my-4 [&_ul]:in-prose:list-disc [&_ul]:in-prose:pl-6 [&_ol]:in-prose:my-4 [&_ol]:in-prose:list-decimal [&_ol]:in-prose:pl-6",
@@ -25,7 +25,7 @@ export function Prose({ children, className }: { children: ReactNode; className?
         "[&_strong]:in-prose:font-semibold [&_strong]:in-prose:text-ink-900 dark:[&_strong]:in-prose:text-ink-100",
         "[&_a]:in-prose:font-medium [&_a]:in-prose:text-eclipse-700 [&_a]:in-prose:underline [&_a]:in-prose:underline-offset-2 dark:[&_a]:in-prose:text-eclipse-400",
         "[&_blockquote]:in-prose:my-5 [&_blockquote]:in-prose:border-l-2 [&_blockquote]:in-prose:border-eclipse-500 [&_blockquote]:in-prose:pl-4 [&_blockquote]:in-prose:italic",
-        "[&_code]:in-prose:rounded [&_code]:in-prose:bg-ink-100 [&_code]:in-prose:px-1.5 [&_code]:in-prose:py-0.5 [&_code]:in-prose:text-[13px] dark:[&_code]:in-prose:bg-ink-800",
+        "[&_code]:in-prose:rounded [&_code]:in-prose:font-mono [&_code]:in-prose:bg-ink-100 [&_code]:in-prose:px-1.5 [&_code]:in-prose:py-0.5 [&_code]:in-prose:text-[13px] dark:[&_code]:in-prose:bg-ink-800",
         "[&_pre]:in-prose:my-5 [&_pre]:in-prose:overflow-x-auto [&_pre]:in-prose:rounded-lg [&_pre]:in-prose:bg-ink-100 [&_pre]:in-prose:p-4 [&_pre]:in-prose:text-[13px] dark:[&_pre]:in-prose:bg-ink-900",
         "[&_pre_code]:in-prose:bg-transparent [&_pre_code]:in-prose:p-0",
         "[&_table]:in-prose:w-full [&_table]:in-prose:border-collapse [&_table]:in-prose:text-left [&_table]:in-prose:text-sm",

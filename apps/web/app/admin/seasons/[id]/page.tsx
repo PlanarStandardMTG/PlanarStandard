@@ -35,7 +35,7 @@ export default async function EditSeasonPage({ params }: { params: Promise<{ id:
       >
         <span aria-hidden="true">←</span> Seasons
       </Link>
-      <h1 className="mt-2 mb-8 font-serif text-3xl font-semibold tracking-tight">{season.name}</h1>
+      <h1 className="mt-2 mb-8 font-serif text-4xl tracking-tight sm:text-5xl">{season.name}</h1>
       <SeasonForm
         id={season.id}
         initial={{

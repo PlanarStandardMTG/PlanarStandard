@@ -25,7 +25,7 @@ export default async function NewFormatPage() {
       >
         <span aria-hidden="true">←</span> Formats
       </Link>
-      <h1 className="mt-2 mb-8 font-serif text-3xl font-semibold tracking-tight">
+      <h1 className="mt-2 mb-8 font-serif text-4xl tracking-tight sm:text-5xl">
         New format version
       </h1>
       <FormatVersionForm

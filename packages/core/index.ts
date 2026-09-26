@@ -141,6 +141,7 @@ export type {
 export { parseChallongeEvents } from "./events/parse-challonge-events/index";
 export { parseMeleeEvents } from "./events/parse-melee-events/index";
 export { eventSlug } from "./events/event-slug/index";
+export { seasonProgress, type SeasonProgress } from "./events/season-progress/index";
 export { SEASON_NAME_MAX, checkSeasonDraft } from "./events/check-season-draft/index";
 export type {
   SeasonDraftCheck,

@@ -37,7 +37,7 @@ export default async function DashboardCommunityPage() {
   return (
     <>
       <header className="mb-8">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight">Your community posts</h1>
+        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Your community posts</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
           {direct
             ? `As a ${viewer.profile.role}, what you submit is published straight away.`

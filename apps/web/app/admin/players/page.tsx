@@ -38,12 +38,12 @@ const ERRORS: Readonly<Record<string, string>> = {
 };
 
 const FIELD =
-  "rounded-lg border border-ink-300 bg-white px-3 py-2 text-sm focus:border-eclipse-500 " +
+  "rounded-lg border border-ink-300 bg-paper px-3 py-2 text-sm focus:border-eclipse-500 " +
   "focus:outline-none dark:border-ink-700 dark:bg-ink-950";
 
 const BUTTON =
   "rounded-lg bg-ink-900 px-4 py-2 text-sm font-medium text-white hover:bg-ink-700 " +
-  "dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-white";
+  "dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-paper";
 
 /**
  * Every player and the handles they hold, for merging handles that are one
@@ -78,7 +78,7 @@ export default async function AdminPlayersPage({
   return (
     <>
       <header className="mb-8">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight">Players</h1>
+        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Players</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
           Every player and the handles they have played under. Imports link a handle to an existing
           player only when it matches exactly, ignoring case and punctuation; merge anything else

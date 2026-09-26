@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 
 import { EventGroup } from "@/components/events/event-group";
 import { Container } from "@/components/ui/container";
+import { PageHeader } from "@/components/ui/page-header";
 import { EmptyState, ErrorState } from "@/components/ui/states";
 import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";
 import { loadEvents } from "@/lib/events/sync-events.server";
@@ -27,37 +28,36 @@ export default async function EventsPage() {
   const events = await load(() => loadEvents(now));
 
   return (
-    <Container className="py-12">
-      <header className="mb-8">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight">Events</h1>
-        <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
+    <div className="night flex-1">
+      <Container className="py-12">
+        <PageHeader kicker="The schedule" title="Events">
           Tournaments the community is running, wherever they are running them. Entry, pairings, and
           results all live on the event&rsquo;s own page — this is the schedule.
-        </p>
-      </header>
+        </PageHeader>
 
-      {!events.ok ? (
-        <ErrorState title="Could not load the schedule" detail={events.error} />
-      ) : events.value.schedule.live.length === 0 &&
-        events.value.schedule.upcoming.length === 0 &&
-        events.value.schedule.past.length === 0 ? (
-        <EmptyState title="No events on the calendar">
-          {events.value.configured
-            ? "Nothing is scheduled right now. Organisers post new brackets a week or two ahead."
-            : "This site has no calendar credentials configured, so nothing is being fetched. Run `pnpm db:reset` for seed events."}
-        </EmptyState>
-      ) : (
-        <>
-          <EventGroup title="Happening now" events={events.value.schedule.live} />
-          <EventGroup title="Upcoming" events={events.value.schedule.upcoming} />
-          <EventGroup title="Recently finished" events={events.value.schedule.past} />
+        {!events.ok ? (
+          <ErrorState title="Could not load the schedule" detail={events.error} />
+        ) : events.value.schedule.live.length === 0 &&
+          events.value.schedule.upcoming.length === 0 &&
+          events.value.schedule.past.length === 0 ? (
+          <EmptyState title="No events on the calendar">
+            {events.value.configured
+              ? "Nothing is scheduled right now. Organisers post new brackets a week or two ahead."
+              : "This site has no calendar credentials configured, so nothing is being fetched. Run `pnpm db:reset` for seed events."}
+          </EmptyState>
+        ) : (
+          <>
+            <EventGroup title="Happening now" events={events.value.schedule.live} />
+            <EventGroup title="Upcoming" events={events.value.schedule.upcoming} />
+            <EventGroup title="Recently finished" events={events.value.schedule.past} />
 
-          <p className="mt-10 border-t border-ink-200 pt-4 text-xs text-ink-500 dark:border-ink-800 dark:text-ink-400">
-            {freshness(events.value.syncs, now)}
-          </p>
-        </>
-      )}
-    </Container>
+            <p className="mt-10 border-t border-ink-200 pt-4 text-xs text-ink-500 dark:border-ink-800 dark:text-ink-400">
+              {freshness(events.value.syncs, now)}
+            </p>
+          </>
+        )}
+      </Container>
+    </div>
   );
 }
 

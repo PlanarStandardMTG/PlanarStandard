@@ -37,7 +37,7 @@ export function PostArticleContent({
   return (
     <article className={className}>
       <header className="mb-8 border-b border-ink-200 pb-6 dark:border-ink-800">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight text-balance">
+        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl text-balance">
           {post.title}
         </h1>
         {post.subtitle !== null && (

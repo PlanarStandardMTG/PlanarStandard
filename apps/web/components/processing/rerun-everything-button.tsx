@@ -43,7 +43,7 @@ export function RerunEverythingButton({
       <dialog
         ref={dialogRef}
         aria-labelledby="rerun-title"
-        className="m-auto w-full max-w-md rounded-xl border border-ink-200 bg-white p-6 text-ink-900 backdrop:bg-black/40 dark:border-ink-800 dark:bg-ink-950 dark:text-ink-100"
+        className="m-auto w-full max-w-md rounded-xl border border-ink-200 bg-paper p-6 text-ink-900 backdrop:bg-black/40 dark:border-ink-800 dark:bg-ink-950 dark:text-ink-100"
       >
         <form action={action}>
           <h2 id="rerun-title" className="font-semibold">
@@ -73,7 +73,7 @@ export function RerunEverythingButton({
             value={typed}
             onChange={(e) => setTyped(e.target.value)}
             autoComplete="off"
-            className="mt-1.5 w-full rounded-lg border border-ink-300 bg-white px-3 py-2 font-mono text-sm focus:border-eclipse-500 focus:outline-none dark:border-ink-700 dark:bg-ink-950"
+            className="mt-1.5 w-full rounded-lg border border-ink-300 bg-paper px-3 py-2 font-mono text-sm focus:border-eclipse-500 focus:outline-none dark:border-ink-700 dark:bg-ink-950"
           />
           <div className="mt-5 flex justify-end gap-2">
             <button

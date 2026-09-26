@@ -24,7 +24,7 @@ export function AuthShell({
   return (
     <Container className="py-16">
       <div className="mx-auto max-w-md">
-        <h1 className="font-serif text-3xl font-semibold tracking-tight">{title}</h1>
+        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">{title}</h1>
         {intro !== undefined && <p className="mt-2 text-ink-600 dark:text-ink-400">{intro}</p>}
         {children}
       </div>
@@ -50,7 +50,7 @@ export function Notice({ tone, children }: { tone: "warn" | "good"; children: Re
 }
 
 export const FIELD_CLASS =
-  "mt-1.5 w-full rounded-lg border border-ink-300 bg-white px-3 py-2 text-sm " +
+  "mt-1.5 w-full rounded-lg border border-ink-300 bg-paper px-3 py-2 text-sm " +
   "focus:border-eclipse-500 focus:outline-none dark:border-ink-700 dark:bg-ink-950";
 
 export function Field({
@@ -80,7 +80,7 @@ export function SubmitButton({ children }: { children: ReactNode }) {
   return (
     <button
       type="submit"
-      className="w-full rounded-lg bg-ink-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-ink-700 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-white"
+      className="w-full rounded-lg bg-ink-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-ink-700 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-paper"
     >
       {children}
     </button>

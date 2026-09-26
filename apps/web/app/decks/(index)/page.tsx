@@ -22,7 +22,7 @@ export const metadata: Metadata = {
 
 const BUTTON =
   "inline-block shrink-0 rounded-lg bg-ink-900 px-4 py-2 text-sm font-medium text-white " +
-  "hover:bg-ink-700 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-white";
+  "hover:bg-ink-700 dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-paper";
 
 /**
  * A member's own decks (E20.28), each at its latest version (E20.30). The public
@@ -35,7 +35,7 @@ export default async function DecksPage() {
     <Container className="py-12">
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-serif text-3xl font-semibold tracking-tight">Decks</h1>
+          <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Decks</h1>
           <p className="mt-1 text-sm text-ink-600 dark:text-ink-400">
             Import a list, see it card by card, and check it against the current format.
           </p>

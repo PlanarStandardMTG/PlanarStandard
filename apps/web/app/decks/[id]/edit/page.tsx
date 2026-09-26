@@ -52,7 +52,7 @@ export default async function EditDeckPage({ params }: { params: Promise<{ id: s
       >
         <span aria-hidden="true">←</span> {deck.name}
       </Link>
-      <h1 className="mt-2 font-serif text-3xl font-semibold tracking-tight">Edit deck</h1>
+      <h1 className="mt-2 font-serif text-4xl tracking-tight sm:text-5xl">Edit deck</h1>
       <p className="mt-1 mb-8 text-sm text-ink-600 dark:text-ink-400">
         Saving keeps this version as it is and adds the new one to the deck’s history.
       </p>
