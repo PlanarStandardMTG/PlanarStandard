@@ -8,7 +8,7 @@ import { requireRole } from "@/lib/auth/guard";
 import { formatDate } from "@/lib/format-date";
 import { createSessionClient } from "@/lib/supabase/session";
 
-import { mergeSelected, undoMergeAction } from "./actions";
+import { linkMember, mergeSelected, undoMergeAction } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -23,6 +23,8 @@ const LIMIT = 300;
 const DONE: Readonly<Record<string, string>> = {
   merged: "Merged, and the ladder recomputed.",
   undone: "Merge undone, and the ladder recomputed.",
+  linked: "Player linked. Their decklists from events will match their saved decks from now on.",
+  unlinked: "Player unlinked from their member.",
 };
 
 const ERRORS: Readonly<Record<string, string>> = {
@@ -33,6 +35,8 @@ const ERRORS: Readonly<Record<string, string>> = {
   "played-each-other":
     "Those players both played in the same event, so they are two people and can’t be merged.",
   "already-undone": "That merge has already been undone.",
+  "no-member": "No member has that handle.",
+  "member-taken": "That member is already linked to another player.",
   "since-merged":
     "One of those players has been merged again since, so this merge can’t be undone on its own. Undo the later one first.",
 };
@@ -170,6 +174,11 @@ export default async function AdminPlayersPage({
                           Hidden
                         </Badge>
                       )}
+                      {player.profileId !== null && (
+                        <Badge variant="outline" className="ml-2">
+                          Member
+                        </Badge>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-ink-600 dark:text-ink-400">
                       {handles.map((h) => (
@@ -222,6 +231,39 @@ export default async function AdminPlayersPage({
           </p>
         )}
       </form>
+
+      {players.length > 0 && (
+        <section className="mt-12">
+          <h2 className="mb-2 font-serif text-xl font-semibold tracking-tight">
+            Link a player to a member
+          </h2>
+          <p className="mb-4 max-w-prose text-sm text-ink-600 dark:text-ink-400">
+            A linked member sees the events they played on their decks page, and a decklist from an
+            event is matched to the decks they have saved. Leave the handle empty to unlink.
+          </p>
+          <form action={linkMember} className="flex flex-wrap items-end gap-3">
+            <input type="hidden" name="q" value={search} />
+            <label className="text-sm font-medium">
+              Player
+              <select name="player" required className={`${FIELD} mt-1.5 block`}>
+                {players.map(({ player }) => (
+                  <option key={player.id} value={player.id}>
+                    {player.displayName}
+                    {player.profileId !== null ? " (linked)" : ""}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="text-sm font-medium">
+              Member handle
+              <input name="handle" placeholder="wrenfield" className={`${FIELD} mt-1.5 block`} />
+            </label>
+            <button type="submit" className={BUTTON}>
+              Save link
+            </button>
+          </form>
+        </section>
+      )}
 
       <section className="mt-12">
         <h2 className="mb-4 font-serif text-xl font-semibold tracking-tight">Recent merges</h2>

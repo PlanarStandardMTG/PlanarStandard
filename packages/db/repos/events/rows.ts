@@ -66,10 +66,13 @@ export interface CompletionRow {
   readonly processed_at: string | null;
   readonly attempts: number;
   readonly last_error: string | null;
+  readonly elo: boolean;
+  readonly decklists: boolean;
 }
 
 export const COMPLETION_COLUMNS =
-  "source, external_id, name, detected_at, claimed_at, processed_at, attempts, last_error";
+  "source, external_id, name, detected_at, claimed_at, processed_at, attempts, last_error, " +
+  "elo, decklists";
 
 export function toCompletion(row: CompletionRow): EventCompletion {
   return {
@@ -81,5 +84,7 @@ export function toCompletion(row: CompletionRow): EventCompletion {
     processedAt: row.processed_at,
     attempts: row.attempts,
     lastError: row.last_error,
+    elo: row.elo,
+    decklists: row.decklists,
   };
 }

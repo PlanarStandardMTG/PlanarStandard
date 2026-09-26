@@ -97,4 +97,8 @@ export interface EventCompletion {
   readonly processedAt: IsoDateTime | null;
   readonly attempts: number;
   readonly lastError: string | null;
+  /** On the Elo line: its matches rate. A Monthly starts on it (E18.22). */
+  readonly elo: boolean;
+  /** On the decklist line: its lists are stored against its standings. A Monthly starts on it. */
+  readonly decklists: boolean;
 }

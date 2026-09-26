@@ -1,5 +1,11 @@
 import type { Deck, DeckId } from "@ps/contracts";
-import { getDeckWithCards, getProfile, isDeckInEvent, listDeckVersions } from "@ps/db";
+import {
+  getDeckWithCards,
+  getProfile,
+  isDeckInEvent,
+  listDeckVersions,
+  listPlayedEntries,
+} from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -10,6 +16,7 @@ import { DeckLegality } from "@/components/decks/deck-legality";
 import { DeleteDeckButton } from "@/components/decks/delete-deck-button";
 import { DeckSectionsGrid } from "@/components/decks/deck-sections-grid";
 import { DeckSectionsList } from "@/components/decks/deck-sections-list";
+import { PlayedEvents } from "@/components/decks/played-events";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
 import { currentViewer } from "@/lib/auth/viewer";
@@ -74,6 +81,10 @@ export default async function DeckPage({
     deck.ownerId === null ? null : getProfile(session, deck.ownerId),
     hidden ? [] : listDeckVersions(session, deck.id),
   ]);
+  // Every version's events, since a tuned list is still the same deck (E20.38).
+  const played = await listPlayedEntries(session, {
+    deckIds: versions.length === 0 ? [deck.id] : versions.map((version) => version.id),
+  });
   const view: DeckView = buildDeckView(deck, format.ok ? format.value : null);
   const isOwner = viewer !== null && viewer.profile.id === deck.ownerId;
   const canManage = isOwner && !hidden && deck.submittedVia === "import" && deck.lockedAt === null;
@@ -158,6 +169,23 @@ export default async function DeckPage({
         <DeckSectionsGrid sections={view.sections} />
       ) : (
         <DeckSectionsList sections={view.sections} />
+      )}
+
+      {played.length > 0 && (
+        <section aria-labelledby="played" className="mt-12">
+          <h2 id="played" className="mb-3 text-sm font-semibold">
+            Played at ({played.length})
+          </h2>
+          <PlayedEvents
+            entries={played}
+            {...(versions.length > 1 && {
+              detail: (entry) =>
+                entry.deckId === deck.id
+                  ? "This version"
+                  : `Version ${versions.findIndex((version) => version.id === entry.deckId) + 1}`,
+            })}
+          />
+        </section>
       )}
 
       {versions.length > 1 && <VersionHistory versions={versions} current={deck.id} />}

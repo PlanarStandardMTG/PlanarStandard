@@ -31,6 +31,9 @@ snake_case row shape does not leave `rows.ts`.
   where a tournament entry names it, since an event's record outlives the player's
   tidying. The owner can still read their hidden decks, because the data export
   (`listDecksByOwner`) must hand them over.
+- **Only an event's own decks are ever deleted** (E18.23). `deleteUnusedEventDecks`
+  removes a `registration` or `organizer` deck no entry names any more — what is
+  left when an event's lists are replaced — and never a member's import.
 - A card whose name did not resolve is stored with a null `oracle_id` and the
   deck is flagged (E18.10). Dropping the line would make a 60-card deck read as
   59 and legal.

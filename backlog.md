@@ -37,9 +37,9 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 13/14 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
-| E18  | Services                              | 5–8   | E3–E13       | 🚧 5/21  |
+| E18  | Services                              | 5–8   | E3–E13       | 🚧 7/23  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 21/36 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 26/39 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 13/14 |
@@ -856,8 +856,8 @@ content hash); staged rows are written with `raw` for provenance. `core/results/
 leaves out a match with no result or an unresolved side, and every issue lands in
 `result_imports.errors`. `onFullRerun` now rebuilds the ladder from the ledger. Challonge events
 are marked processed with nothing done until E12.14.
-_Outstanding:_ the deck path is a named no-op (`onDecklistsIngested`) until E18.13–E18.15.
-`tournament_entries` is written since E18.21. The assembled payload is not archived
+_Outstanding:_ the deck path stores lists since E18.23; the statistics it feeds (E18.13–E18.15) do
+not exist yet. `tournament_entries` is written since E18.21. The assembled payload is not archived
 (E18.1 has not chosen where raw bytes live); melee.gg can be asked again, which "Re-run everything"
 does.
 
@@ -869,6 +869,24 @@ merge's undo still finds them; an already-committed payload still writes its sta
 ingested before this gain them on a re-run.
 _Note:_ `core/results/event-entries` decides, `replaceTournamentEntries` upserts on
 `(tournament_id, player_id)` and prunes, and `resolveEventHandles` now returns each handle's player.
+
+✅ **E18.22 — An Elo line and a decklist line** · M · Deps: E18.20, E23.13 — each finished event is
+on the Elo line, the decklist line, both or neither, chosen by an admin while it waits. _AC:_ a
+Monthly starts on both and anything else on neither; an event on neither is never claimed; the
+choice is fixed once processed, and leaving a line after that undoes it — off Elo, the event is
+unrated and the ladder replays; off decklists, its lists leave its standings.
+_Note:_ `0029_processing_lines.sql` adds `event_completions.elo` / `decklists`, set on insert by a
+trigger mirroring `core/elo/rated-by-default`, since both `recordCompletions` and
+`requeue_event_completions` insert. `is_rated` is now the Elo line's to write on every ingest, and a
+re-ingest that flips it recomputes. `EventCompletion` gains `elo` and `decklists` in `@ps/contracts`,
+and `completion-status` an `excluded` state.
+✅ **E18.23 — The decklist line stores lists on standings** · M · Deps: E18.22, E18.21 — each list
+lands on its player's entry. _AC:_ the member's own saved deck when the player is linked (E20.39) and
+the list is exactly it; else a new deck locked at the event; a re-run with the same lists writes
+nothing; a deck an entry stops naming is deleted if the event made it and nothing else uses it.
+_Note:_ `lib/decks/attach-event-decks.server.ts`, for melee.gg's lists and an admin's sheet alike.
+`core/similarity/match-saved-deck` decides exact and nearest; a private saved deck is never linked,
+since an event would show everyone a dead link.
 
 ### import-decklists
 
@@ -1080,10 +1098,13 @@ _Note:_ added outside the plan. `0022_hide_deck_versions.sql` adds `decks.hidden
 member delete policy, so a member can no longer delete a deck at all. `hide_deck_versions` is a
 definer function because `decks` has no update policy. The owner can still read hidden decks, which
 the data export needs (E16.11). "Delete" is the member's word for it; nothing is deleted.
-⬜ **E20.32 — `decks`: a member's tournament decks, as a tab beside their own** · S · Deps: E20.31,
+✅ **E20.32 — `decks`: a member's tournament decks, as a tab beside their own** · S · Deps: E20.31,
 a player linked to the profile (`players.profile_id`) — _AC:_ `/decks` has a "Tournament decks" tab
 listing the decks the member's player registered, from `listDecksByPlayer`, whether or not the member
 removed a copy from their own decks.
+_Note:_ a section below their own decks rather than a tab, listing the events their player entered
+(`listPlayedEntries`) with the deck from each: "your deck" when it is one of theirs, else the event's
+copy and how like their nearest saved deck it is. The link to a player is E20.39.
 ✅ **E20.33 — `admin`: create, edit and delete format versions** · M · Deps: E14.4, E20.21 —
 `/admin/formats`. _AC:_ an admin lists every version with the one in force marked; creates or edits a
 version's name, dates, notes, legal sets, deck limits and card rules (by card name, with "did you
@@ -1093,9 +1114,13 @@ _Note:_ added outside the plan, so a production database can get its format with
 applies migrations and never seeds. `0023_admin_format_versions.sql` adds `save_format_version` and
 `delete_format_version`, both security invoker so the E14.4 admin policies decide.
 `core/legality/check-format-draft` checks the form. `extra_rules` has no editor yet and is kept as it is.
-⬜ **E20.34 — `admin`: rate or unrate a tournament** · S · Deps: E8.7, E18.12 — flip
+✅ **E20.34 — `admin`: rate or unrate a tournament** · S · Deps: E8.7, E18.12 — flip
 `tournaments.is_rated` after E8.7 guessed it, and recompute. _AC:_ admin-only; the leaderboard
 reflects the change once the recompute finishes, with no deploy.
+_Note:_ the Elo line (E18.22) at `/admin/processing`: ticked or not before processing, and "Remove
+from Elo" after, which unrates and recomputes.
+_Outstanding:_ rating an event that was processed unrated takes "Re-run everything"; there is no
+direct "add to Elo" once processed.
 ✅ **E20.35 — `admin`: open and close seasons** · S · Deps: E18.12 — create a season, set its dates,
 mark it current. _AC:_ the leaderboard is scoped to the current season (E18.12), so marking a new
 one current recomputes, and the ladder resets with no deploy; an event's season comes from its date
@@ -1107,6 +1132,23 @@ before their season existed join it — and every save recomputes. The form rece
 prop: the action reaches the service-role client, and `check-server-only` refuses a client module
 that imports it. `SeasonDraft` is new in `@ps/contracts`. The season's format version is not on the
 form and stays as it was.
+
+✅ **E20.37 — `admin`: decklists for events that are missing them** · M · Deps: E18.23 —
+`/admin/processing` gains tabs: every finished tournament with its two lines, filtered by name in the
+browser; and every processed event on the decklist line, those missing decks first, with a CSV
+upload per event. _AC:_ a row is a player and a deck — a link to a deck here, its id, or the list
+written out; names match on any handle, ignoring punctuation; a row that cannot be used says why;
+an upload is stored at once, matched to saved decks as E18.23 does.
+_Note:_ `core/results/decklist-sheet` reads the sheet. A link to another site is refused rather
+than fetched. The statistics an upload should recompute are E18.13's, which does not exist yet.
+✅ **E20.38 — `decks`: the events a deck was played at** · S · Deps: E18.23, E20.6 — the deck page
+lists every event any version of the deck was entered in: placement, record, date, and the event
+linked to its page on the platform it ran on.
+_Note:_ `listPlayedEntries` reads it from `tournament_entries`; there is no `/tournaments/[slug]`
+yet (E20.14), so the link is the event's `external_url`.
+✅ **E20.39 — `admin`: link a player to a member** · S · Deps: E20.16 — `/admin/players` sets
+`players.profile_id` from a member's handle, or clears it. _AC:_ a member is one player at most;
+linking a second says so rather than failing.
 
 ---
 
@@ -1333,7 +1375,7 @@ can start today, in rough order of how much it unblocks.
   archiving its bytes (E18.1 still needs a decision on where, and Supabase Storage now has a bucket
   pattern to copy from `post-images`), staging it, and the review queue. E20.15 and E22.12 wait on it.
 - **E24.5 — the real podium.** Every ingest now writes its standings (E18.21), so the query has rows
-  to read; decks join in once E18.13 stores them. E24.6 follows it.
+  to read, and decks since the decklist line stores them (E18.23). E24.6 follows it.
 - **E23.14 — scheduling the completed-events job,** now that `/api/jobs/process-completed-events`
   exists: pick the scheduler, set `CRON_SECRET` in Vercel and in it, and choose an interval. The queue
   makes any interval safe. Until then a melee.gg event is ingested only when an admin presses
@@ -1417,12 +1459,12 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E4   | 7       | 5    | E15  | 5       | 1    |
 | E5   | 6       | 6    | E16  | 14      | 13   |
 | E6   | 8       | 8    | E17  | 13      | 12   |
-| E7   | 5       | 5    | E18  | 21      | 5    |
+| E7   | 5       | 5    | E18  | 23      | 7    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 36      | 21   |
+| E9   | 9       | 9    | E20  | 39      | 26   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 14      | 13   |
 |      |         |      | E24  | 7       | 4    |
 
-**185 of 262 stories done across 24 epics.**
+**192 of 267 stories done across 24 epics.**

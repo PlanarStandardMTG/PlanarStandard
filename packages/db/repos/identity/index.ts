@@ -87,6 +87,39 @@ export async function getPlayer(
   return data === null ? null : toPlayer(data as unknown as PlayerRow);
 }
 
+/** The player a member has been linked to, if any (E20.39). */
+export async function getPlayerByProfile(
+  client: SupabaseClient,
+  profileId: ProfileId,
+): Promise<Player | null> {
+  const { data, error } = await client
+    .from("players")
+    .select(PLAYER_COLUMNS)
+    .eq("profile_id", profileId)
+    .maybeSingle();
+
+  if (error !== null) throw new Error(`getPlayerByProfile failed: ${error.message}`);
+  return data === null ? null : toPlayer(data as unknown as PlayerRow);
+}
+
+/**
+ * Say which member a player is, or that none is (E20.39) — what lets an event's
+ * list be matched to the member's saved decks. A member is one player at most;
+ * linking a second fails on `players_profile_id_key`.
+ */
+export async function setPlayerProfile(
+  serviceClient: SupabaseClient,
+  playerId: PlayerId,
+  profileId: ProfileId | null,
+): Promise<void> {
+  const { error } = await serviceClient
+    .from("players")
+    .update({ profile_id: profileId })
+    .eq("id", playerId);
+
+  if (error !== null) throw new Error(`setPlayerProfile failed: ${error.message}`);
+}
+
 /**
  * The identity a handle belongs to, or null if this platform has never sent it.
  *

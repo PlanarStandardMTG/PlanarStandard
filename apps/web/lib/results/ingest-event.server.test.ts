@@ -89,6 +89,19 @@ describe.skipIf(!reachable)("lib/results/ingest-event", () => {
       .select("player_id")
       .in("id", [...identities]);
 
+    const { data: decks } = await service
+      .from("tournament_entries")
+      .select("deck_id")
+      .in("tournament_id", ids)
+      .not("deck_id", "is", null);
+    await service.from("tournament_entries").delete().in("tournament_id", ids);
+    await service
+      .from("decks")
+      .delete()
+      .in(
+        "id",
+        (decks ?? []).map((d) => d.deck_id),
+      );
     await service.from("matches").delete().in("tournament_id", ids);
     await service.from("result_imports").delete().in("tournament_id", ids);
     await service.from("tournaments").delete().in("id", ids);
@@ -178,5 +191,30 @@ describe.skipIf(!reachable)("lib/results/ingest-event", () => {
     expect(report.tournament.isRated).toBe(false);
     expect(report.matches).toBe(11);
     expect(recomputeRatings).not.toHaveBeenCalled();
+  });
+
+  it("stores its lists on its standings when it is on the decklist line, and not otherwise", async () => {
+    const off = await ingestEvent(service, source(bundle(), `vitest-lists-${tag}`));
+    tournaments.add(off.tournament.id);
+    expect(off.decks).toBe(0);
+
+    const on = await ingestEvent(service, {
+      ...source(bundle(), `vitest-lists-${tag}`),
+      rate: false,
+      decklists: true,
+    });
+    expect(on).toMatchObject({ written: false, decks: 2 });
+    expect(on.tournament.isRated).toBe(false);
+    expect(recomputeRatings).toHaveBeenLastCalledWith(service, `rerated:melee:vitest-lists-${tag}`);
+
+    const { data } = await service
+      .from("tournament_entries")
+      .select("decks (name, submitted_via)")
+      .eq("tournament_id", on.tournament.id)
+      .not("deck_id", "is", null);
+    expect(data?.map((row) => (row.decks as unknown as { name: string }).name).sort()).toEqual([
+      "Azorius Control",
+      "Owl Tempo",
+    ]);
   });
 });

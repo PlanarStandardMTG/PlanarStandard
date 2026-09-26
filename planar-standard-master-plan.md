@@ -182,6 +182,7 @@ Each definition is pinned in `docs/modules/metrics.md` and published verbatim at
 | `weighted-jaccard`       | `Σ min / Σ max` over two vectors                                  |
 | `build-similarity-graph` | All pairs above threshold → edge list                             |
 | `force-layout`           | Edge list → `{x, y}` per node, **seeded RNG** for reproducibility |
+| `match-saved-deck`       | An event's list → the saved deck it is exactly, else the nearest  |
 
 Basics excluded, non-basic lands included, maindeck only, default threshold 0.5. At 98 nodes that reproduces the ~763 edges in the existing map.
 
@@ -244,6 +245,7 @@ Five tiny transforms and a pipeline. Each is a two-minute PR with a before/after
 | ---------------- | ------------------------------------------------------------------------------------------------ |
 | `ledger-matches` | Parsed pairings → `matches` rows, leaving out a match with no result or an unresolved side       |
 | `event-entries`  | Parsed event → one standing per player; placements from the source, else a clean playoff bracket |
+| `decklist-sheet` | An admin's CSV of player and deck → one deck per entry, and why any row was not used             |
 
 `event-entries` reads finishes off pairings, never pairings off finishes (ADR 006).
 
@@ -344,7 +346,8 @@ Plus `migrations/` (numbered, forward-only) and `seed/` (§17).
 | Service               | Job                                                                                                   |
 | --------------------- | ----------------------------------------------------------------------------------------------------- |
 | `import-results`      | adapter → stage → resolve → review → commit                                                           |
-| `ingest-event`        | a finished platform event → tournament, ledger and standings, then ratings; no review queue (§26)     |
+| `ingest-event`        | a finished platform event → tournament, ledger and standings, then its Elo and decklist lines (§26)   |
+| `attach-event-decks`  | an event's lists → its entries, matched to members' saved decks, else new locked decks                |
 | `sync-events`         | refresh a platform calendar within its request budget; queue the events that just finished            |
 | `process-completions` | work that queue: each finished event is handled once, retried on failure                              |
 | `import-decklists`    | folder drop / paste → parse → resolve → commit                                                        |
@@ -657,6 +660,7 @@ create table event_completions (             -- each finished event, handled onc
   detected_at timestamptz not null default now(),
   claimed_at timestamptz, processed_at timestamptz,
   attempts int not null default 0, last_error text,
+  elo boolean not null, decklists boolean not null, -- the lines it goes down; a Monthly starts on both (E18.22)
   primary key (source, external_id)
 );
 ```
@@ -1040,7 +1044,7 @@ Condensed. Detail per module lives in `docs/modules/`.
 
 ### 26. Ingestion flows
 
-**Results:** upload → detect adapter → parse → stage → resolve handles → review → commit → recompute. A finished event on a platform with an API takes a shorter path: the calendar refresh queues it, the queue fetches its scrubbed results once, and `ingest-event` commits them with no review step, because handles resolve by exact normalized match only; it writes the standings too, and recomputes ratings when the event is rated. Content-hash idempotency; raw bytes archived permanently; `raw jsonb` retained so parser fixes re-run without the original file. Re-imports supersede wholesale and never merge. Corrections require a reason, write an audit row, trigger recompute, and post to Discord if any public rank moves.
+**Results:** upload → detect adapter → parse → stage → resolve handles → review → commit → recompute. A finished event on a platform with an API takes a shorter path: the calendar refresh queues it, the queue fetches its scrubbed results once, and `ingest-event` commits them with no review step, because handles resolve by exact normalized match only; it writes the standings too, and then runs the lines an admin put it on — Elo recomputes the ratings, and decklists stores its lists on its standings, matched to a linked member's saved decks. An admin fills lists the platform did not send from a CSV. Content-hash idempotency; raw bytes archived permanently; `raw jsonb` retained so parser fixes re-run without the original file. Re-imports supersede wholesale and never merge. Corrections require a reason, write an audit row, trigger recompute, and post to Discord if any public rank moves.
 
 **Decklists:** three paths, all optional to the ratings pipeline — folder drop with filename-encoded metadata, self-service paste, organizer entry. Unresolved card names keep the row, flag the deck, and exclude it from `card_stats` until fixed.
 

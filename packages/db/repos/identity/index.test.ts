@@ -1,4 +1,4 @@
-import type { IdentityId, PlayerId, TournamentId } from "@ps/contracts";
+import type { IdentityId, PlayerId, ProfileId, TournamentId } from "@ps/contracts";
 import { createClient } from "@supabase/supabase-js";
 import { afterAll, describe, expect, it } from "vitest";
 
@@ -8,6 +8,7 @@ import {
   findIdentityByNormalizedHandle,
   listIdentitiesByNormalized,
   getPlayer,
+  getPlayerByProfile,
   getPlayerBySlug,
   listExclusions,
   listIdentitiesByPlayer,
@@ -18,6 +19,7 @@ import {
   recordPlayerMerge,
   repointPlayerRows,
   replaceMergeSuggestions,
+  setPlayerProfile,
   reviewMergeSuggestion,
 } from "./index";
 
@@ -200,6 +202,18 @@ describe.skipIf(!reachable)("repos/identity", () => {
     expect(viaSlug?.id).toBe(created.playerId);
     expect(viaSlug?.mergedInto).toBeNull();
     expect(viaSlug?.profileId).toBeNull();
+  });
+
+  it("links a player to a member, finds them by it, and unlinks", async () => {
+    // Seeded Odis Brackwater (`seed/0001_profiles.sql`); nothing else here links them.
+    const member = "11111111-1111-4111-8111-000000000005" as ProfileId;
+    const linked = await aPlayer("Linked");
+
+    await setPlayerProfile(service, linked.playerId, member);
+    expect((await getPlayerByProfile(client, member))?.id).toBe(linked.playerId);
+
+    await setPlayerProfile(service, linked.playerId, null);
+    expect(await getPlayerByProfile(client, member)).toBeNull();
   });
 
   describe("exclusions", () => {

@@ -75,6 +75,9 @@ export const DECK_SUMMARY_COLUMNS =
 
 export const DECK_WITH_CARDS_COLUMNS = `${DECK_COLUMNS}, cards:deck_cards (${CARD_COLUMNS})`;
 
+/** How a deck arrives from an event rather than from a member (E18.23). */
+export const EVENT_ROUTES: readonly string[] = ["registration", "organizer"];
+
 /** The four values the `submitted_via` check constraint allows, and nothing else. */
 const ROUTES: readonly string[] = ["registration", "organizer", "backfill", "import"];
 

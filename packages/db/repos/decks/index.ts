@@ -13,6 +13,7 @@ import {
   DECK_COLUMNS,
   DECK_SUMMARY_COLUMNS,
   DECK_WITH_CARDS_COLUMNS,
+  EVENT_ROUTES,
   toDeck,
   toDeckWithCards,
   type DeckRow,
@@ -296,4 +297,58 @@ export async function isDeckInEvent(client: SupabaseClient, deckId: DeckId): Pro
 
   if (error !== null) throw new Error(`isDeckInEvent failed: ${error.message}`);
   return data === true;
+}
+
+/**
+ * Decks with their lists: a member's saved decks, every version, hidden ones
+ * left out — what an event's list is matched against (E18.23) — or these ones.
+ */
+export async function listDecksWithCards(
+  client: SupabaseClient,
+  filter: { readonly savedBy: ProfileId } | { readonly ids: readonly DeckId[] },
+): Promise<readonly DeckWithCards[]> {
+  let query = client.from("decks").select(DECK_WITH_CARDS_COLUMNS);
+  if ("savedBy" in filter) {
+    query = query
+      .eq("owner_id", filter.savedBy)
+      .eq("submitted_via", "import")
+      .is("hidden_at", null);
+  } else {
+    if (filter.ids.length === 0) return [];
+    query = query.in("id", filter.ids);
+  }
+
+  const { data, error } = await query.order("created_at", { ascending: false });
+  if (error !== null) throw new Error(`listDecksWithCards failed: ${error.message}`);
+  return (data as unknown as DeckWithCardsRow[]).map(toDeckWithCards);
+}
+
+/**
+ * Delete those of these decks that an event made and no entry names any more —
+ * what is left when an event's lists are replaced or taken off the decklist
+ * line (E18.23). A member's own deck is never one of them. Returns how many went.
+ */
+export async function deleteUnusedEventDecks(
+  serviceClient: SupabaseClient,
+  deckIds: readonly DeckId[],
+): Promise<number> {
+  if (deckIds.length === 0) return 0;
+  const { data: used, error: usedError } = await serviceClient
+    .from("tournament_entries")
+    .select("deck_id")
+    .in("deck_id", deckIds);
+  if (usedError !== null) throw new Error(`deleteUnusedEventDecks failed: ${usedError.message}`);
+
+  const kept = new Set((used as { deck_id: string }[]).map((row) => row.deck_id));
+  const unused = deckIds.filter((id) => !kept.has(id));
+  if (unused.length === 0) return 0;
+
+  const { data, error } = await serviceClient
+    .from("decks")
+    .delete()
+    .in("id", unused)
+    .in("submitted_via", EVENT_ROUTES)
+    .select("id");
+  if (error !== null) throw new Error(`deleteUnusedEventDecks failed: ${error.message}`);
+  return data.length;
 }

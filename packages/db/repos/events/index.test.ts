@@ -15,6 +15,7 @@ import {
   recordSyncResult,
   requeueAllCompletions,
   replaceEvents,
+  setCompletionLine,
 } from "./index";
 
 /**
@@ -226,16 +227,36 @@ describe.skipIf(!reachable)("repos/events", () => {
       });
 
     it("queues an event once, however many refreshes see it finish", async () => {
-      await recordCompletions(service, TEST_SOURCE, [{ externalId: "9", name: "Finals" }], NOW);
-      await recordCompletions(service, TEST_SOURCE, [{ externalId: "9", name: "Finals" }], NOW);
+      await recordCompletions(
+        service,
+        TEST_SOURCE,
+        [{ externalId: "9", name: "Monthly Finals" }],
+        NOW,
+      );
+      await recordCompletions(
+        service,
+        TEST_SOURCE,
+        [{ externalId: "9", name: "Monthly Finals" }],
+        NOW,
+      );
 
       const claimed = await claim();
       expect(claimed).toHaveLength(1);
-      expect(claimed[0]).toMatchObject({ externalId: "9", name: "Finals", attempts: 1 });
+      expect(claimed[0]).toMatchObject({
+        externalId: "9",
+        name: "Monthly Finals",
+        attempts: 1,
+        elo: true,
+      });
     });
 
     it("gives a claimed row to nobody else until its lease runs out", async () => {
-      await recordCompletions(service, TEST_SOURCE, [{ externalId: "9", name: "Finals" }], NOW);
+      await recordCompletions(
+        service,
+        TEST_SOURCE,
+        [{ externalId: "9", name: "Monthly Finals" }],
+        NOW,
+      );
       expect(await claim()).toHaveLength(1);
 
       // Held since just now: a cutoff an hour ago does not reach it.
@@ -245,7 +266,12 @@ describe.skipIf(!reachable)("repos/events", () => {
     });
 
     it("never hands out a processed event again", async () => {
-      await recordCompletions(service, TEST_SOURCE, [{ externalId: "9", name: "Finals" }], NOW);
+      await recordCompletions(
+        service,
+        TEST_SOURCE,
+        [{ externalId: "9", name: "Monthly Finals" }],
+        NOW,
+      );
       const [taken] = await claim();
       if (taken === undefined) throw new Error("nothing claimed");
 
@@ -254,7 +280,12 @@ describe.skipIf(!reachable)("repos/events", () => {
     });
 
     it("releases a failure for a retry, and stops retrying after the last attempt", async () => {
-      await recordCompletions(service, TEST_SOURCE, [{ externalId: "9", name: "Finals" }], NOW);
+      await recordCompletions(
+        service,
+        TEST_SOURCE,
+        [{ externalId: "9", name: "Monthly Finals" }],
+        NOW,
+      );
 
       const [first] = await claim({ maxAttempts: 2 });
       if (first === undefined) throw new Error("nothing claimed");
@@ -283,12 +314,17 @@ describe.skipIf(!reachable)("repos/events", () => {
         service,
         TEST_SOURCE,
         [
-          { ...event("1", "Done, never queued"), state: "complete" },
+          { ...event("1", "Monthly, never queued"), state: "complete" },
           { ...event("2", "Still to come"), state: "scheduled" },
         ],
         FETCHED_AT,
       );
-      await recordCompletions(service, TEST_SOURCE, [{ externalId: "9", name: "Finals" }], NOW);
+      await recordCompletions(
+        service,
+        TEST_SOURCE,
+        [{ externalId: "9", name: "Monthly Finals" }],
+        NOW,
+      );
       const [taken] = await claim();
       if (taken === undefined) throw new Error("nothing claimed");
       await markCompletionProcessed(service, taken, NOW);
@@ -303,8 +339,45 @@ describe.skipIf(!reachable)("repos/events", () => {
       ]);
     });
 
+    it("puts a Monthly on both lines and anything else on neither, which is never claimed", async () => {
+      await recordCompletions(
+        service,
+        TEST_SOURCE,
+        [
+          { externalId: "9", name: "Monthly Finals" },
+          { externalId: "10", name: "Mid-Month Madness" },
+        ],
+        NOW,
+      );
+      const claimed = await claim();
+      expect(claimed.map((c) => [c.externalId, c.elo, c.decklists])).toEqual([["9", true, true]]);
+    });
+
+    it("lets an admin choose a line while an event waits, and only leave one after", async () => {
+      await recordCompletions(service, TEST_SOURCE, [{ externalId: "10", name: "Weekly" }], NOW);
+      const admin = await signIn("newsdesk@planarstandard.test");
+      const key = { source: TEST_SOURCE, externalId: "10" };
+
+      expect(await setCompletionLine(admin, key, "decklists", true)).toBe(true);
+      const [taken] = await claim();
+      expect(taken).toMatchObject({ elo: false, decklists: true });
+      if (taken === undefined) throw new Error("nothing claimed");
+      await markCompletionProcessed(service, taken, NOW);
+
+      expect(await setCompletionLine(admin, key, "elo", true)).toBe(false);
+      expect(await setCompletionLine(admin, key, "decklists", false)).toBe(false);
+      expect(await setCompletionLine(admin, key, "decklists", "leave")).toBe(true);
+      const [row] = (await listCompletions(admin, 100)).filter((c) => c.externalId === "10");
+      expect(row).toMatchObject({ elo: false, decklists: false });
+    });
+
     it("keeps the queue, and the re-run, from anyone but an admin", async () => {
-      await recordCompletions(service, TEST_SOURCE, [{ externalId: "9", name: "Finals" }], NOW);
+      await recordCompletions(
+        service,
+        TEST_SOURCE,
+        [{ externalId: "9", name: "Monthly Finals" }],
+        NOW,
+      );
       const writer = await signIn("wrenfield@planarstandard.test");
 
       expect(await listCompletions(writer, 100)).toEqual([]);
@@ -314,7 +387,12 @@ describe.skipIf(!reachable)("repos/events", () => {
     });
 
     it("keeps the queue away from the public client", async () => {
-      await recordCompletions(service, TEST_SOURCE, [{ externalId: "9", name: "Finals" }], NOW);
+      await recordCompletions(
+        service,
+        TEST_SOURCE,
+        [{ externalId: "9", name: "Monthly Finals" }],
+        NOW,
+      );
       const { data } = await client.from("event_completions").select("external_id");
       expect(data ?? []).toEqual([]);
     });

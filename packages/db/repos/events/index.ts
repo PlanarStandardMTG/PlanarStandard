@@ -266,6 +266,8 @@ export async function listCompletions(
     .select(COMPLETION_COLUMNS)
     .order("processed_at", { ascending: false, nullsFirst: true })
     .order("detected_at", { ascending: false })
+    // A tie-break, so ticking a line does not reorder the rows under the pointer.
+    .order("name")
     .limit(limit);
 
   if (error !== null) throw new Error(`listCompletions failed: ${error.message}`);
@@ -287,6 +289,33 @@ export async function requeueAllCompletions(
 
   if (error !== null) throw new Error(`requeueAllCompletions failed: ${error.message}`);
   return data as number;
+}
+
+/** The two things an event's processing can do (E18.22). */
+export type CompletionLine = "elo" | "decklists";
+
+/**
+ * Put an event on a line or take it off while it waits. `leave` takes a
+ * processed event off a line too — for a caller that undoes what the line
+ * did. False when nothing changed. The admin's own client;
+ * `event_completions_admin_all` decides.
+ */
+export async function setCompletionLine(
+  client: SupabaseClient,
+  completion: Pick<EventCompletion, "source" | "externalId">,
+  line: CompletionLine,
+  on: boolean | "leave",
+): Promise<boolean> {
+  let update = client
+    .from("event_completions")
+    .update({ [line]: on === true })
+    .eq("source", completion.source)
+    .eq("external_id", completion.externalId);
+  if (on !== "leave") update = update.is("processed_at", null);
+
+  const { data, error } = await update.select("source");
+  if (error !== null) throw new Error(`setCompletionLine failed: ${error.message}`);
+  return data.length > 0;
 }
 
 /**

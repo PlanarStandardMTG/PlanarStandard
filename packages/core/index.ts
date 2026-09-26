@@ -58,6 +58,8 @@ export { toRedditMarkdown } from "./reddit/to-reddit-markdown/index";
 // similarity — decks to a graph (§8.4)
 export { deckVector, isBasicLand } from "./similarity/deck-vector/index";
 export { sharedCardCount, weightedJaccard } from "./similarity/weighted-jaccard/index";
+export { CLOSE_ENOUGH, matchSavedDeck } from "./similarity/match-saved-deck/index";
+export type { ListCard, ListedDeck, SavedDeckMatch } from "./similarity/match-saved-deck/index";
 export {
   DEFAULT_THRESHOLD,
   DUPLICATE_THRESHOLD,
@@ -272,3 +274,5 @@ export { ledgerMatches } from "./results/ledger-matches/index";
 export type { LedgerMatches } from "./results/ledger-matches/index";
 export { eventEntries } from "./results/event-entries/index";
 export type { EventEntry } from "./results/event-entries/index";
+export { readDecklistSheet } from "./results/decklist-sheet/index";
+export type { DecklistSheet, SheetDeck, SheetEntry } from "./results/decklist-sheet/index";

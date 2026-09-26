@@ -4,7 +4,8 @@
 limit that decide it (E23.13).
 
 **Inputs.** An `EventCompletion` and the time now.
-**Outputs.** `processed`, `running`, `waiting`, `retrying` or `gave-up`.
+**Outputs.** `processed`, `running`, `waiting`, `retrying`, `gave-up`, or `excluded` for an event on
+neither the Elo nor the decklist line (E18.22), which nothing claims.
 
 **Gotchas.** `COMPLETION_LEASE_MS` and `COMPLETION_MAX_ATTEMPTS` live here so the runner that claims
 and the admin page that reports use the same numbers — a page that called a row "running" after the

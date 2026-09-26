@@ -20,6 +20,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireRole } from "@/lib/auth/guard";
+import { toDeckCards } from "@/lib/decks/deck-cards";
 import { formatRules } from "@/lib/decks/deck-view";
 import { createPublicClient } from "@/lib/supabase/server";
 import { createSessionClient } from "@/lib/supabase/session";
@@ -98,14 +99,7 @@ export async function saveDeck(_previous: SaveState, form: FormData): Promise<Sa
   const id = await createMemberDeck(
     supabase,
     { name, visibility, format, rawImport: decklist, formatVersionId, parentDeckId: parentId },
-    deck.cards.map((card) => ({
-      oracleId: card.oracleId,
-      name: card.name,
-      quantity: card.qty,
-      board: card.board,
-      set: card.set ?? null,
-      collector: card.collector ?? null,
-    })),
+    toDeckCards(deck),
   );
 
   revalidatePath("/decks");

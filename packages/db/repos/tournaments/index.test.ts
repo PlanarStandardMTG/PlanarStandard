@@ -1,9 +1,10 @@
-import type { IsoDate, PlayerId, SeasonId, TournamentId } from "@ps/contracts";
+import type { DeckId, IsoDate, PlayerId, SeasonId, TournamentId } from "@ps/contracts";
 import { createClient } from "@supabase/supabase-js";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 
 import {
   getLatestTournamentWithResults,
+  getSourcedTournament,
   getTournamentBySlug,
   listRatedTournamentsBySeason,
   listTournamentEntries,
@@ -11,8 +12,13 @@ import {
   listTournamentsByIds,
   listTournamentsBySeason,
   listTournamentsWithResults,
+  listNamedEntries,
+  listPlayedEntries,
+  listSourcedTournaments,
   replaceTournamentEntries,
   saveSourcedTournament,
+  setEntryDecks,
+  setSourcedTournamentRated,
   type SourcedTournament,
 } from "./index";
 
@@ -235,7 +241,7 @@ describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () =>
     expect(created).toMatchObject({ isRated: true, status: "results_imported", rounds: 3 });
   });
 
-  it("refreshes the same row on a second ingest, keeping what people decided", async () => {
+  it("refreshes the same row on a second ingest, keeping the slug and a verified status", async () => {
     const first = await saveSourcedTournament(
       service,
       sourced({ externalId: `again-${run}`, slug: `vitest-again-${run}` }),
@@ -262,7 +268,7 @@ describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () =>
       name: "Renamed",
       rounds: 5,
       slug: `vitest-again-${run}`,
-      isRated: false,
+      isRated: true,
       status: "verified",
     });
   });
@@ -328,6 +334,80 @@ describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () =>
     expect(finishers).toEqual([
       expect.objectContaining({ placement: 1, playerId: winner, displayName: "winner" }),
     ]);
+  });
+
+  it("names an event's entries, links their decks, and lists them back by player or deck", async () => {
+    const event = await saveSourcedTournament(
+      service,
+      sourced({ externalId: `decks-${run}`, slug: `vitest-decks-${run}` }),
+    );
+    made.push(event.id);
+    const player = await makePlayer("decked");
+    await service.from("player_identities").insert({
+      player_id: player,
+      platform: "melee",
+      handle: `Decked${run}`,
+      source: "import_inferred",
+    });
+    await replaceTournamentEntries(service, event.id, [
+      {
+        playerId: player,
+        placement: 1,
+        matchWins: 3,
+        matchLosses: 0,
+        matchDraws: 0,
+        gameWins: 6,
+        gameLosses: 1,
+        dropped: false,
+      },
+    ]);
+    const { data: deck } = await service
+      .from("decks")
+      .insert({ name: "Vitest deck", player_id: player, submitted_via: "registration" })
+      .select("id")
+      .single();
+    const deckId = (deck as { id: DeckId }).id;
+
+    await setEntryDecks(service, event.id, [{ playerId: player, deckId }]);
+
+    const [named] = await listNamedEntries(service, [event.id]);
+    expect(named).toMatchObject({ displayName: "decked", handles: [`Decked${run}`], deckId });
+    const byDeck = await listPlayedEntries(client, { deckIds: [deckId] });
+    expect(byDeck).toEqual([
+      expect.objectContaining({
+        placement: 1,
+        tournament: expect.objectContaining({ id: event.id }),
+      }),
+    ]);
+    expect(await listPlayedEntries(client, { playerId: player })).toHaveLength(1);
+    expect(await listPlayedEntries(client, { deckIds: [] })).toEqual([]);
+
+    await setEntryDecks(service, event.id, [{ playerId: player, deckId: null }]);
+    await service.from("decks").delete().eq("id", deckId);
+  });
+
+  it("finds a platform's events, and rates or unrates one by its platform id", async () => {
+    const event = await saveSourcedTournament(
+      service,
+      sourced({ externalId: `rate-${run}`, slug: `vitest-rate-${run}` }),
+    );
+    made.push(event.id);
+
+    const found = (await listSourcedTournaments(service)).find((t) => t.tournament.id === event.id);
+    expect(found).toMatchObject({ source: "melee", externalId: `rate-${run}` });
+    expect(
+      (await getSourcedTournament(service, { source: "melee", externalId: `rate-${run}` }))?.id,
+    ).toBe(event.id);
+    expect(
+      await setSourcedTournamentRated(
+        service,
+        { source: "melee", externalId: `rate-${run}` },
+        false,
+      ),
+    ).toMatchObject({ id: event.id, isRated: false });
+    expect(
+      await setSourcedTournamentRated(service, { source: "melee", externalId: "nope" }, false),
+    ).toBeNull();
   });
 
   it("lists the newest events with results for a picker", async () => {

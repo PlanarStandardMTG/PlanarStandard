@@ -1,9 +1,17 @@
 import type { Metadata } from "next";
-import { latestVersions } from "@ps/core";
-import { listMemberDecks } from "@ps/db";
+import type { ProfileId } from "@ps/contracts";
+import { latestVersions, matchSavedDeck } from "@ps/core";
+import {
+  getPlayerByProfile,
+  listDecksWithCards,
+  listMemberDecks,
+  listPlayedEntries,
+  type PlayedEntry,
+} from "@ps/db";
 import Link from "next/link";
 
 import { FORMAT_LABELS } from "@/components/decks/format-labels";
+import { PlayedEvents } from "@/components/decks/played-events";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
 import { EmptyState, ErrorState } from "@/components/ui/states";
@@ -52,6 +60,7 @@ export default async function DecksPage() {
       </header>
 
       {viewer !== null && <OwnDecks ownerId={viewer.profile.id} />}
+      {viewer !== null && <EventDecks profileId={viewer.profile.id} />}
     </Container>
   );
 }
@@ -90,6 +99,60 @@ async function OwnDecks({ ownerId }: { ownerId: Parameters<typeof listMemberDeck
           </li>
         ))}
       </ul>
+    </section>
+  );
+}
+
+/**
+ * The events a member played, once an admin has linked them to their player
+ * (E20.39), with the deck from each: one of their saved decks when the list is
+ * exactly that, else the event's own copy and the saved deck it is nearest to.
+ */
+async function EventDecks({ profileId }: { profileId: ProfileId }) {
+  const loaded = await load(async () => {
+    const session = await createSessionClient();
+    const player = await getPlayerByProfile(session, profileId);
+    if (player === null) return null;
+    const played = await listPlayedEntries(session, { playerId: player.id });
+    const [decks, saved] = await Promise.all([
+      listDecksWithCards(session, { ids: played.flatMap((e) => (e.deckId ? [e.deckId] : [])) }),
+      listDecksWithCards(session, { savedBy: profileId }),
+    ]);
+    return { played, decks, saved };
+  });
+  if (!loaded.ok)
+    return <ErrorState title="Your events could not be loaded" detail={loaded.error} />;
+  if (loaded.value === null || loaded.value.played.length === 0) return null;
+  const { played, decks, saved } = loaded.value;
+
+  const describe = (entry: PlayedEntry) => {
+    const deck = decks.find((d) => d.id === entry.deckId);
+    if (deck === undefined) return "No decklist yet";
+    const link = (
+      <Link href={`/decks/${deck.id}`} className="underline-offset-2 hover:underline">
+        {deck.name}
+      </Link>
+    );
+    if (deck.submittedVia === "import") return <>Your deck {link}</>;
+    const { closest } = matchSavedDeck(deck.cards, saved);
+    return closest === null ? (
+      link
+    ) : (
+      <>
+        {link} · {Math.round(closest.similarity * 100)}% like your{" "}
+        <Link href={`/decks/${closest.deck.id}`} className="underline-offset-2 hover:underline">
+          {closest.deck.name}
+        </Link>
+      </>
+    );
+  };
+
+  return (
+    <section aria-labelledby="event-decks" className="mt-10">
+      <h2 id="event-decks" className="mb-3 text-sm font-medium text-ink-500 dark:text-ink-400">
+        Events you played
+      </h2>
+      <PlayedEvents entries={played} detail={describe} />
     </section>
   );
 }

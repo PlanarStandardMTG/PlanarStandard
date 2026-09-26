@@ -12,8 +12,9 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
  * again after it returns — so this is the one place a finished tournament's
  * results are fetched.
  *
- * melee.gg results are fetched scrubbed and ingested (E18.20), which recomputes
- * the ladder when the event is rated. Challonge results are not fetched yet
+ * melee.gg results are fetched scrubbed and ingested (E18.20) down the lines an
+ * admin chose (E18.22): the ladder recomputes when it is on the Elo line, and
+ * its decklists are stored when it is on the decklist line. Challonge results are not fetched yet
  * (E12.13–E12.14), so a Challonge event is marked processed with nothing done;
  * "Re-run everything" on `/admin/processing` picks them up once it is.
  *
@@ -33,6 +34,8 @@ export async function onTournamentCompleted(completion: EventCompletion): Promis
     adapter: meleeApi,
     input: fetched.input,
     fallbackDate: completion.detectedAt.slice(0, 10) as IsoDate,
+    rate: completion.elo,
+    decklists: completion.decklists,
   });
 }
 

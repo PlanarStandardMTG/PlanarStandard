@@ -15,6 +15,8 @@ const completion = (over: Partial<EventCompletion> = {}): EventCompletion => ({
   processedAt: null,
   attempts: 0,
   lastError: null,
+  elo: true,
+  decklists: false,
   ...over,
 });
 
@@ -31,6 +33,14 @@ describe("core/events/completion-status", () => {
     expect(
       completionStatus(completion({ claimedAt: ago(COMPLETION_LEASE_MS + 1), attempts: 1 }), NOW),
     ).toBe("retrying");
+  });
+
+  it("is excluded on neither line until processed", () => {
+    expect(completionStatus(completion({ elo: false }), NOW)).toBe("excluded");
+    expect(completionStatus(completion({ elo: false, decklists: true }), NOW)).toBe("waiting");
+    expect(completionStatus(completion({ elo: false, processedAt: ago(1) }), NOW)).toBe(
+      "processed",
+    );
   });
 
   it("gives up after the last attempt", () => {

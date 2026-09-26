@@ -167,7 +167,7 @@ export interface SourcedTournament {
   readonly structure: string | null;
   readonly rounds: number | null;
   readonly playerCount: number | null;
-  /** Used only when the row is new: after that, `is_rated` is an admin's call (E20.34). */
+  /** Whether the event is on the Elo line (E18.22) — an admin's choice, written every time. */
   readonly isRated: boolean;
 }
 
@@ -179,8 +179,8 @@ const PRE_RESULTS_STATUSES: readonly TournamentStatus[] = ["draft", "awaiting_re
  *
  * Found by `(source, external_id)`, so ingesting an event twice updates one row.
  * A refresh rewrites what the platform knows — name, date, season, shape — and
- * leaves what people decided alone: the slug, `is_rated`, and a status past
- * `results_imported`. A new row fails on a taken slug; the caller retries with
+ * `is_rated`, which the Elo line decided (E18.22), and leaves the slug and a
+ * status past `results_imported` alone. A new row fails on a taken slug; the caller retries with
  * another.
  */
 export async function saveSourcedTournament(
@@ -204,6 +204,7 @@ export async function saveSourcedTournament(
     structure: tournament.structure,
     rounds: tournament.rounds,
     player_count: tournament.playerCount,
+    is_rated: tournament.isRated,
   };
 
   const write =
@@ -213,7 +214,6 @@ export async function saveSourcedTournament(
           source: tournament.source,
           external_id: tournament.externalId,
           slug: tournament.slug,
-          is_rated: tournament.isRated,
           status: "results_imported",
         })
       : serviceClient
@@ -339,4 +339,168 @@ export async function listTournamentsWithResults(
 
   if (error !== null) throw new Error(`listTournamentsWithResults failed: ${error.message}`);
   return (data as unknown as TournamentRow[]).map(toTournament);
+}
+
+/** A tournament with the platform event it came from (E18.20). */
+export interface SourcedTournamentRef {
+  readonly tournament: Tournament;
+  readonly source: string;
+  readonly externalId: string;
+}
+
+/** The tournament a platform event became, or null before it is ingested. */
+export async function getSourcedTournament(
+  client: SupabaseClient,
+  event: { readonly source: string; readonly externalId: string },
+): Promise<Tournament | null> {
+  const { data, error } = await client
+    .from("tournaments")
+    .select(TOURNAMENT_COLUMNS)
+    .eq("source", event.source)
+    .eq("external_id", event.externalId)
+    .maybeSingle();
+
+  if (error !== null) throw new Error(`getSourcedTournament failed: ${error.message}`);
+  return data === null ? null : toTournament(data as unknown as TournamentRow);
+}
+
+/** Every tournament a platform sent, newest first — how `/admin/processing` finds its events' rows. */
+export async function listSourcedTournaments(
+  client: SupabaseClient,
+): Promise<readonly SourcedTournamentRef[]> {
+  const { data, error } = await client
+    .from("tournaments")
+    .select(`${TOURNAMENT_COLUMNS}, source, external_id`)
+    .not("source", "is", null)
+    .order("event_date", { ascending: false });
+
+  if (error !== null) throw new Error(`listSourcedTournaments failed: ${error.message}`);
+  return (data as unknown as (TournamentRow & { source: string; external_id: string })[]).map(
+    (row) => ({ tournament: toTournament(row), source: row.source, externalId: row.external_id }),
+  );
+}
+
+/** Rate or unrate a platform's event; null when it was never ingested. */
+export async function setSourcedTournamentRated(
+  serviceClient: SupabaseClient,
+  event: { readonly source: string; readonly externalId: string },
+  rated: boolean,
+): Promise<Tournament | null> {
+  const { data, error } = await serviceClient
+    .from("tournaments")
+    .update({ is_rated: rated })
+    .eq("source", event.source)
+    .eq("external_id", event.externalId)
+    .select(TOURNAMENT_COLUMNS)
+    .maybeSingle();
+
+  if (error !== null) throw new Error(`setSourcedTournamentRated failed: ${error.message}`);
+  return data === null ? null : toTournament(data as unknown as TournamentRow);
+}
+
+/** An entry with who played it: their name and every handle they hold. */
+export interface NamedEntry extends TournamentEntry {
+  /** Null when the player is hidden from the caller. */
+  readonly displayName: string | null;
+  readonly handles: readonly string[];
+}
+
+/** These events' entries, best first — what a decklist upload matches its names against (E20.37). */
+export async function listNamedEntries(
+  client: SupabaseClient,
+  tournamentIds: readonly TournamentId[],
+): Promise<readonly NamedEntry[]> {
+  if (tournamentIds.length === 0) return [];
+  const { data, error } = await client
+    .from("tournament_entries")
+    .select(`${ENTRY_COLUMNS}, players (display_name, player_identities (handle))`)
+    .in("tournament_id", tournamentIds)
+    .order("placement", { ascending: true, nullsFirst: false });
+
+  if (error !== null) throw new Error(`listNamedEntries failed: ${error.message}`);
+  return (data as unknown as NamedEntryRow[]).map((row) => ({
+    ...toTournamentEntry(row),
+    displayName: row.players?.display_name ?? null,
+    handles: (row.players?.player_identities ?? []).map((identity) => identity.handle),
+  }));
+}
+
+interface NamedEntryRow extends TournamentEntryRow {
+  readonly players: {
+    readonly display_name: string;
+    readonly player_identities: readonly { readonly handle: string }[];
+  } | null;
+}
+
+/** Point these entries at these decks — or at none — and leave the rest of the event alone. */
+export async function setEntryDecks(
+  serviceClient: SupabaseClient,
+  tournamentId: TournamentId,
+  links: readonly { readonly playerId: PlayerId; readonly deckId: DeckId | null }[],
+): Promise<void> {
+  for (const link of links) {
+    const { error } = await serviceClient
+      .from("tournament_entries")
+      .update({ deck_id: link.deckId })
+      .eq("tournament_id", tournamentId)
+      .eq("player_id", link.playerId);
+    if (error !== null) throw new Error(`setEntryDecks failed: ${error.message}`);
+  }
+}
+
+/** One event somebody played, as a deck page or a member's list of events shows it. */
+export interface PlayedEntry {
+  readonly tournament: Pick<Tournament, "id" | "name" | "slug" | "eventDate" | "externalUrl">;
+  readonly playerId: PlayerId;
+  readonly deckId: DeckId | null;
+  readonly placement: number | null;
+  readonly record: TournamentEntry["record"];
+}
+
+/** The events a player entered, or that any of these decks was played at, newest first (E20.38). */
+export async function listPlayedEntries(
+  client: SupabaseClient,
+  filter: { readonly playerId: PlayerId } | { readonly deckIds: readonly DeckId[] },
+): Promise<readonly PlayedEntry[]> {
+  let query = client
+    .from("tournament_entries")
+    .select(`${ENTRY_COLUMNS}, tournaments!inner (id, name, slug, event_date, external_url)`);
+  query =
+    "playerId" in filter
+      ? query.eq("player_id", filter.playerId)
+      : query.in("deck_id", filter.deckIds.length === 0 ? [NO_DECK] : filter.deckIds);
+
+  const { data, error } = await query;
+  if (error !== null) throw new Error(`listPlayedEntries failed: ${error.message}`);
+  return (data as unknown as PlayedRow[])
+    .map((row) => {
+      const entry = toTournamentEntry(row);
+      return {
+        tournament: {
+          id: row.tournaments.id as TournamentId,
+          name: row.tournaments.name,
+          slug: row.tournaments.slug,
+          eventDate: row.tournaments.event_date,
+          externalUrl: row.tournaments.external_url,
+        },
+        playerId: entry.playerId,
+        deckId: entry.deckId,
+        placement: entry.placement,
+        record: entry.record,
+      };
+    })
+    .sort((a, b) => b.tournament.eventDate.localeCompare(a.tournament.eventDate));
+}
+
+/** A uuid no deck has, so an empty `in` still parses. */
+const NO_DECK = "00000000-0000-0000-0000-000000000000";
+
+interface PlayedRow extends TournamentEntryRow {
+  readonly tournaments: {
+    readonly id: string;
+    readonly name: string;
+    readonly slug: string;
+    readonly event_date: string;
+    readonly external_url: string | null;
+  };
 }

@@ -1,7 +1,7 @@
 "use server";
 
 import type { PlayerId, PlayerMergeId, TournamentId } from "@ps/contracts";
-import { listTournamentsByIds } from "@ps/db";
+import { getProfileByHandle, listTournamentsByIds, setPlayerProfile } from "@ps/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -67,6 +67,32 @@ export async function undoMergeAction(form: FormData): Promise<void> {
   revalidatePath("/admin/players");
   revalidatePath("/leaderboard");
   redirect(`/admin/players?${outcome.ok ? "done=undone" : `error=${outcome.reason}`}`);
+}
+
+/** Say which member a player is (E20.39), or that none is. */
+export async function linkMember(form: FormData): Promise<void> {
+  await requireRole("admin");
+  const playerId = (form.get("player")?.toString() ?? "") as PlayerId;
+  const handle = form.get("handle")?.toString().trim().replace(/^@/, "") ?? "";
+  const search = form.get("q")?.toString() ?? "";
+  const back = (params: Record<string, string>) =>
+    redirect(
+      `/admin/players?${new URLSearchParams({ ...(search === "" ? {} : { q: search }), ...params })}`,
+    );
+
+  const service = createServiceRoleClient();
+  const profile = handle === "" ? null : await getProfileByHandle(service, handle);
+  if (handle !== "" && profile === null) back({ error: "no-member" });
+  try {
+    await setPlayerProfile(service, playerId, profile?.id ?? null);
+  } catch (error) {
+    if (error instanceof Error && /players_profile_id_key/.test(error.message)) {
+      back({ error: "member-taken" });
+    }
+    throw error;
+  }
+  revalidatePath("/admin/players");
+  back({ done: profile === null ? "unlinked" : "linked" });
 }
 
 async function eventNames(ids: readonly TournamentId[]): Promise<string> {

@@ -12,6 +12,7 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import {
   createMemberDeck,
+  deleteUnusedEventDecks,
   getDeckWithCards,
   hideMemberDeckVersions,
   insertDeck,
@@ -19,6 +20,7 @@ import {
   isDeckInEvent,
   listDeckVersions,
   listDecksByPlayer,
+  listDecksWithCards,
   listMemberDecks,
   listPublicDecksBySeason,
   type NewDeck,
@@ -237,6 +239,21 @@ describe.skipIf(!reachable)("repos/decks", () => {
     expect(
       await getDeckWithCards(client, "00000000-0000-4000-8000-000000000000" as DeckId),
     ).toBeNull();
+  });
+
+  it("reads decks with their lists by id", async () => {
+    const one = await write(deck({ name: "One" }), [card({ name: "Opt" })]);
+    const [read] = await listDecksWithCards(service, { ids: [one.id] });
+    expect(read).toMatchObject({ id: one.id, cards: [expect.objectContaining({ name: "Opt" })] });
+    expect(await listDecksWithCards(service, { ids: [] })).toEqual([]);
+  });
+
+  it("deletes an event's decks nothing uses, and never a member's own", async () => {
+    const event = await write(deck({ name: "Event list", submittedVia: "registration" }), []);
+    const own = await write(deck({ name: "Saved list" }), []);
+    expect(await deleteUnusedEventDecks(service, [event.id, own.id])).toBe(1);
+    expect(await getDeckWithCards(service, event.id)).toBeNull();
+    expect(await getDeckWithCards(service, own.id)).not.toBeNull();
   });
 });
 
