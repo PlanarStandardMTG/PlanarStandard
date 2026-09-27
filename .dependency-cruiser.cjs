@@ -65,6 +65,14 @@ module.exports = {
       to: { path: "^apps/web/lib/melee/transport\\.server\\.ts$" },
     },
     {
+      name: "challonge-transport-is-private",
+      severity: "error",
+      comment:
+        "E12.13 — apps/web/lib/challonge/transport.server.ts returns Challonge responses untouched, and a participants list names people. Only lib/challonge/ may import it; everything else reads Challonge through client.server.ts and results.server.ts, which scrub results down to Challonge ids, usernames and results.",
+      from: { pathNot: "^apps/web/lib/challonge/" },
+      to: { path: "^apps/web/lib/challonge/transport\\.server\\.ts$" },
+    },
+    {
       name: "cards-only-loads",
       severity: "error",
       comment:

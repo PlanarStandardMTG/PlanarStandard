@@ -31,7 +31,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E9   | Identity signals and scoring          | 4     | E2           | ✅ 9/9   |
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
-| E12  | Source adapters                       | 5     | E2           | 🚧 9/14  |
+| E12  | Source adapters                       | 5     | E2           | 🚧 11/14 |
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | ✅ 23/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
@@ -388,15 +388,30 @@ email and pronouns are still dropped, and a test asserts each of them is absent.
 _Note:_ `Username` — the account's handle — rather than `DisplayName`, which can be the
 player's real name. Competitors now carry `players: { id, username }[]` in
 place of `playerIds`, and a decklist carries `username` from `OwnerUsername`.
-⬜ **E12.13 — Challonge results endpoints, fetched and scrubbed** · M · Deps: E23.7 — a finished
+✅ **E12.13 — Challonge results endpoints, fetched and scrubbed** · M · Deps: E23.7 — a finished
 tournament's participants and matches, through `lib/challonge/` as E12.11 did for melee. _AC:_ each
 participant keeps its Challonge id and username only; two requests per event, counted against the
 500-a-month budget the calendar already spends from.
-⬜ **E12.14 — `challonge-api` adapter** · M · Deps: E12.13 — the E12.13 payload → `ParsedEvent`, matches
+✅ **E12.14 — `challonge-api` adapter** · M · Deps: E12.13 — the E12.13 payload → `ParsedEvent`, matches
 and standings, no decklists (Challonge has none). _AC:_ a fixture with invented participants in the
 captured shape and its expected `ParsedEvent`; `onTournamentCompleted` ingests a Challonge event the
 way it does a melee.gg one, and the release notes say to press "Re-run everything" once, since
 Challonge events finished before this were marked processed with nothing done.
+_Note (E12.13):_ `lib/challonge/results.server.ts` scrubs to an allowlist — a participant is its id,
+username and final rank; a match its players, winner, round, identifier and games per participant.
+The raw fetch moved to `lib/challonge/transport.server.ts`, private to the directory
+(`.dependency-cruiser.cjs`), and the calendar client now uses it. It is three requests per event,
+not two — the tournament as well, for its date, type, link and whether it has a group stage — and
+a second page of matches past a hundred.
+_Note (E12.14):_ checked against the live responses for the May–August 2026 Monthlies, which all
+parse with no issues. Two of them are two-stage (Swiss groups, then a top-8 bracket): a bracket
+match names its players only in `points_by_participant`, and the only mark of a stage is that the
+bracket restarts `round` at 1 and `identifier` at "A", so the bracket is numbered after the groups
+from there. Where the games and `winner_id` disagree, the winner stands with a
+`score-disagrees` warning. A participant with no account is `challonge-player-<id>`, never the
+free-text name. The fixture is invented, since a capture names people.
+_Outstanding:_ press "Re-run everything" once in production, so the Challonge events already
+marked processed are ingested.
 
 ---
 
@@ -869,7 +884,7 @@ decided — slug, `is_rated`, a status past `results_imported`. A tournament is 
 content hash); staged rows are written with `raw` for provenance. `core/results/ledger-matches`
 leaves out a match with no result or an unresolved side, and every issue lands in
 `result_imports.errors`. `onFullRerun` now rebuilds the ladder from the ledger. Challonge events
-are marked processed with nothing done until E12.14.
+are ingested the same way since E12.14.
 _Outstanding:_ the deck path stores lists since E18.23; the statistics it feeds (E18.13–E18.15) do
 not exist yet. `tournament_entries` is written since E18.21. The assembled payload is not archived
 (E18.1 has not chosen where raw bytes live); melee.gg can be asked again, which "Re-run everything"
@@ -1418,8 +1433,6 @@ can start today, in rough order of how much it unblocks.
   exists: pick the scheduler, set `CRON_SECRET` in Vercel and in it, and choose an interval. The queue
   makes any interval safe. Until then a melee.gg event is ingested only when an admin presses
   "Process now" at `/admin/processing`.
-- **E12.13–E12.14 — Challonge results,** the same shape as melee.gg's. Challonge events are marked
-  processed with nothing done until then.
 - **E22.9 — `replay-identity.test.ts`,** now that merging exists: two handles, two ratings, one
   merge, one rating, and no `matches` row changed. `merge-players.server.test.ts` already asserts
   the last part.
@@ -1491,7 +1504,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
-| E1   | 9       | 9    | E12  | 14      | 9    |
+| E1   | 9       | 9    | E12  | 14      | 11   |
 | E2   | 9       | 9    | E13  | 23      | 23   |
 | E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
@@ -1505,4 +1518,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 16      | 15   |
 |      |         |      | E24  | 7       | 6    |
 
-**200 of 273 stories done across 24 epics.**
+**202 of 273 stories done across 24 epics.**

@@ -1,0 +1,162 @@
+{
+  "adapter": "challonge-api",
+  "tournament": {
+    "id": "16049001",
+    "name": "Monthly Championship - Invented",
+    "url": "ps_monthly_invented",
+    "tournamentType": "swiss",
+    "state": "complete",
+    "startsAt": "2026-08-02T18:00:00.000Z",
+    "completedAt": "2026-08-02T23:41:12.000Z",
+    "groupStageEnabled": false
+  },
+  "participants": [
+    {
+      "id": "501",
+      "username": "pilot-7",
+      "finalRank": 1
+    },
+    {
+      "id": "502",
+      "username": "Arcane Owl",
+      "finalRank": 2
+    },
+    {
+      "id": "503",
+      "username": "zed_zed",
+      "finalRank": 3
+    },
+    {
+      "id": "504",
+      "username": "Mossback",
+      "finalRank": 4
+    },
+    {
+      "id": "505",
+      "username": null,
+      "finalRank": 5
+    }
+  ],
+  "matches": [
+    {
+      "id": "9001",
+      "state": "complete",
+      "round": 1,
+      "identifier": "A",
+      "player1Id": "501",
+      "player2Id": "502",
+      "winnerId": "501",
+      "gamesByParticipant": {
+        "501": 2,
+        "502": 1
+      },
+      "scores": "2 - 1",
+      "tie": false
+    },
+    {
+      "id": "9002",
+      "state": "complete",
+      "round": 1,
+      "identifier": "B",
+      "player1Id": "503",
+      "player2Id": "504",
+      "winnerId": null,
+      "gamesByParticipant": {
+        "503": 1,
+        "504": 1
+      },
+      "scores": "1 - 1",
+      "tie": true
+    },
+    {
+      "id": "9003",
+      "state": "complete",
+      "round": 1,
+      "identifier": "C",
+      "player1Id": "505",
+      "player2Id": null,
+      "winnerId": "505",
+      "gamesByParticipant": {},
+      "scores": null,
+      "tie": false
+    },
+    {
+      "id": "9004",
+      "state": "complete",
+      "round": 2,
+      "identifier": "D",
+      "player1Id": "501",
+      "player2Id": "503",
+      "winnerId": "501",
+      "gamesByParticipant": {},
+      "scores": "0 - 0",
+      "tie": false
+    },
+    {
+      "id": "9005",
+      "state": "complete",
+      "round": 2,
+      "identifier": "E",
+      "player1Id": "502",
+      "player2Id": "504",
+      "winnerId": "502",
+      "gamesByParticipant": {
+        "502": 0,
+        "504": 2
+      },
+      "scores": "0 - 2",
+      "tie": false
+    },
+    {
+      "id": "9006",
+      "state": "complete",
+      "round": 3,
+      "identifier": "F",
+      "player1Id": "505",
+      "player2Id": "502",
+      "winnerId": "505",
+      "gamesByParticipant": {},
+      "scores": "2 - 0",
+      "tie": false
+    },
+    {
+      "id": "9007",
+      "state": "open",
+      "round": 3,
+      "identifier": "G",
+      "player1Id": "501",
+      "player2Id": "504",
+      "winnerId": null,
+      "gamesByParticipant": {},
+      "scores": null,
+      "tie": false
+    },
+    {
+      "id": "9008",
+      "state": "pending",
+      "round": 4,
+      "identifier": "H",
+      "player1Id": "503",
+      "player2Id": null,
+      "winnerId": null,
+      "gamesByParticipant": {},
+      "scores": null,
+      "tie": false
+    },
+    {
+      "id": "9009",
+      "state": "complete",
+      "round": 3,
+      "identifier": "I",
+      "player1Id": "503",
+      "player2Id": "599",
+      "winnerId": "503",
+      "gamesByParticipant": {
+        "503": 2,
+        "599": 0
+      },
+      "scores": "2 - 0",
+      "tie": false
+    }
+  ]
+}

@@ -4,6 +4,7 @@
 import type { AdapterDetection, AdapterId, RawInput, ResultsAdapter } from "@ps/contracts";
 
 import { archetypeMapHtml } from "../archetype-map-html/index";
+import { challongeApi } from "../challonge-api/index";
 import { genericCsv } from "../generic-csv/index";
 import { manualEntry } from "../manual-entry/index";
 import { meleeApi } from "../melee-api/index";
@@ -22,6 +23,7 @@ export interface RegisteredAdapter {
 export const defaultRegistry: readonly RegisteredAdapter[] = [
   { adapter: manualEntry },
   { adapter: meleeApi },
+  { adapter: challongeApi },
   { adapter: archetypeMapHtml },
   { adapter: genericCsv, fallback: true },
 ];

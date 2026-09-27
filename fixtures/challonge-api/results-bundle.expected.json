@@ -1,0 +1,211 @@
+{
+  "name": "Monthly Championship - Invented",
+  "date": "2026-08-02",
+  "platform": "challonge",
+  "externalUrl": "https://challonge.com/ps_monthly_invented",
+  "structure": "swiss",
+  "rounds": 3,
+  "playerCount": 5,
+  "capabilities": [
+    "matches",
+    "standings",
+    "roster"
+  ],
+  "matches": [
+    {
+      "rowIndex": 0,
+      "raw": {
+        "id": "9001",
+        "round": 1,
+        "identifier": "A",
+        "p1ParticipantId": "501",
+        "p2ParticipantId": "502",
+        "winnerId": "501",
+        "scores": "2 - 1",
+        "state": "complete"
+      },
+      "p1Handle": "pilot-7",
+      "p2Handle": "Arcane Owl",
+      "result": "p1_win",
+      "round": 1,
+      "isElimination": false,
+      "p1Games": 2,
+      "p2Games": 1
+    },
+    {
+      "rowIndex": 1,
+      "raw": {
+        "id": "9002",
+        "round": 1,
+        "identifier": "B",
+        "p1ParticipantId": "503",
+        "p2ParticipantId": "504",
+        "winnerId": null,
+        "scores": "1 - 1",
+        "state": "complete"
+      },
+      "p1Handle": "zed_zed",
+      "p2Handle": "Mossback",
+      "result": "draw",
+      "round": 1,
+      "isElimination": false,
+      "p1Games": 1,
+      "p2Games": 1
+    },
+    {
+      "rowIndex": 2,
+      "raw": {
+        "id": "9003",
+        "round": 1,
+        "identifier": "C",
+        "p1ParticipantId": "505",
+        "p2ParticipantId": null,
+        "winnerId": "505",
+        "scores": null,
+        "state": "complete"
+      },
+      "p1Handle": "challonge-player-505",
+      "result": "bye",
+      "round": 1,
+      "isElimination": false
+    },
+    {
+      "rowIndex": 3,
+      "raw": {
+        "id": "9004",
+        "round": 2,
+        "identifier": "D",
+        "p1ParticipantId": "501",
+        "p2ParticipantId": "503",
+        "winnerId": "501",
+        "scores": "0 - 0",
+        "state": "complete"
+      },
+      "p1Handle": "pilot-7",
+      "p2Handle": "zed_zed",
+      "result": "p1_win",
+      "round": 2,
+      "isElimination": false
+    },
+    {
+      "rowIndex": 4,
+      "raw": {
+        "id": "9005",
+        "round": 2,
+        "identifier": "E",
+        "p1ParticipantId": "502",
+        "p2ParticipantId": "504",
+        "winnerId": "502",
+        "scores": "0 - 2",
+        "state": "complete"
+      },
+      "p1Handle": "Arcane Owl",
+      "p2Handle": "Mossback",
+      "result": "p1_win",
+      "round": 2,
+      "isElimination": false
+    },
+    {
+      "rowIndex": 5,
+      "raw": {
+        "id": "9006",
+        "round": 3,
+        "identifier": "F",
+        "p1ParticipantId": "505",
+        "p2ParticipantId": "502",
+        "winnerId": "505",
+        "scores": "2 - 0",
+        "state": "complete"
+      },
+      "p1Handle": "challonge-player-505",
+      "p2Handle": "Arcane Owl",
+      "result": "p1_win",
+      "round": 3,
+      "isElimination": false,
+      "p1Games": 2,
+      "p2Games": 0
+    },
+    {
+      "rowIndex": 6,
+      "raw": {
+        "id": "9007",
+        "round": 3,
+        "identifier": "G",
+        "p1ParticipantId": "501",
+        "p2ParticipantId": "504",
+        "winnerId": null,
+        "scores": null,
+        "state": "open"
+      },
+      "p1Handle": "pilot-7",
+      "p2Handle": "Mossback",
+      "result": null,
+      "round": 3,
+      "isElimination": false
+    }
+  ],
+  "standings": [
+    {
+      "handle": "pilot-7",
+      "placement": 1
+    },
+    {
+      "handle": "Arcane Owl",
+      "placement": 2
+    },
+    {
+      "handle": "zed_zed",
+      "placement": 3
+    },
+    {
+      "handle": "Mossback",
+      "placement": 4
+    },
+    {
+      "handle": "challonge-player-505",
+      "placement": 5
+    }
+  ],
+  "roster": [
+    {
+      "handle": "pilot-7"
+    },
+    {
+      "handle": "Arcane Owl"
+    },
+    {
+      "handle": "zed_zed"
+    },
+    {
+      "handle": "Mossback"
+    },
+    {
+      "handle": "challonge-player-505"
+    }
+  ],
+  "issues": [
+    {
+      "code": "missing-username",
+      "severity": "warning",
+      "message": "Challonge participant 505 has no account; recorded as challonge-player-505."
+    },
+    {
+      "code": "score-disagrees",
+      "severity": "warning",
+      "message": "Arcane Owl vs Mossback: the score disagrees with the reported winner; the winner stands.",
+      "rowIndex": 4
+    },
+    {
+      "code": "unreadable-result",
+      "severity": "warning",
+      "message": "pilot-7 vs Mossback has no result; the pairing stages for review.",
+      "rowIndex": 6
+    },
+    {
+      "code": "missing-handle",
+      "severity": "error",
+      "message": "A match names a participant Challonge did not list.",
+      "rowIndex": 8
+    }
+  ]
+}

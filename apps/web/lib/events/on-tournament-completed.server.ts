@@ -1,6 +1,7 @@
-import { meleeApi } from "@ps/adapters";
+import { challongeApi, meleeApi } from "@ps/adapters";
 import type { EventCompletion, IsoDate } from "@ps/contracts";
 
+import { fetchChallongeResultsInput } from "@/lib/challonge/results-input.server";
 import { fetchMeleeResultsInput } from "@/lib/melee/results-input.server";
 import { recomputeRatings } from "@/lib/ratings/recompute-ratings.server";
 import { ingestEvent } from "@/lib/results/ingest-event.server";
@@ -12,26 +13,28 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
  * again after it returns — so this is the one place a finished tournament's
  * results are fetched.
  *
- * melee.gg results are fetched scrubbed and ingested (E18.20) down the lines an
- * admin chose (E18.22): the ladder recomputes when it is on the Elo line, and
- * its decklists are stored when it is on the decklist line. Challonge results are not fetched yet
- * (E12.13–E12.14), so a Challonge event is marked processed with nothing done;
- * "Re-run everything" on `/admin/processing` picks them up once it is.
+ * Its results are fetched scrubbed (E12.10, E12.13) and ingested (E18.20) down
+ * the lines an admin chose (E18.22): the ladder recomputes when it is on the Elo
+ * line, and its decklists are stored when it is on the decklist line. Challonge
+ * sends no lists, so its events wait on the decklist tab for an admin's sheet.
  *
  * Throw to fail: the completion is released and retried on a later run, up to
  * its attempt limit. Returning marks it processed for good.
  */
 export async function onTournamentCompleted(completion: EventCompletion): Promise<void> {
-  if (completion.source !== "melee") return;
-
-  const fetched = await fetchMeleeResultsInput(Number(completion.externalId));
-  if (fetched.status === "not-configured") throw new Error("melee.gg credentials are not set");
+  const melee = completion.source === "melee";
+  const fetched = melee
+    ? await fetchMeleeResultsInput(Number(completion.externalId))
+    : await fetchChallongeResultsInput(completion.externalId);
+  if (fetched.status === "not-configured") {
+    throw new Error(`${melee ? "melee.gg" : "Challonge"} credentials are not set`);
+  }
   if (fetched.status === "failed") throw new Error(fetched.error);
 
   await ingestEvent(createServiceRoleClient(), {
-    source: "melee",
+    source: completion.source,
     externalId: completion.externalId,
-    adapter: meleeApi,
+    adapter: melee ? meleeApi : challongeApi,
     input: fetched.input,
     fallbackDate: completion.detectedAt.slice(0, 10) as IsoDate,
     rate: completion.elo,

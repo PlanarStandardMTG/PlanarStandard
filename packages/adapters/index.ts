@@ -8,6 +8,7 @@ export type { RegisteredAdapter } from "./registry/index";
 
 // Sources
 export { archetypeMapHtml } from "./archetype-map-html/index";
+export { challongeApi } from "./challonge-api/index";
 export { genericCsv } from "./generic-csv/index";
 export { manualEntry } from "./manual-entry/index";
 export { meleeApi } from "./melee-api/index";

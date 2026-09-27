@@ -32,3 +32,20 @@ anyone holding the key runs the client, keeping the expected output honest.
 | `16042317` | no `starts_at`, no `url`, no `game_name` |
 | `16042318` | a state nobody has seen before |
 | (unnamed) | a member with no `name` at all — skipped, batch survives |
+
+## `results-bundle.json`
+
+**Invented, not captured.** A participants response names people, so this is the
+document the site builds from the scrubbed fetches (`lib/challonge/results.server.ts`)
+for `adapters/challonge-api` (E12.14), filled with five made-up players. The
+field names were checked against the live v2.1 responses for the four Monthlies
+of May–August 2026: a bracket match names its players only in
+`points_by_participant`, a group match under `relationships` as well, and a
+two-stage event says which stage a match is in only by where `round` and
+`identifier` restart (`suggested_play_order` is mostly null in a group stage). The two-stage case is exercised in the adapter's
+own test rather than here.
+
+It covers a 2-1, a 1-1 tie, a bye, a winner reported with a 0-0 score, a score
+that disagrees with its winner, a result read from the `scores` string alone, an
+unplayed pairing, a bracket slot still waiting on a player, a match naming a
+participant nobody listed, and a participant with no Challonge account.
