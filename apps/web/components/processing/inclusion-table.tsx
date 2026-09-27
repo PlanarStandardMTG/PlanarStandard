@@ -80,25 +80,31 @@ export function InclusionTable({
                 </td>
                 <td className="px-4 py-2">
                   <span className="flex items-center gap-2 whitespace-nowrap">
-                    <Tick
-                      label={`Elo: ${row.name}`}
-                      on={row.elo}
-                      disabled={!row.rateable}
-                      set={(on) => include(row.id, "elo", on)}
-                    />
-                    {row.eloWaiting && <Badge variant="accent">Waiting</Badge>}
-                    {!row.rateable && <Missing>No matches</Missing>}
+                    {row.rateable ? (
+                      <>
+                        <Tick
+                          label={`Elo: ${row.name}`}
+                          on={row.elo}
+                          set={(on) => include(row.id, "elo", on)}
+                        />
+                        {row.eloWaiting && <Badge variant="accent">Waiting</Badge>}
+                      </>
+                    ) : (
+                      <Missing>No matches</Missing>
+                    )}
                   </span>
                 </td>
                 <td className="px-4 py-2">
                   <span className="flex items-center gap-2 whitespace-nowrap">
-                    <Tick
-                      label={`Card stats: ${row.name}`}
-                      on={row.cardStats}
-                      disabled={!row.hasDecks}
-                      set={(on) => include(row.id, "cardStats", on)}
-                    />
-                    {!row.hasDecks && <Missing>No decklists</Missing>}
+                    {row.hasDecks ? (
+                      <Tick
+                        label={`Card stats: ${row.name}`}
+                        on={row.cardStats}
+                        set={(on) => include(row.id, "cardStats", on)}
+                      />
+                    ) : (
+                      <Missing>No decklists</Missing>
+                    )}
                   </span>
                 </td>
               </tr>
@@ -115,7 +121,10 @@ export function InclusionTable({
   );
 }
 
-/** What a tournament lacks for a box to mean anything: an error, not a hint. */
+/**
+ * In place of a box that would mean nothing: a tick would claim the event
+ * counts when there is nothing to count. An error, not a hint.
+ */
 function Missing({ children }: { children: string }) {
   return <span className="text-xs text-red-700 dark:text-red-400">{children}</span>;
 }
@@ -123,12 +132,10 @@ function Missing({ children }: { children: string }) {
 function Tick({
   label,
   on,
-  disabled,
   set,
 }: {
   label: string;
   on: boolean;
-  disabled: boolean;
   set: (on: boolean) => Promise<void>;
 }) {
   const [pending, startTransition] = useTransition();
@@ -137,7 +144,7 @@ function Tick({
       type="checkbox"
       aria-label={label}
       checked={on}
-      disabled={disabled || pending}
+      disabled={pending}
       onChange={(event) => {
         const checked = event.target.checked;
         startTransition(() => set(checked));
