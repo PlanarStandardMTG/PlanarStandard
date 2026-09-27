@@ -88,7 +88,7 @@ export default async function HomePage() {
 
         <div className="grid items-start gap-12 lg:grid-cols-12">
           <section className="min-w-0 lg:col-span-7">
-            <SectionHeading>Announcements</SectionHeading>
+            <SectionHeading>Format news</SectionHeading>
             {news.ok ? (
               <LatestNewsPanel posts={news.value} />
             ) : (
