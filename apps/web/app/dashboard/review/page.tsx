@@ -49,7 +49,7 @@ export default async function ReviewQueuePage({
   return (
     <>
       <header className="mb-8">
-        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Review queue</h1>
+        <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Review queue</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
           Submissions waiting for approval. Approving one publishes it under its author&rsquo;s
           name; sending one back returns it to them as a draft.
@@ -73,7 +73,7 @@ export default async function ReviewQueuePage({
                 <Card className="p-5">
                   <div className="flex flex-wrap items-start justify-between gap-4">
                     <div className="min-w-0">
-                      <h2 className="font-serif text-lg font-semibold">{post.title}</h2>
+                      <h2 className="font-display text-lg font-semibold">{post.title}</h2>
                       <p className="text-sm text-ink-500 dark:text-ink-400">
                         {post.author.displayName} · submitted {formatDate(post.createdAt)}
                       </p>

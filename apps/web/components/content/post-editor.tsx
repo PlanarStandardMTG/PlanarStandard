@@ -134,7 +134,7 @@ export function PostEditor(props: PostEditorProps) {
           name="title"
           value={draft.title}
           onChange={(e) => set("title")(e.target.value)}
-          className={cn(FIELD, "font-serif text-lg")}
+          className={cn(FIELD, "font-display text-lg")}
           placeholder="What is this post about?"
         />
         <FieldProblems messages={problems.title} />

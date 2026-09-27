@@ -82,7 +82,7 @@ export default async function AdminPlayersPage({
   return (
     <>
       <header className="mb-8">
-        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Players</h1>
+        <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Players</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
           Every player and the handles they have played under. Imports link a handle to an existing
           player only when it matches exactly, ignoring case and punctuation; merge anything else
@@ -234,7 +234,7 @@ export default async function AdminPlayersPage({
 
       {players.length > 0 && (
         <section className="mt-12">
-          <h2 className="mb-2 font-serif text-xl font-semibold tracking-tight">
+          <h2 className="mb-2 font-display text-xl font-semibold tracking-tight">
             Link a player to a member
           </h2>
           <p className="mb-4 max-w-prose text-sm text-ink-600 dark:text-ink-400">
@@ -266,7 +266,7 @@ export default async function AdminPlayersPage({
       )}
 
       <section className="mt-12">
-        <h2 className="mb-4 font-serif text-xl font-semibold tracking-tight">Recent merges</h2>
+        <h2 className="mb-4 font-display text-xl font-semibold tracking-tight">Recent merges</h2>
         {merges.length === 0 ? (
           <p className="text-sm text-ink-600 dark:text-ink-400">No merges yet.</p>
         ) : (

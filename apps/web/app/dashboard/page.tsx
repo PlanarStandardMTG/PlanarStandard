@@ -28,7 +28,7 @@ export default async function DashboardPage() {
   return (
     <>
       <header className="mb-8">
-        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Dashboard</h1>
+        <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Dashboard</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
           Everything a {role} account can do here. Nothing on these pages is edited by deploying the
           site — that is the point of it.
@@ -40,7 +40,7 @@ export default async function DashboardPage() {
           <li key={section.href}>
             <Card className="h-full p-5">
               <div className="flex items-baseline justify-between gap-3">
-                <h2 className="font-serif text-lg font-semibold">{section.label}</h2>
+                <h2 className="font-display text-lg font-semibold">{section.label}</h2>
                 {!section.built && (
                   <span className="shrink-0 text-xs text-ink-400 dark:text-ink-600">
                     {section.story}

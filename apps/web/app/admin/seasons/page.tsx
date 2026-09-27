@@ -38,7 +38,7 @@ export default async function AdminSeasonsPage({
     <>
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Seasons</h1>
+          <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Seasons</h1>
           <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
             The leaderboard rates the current season’s Monthlies, and every tournament belongs to
             the season its date falls in.

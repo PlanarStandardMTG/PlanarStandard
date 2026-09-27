@@ -56,7 +56,7 @@ export default async function HomePage() {
         <Container className="relative grid items-center gap-10 py-14 lg:grid-cols-[1fr_20rem] lg:py-20">
           <div>
             <SeasonBadge />
-            <h1 className="mt-6 font-serif text-5xl/[0.98] tracking-tight text-balance sm:text-6xl/[0.95]">
+            <h1 className="mt-6 font-display text-5xl/[0.98] tracking-tight text-balance sm:text-6xl/[0.95]">
               The record of the <em className="text-gold-400">Planar Standard</em> format
             </h1>
             <p className="mt-5 max-w-xl text-lg text-ink-300">
@@ -88,7 +88,7 @@ export default async function HomePage() {
 
         <div className="grid items-start gap-12 lg:grid-cols-12">
           <section className="min-w-0 lg:col-span-7">
-            <SectionHeading>From the format</SectionHeading>
+            <SectionHeading>Announcements</SectionHeading>
             {news.ok ? (
               <LatestNewsPanel posts={news.value} />
             ) : (

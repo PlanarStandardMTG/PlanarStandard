@@ -146,7 +146,7 @@ export const EMBED_RENDERERS: { readonly [N in EmbedName]: EmbedRenderer } = {
       return (
         <section className={NIGHT_CARD}>
           <header className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
-            <h3 className="min-w-0 font-serif text-2xl text-ink-900 dark:text-ink-100">
+            <h3 className="min-w-0 font-display text-2xl text-ink-900 dark:text-ink-100">
               {event.url === null ? (
                 event.name
               ) : (

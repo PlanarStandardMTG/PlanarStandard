@@ -48,7 +48,7 @@ export default async function AdminUsersPage({
   return (
     <>
       <header className="mb-8">
-        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Users</h1>
+        <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Users</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
           Roles are a ladder — each one can do everything the ones below it can. A ban takes every
           rung away without deleting anything.

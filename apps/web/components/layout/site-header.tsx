@@ -38,7 +38,7 @@ export async function SiteHeader() {
       <Container className="flex h-16 items-center justify-between gap-3 sm:gap-6">
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-2.5 font-serif text-xl tracking-tight whitespace-nowrap"
+          className="flex shrink-0 items-center gap-2.5 font-display text-xl tracking-tight whitespace-nowrap"
         >
           <PlanarMark className="size-8 text-gold-400" />
           <span>

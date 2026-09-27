@@ -37,7 +37,7 @@ export default async function DashboardCommunityPage() {
   return (
     <>
       <header className="mb-8">
-        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Your community posts</h1>
+        <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Your community posts</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
           {direct
             ? `As a ${viewer.profile.role}, what you submit is published straight away.`
@@ -50,7 +50,7 @@ export default async function DashboardCommunityPage() {
         <WritePostButton kind="official" />
       </div>
 
-      <h2 className="mt-10 mb-4 font-serif text-xl font-semibold">Written</h2>
+      <h2 className="mt-10 mb-4 font-display text-xl font-semibold">Written</h2>
       {posts.length === 0 ? (
         <EmptyState title="Nothing yet">Drafts and submissions are listed here.</EmptyState>
       ) : (

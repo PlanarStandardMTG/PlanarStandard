@@ -22,7 +22,7 @@ export async function SeasonBadge({ large = false }: { large?: boolean }) {
       <SeasonRing progress={progress} className={large ? "size-24" : "size-7"} />
       {large ? (
         <div>
-          <p className="font-serif text-3xl">{month}</p>
+          <p className="font-display text-3xl">{month}</p>
           <p className="font-mono text-xs tracking-[0.14em] text-ink-500 uppercase dark:text-ink-400">
             {season.value.name}
           </p>

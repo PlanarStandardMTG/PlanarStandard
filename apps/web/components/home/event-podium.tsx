@@ -17,7 +17,7 @@ export function EventPodium({ podium }: { podium: EventPodiumData }) {
   return (
     <section>
       <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
-        <h2 className="font-serif text-3xl tracking-tight">
+        <h2 className="font-display text-3xl tracking-tight">
           <Link href={`/tournaments/${podium.slug}`} className="hover:underline">
             {podium.name}
           </Link>
@@ -68,7 +68,7 @@ function PodiumCard({ finish }: { finish: PodiumFinish }) {
       </div>
 
       <div className="min-w-0">
-        <h3 className="line-clamp-2 font-serif text-lg/snug break-words" title={title}>
+        <h3 className="line-clamp-2 font-display text-lg/snug break-words" title={title}>
           {title}
         </h3>
         {finish.archetype !== null && finish.archetype !== title && (

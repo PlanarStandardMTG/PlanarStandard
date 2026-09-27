@@ -109,7 +109,7 @@ export function Placement({ place, className }: { place: number; className?: str
   return (
     <span
       className={cn(
-        "relative inline-flex size-[2.2em] shrink-0 items-center justify-center font-serif italic",
+        "relative inline-flex size-[2.2em] shrink-0 items-center justify-center font-display",
         first ? "text-gold-700 dark:text-gold-400" : "text-ink-600 dark:text-ink-300",
         className,
       )}

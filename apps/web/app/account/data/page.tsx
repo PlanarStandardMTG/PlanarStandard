@@ -40,7 +40,7 @@ export default async function AccountDataPage({
       {error !== null && <Notice tone="warn">{error}</Notice>}
 
       <Card className="mt-6 p-6">
-        <h2 className="font-serif text-lg font-semibold">What we hold</h2>
+        <h2 className="font-display text-lg font-semibold">What we hold</h2>
         <ul className="mt-3 space-y-2 text-sm text-ink-600 dark:text-ink-400">
           <li>
             <strong className="text-ink-800 dark:text-ink-200">Your email address</strong>, used to
@@ -78,7 +78,7 @@ export default async function AccountDataPage({
       </Card>
 
       <Card className="mt-6 p-6">
-        <h2 className="font-serif text-lg font-semibold">Take a copy</h2>
+        <h2 className="font-display text-lg font-semibold">Take a copy</h2>
         <p className="mt-2 text-sm text-ink-600 dark:text-ink-400">
           A JSON file with your profile, your posts including unpublished drafts, and your decks. It
           also lists what is held elsewhere and how to ask for it.
@@ -92,7 +92,7 @@ export default async function AccountDataPage({
       </Card>
 
       <Card className="mt-6 border-red-300 p-6 dark:border-red-900">
-        <h2 className="font-serif text-lg font-semibold">Delete your account</h2>
+        <h2 className="font-display text-lg font-semibold">Delete your account</h2>
         <p className="mt-2 text-sm text-ink-600 dark:text-ink-400">
           This removes your email address, your password, every provider you have connected, and
           your name, handle, bio, and picture. It cannot be undone, and{" "}

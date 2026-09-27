@@ -47,10 +47,10 @@
   --color-eclipse-700: #5b3fd6;
 }
 
-/* The faces come from next/font in `app/layout.tsx`. */
+/* The faces come from next/font in `app/layout.tsx`; display is the old app's FunctionTwo. */
 @theme inline {
   --font-sans: var(--font-instrument-sans), ui-sans-serif, system-ui, sans-serif;
-  --font-serif: var(--font-fraunces), ui-serif, Georgia, serif;
+  --font-display: var(--font-function-two), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 

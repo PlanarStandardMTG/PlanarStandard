@@ -72,7 +72,7 @@ function EventSlide({ event, lead }: { event: ExternalEvent; lead: boolean }) {
         )}
       </div>
 
-      <h2 className="font-serif text-2xl/snug tracking-tight text-balance">
+      <h2 className="font-display text-2xl/snug tracking-tight text-balance">
         {event.url !== null ? (
           <a
             href={event.url}

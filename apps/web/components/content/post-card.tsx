@@ -30,7 +30,7 @@ export function PostCard({
 
         <h3
           className={cn(
-            "font-serif font-semibold tracking-tight",
+            "font-display font-semibold tracking-tight",
             compact ? "text-base/snug" : "text-lg/snug",
           )}
         >

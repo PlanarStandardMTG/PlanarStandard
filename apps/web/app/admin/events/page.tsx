@@ -52,7 +52,7 @@ export default async function AdminEventsPage({
   return (
     <>
       <header className="mb-6">
-        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Event dates</h1>
+        <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Event dates</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
           melee.gg&rsquo;s API doesn&rsquo;t send when an event starts, so set it here in your own
           time zone; saving shows the UTC time that is stored. A calendar refresh keeps what you

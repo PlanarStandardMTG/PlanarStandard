@@ -39,7 +39,7 @@ export default async function AdminFormatsPage({
     <>
       <header className="mb-8 flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Formats</h1>
+          <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Formats</h1>
           <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
             Each version of Planar Standard’s rules: its legal sets, deck limits and card rules.
             Decks and the rules page check against the one in force. Kitchen Table has no rules to

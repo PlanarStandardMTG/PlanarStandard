@@ -80,7 +80,7 @@ export default async function ProfilePage({
             />
           )}
           <div>
-            <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">
+            <h1 className="font-display text-4xl tracking-tight sm:text-5xl">
               {profile.displayName}
             </h1>
             <p className="text-sm text-ink-500 dark:text-ink-400">
@@ -91,7 +91,7 @@ export default async function ProfilePage({
         </header>
 
         <Card className="mt-8 p-6">
-          <h2 className="font-serif text-lg font-semibold">
+          <h2 className="font-display text-lg font-semibold">
             {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
           </h2>
           <p className="mt-1 text-sm text-ink-600 dark:text-ink-400">
@@ -130,7 +130,7 @@ export default async function ProfilePage({
         </Card>
 
         <Card className="mt-6 p-6">
-          <h2 className="font-serif text-lg font-semibold">Edit</h2>
+          <h2 className="font-display text-lg font-semibold">Edit</h2>
 
           {error !== null && (
             <p

@@ -33,7 +33,7 @@ export function LatestNewsPanel({ posts }: { posts: readonly PostWithAuthor[] })
       <article className="relative flex flex-1 flex-col p-6 sm:p-7">
         <PostMeta post={lead} showKind={false} className="mb-3" />
 
-        <h2 className="font-serif text-3xl/tight tracking-tight text-balance sm:text-4xl/tight">
+        <h2 className="font-display text-3xl/tight tracking-tight text-balance sm:text-4xl/tight">
           <Link
             href={postHref(lead)}
             className="after:absolute after:inset-0 group-hover/panel:text-eclipse-700 dark:group-hover/panel:text-eclipse-400"

@@ -51,7 +51,9 @@ export default async function UnauthorizedPage({
     return (
       <Container className="py-16">
         <div className="mx-auto max-w-md">
-          <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">This account is banned</h1>
+          <h1 className="font-display text-4xl tracking-tight sm:text-5xl">
+            This account is banned
+          </h1>
           <p className="mt-3 text-ink-600 dark:text-ink-400">
             An admin banned it on {formatDate(viewer.profile.bannedAt)}. You can still read the
             site, and export or delete your data from{" "}
@@ -78,7 +80,7 @@ export default async function UnauthorizedPage({
   return (
     <Container className="py-16">
       <div className="mx-auto max-w-md">
-        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">
+        <h1 className="font-display text-4xl tracking-tight sm:text-5xl">
           That one&rsquo;s not yours to see
         </h1>
 

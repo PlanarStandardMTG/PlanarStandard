@@ -24,7 +24,7 @@ export function AuthShell({
   return (
     <Container className="py-16">
       <div className="mx-auto max-w-md">
-        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">{title}</h1>
+        <h1 className="font-display text-4xl tracking-tight sm:text-5xl">{title}</h1>
         {intro !== undefined && <p className="mt-2 text-ink-600 dark:text-ink-400">{intro}</p>}
         {children}
       </div>

@@ -95,7 +95,7 @@ export function StartTimeForm({
         onClose={() => setChosen(null)}
         className="m-auto w-[min(26rem,calc(100vw-2rem))] rounded-xl border border-ink-200 bg-paper p-6 text-ink-900 shadow-xl backdrop:bg-ink-950/50 dark:border-ink-800 dark:bg-ink-950 dark:text-ink-100"
       >
-        <h2 className="font-serif text-xl tracking-tight">Save this start time?</h2>
+        <h2 className="font-display text-xl tracking-tight">Save this start time?</h2>
         <p className="mt-1 text-sm text-ink-600 dark:text-ink-400">{eventName}</p>
         {chosen !== null && (
           <dl className="mt-4 grid grid-cols-[auto_1fr] gap-x-4 gap-y-2 text-sm">

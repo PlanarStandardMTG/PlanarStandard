@@ -41,7 +41,7 @@ export default async function AdminPage() {
   return (
     <>
       <header className="mb-8">
-        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Admin</h1>
+        <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Admin</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
           Who can do what on the site, and what is waiting on somebody to decide.
         </p>
@@ -53,7 +53,7 @@ export default async function AdminPage() {
             <Link href={section.href} className="block h-full">
               <Card className="h-full p-5 transition-colors hover:border-eclipse-400 dark:hover:border-eclipse-600">
                 <div className="flex items-baseline justify-between gap-3">
-                  <h2 className="font-serif text-lg font-semibold">{section.label}</h2>
+                  <h2 className="font-display text-lg font-semibold">{section.label}</h2>
                   {figures[section.href] !== undefined && (
                     <span className="shrink-0 text-sm text-ink-500 dark:text-ink-400">
                       {figures[section.href]}

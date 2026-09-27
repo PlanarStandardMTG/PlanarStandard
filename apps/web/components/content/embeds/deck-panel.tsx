@@ -13,7 +13,7 @@ export function DeckPanel({ deck, title }: { deck: LoadedDeck; title?: string | 
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <Link
           href={`/decks/${deck.id}`}
-          className="font-serif text-lg font-semibold text-ink-900 hover:underline dark:text-ink-100"
+          className="font-display text-lg font-semibold text-ink-900 hover:underline dark:text-ink-100"
         >
           {title ?? deck.name}
         </Link>

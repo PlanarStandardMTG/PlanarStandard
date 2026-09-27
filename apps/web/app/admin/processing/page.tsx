@@ -72,7 +72,7 @@ export default async function AdminProcessingPage({
   return (
     <>
       <header className="mb-8">
-        <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Tournament processing</h1>
+        <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Tournament processing</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
           When the calendar sees a tournament finish, it queues it here once. Every one is processed
           — its results fetched and stored, which gives it a page — by the scheduled job or the
@@ -209,7 +209,7 @@ async function MissingDecklists({
               className="rounded-lg border border-ink-200 p-5 dark:border-ink-800"
             >
               <div className="flex flex-wrap items-baseline justify-between gap-2">
-                <h2 className="font-serif text-2xl">{tournament.name}</h2>
+                <h2 className="font-display text-2xl">{tournament.name}</h2>
                 <p className="font-mono text-xs text-ink-500 dark:text-ink-400">
                   {formatDate(tournament.eventDate)} · {entries.length - without.length} of{" "}
                   {entries.length} decks
