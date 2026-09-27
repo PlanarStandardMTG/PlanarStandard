@@ -56,8 +56,9 @@ export default async function AdminProcessingPage({
           >
             Event fetching
           </Link>
-          . A Monthly starts in both. Elo changes wait until you recompute; card statistics are
-          saved as you tick them.
+          . A Monthly starts in both. Elo needs an event&rsquo;s matches, and card statistics its
+          decklists. Elo changes wait until you recompute; card statistics are saved as you tick
+          them.
         </p>
       </header>
 
@@ -108,6 +109,7 @@ export default async function AdminProcessingPage({
             rateable: row.matches > 0,
             elo: row.includeInElo,
             eloWaiting: row.includeInElo !== row.tournament.isRated,
+            hasDecks: row.decks > 0,
             cardStats: row.inCardStats,
           }))}
           include={include}

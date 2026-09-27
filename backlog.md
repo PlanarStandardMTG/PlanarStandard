@@ -1488,7 +1488,8 @@ source, with an Elo toggle and a card-stats toggle.
 _AC:_ the page makes no external request; an Elo toggle is staged, not applied, and one
 "Recompute ratings" press applies every staged change with a single full replay (ADR 004); the
 page shows how many changes are waiting; an event with no matches cannot be put into Elo
-(ADR 006); the card-stats toggle is stored and read by nothing yet.
+(ADR 006), nor an event with no decklists into card statistics, and each box says why in red;
+the card-stats toggle is stored and read by nothing yet.
 _Note:_ a new tournament's `include_in_elo` is set from its `is_rated` by an insert trigger, so the
 seed and organiser imports start with the two agreeing. A fetch still recomputes the ladder by
 itself when it stores a rated event, so a Monthly reaches the leaderboard without an admin; only

@@ -16,6 +16,8 @@ export interface InclusionRow {
   readonly elo: boolean;
   /** The ladder has not caught up with `elo` yet. */
   readonly eloWaiting: boolean;
+  /** False without a single decklist: there is nothing for card statistics to count. */
+  readonly hasDecks: boolean;
   readonly cardStats: boolean;
 }
 
@@ -81,22 +83,23 @@ export function InclusionTable({
                     <Tick
                       label={`Elo: ${row.name}`}
                       on={row.elo}
-                      disabled={!row.rateable && !row.elo}
+                      disabled={!row.rateable}
                       set={(on) => include(row.id, "elo", on)}
                     />
                     {row.eloWaiting && <Badge variant="accent">Waiting</Badge>}
-                    {!row.rateable && (
-                      <span className="text-xs text-ink-500 dark:text-ink-400">No matches</span>
-                    )}
+                    {!row.rateable && <Missing>No matches</Missing>}
                   </span>
                 </td>
                 <td className="px-4 py-2">
-                  <Tick
-                    label={`Card stats: ${row.name}`}
-                    on={row.cardStats}
-                    disabled={false}
-                    set={(on) => include(row.id, "cardStats", on)}
-                  />
+                  <span className="flex items-center gap-2 whitespace-nowrap">
+                    <Tick
+                      label={`Card stats: ${row.name}`}
+                      on={row.cardStats}
+                      disabled={!row.hasDecks}
+                      set={(on) => include(row.id, "cardStats", on)}
+                    />
+                    {!row.hasDecks && <Missing>No decklists</Missing>}
+                  </span>
                 </td>
               </tr>
             ))}
@@ -110,6 +113,11 @@ export function InclusionTable({
       </div>
     </>
   );
+}
+
+/** What a tournament lacks for a box to mean anything: an error, not a hint. */
+function Missing({ children }: { children: string }) {
+  return <span className="text-xs text-red-700 dark:text-red-400">{children}</span>;
 }
 
 function Tick({

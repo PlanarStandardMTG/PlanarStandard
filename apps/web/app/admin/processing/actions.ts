@@ -16,15 +16,14 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
 
 /**
  * Tick or untick one of a tournament's two boxes. Elo is only staged — see
- * `recomputeNow` — and an event without matches cannot be put into it (ADR 006).
+ * `recomputeNow`. A box needs something to count: Elo an event's matches
+ * (ADR 006), card statistics its decklists.
  */
 export async function include(id: string, what: "elo" | "cardStats", on: boolean) {
   await requireRole("admin");
   const service = createServiceRoleClient();
-  if (what === "elo" && on) {
-    const row = (await listTournamentCoverage(service)).find((r) => r.tournament.id === id);
-    if (row === undefined || row.matches === 0) return;
-  }
+  const row = (await listTournamentCoverage(service)).find((r) => r.tournament.id === id);
+  if (row === undefined || (what === "elo" ? row.matches : row.decks) === 0) return;
 
   await setTournamentInclusion(
     service,
