@@ -1,4 +1,5 @@
 import type { ExternalEvent } from "@ps/contracts";
+import Link from "next/link";
 
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -19,11 +20,22 @@ const STATE_LABELS: Record<ExternalEvent["state"], { label: string; variant: Bad
  * them. There is no join and no leave — the previous site had both, wired to a
  * per-user OAuth connection, and neither ever worked well enough to keep.
  *
+ * A finished event whose results have been ingested links to its page here
+ * first (E20.14) — standings, rounds and decks — with the platform's bracket
+ * beside it.
+ *
  * Which platform is a label next to that link and nothing more. The schedule is
  * one list whatever calendar an event came from, so the source never groups,
  * sorts, or filters anything.
  */
-export function EventCard({ event }: { event: ExternalEvent }) {
+export function EventCard({
+  event,
+  resultsHref,
+}: {
+  event: ExternalEvent;
+  /** Our own results page, when this event's results are in the ledger. */
+  resultsHref?: string | undefined;
+}) {
   const { label, variant } = STATE_LABELS[event.state];
   const finished = event.state === "complete";
 
@@ -53,7 +65,26 @@ export function EventCard({ event }: { event: ExternalEvent }) {
           </p>
         </div>
 
-        {event.url !== null ? (
+        {resultsHref !== undefined ? (
+          <div className="shrink-0 text-sm sm:text-right">
+            <Link
+              href={resultsHref}
+              className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
+            >
+              Results and decks <span aria-hidden="true">→</span>
+            </Link>
+            {event.url !== null && (
+              <a
+                href={event.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block text-xs text-ink-500 hover:underline dark:text-ink-400"
+              >
+                Bracket on {EVENT_SOURCE_LABELS[event.source]} <span aria-hidden="true">↗</span>
+              </a>
+            )}
+          </div>
+        ) : event.url !== null ? (
           <a
             href={event.url}
             target="_blank"

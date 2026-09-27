@@ -276,5 +276,7 @@ export { ledgerMatches } from "./results/ledger-matches/index";
 export type { LedgerMatches } from "./results/ledger-matches/index";
 export { eventEntries } from "./results/event-entries/index";
 export type { EventEntry } from "./results/event-entries/index";
+export { eventRounds } from "./results/event-rounds/index";
+export type { EventRound, RoundMatch } from "./results/event-rounds/index";
 export { readDecklistSheet } from "./results/decklist-sheet/index";
 export type { DecklistSheet, SheetDeck, SheetEntry } from "./results/decklist-sheet/index";

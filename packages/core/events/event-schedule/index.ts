@@ -1,11 +1,8 @@
 import type { EventSchedule, ExternalEvent } from "@ps/contracts";
 
 /**
- * How long a finished event stays on the schedule.
- *
- * Long enough that someone who missed last weekend can still find the bracket,
- * short enough that the page is about what is coming up. The full history is the
- * tournaments section's job, not this page's.
+ * How long a finished event stays on the schedule by default. `/events` passes
+ * no limit and pages through the whole history instead.
  */
 export const PAST_EVENT_WINDOW_MS = 30 * 24 * 60 * 60 * 1000;
 

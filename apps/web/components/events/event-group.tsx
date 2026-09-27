@@ -1,4 +1,5 @@
 import type { ExternalEvent } from "@ps/contracts";
+import type { ReactNode } from "react";
 
 import { SectionHeading } from "@/components/ui/section-heading";
 
@@ -9,7 +10,18 @@ import { EventCard } from "./event-card";
  * a heading over a blank space reads as a bug, and the page's own empty state
  * covers the case where every group is empty.
  */
-export function EventGroup({ title, events }: { title: string; events: readonly ExternalEvent[] }) {
+export function EventGroup({
+  title,
+  events,
+  resultsHref,
+  children,
+}: {
+  title: string;
+  events: readonly ExternalEvent[];
+  resultsHref?: (event: ExternalEvent) => string | undefined;
+  /** Below the list — a pager. */
+  children?: ReactNode;
+}) {
   if (events.length === 0) return null;
 
   return (
@@ -18,10 +30,11 @@ export function EventGroup({ title, events }: { title: string; events: readonly 
       <ul className="space-y-3">
         {events.map((event) => (
           <li key={event.id}>
-            <EventCard event={event} />
+            <EventCard event={event} resultsHref={resultsHref?.(event)} />
           </li>
         ))}
       </ul>
+      {children}
     </section>
   );
 }

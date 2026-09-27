@@ -39,10 +39,10 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 14/15 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 7/23  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 27/40 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 28/40 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
-| E23  | Upcoming events                       | 2     | E13.1        | 🚧 15/16 |
+| E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 
 ---
@@ -1023,7 +1023,14 @@ and ranking, so a player ranks after about one Monthly rather than three; `/rati
 so. The page shows a record rather than a win rate, so no rate needs `suppress-small-n`. Names are
 not links yet — `/players/[slug]` is E20.13. The header's Leaderboard link is live.
 ⬜ **E20.13 — `leaderboard`: `/players/[slug]`** · M · Deps: E19.12
-⬜ **E20.14 — `tournaments`: `/tournaments/[slug]`** · M · Deps: E13.17
+✅ **E20.14 — `tournaments`: `/tournaments/[slug]`** · M · Deps: E13.17
+_Note:_ rebuilt entirely from our own rows: standings from `tournament_entries` with each player's
+deck (colours, name, link), then every round from `matches` through `listNamedMatchesByTournament`,
+which names each side by the handle it played under and the player that handle belongs to now — a
+hidden player shows as one. `core/results/event-rounds` groups and labels the rounds (Round n in the
+Swiss; Quarterfinals, Semifinals, Final or Top n in a cut). A finished event on `/events` links here
+when it has been ingested, and so do a deck's played events (E20.38), the home podium, the
+`:::tournament` embed and the sitemap.
 ⬜ **E20.15 — `tournaments`: import dashboard** · L · Deps: E18.4
 ✅ **E20.16 — `identity-admin`: merge grid** · L · Deps: E18.16
 _Note:_ `/admin/players`, not a dashboard page — the other admin slices already live under `/admin`.
@@ -1173,8 +1180,8 @@ than fetched. The statistics an upload should recompute are E18.13's, which does
 ✅ **E20.38 — `decks`: the events a deck was played at** · S · Deps: E18.23, E20.6 — the deck page
 lists every event any version of the deck was entered in: placement, record, date, and the event
 linked to its page on the platform it ran on.
-_Note:_ `listPlayedEntries` reads it from `tournament_entries`; there is no `/tournaments/[slug]`
-yet (E20.14), so the link is the event's `external_url`.
+_Note:_ `listPlayedEntries` reads it from `tournament_entries`. The link was the event's
+`external_url` until E20.14; it is now the event's page here.
 ✅ **E20.39 — `admin`: link a player to a member** · S · Deps: E20.16 — `/admin/players` sets
 `players.profile_id` from a member's handle, or clears it. _AC:_ a member is one player at most;
 linking a second says so rather than failing.
@@ -1349,6 +1356,11 @@ hover; the server render stays UTC, so a reader without JavaScript still gets a 
 _Note:_ added outside the plan. `components/ui/local-time.tsx` swaps the text after hydration, so the
 UTC time shows for a moment on load. Dates without a time stay UTC: a day rarely changes across zones
 and the swap would be noise.
+✅ **E23.17 — Every past event, a page at a time** · S · Deps: E23.4 — `/events` lists every finished
+event rather than the last 30 days, ten to a page, newest first. _AC:_ `?page=` out of range shows the
+nearest page; a finished event with results here links to them (E20.14) as well as to its bracket.
+_Note:_ added outside the plan. `eventSchedule` is given no window; `lib/paging.ts` slices, and
+`components/ui/pager.tsx` links newer and older.
 
 ---
 
@@ -1512,10 +1524,10 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 15      | 14   |
 | E7   | 5       | 5    | E18  | 23      | 7    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 40      | 27   |
+| E9   | 9       | 9    | E20  | 40      | 28   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
-|      |         |      | E23  | 16      | 15   |
+|      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 
-**202 of 273 stories done across 24 epics.**
+**204 of 274 stories done across 24 epics.**

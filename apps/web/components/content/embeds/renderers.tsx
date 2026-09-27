@@ -118,7 +118,7 @@ export const EMBED_RENDERERS: { readonly [N in EmbedName]: EmbedRenderer } = {
         name: event.name,
         date: event.eventDate,
         playerCount: event.playerCount,
-        url: event.externalUrl,
+        url: `/tournaments/${event.slug}`,
         finishers: finishers.map((f) => ({
           placement: f.placement,
           playerSlug: f.playerSlug,

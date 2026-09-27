@@ -10,6 +10,7 @@ import type {
   MatchId,
   NewMatch,
   ParseIssue,
+  PlayerId,
   ProfileId,
   RawRow,
   ResultImport,
@@ -349,6 +350,55 @@ export async function listMatchesByTournament(
 
   if (error !== null) throw new Error(`listMatchesByTournament failed: ${error.message}`);
   return (data as unknown as MatchRow[]).map(toMatch);
+}
+
+/** One side of a match as the reader may see it: null when that player is hidden. */
+export interface MatchSide {
+  readonly playerId: PlayerId;
+  readonly handle: string;
+}
+
+export interface NamedMatch extends Match {
+  readonly p1: MatchSide | null;
+  /** Null on a bye (`p2IdentityId` is null too) or when player 2 is hidden. */
+  readonly p2: MatchSide | null;
+}
+
+/**
+ * One event's matches in playing order, each side with the handle it played
+ * under and the player that handle belongs to now — so a merge shows as one
+ * person without any match changing (ADR 003). A hidden player's side does not
+ * embed, since `player_identities` reads only public players.
+ */
+export async function listNamedMatchesByTournament(
+  client: SupabaseClient,
+  tournamentId: TournamentId,
+): Promise<readonly NamedMatch[]> {
+  const { data, error } = await client
+    .from("matches")
+    .select(
+      `${MATCH_COLUMNS}, ` +
+        "p1:player_identities!matches_p1_identity_id_fkey (handle, player_id), " +
+        "p2:player_identities!matches_p2_identity_id_fkey (handle, player_id)",
+    )
+    .eq("tournament_id", tournamentId)
+    .order("round", { ascending: true })
+    .order("table_number", { ascending: true, nullsFirst: false })
+    .order("id", { ascending: true });
+
+  if (error !== null) throw new Error(`listNamedMatchesByTournament failed: ${error.message}`);
+  const side = (row: { handle: string; player_id: string } | null): MatchSide | null =>
+    row === null ? null : { playerId: row.player_id as PlayerId, handle: row.handle };
+  return (data as unknown as NamedMatchRow[]).map((row) => ({
+    ...toMatch(row),
+    p1: side(row.p1),
+    p2: side(row.p2),
+  }));
+}
+
+interface NamedMatchRow extends MatchRow {
+  readonly p1: { readonly handle: string; readonly player_id: string } | null;
+  readonly p2: { readonly handle: string; readonly player_id: string } | null;
 }
 
 export interface LedgerRead {

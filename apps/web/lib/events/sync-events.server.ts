@@ -16,6 +16,7 @@ import {
   getSyncState,
   listAllCachedEvents,
   listCachedEvents,
+  listSourcedTournaments,
   recordCompletions,
   recordSyncResult,
   replaceEvents,
@@ -85,6 +86,13 @@ export interface EventsView {
   readonly syncs: readonly EventSyncState[];
   /** False on every machine without the production secrets — the page says so rather than lying. */
   readonly configured: boolean;
+  /** `source:externalId` → the slug of our own results page, for every event that has been ingested. */
+  readonly resultSlugs: ReadonlyMap<string, string>;
+}
+
+/** The key `resultSlugs` is read by. */
+export function resultKey(event: { readonly source: string; readonly externalId: string }): string {
+  return `${event.source}:${event.externalId}`;
 }
 
 export async function loadEvents(now: Date = new Date()): Promise<EventsView> {
@@ -95,17 +103,20 @@ export async function loadEvents(now: Date = new Date()): Promise<EventsView> {
   await Promise.all(calendars.map((calendar) => refreshIfDue(calendar, now)));
 
   const publicClient = createPublicClient();
-  const [events, syncs] = await Promise.all([
+  const [events, syncs, sourced] = await Promise.all([
     listAllCachedEvents(publicClient),
     // The sync ledger has no read policy, so "when was this last refreshed"
     // needs the service-role client even though the answer is shown publicly.
     readSyncStates(calendars),
+    listSourcedTournaments(publicClient),
   ]);
 
   return {
-    schedule: eventSchedule(events, now),
+    // Every finished event, not the last month's: `/events` pages through them.
+    schedule: eventSchedule(events, now, Number.POSITIVE_INFINITY),
     syncs,
     configured: calendars.length > 0,
+    resultSlugs: new Map(sourced.map((ref) => [resultKey(ref), ref.tournament.slug])),
   };
 }
 

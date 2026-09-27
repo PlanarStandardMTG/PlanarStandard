@@ -1,14 +1,16 @@
-import type { EventSyncState } from "@ps/contracts";
+import type { EventSyncState, ExternalEvent } from "@ps/contracts";
 import type { Metadata } from "next";
 
 import { EventGroup } from "@/components/events/event-group";
 import { Container } from "@/components/ui/container";
 import { PageHeader } from "@/components/ui/page-header";
+import { Pager } from "@/components/ui/pager";
 import { EmptyState, ErrorState } from "@/components/ui/states";
 import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";
-import { loadEvents } from "@/lib/events/sync-events.server";
+import { loadEvents, resultKey } from "@/lib/events/sync-events.server";
 import { formatTimeAgo } from "@/lib/format-date";
 import { load } from "@/lib/load";
+import { pageOf } from "@/lib/paging";
 
 /**
  * The schedule is a read-through cache of somebody else's calendar, refreshed at
@@ -20,18 +22,25 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   title: "Events",
   description:
-    "Upcoming and in-progress Planar Standard tournaments, with a link to each event page.",
+    "Upcoming and past Planar Standard tournaments, with standings, rounds and decklists for finished events.",
 };
 
-export default async function EventsPage() {
+/** Finished events per page. */
+const PAST_PAGE_SIZE = 10;
+
+export default async function EventsPage({
+  searchParams,
+}: {
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
+}) {
   const now = new Date();
-  const events = await load(() => loadEvents(now));
+  const [events, params] = await Promise.all([load(() => loadEvents(now)), searchParams]);
 
   return (
     <div className="night flex-1">
       <Container className="py-12">
         <PageHeader kicker="The schedule" title="Events">
-          Upcoming and live events. Sign up and follow pairings on each event&rsquo;s own page.
+          Upcoming and live events, and results from every past one.
         </PageHeader>
 
         {!events.ok ? (
@@ -48,7 +57,11 @@ export default async function EventsPage() {
           <>
             <EventGroup title="Happening now" events={events.value.schedule.live} />
             <EventGroup title="Upcoming" events={events.value.schedule.upcoming} />
-            <EventGroup title="Recently finished" events={events.value.schedule.past} />
+            <PastEvents
+              events={events.value.schedule.past}
+              page={params["page"]}
+              resultSlugs={events.value.resultSlugs}
+            />
 
             <p className="mt-10 border-t border-ink-200 pt-4 text-xs text-ink-500 dark:border-ink-800 dark:text-ink-400">
               {freshness(events.value.syncs, now)}
@@ -56,6 +69,38 @@ export default async function EventsPage() {
           </>
         )}
       </Container>
+    </div>
+  );
+}
+
+function PastEvents({
+  events,
+  page,
+  resultSlugs,
+}: {
+  events: readonly ExternalEvent[];
+  page: string | string[] | undefined;
+  resultSlugs: ReadonlyMap<string, string>;
+}) {
+  const shown = pageOf(events, page, PAST_PAGE_SIZE);
+  return (
+    <div id="past" className="scroll-mt-24">
+      <EventGroup
+        title="Past events"
+        events={shown.items}
+        resultsHref={(event) => {
+          const slug = resultSlugs.get(resultKey(event));
+          return slug === undefined ? undefined : `/tournaments/${slug}`;
+        }}
+      >
+        <Pager
+          page={shown.page}
+          pages={shown.pages}
+          href={(n) => (n === 1 ? "/events#past" : `/events?page=${n}#past`)}
+          previous="Newer"
+          next="Older"
+        />
+      </EventGroup>
     </div>
   );
 }

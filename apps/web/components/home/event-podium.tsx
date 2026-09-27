@@ -18,13 +18,9 @@ export function EventPodium({ podium }: { podium: EventPodiumData }) {
     <section>
       <div className="mb-6 flex flex-wrap items-center gap-x-4 gap-y-2">
         <h2 className="font-serif text-3xl tracking-tight">
-          {podium.externalUrl === null ? (
-            podium.name
-          ) : (
-            <a href={podium.externalUrl} rel="noreferrer" className="hover:underline">
-              {podium.name}
-            </a>
-          )}
+          <Link href={`/tournaments/${podium.slug}`} className="hover:underline">
+            {podium.name}
+          </Link>
         </h2>
         <StarRule />
         <p className="font-mono text-xs tracking-[0.12em] text-ink-500 uppercase dark:text-ink-400">

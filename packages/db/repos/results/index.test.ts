@@ -8,6 +8,7 @@ import {
   listLedgerMatchesBySeason,
   listMatchCorrections,
   listMatchesByTournament,
+  listNamedMatchesByTournament,
   listStagedMatches,
   recordMatchCorrection,
   replaceStagedMatches,
@@ -306,6 +307,30 @@ describe.skipIf(!reachable)("repos/results", () => {
     expect(matches[1]?.p2PlayerId).toBeNull();
     // `numeric` — a string weight would multiply a rating by NaN.
     expect(typeof matches[0]?.tournamentWeight).toBe("number");
+  });
+
+  it("names each side of an event's matches, and hides a hidden player's side", async () => {
+    const created = await anImport();
+    const alpha = await makeIdentity("alpha");
+    const beta = await makeIdentity("beta");
+    await replaceTournamentMatches(service, weekly40, created.id, [
+      match(alpha, beta, 2),
+      match(alpha, null, 1),
+    ]);
+    await service
+      .from("players")
+      .update({ visibility: "hidden" })
+      .eq("id", await playerOf(beta));
+
+    const matches = await listNamedMatchesByTournament(client, weekly40);
+
+    expect(matches.map((m) => m.round)).toEqual([1, 2]);
+    expect(matches[0]?.p1?.playerId).toBe(await playerOf(alpha));
+    expect(matches[0]?.p1?.handle).toMatch(/^alpha-/);
+    expect(matches[0]?.p2).toBeNull();
+    // Hidden, not a bye: the identity is still on the match.
+    expect(matches[1]?.p2).toBeNull();
+    expect(matches[1]?.p2IdentityId).toBe(beta);
   });
 
   it("leaves an unrated event's matches out of the replay read", async () => {

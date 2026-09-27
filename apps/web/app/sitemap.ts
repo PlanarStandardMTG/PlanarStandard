@@ -1,4 +1,4 @@
-import { listPublishedPostSlugs } from "@ps/db";
+import { listPublishedPostSlugs, listTournamentsWithResults } from "@ps/db";
 import type { MetadataRoute } from "next";
 
 import { publishedInfoPages } from "@/lib/info-pages/pages";
@@ -7,6 +7,9 @@ import { siteOrigin } from "@/lib/site-origin";
 import { createPublicClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
+
+/** More events than the format has run; a sitemap entry each. */
+const TOURNAMENTS = 1000;
 
 const SECTIONS = ["/", "/events", "/leaderboard", "/decks", "/news", "/community"];
 
@@ -21,7 +24,11 @@ const PRIORITY: Readonly<Record<string, number>> = {
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const origin = await siteOrigin();
-  const posts = await load(async () => await listPublishedPostSlugs(createPublicClient()));
+  const client = createPublicClient();
+  const [posts, tournaments] = await Promise.all([
+    load(async () => await listPublishedPostSlugs(client)),
+    load(async () => await listTournamentsWithResults(client, TOURNAMENTS)),
+  ]);
 
   const paths = [
     ...SECTIONS,
@@ -31,6 +38,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
           (post) => `/${post.kind === "official" ? "news" : "community"}/${post.slug}`,
         )
       : []),
+    ...(tournaments.ok ? tournaments.value.map((t) => `/tournaments/${t.slug}`) : []),
   ];
 
   return paths.map((path) => ({

@@ -1,5 +1,6 @@
 import type { PlayedEntry } from "@ps/db";
 import { formatRecord } from "@ps/core";
+import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { DotLeader, Placement } from "@/components/ui/marks";
@@ -8,7 +9,7 @@ import { formatDate } from "@/lib/format-date";
 /**
  * Events somebody played, newest first: where they finished, their record, and
  * a line of their own for each — which deck, or which version of this one. The
- * event's name links to its page on the platform it ran on.
+ * event's name links to its results page here (E20.14).
  */
 export function PlayedEvents({
   entries,
@@ -30,17 +31,12 @@ export function PlayedEvents({
             <Placement place={entry.placement} className="text-xl" />
           )}
           <div className="min-w-0">
-            {entry.tournament.externalUrl === null ? (
-              <span className="font-medium">{entry.tournament.name}</span>
-            ) : (
-              <a
-                href={entry.tournament.externalUrl}
-                rel="noreferrer"
-                className="font-medium hover:underline"
-              >
-                {entry.tournament.name}
-              </a>
-            )}
+            <Link
+              href={`/tournaments/${entry.tournament.slug}`}
+              className="font-medium hover:underline"
+            >
+              {entry.tournament.name}
+            </Link>
             {detail !== undefined && (
               <span className="block truncate text-sm text-ink-600 dark:text-ink-400">
                 {detail(entry)}
