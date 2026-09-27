@@ -84,8 +84,8 @@ export interface EventSchedule {
 
 /**
  * An `event_completions` row (E23.13): a tournament the calendar saw reach
- * `complete`, queued so that its results are fetched and processed exactly once.
- * `processedAt` set means it is never fetched again.
+ * `complete`, queued so that its results are fetched exactly once. `processedAt`
+ * set means it is never fetched again unless an admin asks (E25.2).
  */
 export interface EventCompletion {
   readonly source: EventSource;
@@ -97,8 +97,4 @@ export interface EventCompletion {
   readonly processedAt: IsoDateTime | null;
   readonly attempts: number;
   readonly lastError: string | null;
-  /** On the Elo line: its matches rate. A Monthly starts on it (E18.22). */
-  readonly elo: boolean;
-  /** On the decklist line: its lists are stored against its standings. A Monthly starts on it. */
-  readonly decklists: boolean;
 }

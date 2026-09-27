@@ -193,19 +193,21 @@ describe.skipIf(!reachable)("lib/results/ingest-event", () => {
     expect(recomputeRatings).not.toHaveBeenCalled();
   });
 
-  it("stores its lists on its standings when it is on the decklist line, and not otherwise", async () => {
-    const off = await ingestEvent(service, source(bundle(), `vitest-lists-${tag}`));
-    tournaments.add(off.tournament.id);
-    expect(off.decks).toBe(0);
+  it("stores every list the source sent, and a re-fetch keeps what an admin chose", async () => {
+    const first = await ingestEvent(service, source(bundle(), `vitest-lists-${tag}`));
+    tournaments.add(first.tournament.id);
+    expect(first.decks).toBe(2);
 
-    const on = await ingestEvent(service, {
-      ...source(bundle(), `vitest-lists-${tag}`),
-      rate: false,
-      decklists: true,
-    });
-    expect(on).toMatchObject({ written: false, decks: 2 });
+    await service
+      .from("tournaments")
+      .update({ is_rated: false, include_in_elo: false, in_card_stats: false })
+      .eq("id", first.tournament.id);
+    recomputeRatings.mockClear();
+
+    const on = await ingestEvent(service, source(bundle(), `vitest-lists-${tag}`));
+    expect(on).toMatchObject({ written: false });
     expect(on.tournament.isRated).toBe(false);
-    expect(recomputeRatings).toHaveBeenLastCalledWith(service, `rerated:melee:vitest-lists-${tag}`);
+    expect(recomputeRatings).not.toHaveBeenCalled();
 
     const { data } = await service
       .from("tournament_entries")

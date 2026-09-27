@@ -14,7 +14,6 @@ import {
   createImport,
   findImportByContentHash,
   findSeasonForDate,
-  getSourcedTournament,
   replaceStagedMatches,
   replaceTournamentEntries,
   replaceTournamentMatches,
@@ -31,18 +30,19 @@ import { resolveEventHandles } from "@/lib/results/resolve-handles.server";
 
 /**
  * One finished platform event into the ledger (E18.20): the tournament, its
- * import, its players' identities and its matches, then the two lines an admin
- * put it on (E18.22) — ratings when it is rated, and its decklists onto its
- * standings when it brought any.
+ * import, its players' identities, its matches, its standings, and every
+ * decklist the source sent (E25.1). Then ratings, when the event is rated.
  *
  * The standings and the decklists are written on every run, a skipped one
  * included, so an event ingested before they were gains them on its next
- * "Re-run".
+ * re-fetch.
  *
- * An event is rated when it is on the Elo line — a Monthly by default (E8.7) —
- * and only when it has pairings (ADR 006). An API import commits without E18.4's review
- * queue, because resolution is exact-match only (E18.3). Re-ingesting supersedes
- * the earlier import and replaces the matches wholesale (§26).
+ * What the event counts towards is decided on `/admin/processing`, not here. A
+ * new tournament starts rated and in card statistics when it is a Monthly
+ * (E8.7), and rated only when it has pairings (ADR 006); a re-fetch keeps
+ * whatever an admin chose since. An API import commits without E18.4's review
+ * queue, because resolution is exact-match only (E18.3). Re-ingesting
+ * supersedes the earlier import and replaces the matches wholesale (§26).
  */
 
 export interface IngestSource {
@@ -52,10 +52,6 @@ export interface IngestSource {
   readonly input: RawInput;
   /** When the event has no date of its own in the payload. */
   readonly fallbackDate: IsoDate;
-  /** On the Elo line. Absent, a Monthly is (`rated-by-default`). */
-  readonly rate?: boolean;
-  /** On the decklist line. Absent, it is not. */
-  readonly decklists?: boolean;
 }
 
 export interface IngestReport {
@@ -65,7 +61,7 @@ export interface IngestReport {
   readonly matches: number;
   readonly issues: ParsedEvent["issues"];
   readonly rated: boolean;
-  /** Entries the decklist line gave a deck this run. */
+  /** Entries given a deck this run. */
   readonly decks: number;
 }
 
@@ -90,22 +86,18 @@ export async function ingestEvent(
   const date = parsed.date ?? event.fallbackDate;
   const name = parsed.name ?? `${event.source} event ${event.externalId}`;
   const season = await findSeasonForDate(service, date);
-  const before = await getSourcedTournament(service, event);
   const tournament = await saveTournament(service, event, parsed, {
     name,
     date,
     seasonId: season?.id ?? null,
   });
-  // The Elo line changed since the last run, so the ladder is out of date whatever else happens.
-  const rerated = before !== null && before.isRated !== tournament.isRated;
 
   const contentHash = createHash("sha256").update(event.input.bytes).digest("hex");
   const existing = await findImportByContentHash(service, tournament.id, contentHash);
   if (existing?.status === "committed") {
     const resolved = await resolveEventHandles(service, event.source, eventHandles(parsed));
     await writeEntries(service, tournament, parsed, resolved.players);
-    if (rerated) await recomputeRatings(service, `rerated:${event.source}:${event.externalId}`);
-    const decks = await writeDecklists(service, event, tournament, parsed, resolved.players);
+    const decks = await writeDecklists(service, tournament, parsed, resolved.players);
     return { tournament, written: false, matches: 0, issues: parsed.issues, rated: false, decks };
   }
 
@@ -158,10 +150,10 @@ export async function ingestEvent(
   await supersedeOtherImports(service, tournament.id, upload.id);
   await writeEntries(service, tournament, parsed, resolved.players);
 
-  if (tournament.isRated || rerated) {
+  if (tournament.isRated) {
     await recomputeRatings(service, `ingest:${event.source}:${event.externalId}`);
   }
-  const decks = await writeDecklists(service, event, tournament, parsed, resolved.players);
+  const decks = await writeDecklists(service, tournament, parsed, resolved.players);
 
   return {
     tournament,
@@ -206,19 +198,17 @@ async function writeEntries(
 }
 
 /**
- * The decklist line (E18.23): whatever lists the source sent, onto their
- * players' entries. melee.gg sends them only sometimes and Challonge never;
- * an admin's sheet fills the gaps (E20.37). Card and archetype statistics
- * (E18.13) will recompute from here once they exist.
+ * Whatever lists the source sent, onto their players' entries (E18.23).
+ * melee.gg sends them only sometimes and Challonge never; an admin's sheet
+ * fills the gaps (E20.37). Stored whether or not the event counts towards card
+ * statistics — that is `in_card_stats`, decided afterwards (E25.1).
  */
 async function writeDecklists(
   service: SupabaseClient,
-  event: IngestSource,
   tournament: Tournament,
   parsed: ParsedEvent,
   players: ReadonlyMap<string, PlayerId>,
 ): Promise<number> {
-  if (event.decklists !== true) return 0;
   const decks = (parsed.decklists ?? []).flatMap((list) => {
     const playerId = players.get(list.handle);
     return playerId === undefined
@@ -260,8 +250,8 @@ async function saveTournament(
         structure: parsed.structure ?? null,
         rounds: parsed.rounds ?? null,
         playerCount: parsed.playerCount ?? null,
-        isRated:
-          (event.rate ?? ratedByDefault(known.name)) && parsed.capabilities.includes("matches"),
+        isRated: ratedByDefault(known.name) && parsed.capabilities.includes("matches"),
+        inCardStats: ratedByDefault(known.name),
       });
     } catch (error) {
       const slugTaken = error instanceof Error && /tournaments_slug_key/.test(error.message);

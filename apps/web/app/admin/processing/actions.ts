@@ -1,138 +1,46 @@
 "use server";
 
-import { parseCsv } from "@ps/adapters";
-import type { EventSource, TournamentId } from "@ps/contracts";
-import { readDecklistSheet } from "@ps/core";
-import {
-  getSourcedTournament,
-  listNamedEntries,
-  listTournamentsByIds,
-  requeueAllCompletions,
-  setCompletionLine,
-  setSourcedTournamentRated,
-  type CompletionLine,
-} from "@ps/db";
+import type { TournamentId } from "@ps/contracts";
+import { applyEloInclusion, listTournamentCoverage, setTournamentInclusion } from "@ps/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
-import type { UploadState } from "@/components/processing/decklist-upload-form";
-import { attachEventDecks, detachEventDecks } from "@/lib/decks/attach-event-decks.server";
-import { onFullRerun } from "@/lib/events/on-tournament-completed.server";
-import { processCompletedEvents } from "@/lib/events/process-completions.server";
 import { requireRole } from "@/lib/auth/guard";
-import { RERUN_CONFIRMATION } from "@/lib/jobs/rerun-confirmation";
 import { recomputeRatings } from "@/lib/ratings/recompute-ratings.server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
-import { createSessionClient } from "@/lib/supabase/session";
 
 /**
- * The admin's levers on the queue of finished tournaments (E23.13, E18.22). The
- * scheduled runner and "process now" are the same pass, so pressing the button
- * while a cron is running is safe — the queue's lease keeps them apart.
+ * What a stored tournament counts towards (E25.3). Nothing here calls an
+ * external API: it reads and writes this site's own data.
  */
-
-export async function processNow(): Promise<never> {
-  await requireRole("admin");
-  const report = await processCompletedEvents();
-
-  revalidatePath("/admin", "layout");
-  redirect(
-    `/admin/processing?done=processed&processed=${report.processed}&failed=${report.failed.length}`,
-  );
-}
-
-export async function rerunEverything(form: FormData): Promise<never> {
-  await requireRole("admin");
-  if (form.get("confirm")?.toString().trim().toLowerCase() !== RERUN_CONFIRMATION) {
-    redirect("/admin/processing?error=confirm");
-  }
-
-  await onFullRerun();
-  const waiting = await requeueAllCompletions(await createSessionClient());
-
-  revalidatePath("/admin", "layout");
-  redirect(`/admin/processing?done=requeued&waiting=${waiting}`);
-}
-
-export interface EventKey {
-  readonly source: EventSource;
-  readonly externalId: string;
-}
 
 /**
- * Choose a line for an event that is waiting. For one already processed, a line
- * can only be joined, which queues it again so the next pass runs that line.
+ * Tick or untick one of a tournament's two boxes. Elo is only staged — see
+ * `recomputeNow` — and an event without matches cannot be put into it (ADR 006).
  */
-export async function chooseLine(event: EventKey, line: CompletionLine, on: boolean) {
+export async function include(id: string, what: "elo" | "cardStats", on: boolean) {
   await requireRole("admin");
-  const client = await createSessionClient();
-  const changed = await setCompletionLine(client, event, line, on);
-  if (!changed && on) await setCompletionLine(client, event, line, "join");
-  revalidatePath("/admin/processing");
-}
-
-/**
- * Take a processed event off a line, undoing it: off the Elo line it is
- * unrated and the whole ladder replays without it (ADR 004); off the decklist
- * line its lists leave its standings, and nothing else needs rebuilding.
- */
-export async function leaveLine(event: EventKey, line: CompletionLine) {
-  await requireRole("admin");
-  await setCompletionLine(await createSessionClient(), event, line, "leave");
-
   const service = createServiceRoleClient();
-  if (line === "elo") {
-    await setSourcedTournamentRated(service, event, false);
-    await recomputeRatings(service, `unrated:${event.source}:${event.externalId}`);
-  } else {
-    const tournament = await getSourcedTournament(service, event);
-    if (tournament !== null) await detachEventDecks(service, tournament);
-  }
-  revalidatePath("/", "layout");
-}
-
-/**
- * An admin's sheet of decklists onto one event's standings (E20.37), matched
- * to members' saved decks as the decklist line does it.
- */
-export async function uploadDecklists(
-  _previous: UploadState,
-  form: FormData,
-): Promise<UploadState> {
-  await requireRole("admin");
-  const file = form.get("file");
-  const text =
-    file instanceof File && file.size > 0 ? await file.text() : (form.get("csv")?.toString() ?? "");
-  if (text.trim() === "") return { attached: 0, unchanged: 0, issues: ["Choose a CSV file."] };
-
-  const service = createServiceRoleClient();
-  const [tournament] = await listTournamentsByIds(service, [
-    form.get("tournament")?.toString() as TournamentId,
-  ]);
-  if (tournament === undefined) {
-    return { attached: 0, unchanged: 0, issues: ["That tournament no longer exists."] };
+  if (what === "elo" && on) {
+    const row = (await listTournamentCoverage(service)).find((r) => r.tournament.id === id);
+    if (row === undefined || row.matches === 0) return;
   }
 
-  const sheet = readDecklistSheet(
-    parseCsv(text).rows,
-    await listNamedEntries(service, [tournament.id]),
-  );
-  const report = await attachEventDecks(
+  await setTournamentInclusion(
     service,
-    tournament,
-    sheet.decks.map(({ archetype, ...deck }) =>
-      archetype === undefined ? deck : { ...deck, name: archetype, archetypeRaw: archetype },
-    ),
-    "organizer",
+    id as TournamentId,
+    what === "elo" ? { elo: on } : { cardStats: on },
   );
+  revalidatePath("/admin", "layout");
+}
+
+/** Apply every staged Elo choice, then rebuild the ladder once (ADR 004). */
+export async function recomputeNow(): Promise<never> {
+  await requireRole("admin");
+  const service = createServiceRoleClient();
+  const changed = await applyEloInclusion(service);
+  await recomputeRatings(service, `processing:${changed}`);
 
   revalidatePath("/", "layout");
-  return {
-    attached: report.attached,
-    unchanged: report.unchanged,
-    issues: [
-      ...sheet.issues.map((issue) => `Row ${issue.row}: ${issue.message}`),
-      ...report.problems,
-    ],
-  };
+  redirect(`/admin/processing?done=recomputed&changed=${changed}`);
 }

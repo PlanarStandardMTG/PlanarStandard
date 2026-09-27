@@ -378,7 +378,7 @@ Each slice owns its routes, components, and hooks. Slices don't import from each
 | `meta`           | `/meta`, `/meta/map`, `/meta/cards`, `/meta/matchups`                                             |
 | `leaderboard`    | `/leaderboard`, `/players/[slug]`                                                                 |
 | `tournaments`    | `/tournaments/[slug]`, import dashboard                                                           |
-| `admin`          | `/admin`, `/admin/users`, `/admin/seasons`, `/admin/processing`                                   |
+| `admin`          | `/admin`, `/admin/users`, `/admin/seasons`, `/admin/fetching`, `/admin/processing`                |
 | `identity-admin` | `/admin/players` — merge grid and undo; CSV round-trip                                            |
 | `format-admin`   | `/admin/formats`                                                                                  |
 | `members`        | `/members/[id]`, `/members/player/[key]` — a member's history, for writers and up                 |

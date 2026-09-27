@@ -44,6 +44,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
+| E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 3/5   |
 
 ---
 
@@ -1456,6 +1457,50 @@ contract and already null-safe. _AC:_ a finish with no deck stays unlinked rathe
 answer, once there is a metagame to show: what the field currently looks like. Left unscoped
 deliberately — the shape of it depends on what `MetaShare` turns out to read well at tile size.
 
+## E25 — Admin: fetching and processing
+
+Phase 2. Stream J. `/admin/processing` did two different jobs on one screen: fetching a finished
+event from its platform, and deciding what the event counts towards. The Elo and decklist "lines"
+were chosen before the fetch and changed what it stored, so an event's decklists existed only if
+somebody had ticked a box in advance. This epic separates the two jobs.
+
+**Fetching** is the only admin page that calls an external API. Every finished event is fetched,
+and everything its source sends is stored. **Processing** reads and writes our own database only.
+It decides which stored events count towards Elo and towards card statistics.
+
+✅ **E25.1 — Inclusion lives on the tournament, and a fetch stores everything** · M · Deps: E18.24 —
+`tournaments.include_in_elo` and `tournaments.in_card_stats`; `event_completions` loses `elo`,
+`decklists` and their trigger.
+_AC:_ a fetch stores every decklist its source sent, whatever is ticked; a new tournament starts
+included in both when it is a Monthly (`rated-by-default`), and a re-fetch never changes an admin's
+choice; `EventCompletion` drops `elo` and `decklists` (a breaking contract change); existing rows
+are backfilled from the lines they were on.
+
+✅ **E25.2 — `/admin/fetching`** · M · Deps: E25.1 — the queue of finished events, with three tabs:
+**Events** (fetch status), **Missing match history**, and **Missing decklists**.
+_AC:_ "Fetch now" and "Re-fetch everything" move here from processing; any single event can be
+re-fetched on its own; the missing-match-history tab lists events whose fetch stored no matches,
+and events the queue gave up on; the decklist sheet upload (E20.37) moves to the missing-decklists
+tab; nothing on the page changes what counts towards Elo.
+
+✅ **E25.3 — `/admin/processing`: what counts** · M · Deps: E25.1 — every stored tournament, from any
+source, with an Elo toggle and a card-stats toggle.
+_AC:_ the page makes no external request; an Elo toggle is staged, not applied, and one
+"Recompute ratings" press applies every staged change with a single full replay (ADR 004); the
+page shows how many changes are waiting; an event with no matches cannot be put into Elo
+(ADR 006); the card-stats toggle is stored and read by nothing yet.
+_Note:_ a new tournament's `include_in_elo` is set from its `is_rated` by an insert trigger, so the
+seed and organiser imports start with the two agreeing. A fetch still recomputes the ladder by
+itself when it stores a rated event, so a Monthly reaches the leaderboard without an admin; only
+an admin's own choices wait for the button.
+
+⬜ **E25.4 — Match history from a CSV** · M · Deps: E25.2, E18.1 — the upload that the
+missing-match-history tab offers for an event its platform could not supply, through the
+organizer-upload path.
+
+⬜ **E25.5 — Card statistics read `in_card_stats`** · S · Deps: E25.3, E18.13 — the card and
+archetype statistics count only the events that processing includes.
+
 ---
 
 ## What's ready now
@@ -1558,5 +1603,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
+|      |         |      | E25  | 5       | 3    |
 
-**207 of 277 stories done across 24 epics.**
+**210 of 282 stories done across 25 epics.**

@@ -14,7 +14,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
  * Each claimed event goes through `onTournamentCompleted` once. One that fails is
  * released with its error and retried on a later run; after
  * `COMPLETION_MAX_ATTEMPTS` it stays in the queue, unclaimable, for an admin to
- * look at on `/admin/processing`.
+ * look at on `/admin/fetching`.
  */
 
 /** Per run. Each event will cost a few requests against its source, so a run stays small. */
@@ -31,7 +31,13 @@ export interface ProcessReport {
 }
 
 export async function processCompletedEvents(
-  options: { readonly limit?: number; readonly source?: EventSource; readonly now?: Date } = {},
+  options: {
+    readonly limit?: number;
+    readonly source?: EventSource;
+    /** With `source`, that one event: an admin's re-fetch (E25.2). */
+    readonly externalId?: string;
+    readonly now?: Date;
+  } = {},
 ): Promise<ProcessReport> {
   const now = options.now ?? new Date();
   const service = createServiceRoleClient();
@@ -41,6 +47,7 @@ export async function processCompletedEvents(
     leaseCutoff: new Date(now.getTime() - COMPLETION_LEASE_MS).toISOString(),
     maxAttempts: COMPLETION_MAX_ATTEMPTS,
     ...(options.source === undefined ? {} : { source: options.source }),
+    ...(options.externalId === undefined ? {} : { externalId: options.externalId }),
   });
 
   let processed = 0;

@@ -131,23 +131,6 @@ export async function attachEventDecks(
   return { attached: links.length, unchanged, problems };
 }
 
-/** Take an event's lists off its standings, and delete the decks only it used. */
-export async function detachEventDecks(
-  service: SupabaseClient,
-  tournament: Tournament,
-): Promise<number> {
-  const decked = (await listNamedEntries(service, [tournament.id])).filter(
-    (entry): entry is NamedEntry & { deckId: DeckId } => entry.deckId !== null,
-  );
-  await setEntryDecks(
-    service,
-    tournament.id,
-    decked.map((entry) => ({ playerId: entry.playerId, deckId: null })),
-  );
-  await deleteUnusedEventDecks(service, [...new Set(decked.map((entry) => entry.deckId))]);
-  return decked.length;
-}
-
 async function newEventDeck(
   service: SupabaseClient,
   tournament: Tournament,

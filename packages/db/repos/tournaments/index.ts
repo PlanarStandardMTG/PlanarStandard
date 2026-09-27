@@ -189,8 +189,13 @@ export interface SourcedTournament {
   readonly structure: string | null;
   readonly rounds: number | null;
   readonly playerCount: number | null;
-  /** Whether the event is on the Elo line (E18.22) — an admin's choice, written every time. */
+  /**
+   * Where a new tournament starts (E25.1): rated and in card statistics or not.
+   * Written only when the row is created — after that they are an admin's
+   * choice on `/admin/processing`, and a re-fetch leaves them alone.
+   */
   readonly isRated: boolean;
+  readonly inCardStats: boolean;
 }
 
 /** Statuses an ingest moves on to `results_imported`. Verified or archived is a person's call, and stays. */
@@ -201,8 +206,8 @@ const PRE_RESULTS_STATUSES: readonly TournamentStatus[] = ["draft", "awaiting_re
  *
  * Found by `(source, external_id)`, so ingesting an event twice updates one row.
  * A refresh rewrites what the platform knows — name, date, season, shape — and
- * `is_rated`, which the Elo line decided (E18.22), and leaves the slug and a
- * status past `results_imported` alone. A new row fails on a taken slug; the caller retries with
+ * leaves the slug, what the event counts towards (E25.1), and a status past
+ * `results_imported` alone. A new row fails on a taken slug; the caller retries with
  * another.
  */
 export async function saveSourcedTournament(
@@ -226,7 +231,6 @@ export async function saveSourcedTournament(
     structure: tournament.structure,
     rounds: tournament.rounds,
     player_count: tournament.playerCount,
-    is_rated: tournament.isRated,
   };
 
   const write =
@@ -237,6 +241,8 @@ export async function saveSourcedTournament(
           external_id: tournament.externalId,
           slug: tournament.slug,
           status: "results_imported",
+          is_rated: tournament.isRated,
+          in_card_stats: tournament.inCardStats,
         })
       : serviceClient
           .from("tournaments")
@@ -402,22 +408,115 @@ export async function listSourcedTournaments(
   );
 }
 
-/** Rate or unrate a platform's event; null when it was never ingested. */
-export async function setSourcedTournamentRated(
+/** A tournament, what is stored of it, and what an admin has it count towards (E25). */
+export interface TournamentCoverage {
+  readonly tournament: Tournament;
+  /** Null for an organiser's or a hand import. */
+  readonly source: string | null;
+  readonly externalId: string | null;
+  /** The admin's choice. Differs from `tournament.isRated` while a recompute is waiting. */
+  readonly includeInElo: boolean;
+  readonly inCardStats: boolean;
+  readonly matches: number;
+  readonly entries: number;
+  /** Entries with a deck. */
+  readonly decks: number;
+}
+
+/**
+ * Every tournament with its coverage, newest first — what `/admin/fetching`
+ * reports as missing and `/admin/processing` decides over.
+ */
+export async function listTournamentCoverage(
+  client: SupabaseClient,
+): Promise<readonly TournamentCoverage[]> {
+  const [tournaments, counts] = await Promise.all([
+    client
+      .from("tournaments")
+      .select(`${TOURNAMENT_COLUMNS}, source, external_id, include_in_elo, in_card_stats`)
+      .order("event_date", { ascending: false })
+      .order("name"),
+    client.from("tournament_coverage").select("id, match_count, entry_count, deck_count"),
+  ]);
+  if (tournaments.error !== null) {
+    throw new Error(`listTournamentCoverage failed: ${tournaments.error.message}`);
+  }
+  if (counts.error !== null)
+    throw new Error(`listTournamentCoverage failed: ${counts.error.message}`);
+
+  const byId = new Map(
+    (counts.data as unknown as CoverageRow[]).map((row) => [row.id, row] as const),
+  );
+  return (tournaments.data as unknown as InclusionRow[]).map((row) => {
+    const count = byId.get(row.id);
+    return {
+      tournament: toTournament(row),
+      source: row.source,
+      externalId: row.external_id,
+      includeInElo: row.include_in_elo,
+      inCardStats: row.in_card_stats,
+      matches: count?.match_count ?? 0,
+      entries: count?.entry_count ?? 0,
+      decks: count?.deck_count ?? 0,
+    };
+  });
+}
+
+interface InclusionRow extends TournamentRow {
+  readonly source: string | null;
+  readonly external_id: string | null;
+  readonly include_in_elo: boolean;
+  readonly in_card_stats: boolean;
+}
+
+interface CoverageRow {
+  readonly id: string;
+  readonly match_count: number;
+  readonly entry_count: number;
+  readonly deck_count: number;
+}
+
+/**
+ * Choose what one tournament counts towards (E25.3). Elo is staged — the
+ * ladder moves only when `applyEloInclusion` runs — and card statistics are
+ * read directly. False when there is no such tournament.
+ */
+export async function setTournamentInclusion(
   serviceClient: SupabaseClient,
-  event: { readonly source: string; readonly externalId: string },
-  rated: boolean,
-): Promise<Tournament | null> {
+  tournamentId: TournamentId,
+  inclusion: { readonly elo?: boolean; readonly cardStats?: boolean },
+): Promise<boolean> {
   const { data, error } = await serviceClient
     .from("tournaments")
-    .update({ is_rated: rated })
-    .eq("source", event.source)
-    .eq("external_id", event.externalId)
-    .select(TOURNAMENT_COLUMNS)
-    .maybeSingle();
+    .update({
+      ...(inclusion.elo === undefined ? {} : { include_in_elo: inclusion.elo }),
+      ...(inclusion.cardStats === undefined ? {} : { in_card_stats: inclusion.cardStats }),
+    })
+    .eq("id", tournamentId)
+    .select("id");
 
-  if (error !== null) throw new Error(`setSourcedTournamentRated failed: ${error.message}`);
-  return data === null ? null : toTournament(data as unknown as TournamentRow);
+  if (error !== null) throw new Error(`setTournamentInclusion failed: ${error.message}`);
+  return data.length > 0;
+}
+
+/**
+ * Make every staged Elo choice the ladder's: `is_rated` takes `include_in_elo`
+ * wherever they differ. Returns how many tournaments changed, which the caller
+ * follows with one full recompute (ADR 004).
+ */
+export async function applyEloInclusion(serviceClient: SupabaseClient): Promise<number> {
+  let changed = 0;
+  for (const rated of [true, false]) {
+    const { data, error } = await serviceClient
+      .from("tournaments")
+      .update({ is_rated: rated })
+      .eq("include_in_elo", rated)
+      .eq("is_rated", !rated)
+      .select("id");
+    if (error !== null) throw new Error(`applyEloInclusion failed: ${error.message}`);
+    changed += data.length;
+  }
+  return changed;
 }
 
 /** An entry with who played it: their name and every handle they hold. */

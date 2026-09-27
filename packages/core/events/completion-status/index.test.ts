@@ -15,15 +15,13 @@ const completion = (over: Partial<EventCompletion> = {}): EventCompletion => ({
   processedAt: null,
   attempts: 0,
   lastError: null,
-  elo: true,
-  decklists: false,
   ...over,
 });
 
 describe("core/events/completion-status", () => {
-  it("is waiting when untouched, and processed once done", () => {
+  it("is waiting when untouched, and fetched once done", () => {
     expect(completionStatus(completion(), NOW)).toBe("waiting");
-    expect(completionStatus(completion({ processedAt: ago(1) }), NOW)).toBe("processed");
+    expect(completionStatus(completion({ processedAt: ago(1) }), NOW)).toBe("fetched");
   });
 
   it("is running while a lease holds, and not once it has run out", () => {
@@ -33,14 +31,6 @@ describe("core/events/completion-status", () => {
     expect(
       completionStatus(completion({ claimedAt: ago(COMPLETION_LEASE_MS + 1), attempts: 1 }), NOW),
     ).toBe("retrying");
-  });
-
-  it("waits on neither line like any other event, since every event is processed", () => {
-    expect(completionStatus(completion({ elo: false, decklists: false }), NOW)).toBe("waiting");
-    expect(completionStatus(completion({ elo: false, decklists: true }), NOW)).toBe("waiting");
-    expect(completionStatus(completion({ elo: false, processedAt: ago(1) }), NOW)).toBe(
-      "processed",
-    );
   });
 
   it("gives up after the last attempt", () => {

@@ -128,13 +128,16 @@ The refresh only queues — it runs inside a page render and has a visitor
 waiting. Working the queue is `processCompletedEvents`, which claims rows with a
 fifteen-minute lease, calls `onTournamentCompleted` once per event, and marks it
 processed; a failure releases the row for a later run, up to five attempts.
-`onTournamentCompleted` fetches a melee.gg event's scrubbed results and ingests
-them (E18.20), which writes its standings (E18.21) and recomputes the ladder
-when the event is rated. Standings are the source's placements when it sent
-any, otherwise the top of a clean playoff bracket. A Challonge
-event is marked processed with nothing done until its results can be fetched
-(E12.13–E12.14); "Re-run everything" picks those up afterwards, and itself
-rebuilds the ladder from the ledger first.
+`onTournamentCompleted` fetches an event's scrubbed results and ingests them
+whole (E18.20, E25.1): matches, standings (E18.21), and every decklist the
+source sent, then recomputes the ladder when the event is rated. Standings are
+the source's placements when it sent any, otherwise the top of a clean playoff
+bracket. An event whose platform sent no matches is marked fetched with nothing
+stored, and listed as missing its match history.
+
+Fetching never decides what an event counts towards. A new tournament starts
+rated and in card statistics when it is a Monthly; after that the choice is an
+admin's on `/admin/processing`, and a re-fetch leaves it alone.
 
 Nothing is tied to a scheduler. `/api/jobs/process-completed-events` runs one
 pass for anyone presenting `Authorization: Bearer $CRON_SECRET` — Vercel Cron
@@ -142,12 +145,15 @@ sends exactly that, and a GitHub Actions `curl` can send it too — and refuses
 everyone when the secret is unset. Because the queue decides what is due,
 calling it too often costs nothing and two schedulers overlapping is safe.
 
-An admin can do both by hand at `/admin/processing`: "Process now" runs the same
-pass, and "Re-run everything" — confirmed by typing a word — sends every
-finished tournament round the queue again and backfills any complete calendar
-event that was never queued. It never clears the ledger: re-importing an event
-supersedes its old results (§26), and the ledger also holds organiser and manual
-imports the queue could not recreate.
+An admin can do both by hand at `/admin/fetching`: "Fetch now" runs the same
+pass, "Re-fetch" on a row fetches that one event under the same lease, and
+"Re-fetch everything" — confirmed by typing a word — sends every finished
+tournament round the queue again and backfills any complete calendar event that
+was never queued. It never clears the ledger: re-importing an event supersedes
+its old results (§26), and the ledger also holds organiser and manual imports
+the queue could not recreate. The page's other two tabs list events whose fetch
+stored no matches, and events with players who have no deck, where an admin's
+sheet fills them in (E20.37).
 
 ## Why this is not the `tournaments` table
 

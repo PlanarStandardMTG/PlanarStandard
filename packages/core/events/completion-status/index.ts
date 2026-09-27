@@ -1,7 +1,7 @@
 import type { EventCompletion } from "@ps/contracts";
 
 /**
- * Where one finished tournament stands in the queue (E23.13) — and the two
+ * Where one finished tournament stands in the fetch queue (E23.13, E25.2) — and the two
  * numbers that decide it, which the runner and the admin page must agree on.
  */
 
@@ -11,11 +11,10 @@ export const COMPLETION_LEASE_MS = 15 * 60 * 1000;
 /** After this many failed tries an event stays queued but is no longer claimed. */
 export const COMPLETION_MAX_ATTEMPTS = 5;
 
-export type CompletionStatus = "processed" | "running" | "waiting" | "retrying" | "gave-up";
+export type CompletionStatus = "fetched" | "running" | "waiting" | "retrying" | "gave-up";
 
 export function completionStatus(completion: EventCompletion, now: Date): CompletionStatus {
-  // Every event is processed, whatever its lines (E18.24).
-  if (completion.processedAt !== null) return "processed";
+  if (completion.processedAt !== null) return "fetched";
 
   const claimed = completion.claimedAt === null ? null : Date.parse(completion.claimedAt);
   if (claimed !== null && now.getTime() - claimed < COMPLETION_LEASE_MS) return "running";

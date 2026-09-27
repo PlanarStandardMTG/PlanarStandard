@@ -19,7 +19,9 @@ import {
   replaceTournamentEntries,
   saveSourcedTournament,
   setEntryDecks,
-  setSourcedTournamentRated,
+  setTournamentInclusion,
+  applyEloInclusion,
+  listTournamentCoverage,
   type SourcedTournament,
 } from "./index";
 
@@ -232,6 +234,7 @@ describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () =>
     rounds: 3,
     playerCount: 8,
     isRated: true,
+    inCardStats: true,
     ...over,
   });
 
@@ -242,7 +245,7 @@ describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () =>
     expect(created).toMatchObject({ isRated: true, status: "results_imported", rounds: 3 });
   });
 
-  it("refreshes the same row on a second ingest, keeping the slug and a verified status", async () => {
+  it("refreshes the same row on a second ingest, keeping the slug, a verified status and the admin's inclusion", async () => {
     const first = await saveSourcedTournament(
       service,
       sourced({ externalId: `again-${run}`, slug: `vitest-again-${run}` }),
@@ -250,7 +253,7 @@ describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () =>
     made.push(first.id);
     await service
       .from("tournaments")
-      .update({ is_rated: false, status: "verified" })
+      .update({ is_rated: false, include_in_elo: false, in_card_stats: false, status: "verified" })
       .eq("id", first.id);
 
     const second = await saveSourcedTournament(
@@ -269,9 +272,11 @@ describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () =>
       name: "Renamed",
       rounds: 5,
       slug: `vitest-again-${run}`,
-      isRated: true,
+      isRated: false,
       status: "verified",
     });
+    const row = (await listTournamentCoverage(service)).find((r) => r.tournament.id === first.id);
+    expect(row).toMatchObject({ includeInElo: false, inCardStats: false });
   });
 
   it("reads events back by id, oldest first", async () => {
@@ -390,7 +395,7 @@ describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () =>
     await service.from("decks").delete().eq("id", deckId);
   });
 
-  it("finds a platform's events, and rates or unrates one by its platform id", async () => {
+  it("finds a platform's events, and stages Elo until it is applied", async () => {
     const event = await saveSourcedTournament(
       service,
       sourced({ externalId: `rate-${run}`, slug: `vitest-rate-${run}` }),
@@ -402,16 +407,35 @@ describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () =>
     expect(
       (await getSourcedTournament(service, { source: "melee", externalId: `rate-${run}` }))?.id,
     ).toBe(event.id);
+
+    const coverage = async () =>
+      (await listTournamentCoverage(service)).find((r) => r.tournament.id === event.id);
+    expect(await coverage()).toMatchObject({
+      includeInElo: true,
+      inCardStats: true,
+      matches: 0,
+      entries: 0,
+      decks: 0,
+    });
+
+    expect(await setTournamentInclusion(service, event.id, { elo: false, cardStats: false })).toBe(
+      true,
+    );
+    const staged = await coverage();
+    expect(staged).toMatchObject({ includeInElo: false, inCardStats: false });
+    expect(staged?.tournament.isRated).toBe(true);
+
+    expect(await applyEloInclusion(service)).toBeGreaterThanOrEqual(1);
+    expect((await coverage())?.tournament.isRated).toBe(false);
     expect(
-      await setSourcedTournamentRated(
+      await setTournamentInclusion(
         service,
-        { source: "melee", externalId: `rate-${run}` },
-        false,
+        "00000000-0000-0000-0000-000000000000" as TournamentId,
+        {
+          elo: true,
+        },
       ),
-    ).toMatchObject({ id: event.id, isRated: false });
-    expect(
-      await setSourcedTournamentRated(service, { source: "melee", externalId: "nope" }, false),
-    ).toBeNull();
+    ).toBe(false);
   });
 
   it("lists the newest events with results for a picker", async () => {

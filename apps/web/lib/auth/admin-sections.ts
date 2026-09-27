@@ -42,10 +42,16 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
     role: "admin",
   },
   {
-    href: "/admin/processing",
-    label: "Tournament processing",
+    href: "/admin/fetching",
+    label: "Event fetching",
     description:
-      "Finished tournaments waiting to be processed — run them now, or re-run everything.",
+      "Finished events fetched from melee.gg and Challonge, and what each is missing: match history or decklists.",
+    role: "admin",
+  },
+  {
+    href: "/admin/processing",
+    label: "Data processing",
+    description: "What each stored tournament counts towards: Elo and card statistics.",
     role: "admin",
   },
   {

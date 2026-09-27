@@ -1,5 +1,11 @@
 import { completionStatus } from "@ps/core";
-import { listCompletions, listFormatVersions, listMembers, listPostsAwaitingReview } from "@ps/db";
+import {
+  listCompletions,
+  listFormatVersions,
+  listMembers,
+  listPostsAwaitingReview,
+  listTournamentCoverage,
+} from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -20,21 +26,24 @@ export default async function AdminPage() {
   await requireRole("admin");
 
   const supabase = await createSessionClient();
-  const [members, queue, formats, completions] = await Promise.all([
+  const [members, queue, formats, completions, coverage] = await Promise.all([
     listMembers(supabase),
     listPostsAwaitingReview(supabase),
     listFormatVersions(supabase),
     listCompletions(supabase, 200),
+    listTournamentCoverage(supabase),
   ]);
   const now = new Date();
-  const unprocessed = completions.filter(
-    (completion) => completionStatus(completion, now) !== "processed",
+  const unfetched = completions.filter(
+    (completion) => completionStatus(completion, now) !== "fetched",
   ).length;
+  const eloChanges = coverage.filter((row) => row.includeInElo !== row.tournament.isRated).length;
 
   const figures: Readonly<Record<string, string>> = {
     "/admin/users": `${members.length} ${members.length === 1 ? "member" : "members"}`,
     "/admin/formats": formats.find((version) => version.isCurrent)?.name ?? "None in force",
-    "/admin/processing": `${unprocessed} waiting`,
+    "/admin/fetching": `${unfetched} waiting`,
+    "/admin/processing": eloChanges === 0 ? "Up to date" : `${eloChanges} Elo changes waiting`,
     "/dashboard/review": `${queue.length} waiting`,
   };
 

@@ -247,6 +247,8 @@ export interface CompletionClaim {
   readonly maxAttempts: number;
   /** One calendar only, for a runner that can only handle that source. */
   readonly source?: EventSource;
+  /** One event only, with `source`: an admin's re-fetch (E25.2). */
+  readonly externalId?: string;
 }
 
 /** Take up to `limit` unprocessed completions, oldest first, for this runner alone. */
@@ -260,6 +262,7 @@ export async function claimCompletions(
       lease_cutoff: claim.leaseCutoff,
       max_attempts: claim.maxAttempts,
       only_source: claim.source ?? null,
+      only_external_id: claim.externalId ?? null,
     })
     .select(COMPLETION_COLUMNS);
 
@@ -298,7 +301,7 @@ export async function markCompletionFailed(
 }
 
 /**
- * The queue as an admin sees it (`/admin/processing`): waiting events first,
+ * The queue as an admin sees it (`/admin/fetching`): waiting events first,
  * then the most recently seen. Takes the admin's own client —
  * `event_completions_admin_all` decides.
  */
@@ -311,7 +314,7 @@ export async function listCompletions(
     .select(COMPLETION_COLUMNS)
     .order("processed_at", { ascending: false, nullsFirst: true })
     .order("detected_at", { ascending: false })
-    // A tie-break, so ticking a line does not reorder the rows under the pointer.
+    // A tie-break, so a re-fetch does not reorder the rows under the pointer.
     .order("name")
     .limit(limit);
 
@@ -336,34 +339,24 @@ export async function requeueAllCompletions(
   return data as number;
 }
 
-/** The two things an event's processing can do (E18.22). */
-export type CompletionLine = "elo" | "decklists";
-
 /**
- * Put an event on a line or take it off while it waits. After it is processed,
- * `leave` takes it off a line — for a caller that undoes what the line did —
- * and `join` puts it on one and queues it again, so the next pass runs the
- * line (E18.24). False when nothing changed. The admin's own client;
- * `event_completions_admin_all` decides.
+ * Queue one event again, whatever state it is in, so the next claim for it
+ * fetches it afresh (E25.2). A lease a runner holds right now is kept, so the
+ * two cannot fetch it at once. False when it was never queued. The admin's own
+ * client; `event_completions_admin_all` decides.
  */
-export async function setCompletionLine(
+export async function requeueCompletion(
   client: SupabaseClient,
   completion: Pick<EventCompletion, "source" | "externalId">,
-  line: CompletionLine,
-  on: boolean | "leave" | "join",
 ): Promise<boolean> {
-  const requeue =
-    on === "join" ? { processed_at: null, attempts: 0, last_error: null, claimed_at: null } : {};
-  let update = client
+  const { data, error } = await client
     .from("event_completions")
-    .update({ [line]: on === true || on === "join", ...requeue })
+    .update({ processed_at: null, attempts: 0, last_error: null })
     .eq("source", completion.source)
-    .eq("external_id", completion.externalId);
-  if (on === "join") update = update.not("processed_at", "is", null);
-  else if (on !== "leave") update = update.is("processed_at", null);
+    .eq("external_id", completion.externalId)
+    .select("source");
 
-  const { data, error } = await update.select("source");
-  if (error !== null) throw new Error(`setCompletionLine failed: ${error.message}`);
+  if (error !== null) throw new Error(`requeueCompletion failed: ${error.message}`);
   return data.length > 0;
 }
 

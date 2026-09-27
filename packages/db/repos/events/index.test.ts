@@ -16,7 +16,7 @@ import {
   requeueAllCompletions,
   listScheduledEvents,
   replaceEvents,
-  setCompletionLine,
+  requeueCompletion,
   setEventStartTime,
 } from "./index";
 
@@ -289,7 +289,6 @@ describe.skipIf(!reachable)("repos/events", () => {
         externalId: "9",
         name: "Monthly Finals",
         attempts: 1,
-        elo: true,
       });
     });
 
@@ -382,44 +381,33 @@ describe.skipIf(!reachable)("repos/events", () => {
       ]);
     });
 
-    it("puts a Monthly on both lines and anything else on neither, and claims both", async () => {
+    it("lets an admin queue one fetched event again, and claims only that one", async () => {
       await recordCompletions(
         service,
         TEST_SOURCE,
         [
           { externalId: "9", name: "Monthly Finals" },
-          { externalId: "10", name: "Mid-Month Madness" },
+          { externalId: "10", name: "Weekly" },
         ],
         NOW,
       );
-      const claimed = await claim();
-      expect(claimed.map((c) => [c.externalId, c.elo, c.decklists]).sort()).toEqual([
-        ["10", false, false],
-        ["9", true, true],
-      ]);
-    });
+      for (const taken of await claim()) await markCompletionProcessed(service, taken, NOW);
 
-    it("lets an admin choose a line while an event waits, and after, leave one or join one", async () => {
-      await recordCompletions(service, TEST_SOURCE, [{ externalId: "10", name: "Weekly" }], NOW);
       const admin = await signIn("newsdesk@planarstandard.test");
       const key = { source: TEST_SOURCE, externalId: "10" };
+      expect(await requeueCompletion(admin, key)).toBe(true);
+      expect(await requeueCompletion(admin, { source: TEST_SOURCE, externalId: "nope" })).toBe(
+        false,
+      );
 
-      expect(await setCompletionLine(admin, key, "decklists", true)).toBe(true);
-      const [taken] = await claim();
-      expect(taken).toMatchObject({ elo: false, decklists: true });
-      if (taken === undefined) throw new Error("nothing claimed");
-      await markCompletionProcessed(service, taken, NOW);
-
-      expect(await setCompletionLine(admin, key, "elo", true)).toBe(false);
-      expect(await setCompletionLine(admin, key, "decklists", false)).toBe(false);
-      expect(await setCompletionLine(admin, key, "decklists", "leave")).toBe(true);
-      const [row] = (await listCompletions(admin, 100)).filter((c) => c.externalId === "10");
-      expect(row).toMatchObject({ elo: false, decklists: false });
-
-      // Joining after processing queues the event again, so the line runs.
-      expect(await setCompletionLine(admin, key, "elo", "join")).toBe(true);
-      const [again] = await claim();
-      expect(again).toMatchObject({ externalId: "10", elo: true, attempts: 1 });
+      const again = await claimCompletions(service, {
+        limit: 10,
+        leaseCutoff: "2026-09-25T11:45:00.000Z",
+        maxAttempts: 5,
+        source: TEST_SOURCE,
+        externalId: "10",
+      });
+      expect(again).toMatchObject([{ externalId: "10", processedAt: null, attempts: 1 }]);
     });
 
     it("keeps the queue, and the re-run, from anyone but an admin", async () => {

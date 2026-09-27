@@ -11,8 +11,8 @@ export interface UploadState {
 const EMPTY: UploadState = { attached: 0, unchanged: 0, issues: [] };
 
 /**
- * One event's decklist sheet (E20.37). The action arrives as a prop, as in
- * `TournamentLines`.
+ * One event's decklist sheet (E20.37). The action arrives as a prop: it reaches
+ * `.server.ts` modules, which a client module may not import (E1.7).
  */
 export function DecklistUploadForm({
   tournamentId,

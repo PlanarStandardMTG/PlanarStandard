@@ -15,7 +15,7 @@ import { toDeckCards } from "@/lib/decks/deck-cards";
 import { cardIndex } from "@/lib/cards/card-index";
 import { readDecklist } from "@ps/core";
 
-import { attachEventDecks, detachEventDecks } from "./attach-event-decks.server";
+import { attachEventDecks } from "./attach-event-decks.server";
 
 /**
  * Against a local Supabase (`pnpm db:start`); skipped without one. Everything
@@ -67,6 +67,7 @@ describe.skipIf(!reachable)("lib/decks/attach-event-decks", () => {
       rounds: null,
       playerCount: null,
       isRated: false,
+      inCardStats: false,
     });
     made.tournaments.push(tournament.id);
     const [member, stranger] = await Promise.all(
@@ -163,9 +164,5 @@ describe.skipIf(!reachable)("lib/decks/attach-event-decks", () => {
     );
     expect((await decks())[stranger]).not.toBe(first[stranger]);
     expect(await getDeckWithCards(service, first[stranger] as DeckId)).toBeNull();
-
-    expect(await detachEventDecks(service, tournament)).toBe(2);
-    expect(Object.values(await decks())).toEqual([null, null]);
-    expect(await getDeckWithCards(service, saved.id)).not.toBeNull();
   });
 });
