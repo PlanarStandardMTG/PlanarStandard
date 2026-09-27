@@ -11,7 +11,7 @@ import Link from "next/link";
 
 import { Notice } from "@/components/auth/form-parts";
 import { DecklistUploadForm } from "@/components/fetching/decklist-upload-form";
-import { EventTable, RefetchButton, type EventRow } from "@/components/fetching/event-table";
+import { EventTable, type EventRow } from "@/components/fetching/event-table";
 import { RefetchEverythingButton } from "@/components/fetching/refetch-everything-button";
 import type { BadgeVariant } from "@/components/ui/badge";
 import { Placement } from "@/components/ui/marks";
@@ -95,8 +95,8 @@ export default async function AdminFetchingPage({
       row.status === "gave-up" ||
       (row.status === "fetched" && (row.tournament === null || row.tournament.matches === 0)),
   );
-  const withoutDecks = rows.flatMap(({ tournament }) =>
-    tournament !== null && tournament.decks < tournament.entries ? [tournament] : [],
+  const withoutDecks = rows.filter(
+    ({ tournament }) => tournament !== null && tournament.decks < tournament.entries,
   );
 
   const tabs: readonly { view: View; label: string; count: number }[] = [
@@ -170,7 +170,7 @@ export default async function AdminFetchingPage({
 
       {view === "decklists" ? (
         <MissingDecklists
-          tournaments={withoutDecks}
+          rows={withoutDecks}
           open={typeof params["event"] === "string" ? params["event"] : null}
         />
       ) : view === "matches" ? (
@@ -192,35 +192,44 @@ export default async function AdminFetchingPage({
   );
 }
 
+interface QueueRow {
+  readonly completion: EventCompletion;
+  readonly status: CompletionStatus;
+  readonly tournament: TournamentCoverage | null;
+}
+
 function EventRows({
   rows,
   empty,
+  action,
 }: {
-  rows: readonly {
-    completion: EventCompletion;
-    status: CompletionStatus;
-    tournament: TournamentCoverage | null;
-  }[];
+  rows: readonly QueueRow[];
   empty: string;
+  action?: (row: QueueRow) => EventRow<EventKey>["action"];
 }) {
   if (rows.length === 0) return <p className="text-sm text-ink-600 dark:text-ink-400">{empty}</p>;
   return (
     <EventTable<EventKey>
-      rows={rows.map(({ completion, status, tournament }): EventRow<EventKey> => ({
-        key: { source: completion.source, externalId: completion.externalId },
-        name: completion.name,
-        detail: `${EVENT_SOURCE_LABELS[completion.source]} · ${completion.externalId} · ${formatDate(completion.detectedAt)}`,
-        status: STATUS[status][0],
-        variant: STATUS[status][1],
-        note:
-          status === "fetched"
-            ? tournament === null || tournament.matches === 0
-              ? "The platform sent no matches."
-              : null
-            : completion.lastError,
-        stored: tournament === null ? null : storedLine(tournament),
-        href: tournament === null ? null : `/tournaments/${tournament.tournament.slug}`,
-      }))}
+      rows={rows.map((row): EventRow<EventKey> => {
+        const { completion, status, tournament } = row;
+        const link = action?.(row);
+        return {
+          key: { source: completion.source, externalId: completion.externalId },
+          name: completion.name,
+          detail: `${EVENT_SOURCE_LABELS[completion.source]} · ${completion.externalId} · ${formatDate(completion.detectedAt)}`,
+          status: STATUS[status][0],
+          variant: STATUS[status][1],
+          note:
+            status === "fetched"
+              ? tournament === null || tournament.matches === 0
+                ? "The platform sent no matches."
+                : null
+              : completion.lastError,
+          stored: tournament === null ? null : storedLine(tournament),
+          href: tournament === null ? null : `/tournaments/${tournament.tournament.slug}`,
+          ...(link === undefined ? {} : { action: link }),
+        };
+      })}
       refetch={refetchEvent}
     />
   );
@@ -233,24 +242,17 @@ function storedLine({ matches, entries, decks }: TournamentCoverage): string {
 /**
  * Every stored event with a player who has no deck, and a sheet to fill each
  * from (E20.37). melee.gg sends lists for some events and Challonge never does,
- * so this is where most of them arrive. One event is open at a time: its
- * players are one read, and a season of them at once is hundreds.
+ * so this is where most of them arrive. One event is open at a time, above the
+ * table: its players are one read, and a season of them at once is hundreds.
  */
 async function MissingDecklists({
-  tournaments,
+  rows,
   open,
 }: {
-  tournaments: readonly TournamentCoverage[];
+  rows: readonly QueueRow[];
   open: string | null;
 }) {
-  if (tournaments.length === 0) {
-    return (
-      <p className="text-sm text-ink-600 dark:text-ink-400">
-        Every stored event has its decklists.
-      </p>
-    );
-  }
-  const opened = tournaments.find((row) => row.tournament.id === open) ?? null;
+  const opened = rows.find((row) => row.tournament?.tournament.id === open)?.tournament ?? null;
   const without =
     opened === null
       ? []
@@ -261,68 +263,61 @@ async function MissingDecklists({
   return (
     <>
       <p className="mb-6 max-w-prose text-sm text-ink-600 dark:text-ink-400">
-        Upload a CSV with a <code className="font-mono">player</code> and a{" "}
-        <code className="font-mono">deck</code> column, and optionally an{" "}
-        <code className="font-mono">archetype</code>. A deck is a link to one on this site, its id,
-        or the list written out — a card per line, or <code className="font-mono">;</code> between
-        cards. Each list is matched to the player&rsquo;s own saved decks first, and stored straight
-        away.
+        Choose &ldquo;Add decklists&rdquo; on an event, then upload a CSV with a{" "}
+        <code className="font-mono">player</code> and a <code className="font-mono">deck</code>{" "}
+        column, and optionally an <code className="font-mono">archetype</code>. A deck is a link to
+        one on this site, its id, or the list written out — a card per line, or{" "}
+        <code className="font-mono">;</code> between cards. Each list is matched to the
+        player&rsquo;s own saved decks first, and stored straight away.
       </p>
-      <ul className="space-y-3">
-        {tournaments.map((row) => {
-          const { tournament } = row;
-          const isOpen = opened?.tournament.id === tournament.id;
-          return (
-            <li
-              key={tournament.id}
-              className="rounded-lg border border-ink-200 px-5 py-4 dark:border-ink-800"
+
+      {opened !== null && (
+        <section
+          id="add-decklists"
+          className="mb-6 scroll-mt-6 rounded-lg border border-ink-200 p-5 dark:border-ink-800"
+        >
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <h2 className="font-display text-2xl">{opened.tournament.name}</h2>
+            <Link
+              href="/admin/fetching?view=decklists"
+              className="text-sm text-eclipse-700 hover:underline dark:text-eclipse-400"
             >
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <Link
-                    href={
-                      isOpen
-                        ? "/admin/fetching?view=decklists"
-                        : `/admin/fetching?view=decklists&event=${tournament.id}`
-                    }
-                    className="font-display text-xl hover:underline"
-                  >
-                    {tournament.name}
-                  </Link>
-                  <p className="font-mono text-xs text-ink-500 dark:text-ink-400">
-                    {formatDate(tournament.eventDate)} · {row.decks} of {row.entries} decks
-                  </p>
-                </div>
-                {row.source === "melee" && row.externalId !== null && (
-                  <RefetchButton
-                    refetch={refetchEvent.bind(null, {
-                      source: "melee",
-                      externalId: row.externalId,
-                    })}
-                  />
-                )}
-              </div>
-              {isOpen && (
-                <>
-                  <ul className="mt-3 columns-1 gap-6 text-sm sm:columns-2">
-                    {without.map((entry) => (
-                      <li key={entry.id} className="flex items-center gap-1">
-                        {entry.placement === null ? (
-                          <span className="w-[2.2em]" />
-                        ) : (
-                          <Placement place={entry.placement} className="text-sm" />
-                        )}
-                        {entry.displayName ?? entry.handles[0] ?? "Hidden player"}
-                      </li>
-                    ))}
-                  </ul>
-                  <DecklistUploadForm tournamentId={tournament.id} action={uploadDecklists} />
-                </>
-              )}
-            </li>
-          );
-        })}
-      </ul>
+              Close
+            </Link>
+          </div>
+          <p className="font-mono text-xs text-ink-500 dark:text-ink-400">
+            {formatDate(opened.tournament.eventDate)} · {opened.decks} of {opened.entries} decks
+          </p>
+          {without.length > 0 && (
+            <ul className="mt-3 columns-1 gap-6 text-sm sm:columns-2">
+              {without.map((entry) => (
+                <li key={entry.id} className="flex items-center gap-1">
+                  {entry.placement === null ? (
+                    <span className="w-[2.2em]" />
+                  ) : (
+                    <Placement place={entry.placement} className="text-sm" />
+                  )}
+                  {entry.displayName ?? entry.handles[0] ?? "Hidden player"}
+                </li>
+              ))}
+            </ul>
+          )}
+          <DecklistUploadForm tournamentId={opened.tournament.id} action={uploadDecklists} />
+        </section>
+      )}
+
+      <EventRows
+        rows={rows}
+        empty="Every stored event has its decklists."
+        action={({ tournament }) =>
+          tournament === null
+            ? undefined
+            : {
+                label: "Add decklists",
+                href: `/admin/fetching?view=decklists&event=${tournament.tournament.id}#add-decklists`,
+              }
+        }
+      />
     </>
   );
 }
