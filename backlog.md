@@ -1378,9 +1378,9 @@ event has results yet, and the section is absent rather than empty.
 _Note:_ narrowed to a showcase: the last **Monthly with decklists attached**, not the last event
 with results — `listTournamentsWithDecks`, then the first whose name `rated-by-default` calls a
 Monthly. So an event with standings and no decks is never picked, and the stand-in podium is gone
-rather than shown until one exists. Colours come from `colorIdentity` and the key cards from the
-new `core/metrics/key-cards`; the label is the deck's archetype, which an admin's sheet can now
-carry in an optional `archetype` column (E20.37).
+rather than shown until one exists. Colours come from `colorIdentity`; the label is the deck's archetype, which an admin's sheet
+can now carry in an optional `archetype` column (E20.37). Each tile names the deck too, under the
+archetype where the two differ. Key cards were shown at first and taken out to keep the tiles small.
 
 ✅ **E24.6 — Podium tiles link to the deck** · S · Deps: E24.5, E20.6 — `deckId` is already on the
 contract and already null-safe. _AC:_ a finish with no deck stays unlinked rather than linking to a

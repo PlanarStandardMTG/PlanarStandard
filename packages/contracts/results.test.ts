@@ -305,7 +305,6 @@ describe("podium contracts", () => {
       deckId: "0b4c2f19-6d8e-4a31-9f02-7c5b3a1d8e64",
       record: { wins: 5, losses: 0, draws: 0 },
       colors: ["W", "B", "G"],
-      keyCards: ["Cosmogrand Zenith", "Ouroboroid", "Severance Priest"],
     } satisfies PodiumFinish;
 
     expectTypeOf(winner).toExtend<PodiumFinish>();
@@ -322,7 +321,6 @@ describe("podium contracts", () => {
       deckId: null,
       record: null,
       colors: [],
-      keyCards: [],
     } satisfies PodiumFinish;
 
     expectTypeOf(standingsOnly).toExtend<PodiumFinish>();

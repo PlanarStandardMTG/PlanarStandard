@@ -1,5 +1,5 @@
 import type { EventPodium } from "@ps/contracts";
-import { colorIdentity, keyCards, ratedByDefault } from "@ps/core";
+import { colorIdentity, ratedByDefault } from "@ps/core";
 import { listDecksWithCards, listTournamentFinishers, listTournamentsWithDecks } from "@ps/db";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -51,7 +51,6 @@ export async function loadLatestPodium(client: SupabaseClient): Promise<EventPod
         deckId: deck?.id ?? null,
         record: finisher.record,
         colors: resolved === null ? [] : colorIdentity(resolved, index),
-        keyCards: resolved === null ? [] : keyCards(resolved, index),
       };
     }),
   };

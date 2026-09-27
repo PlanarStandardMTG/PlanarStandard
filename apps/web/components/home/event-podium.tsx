@@ -34,7 +34,7 @@ export function EventPodium({ podium }: { podium: EventPodiumData }) {
         </p>
       </div>
 
-      <ul className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="grid grid-cols-2 gap-3 sm:gap-5 lg:grid-cols-4">
         {podium.finishes.map((finish) => (
           <li key={`${finish.placement}-${finish.handle}`}>
             {finish.deckId === null ? (
@@ -53,41 +53,37 @@ export function EventPodium({ podium }: { podium: EventPodiumData }) {
 
 function PodiumCard({ finish }: { finish: PodiumFinish }) {
   const winner = finish.placement === 1;
+  const title = finish.deckName ?? finish.archetype ?? "Unlabelled deck";
 
   return (
     <Card
       className={cn(
-        "flex h-full flex-col gap-3 border-t-4 p-5 transition-transform group-hover:-translate-y-0.5",
+        "flex h-full flex-col gap-2 border-t-4 p-4 transition-transform group-hover:-translate-y-0.5",
         winner
           ? "border-t-gold-700 dark:border-t-gold-400"
           : "border-t-ink-900 dark:border-t-ink-600",
       )}
     >
       <div className="flex items-start justify-between gap-3">
-        <Placement place={finish.placement} className="-ml-2 text-4xl" />
+        <Placement place={finish.placement} className="-ml-1.5 text-3xl" />
         {finish.record !== null && (
-          <span className="pt-2 font-mono text-sm">{formatRecord(finish.record)}</span>
+          <span className="pt-1.5 font-mono text-sm">{formatRecord(finish.record)}</span>
         )}
       </div>
 
-      <div>
-        <p className="font-semibold">{finish.handle}</p>
-        <h3 className="font-serif text-lg/snug text-ink-600 italic dark:text-ink-300">
-          {finish.archetype ?? finish.deckName ?? "Unlabelled deck"}
+      <div className="min-w-0">
+        <h3 className="truncate font-serif text-lg/snug" title={title}>
+          {title}
         </h3>
+        {finish.archetype !== null && finish.archetype !== title && (
+          <p className="truncate text-sm text-ink-600 italic dark:text-ink-300">
+            {finish.archetype}
+          </p>
+        )}
+        <p className="mt-1 truncate text-sm text-ink-500 dark:text-ink-400">{finish.handle}</p>
       </div>
 
-      <ColorPips colors={finish.colors} />
-
-      {finish.keyCards.length > 0 && (
-        <ul className="mt-auto space-y-0.5 pt-2 text-sm text-ink-600 dark:text-ink-400">
-          {finish.keyCards.map((card) => (
-            <li key={card} className="truncate">
-              {card}
-            </li>
-          ))}
-        </ul>
-      )}
+      <ColorPips colors={finish.colors} className="mt-auto" />
     </Card>
   );
 }

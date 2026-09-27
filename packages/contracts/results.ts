@@ -425,8 +425,6 @@ export interface PodiumFinish {
   readonly record: WinLossDraw | null;
   /** The deck's colour identity. Empty means colourless, never unknown. */
   readonly colors: readonly Color[];
-  /** A few cards that say what the deck is. Names, because a decklist carries names (ADR 007). */
-  readonly keyCards: readonly string[];
 }
 
 /**
