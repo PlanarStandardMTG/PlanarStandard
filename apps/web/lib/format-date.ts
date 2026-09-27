@@ -61,3 +61,27 @@ export function formatTimeAgo(iso: string, now: Date): string {
   const days = Math.round(hours / 24);
   return `${days} day${days === 1 ? "" : "s"} ago`;
 }
+
+/**
+ * A date with a time in the reader's own zone, named — `Sat 17 Oct, 19:00 BST`.
+ * **Browser only**: on the server this is the server's zone, which is exactly
+ * the hydration mismatch `formatDateTime` exists to avoid. `LocalTime` calls it
+ * once the page has hydrated.
+ */
+export function formatLocalDateTime(iso: string | Date): string {
+  const date = typeof iso === "string" ? new Date(iso) : iso;
+  // en-GB spells out only British zones ("GMT-7" for Vancouver), so the zone's
+  // name comes from the reader's own locale, which knows theirs ("PDT").
+  const zone = new Intl.DateTimeFormat(undefined, { timeZoneName: "short" })
+    .formatToParts(date)
+    .find((part) => part.type === "timeZoneName")?.value;
+  const local = new Intl.DateTimeFormat("en-GB", {
+    weekday: "short",
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hourCycle: "h23",
+  }).format(date);
+  return zone === undefined ? local : `${local} ${zone}`;
+}

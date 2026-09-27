@@ -42,7 +42,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E20  | Feature slices                        | 3–10  | E18          | 🚧 27/40 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
-| E23  | Upcoming events                       | 2     | E13.1        | 🚧 14/15 |
+| E23  | Upcoming events                       | 2     | E13.1        | 🚧 15/16 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 
 ---
@@ -1314,9 +1314,16 @@ in the scheduler; the choice of scheduler, and its interval, is recorded here. A
 with `workflow_dispatch` is the plan's default (§7).
 ✅ **E23.15 — Admin: melee.gg start times** · S · Deps: E23.12 — melee.gg's API sends no start time.
 _AC:_ `/admin/events` lists every cached melee.gg event, undated first and then newest first, with a
-UTC date-and-time field to set or clear its start; a calendar refresh keeps what was set.
+date-and-time field in the admin's own zone to set or clear its start; saving asks first, showing the
+time as typed and the UTC time stored; a calendar refresh keeps what was set.
 _Note:_ added outside the plan. The time is `external_events.starts_at_manual` (migration 0030), a
 column the refresh's upsert never names, and it wins over the source's `starts_at` where both exist.
+✅ **E23.16 — Start times in the reader's zone** · S · Deps: E23.15 — _AC:_ `/events`, the home page's
+events tile and `/admin/events` show a start time in the reader's zone, named (`19:00 PDT`), with UTC on
+hover; the server render stays UTC, so a reader without JavaScript still gets a correct time.
+_Note:_ added outside the plan. `components/ui/local-time.tsx` swaps the text after hydration, so the
+UTC time shows for a moment on load. Dates without a time stay UTC: a day rarely changes across zones
+and the swap would be noise.
 
 ---
 
@@ -1485,7 +1492,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E9   | 9       | 9    | E20  | 40      | 27   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
-|      |         |      | E23  | 15      | 14   |
+|      |         |      | E23  | 16      | 15   |
 |      |         |      | E24  | 7       | 6    |
 
-**197 of 270 stories done across 24 epics.**
+**198 of 271 stories done across 24 epics.**

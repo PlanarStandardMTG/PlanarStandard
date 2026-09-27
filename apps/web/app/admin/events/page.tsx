@@ -2,10 +2,11 @@ import { listScheduledEvents } from "@ps/db";
 import type { Metadata } from "next";
 
 import { Notice } from "@/components/auth/form-parts";
+import { StartTimeForm } from "@/components/events/start-time-form";
 import { Badge } from "@/components/ui/badge";
+import { LocalTime } from "@/components/ui/local-time";
 import { EmptyState } from "@/components/ui/states";
 import { requireRole } from "@/lib/auth/guard";
-import { formatDateTime } from "@/lib/format-date";
 import { createSessionClient } from "@/lib/supabase/session";
 
 import { setStartTime } from "./actions";
@@ -26,14 +27,6 @@ const ERRORS: Readonly<Record<string, string>> = {
   invalid: "That is not a date and time.",
   missing: "That event is no longer in melee.gg's calendar.",
 };
-
-const FIELD =
-  "rounded-lg border border-ink-300 bg-paper px-3 py-1.5 text-sm focus:border-eclipse-500 " +
-  "focus:outline-none dark:border-ink-700 dark:bg-ink-950";
-
-const BUTTON =
-  "rounded-lg bg-ink-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-ink-700 " +
-  "dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-paper";
 
 /**
  * melee.gg events and when they start (E23.15). Its API sends no start time,
@@ -61,8 +54,9 @@ export default async function AdminEventsPage({
       <header className="mb-6">
         <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Event dates</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-          melee.gg&rsquo;s API doesn&rsquo;t send when an event starts, so set it here. Times are
-          UTC, as the site shows them, and a calendar refresh keeps what you set.
+          melee.gg&rsquo;s API doesn&rsquo;t send when an event starts, so set it here in your own
+          time zone; saving shows the UTC time that is stored. A calendar refresh keeps what you
+          set.
           {undated > 0 && (
             <>
               {" "}
@@ -109,44 +103,19 @@ export default async function AdminEventsPage({
                   {event.startsAt === null ? (
                     <Badge variant="accent">No date</Badge>
                   ) : (
-                    <span className="font-mono">{formatDateTime(event.startsAt)}</span>
+                    <LocalTime iso={event.startsAt} className="font-mono" />
                   )}
                   {manualStartsAt !== null && <span>set by hand</span>}
                   <span className="capitalize">{event.state}</span>
                 </p>
               </div>
-              <form action={setStartTime} className="flex shrink-0 items-center gap-2">
-                <input type="hidden" name="event" value={event.externalId} />
-                <label className="sr-only" htmlFor={`starts-${event.id}`}>
-                  Start time of {event.name}, UTC
-                </label>
-                <input
-                  id={`starts-${event.id}`}
-                  type="datetime-local"
-                  name="startsAt"
-                  required
-                  defaultValue={
-                    event.startsAt === null
-                      ? ""
-                      : new Date(event.startsAt).toISOString().slice(0, 16)
-                  }
-                  className={FIELD}
-                />
-                <button type="submit" className={BUTTON}>
-                  Save
-                </button>
-                {manualStartsAt !== null && (
-                  <button
-                    type="submit"
-                    name="clear"
-                    value="1"
-                    formNoValidate
-                    className="text-sm text-ink-500 hover:underline dark:text-ink-400"
-                  >
-                    Clear
-                  </button>
-                )}
-              </form>
+              <StartTimeForm
+                eventName={event.name}
+                externalId={event.externalId}
+                startsAt={event.startsAt}
+                manual={manualStartsAt !== null}
+                action={setStartTime}
+              />
             </li>
           ))}
         </ul>

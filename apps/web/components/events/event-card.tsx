@@ -2,8 +2,8 @@ import type { ExternalEvent } from "@ps/contracts";
 
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { LocalTime } from "@/components/ui/local-time";
 import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";
-import { formatDateTime } from "@/lib/format-date";
 
 const STATE_LABELS: Record<ExternalEvent["state"], { label: string; variant: BadgeVariant }> = {
   live: { label: "In progress", variant: "accent" },
@@ -43,11 +43,7 @@ export function EventCard({ event }: { event: ExternalEvent }) {
           <h3 className="font-serif text-lg/snug font-semibold tracking-tight">{event.name}</h3>
 
           <p className="mt-1 text-sm text-ink-600 dark:text-ink-400">
-            {event.startsAt === null ? (
-              "Date to be announced"
-            ) : (
-              <time dateTime={event.startsAt}>{formatDateTime(event.startsAt)}</time>
-            )}
+            {event.startsAt === null ? "Date to be announced" : <LocalTime iso={event.startsAt} />}
             {event.participantCount > 0 && (
               <>
                 {" "}

@@ -4,8 +4,8 @@ import type { ExternalEvent } from "@ps/contracts";
 import { EventCarousel } from "@/components/home/event-carousel";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { LocalTime } from "@/components/ui/local-time";
 import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";
-import { formatDateTime } from "@/lib/format-date";
 
 /**
  * The home page's second tile: the next few events worth turning up to, one to
@@ -88,11 +88,7 @@ function EventSlide({ event, lead }: { event: ExternalEvent; lead: boolean }) {
       </h2>
 
       <p className="mt-2 font-mono text-sm text-ink-600 dark:text-ink-400">
-        {event.startsAt === null ? (
-          "Date to be announced"
-        ) : (
-          <time dateTime={event.startsAt}>{formatDateTime(event.startsAt)}</time>
-        )}
+        {event.startsAt === null ? "Date to be announced" : <LocalTime iso={event.startsAt} />}
       </p>
 
       {event.participantCount > 0 && (

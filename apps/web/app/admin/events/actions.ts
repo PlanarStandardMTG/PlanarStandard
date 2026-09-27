@@ -9,7 +9,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
 
 /**
  * Give a melee.gg event the start time its API leaves out (E23.15), or clear
- * it. The form's time is UTC, as every time on the site is shown.
+ * it. The browser turns the admin's local time into an absolute one first.
  */
 export async function setStartTime(form: FormData): Promise<never> {
   await requireRole("admin");
@@ -17,7 +17,7 @@ export async function setStartTime(form: FormData): Promise<never> {
   const clear = form.get("clear") !== null;
   const value = form.get("startsAt")?.toString() ?? "";
 
-  const startsAt = clear || value === "" ? null : new Date(`${value}Z`);
+  const startsAt = clear || value === "" ? null : new Date(value);
   if (startsAt !== null && Number.isNaN(startsAt.getTime())) {
     redirect("/admin/events?error=invalid");
   }
