@@ -19,8 +19,7 @@ export async function LegalSets() {
   if (format.value === null || format.value.legalSets.length === 0) {
     return (
       <EmptyState title="No pool is published yet">
-        The legal sets live in the database so a change needs no deploy. Until a format version is
-        marked current, the pool is announced in Discord.
+        The pool is announced in the Discord.
       </EmptyState>
     );
   }

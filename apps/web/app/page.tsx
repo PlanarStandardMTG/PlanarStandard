@@ -60,8 +60,7 @@ export default async function HomePage() {
               The record of the <em className="text-gold-400">Planar Standard</em> format
             </h1>
             <p className="mt-5 max-w-xl text-lg text-ink-300">
-              Metagame analytics, an Elo leaderboard, and decklist validation — computed from every
-              event, by code you can read.
+              Results, decklists and an Elo leaderboard for the format.
             </p>
           </div>
 

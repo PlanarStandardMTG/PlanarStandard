@@ -2,99 +2,76 @@
 title: Frequently asked questions
 navLabel: FAQ
 navOrder: 40
-description: Short answers to the questions the format gets most often.
+description: Short answers to common questions.
 published: true
 ---
 
 ## The format
 
-### Is the six-set pool a rolling window or a fixed list?
+### Is the pool a rolling window?
 
-A fixed list. It is maintained as data, so it changes when the community changes
-it rather than automatically on a release date. Special events may define their
-own pool without changing the format.
+No, it is a fixed list that changes when it is announced. See [Rules](/rules).
 
-### Are the deckbuilding rules the same as Standard?
+### Are deckbuilding rules the same as Standard?
 
-Yes: 60-card maindeck minimum, 15-card sideboard maximum, four copies of any card
-by name, basic lands exempt.
+Yes: 60-card minimum maindeck, up to 15 in the sideboard, four copies of any card
+except basic lands.
 
-### Can I play an un-set card, or a Secret Lair printing?
+### Can I play any printing of a card?
 
-Yes. Legality is a property of the **oracle card**, and every printing of a legal
-card is playable. If the card is in the pool, your copy is fine whatever set it
-came from.
+Yes. If a card is legal, every printing of it is legal, including promos and
+Secret Lair.
 
-### Does Foundations ever rotate?
+### Does Foundations rotate?
 
-No. It is the format's permanent core set. The other five rotate.
+No. It is the permanent core set.
 
 ### What is banned?
 
-Bans are announced by the community and published on [Rules & legality](/rules).
-They are stored as data, which is why a B&R announcement takes effect without
-anyone deploying a website.
+See [Rules & legality](/rules).
 
 ## Playing
 
-### Where do events happen?
+### Where are events?
 
-On melee mostly, and on Challonge. Both are announced in the community Discord.
+Official events run on melee.gg or Challonge and are announced in the Discord. See
+[Events](/events).
 
-### Do I need a full playset of anything?
+### The checker could not find a card in my list. Was it rejected?
 
-Rarely, and never a specific printing. The pool is small and the format is
-deliberately cheap to enter.
+No. The list is kept and that line is flagged until the name is fixed.
 
-### My decklist has a card the validator could not find. Did it reject the list?
+## The numbers
 
-No. An unresolved card name keeps the list and flags that one line. The deck is
-still recorded; it is only held out of the card-level statistics until the name
-is fixed.
+### Why does a win rate say "insufficient data"?
 
-## The numbers on this site
-
-### Why does a win rate sometimes say "insufficient data" instead of a number?
-
-Because the number would be a lie. A deck that goes 3-0 has not demonstrated a
-100% win rate. Rates below a sample-size floor are withheld rather than shown
-small, and every rate that is shown carries the number of observations behind it
-and a confidence interval. [Methodology](/methodology) has the thresholds.
+Too few games to mean anything. Every rate shows its sample size, and small
+samples are hidden. See [Methodology](/methodology).
 
 ### What does "win rate of decks including this card" mean?
 
-Exactly that, and not "the card's win rate". A card does not win a game; the deck
-around it does. Strong cards appear in strong decks, so the number describes the
-decks, not the card.
+Exactly that. It describes the decks, not the card.
 
-### Why is an event listed but not affecting the leaderboard?
+### Why doesn't an event affect the leaderboard?
 
-Because it reported standings but not pairings. Ratings need to know who played
-whom, and pairings are never guessed from final placements — guessing would
-corrupt every rating downstream. The event still counts for metagame purposes.
-See [How ratings work](/ratings-explained).
+Only Monthly events are rated, and only when they report pairings. See
+[How ratings work](/ratings-explained).
 
 ### Can a rating be corrected by hand?
 
-No, and that is deliberate. The whole ladder is replayed from the match record
-whenever anything changes. A rating is a function of the match history and the
-rating settings, and of nothing else.
+No. Ratings are recalculated from match results whenever anything changes.
 
 ## Contributing
 
-### Can I write for the community?
+### Can I write for the site?
 
 Yes. Sign in and use **Write a community post** on the [Community](/community)
-page. Tournament reports, deck primers, and arguments about cards are all
-welcome, and you do not have to be an established name. A writer or an admin
-approves a new member's post before it goes live.
+page. A new member's first posts are approved before they go live.
 
 ### I found a mistake in the data.
 
-Please report it in the Discord. Corrections are recorded with a reason and
-trigger a full recompute, so a fixed result propagates everywhere it should.
+Report it in the Discord.
 
 ### Where is the code?
 
-On [GitHub](https://github.com/planarstandard). Every statistic on this site is
-derived, and the code that derives it is readable.
+On [GitHub](https://github.com/planarstandard).

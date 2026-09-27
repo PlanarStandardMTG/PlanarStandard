@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { EmptyState, ErrorState } from "@/components/ui/states";
+import { cardIndex } from "@/lib/cards/card-index";
 import { formatDate } from "@/lib/format-date";
 import { loadCurrentFormat } from "@/lib/format/current-format";
 
@@ -25,9 +26,7 @@ export async function Banlist() {
     return <ErrorState title="The banlist could not be loaded" detail={format.error} />;
   if (format.value === null) {
     return (
-      <EmptyState title="No format version is current">
-        Bans are rows, not code — once a version is marked current, its banlist appears here.
-      </EmptyState>
+      <EmptyState title="No format version is current">The banlist will appear here.</EmptyState>
     );
   }
 
@@ -35,10 +34,7 @@ export async function Banlist() {
 
   if (cardRules.length === 0) {
     return (
-      <EmptyState title={`Nothing is banned in ${version.name}`}>
-        This list is read from the database on every request, so it is current the moment an
-        announcement lands.
-      </EmptyState>
+      <EmptyState title={`Nothing is banned in ${version.name}`}>No cards are banned.</EmptyState>
     );
   }
 
@@ -49,9 +45,7 @@ export async function Banlist() {
           <Badge variant={rule.ruling === "banned" ? "accent" : "outline"}>
             {RULING_LABELS[rule.ruling]}
           </Badge>
-          <span className="font-mono text-sm text-ink-700 dark:text-ink-300">
-            {cardLabel(rule)}
-          </span>
+          <span className="text-sm text-ink-700 dark:text-ink-300">{cardLabel(rule)}</span>
           {rule.effectiveFrom !== null && (
             <span className="text-sm text-ink-500 dark:text-ink-400">
               since {formatDate(rule.effectiveFrom)}
@@ -66,11 +60,6 @@ export async function Banlist() {
   );
 }
 
-/**
- * The oracle id, until there is a card dataset to resolve it against. `oracle_id`
- * carries no foreign key by design (§14.1) and the name lives in `data/cards/`,
- * which E4 fills.
- */
 function cardLabel(rule: FormatCardRule): string {
-  return rule.oracleId;
+  return cardIndex().byOracleId.get(rule.oracleId)?.card.name ?? rule.oracleId;
 }

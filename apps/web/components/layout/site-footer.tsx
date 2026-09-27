@@ -23,7 +23,7 @@ export function SiteFooter() {
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-ink-500 dark:text-ink-400">
-            Every number on this site is computed from data you can read, by code you can read.
+            A community site for the Planar Standard format.
           </p>
           <ul className="flex gap-4">
             {LINKS.map((link) => (

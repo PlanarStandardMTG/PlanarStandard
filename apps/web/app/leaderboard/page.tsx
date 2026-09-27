@@ -47,8 +47,7 @@ export default async function LeaderboardPage({
     <div className="night flex-1">
       <Container className="py-12">
         <PageHeader kicker="Rated Monthlies" title="Leaderboard" aside={<SeasonBadge large />}>
-          Elo ratings from this season&rsquo;s Monthlies, replayed from every result each time one
-          comes in.{" "}
+          Elo ratings from this season&rsquo;s Monthlies.{" "}
           <Link
             href="/ratings-explained"
             className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
@@ -60,12 +59,10 @@ export default async function LeaderboardPage({
         {!data.ok ? (
           <ErrorState title="Could not load the leaderboard" detail={data.error} />
         ) : data.value.season === null ? (
-          <EmptyState title="No season is open">
-            The leaderboard rates the current season, and there isn&rsquo;t one right now.
-          </EmptyState>
+          <EmptyState title="No season is open">There is no current season.</EmptyState>
         ) : data.value.ranked.length === 0 && data.value.provisional.length === 0 ? (
           <EmptyState title="No rated matches yet">
-            Ratings appear once this season&rsquo;s first Monthly has been played and processed.
+            Ratings appear after this season&rsquo;s first Monthly.
           </EmptyState>
         ) : (
           <>
@@ -85,8 +82,8 @@ export default async function LeaderboardPage({
             {!unranked ? (
               data.value.ranked.length === 0 ? (
                 <p className="text-ink-400">
-                  Nobody has played {data.value.config.minMatchesForLeaderboard} rated matches yet.
-                  Everyone rated so far is under &ldquo;Not ranked yet&rdquo;.
+                  Nobody has {data.value.config.minMatchesForLeaderboard} rated matches yet. See
+                  &ldquo;Not ranked yet&rdquo;.
                 </p>
               ) : (
                 <RatingsTable rows={data.value.ranked} ranked caption="Ranked players" />
@@ -94,9 +91,8 @@ export default async function LeaderboardPage({
             ) : (
               <>
                 <p className="mb-4 max-w-prose text-ink-400">
-                  A player ranks after {data.value.config.minMatchesForLeaderboard} rated matches.
-                  Until {data.value.config.provisionalMatches} their rating is provisional and moves
-                  quickly, so these are shown but not placed.
+                  Players are ranked after {data.value.config.minMatchesForLeaderboard} rated
+                  matches.
                 </p>
                 <RatingsTable
                   rows={data.value.provisional}

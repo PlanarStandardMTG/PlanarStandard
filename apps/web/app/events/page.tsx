@@ -31,8 +31,7 @@ export default async function EventsPage() {
     <div className="night flex-1">
       <Container className="py-12">
         <PageHeader kicker="The schedule" title="Events">
-          Tournaments the community is running, wherever they are running them. Entry, pairings, and
-          results all live on the event&rsquo;s own page — this is the schedule.
+          Upcoming and live events. Sign up and follow pairings on each event&rsquo;s own page.
         </PageHeader>
 
         {!events.ok ? (

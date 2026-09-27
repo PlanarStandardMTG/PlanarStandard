@@ -36,7 +36,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 14/15 |
-| E17  | MDX info pages                        | 2     | E16          | 🚧 12/13 |
+| E17  | MDX info pages                        | 2     | E16          | 🚧 14/15 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 7/23  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
 | E20  | Feature slices                        | 3–10  | E18          | 🚧 27/40 |
@@ -816,6 +816,16 @@ _Note:_ the route became `force-dynamic` at E17.2. `generateStaticParams` still 
 The doc carries `publish:start` / `publish:end` / `publish:omit` markers; `pnpm content:sync` rewrites the page's generated region and the test fails when the two disagree.
 ✅ **E17.13 — Page: ratings-explained** · M · Deps: E8.4 — published the same way, from `docs/modules/ratings.md`.
 
+✅ **E17.14 — Copy pass: shorter, and official events only** · M · Deps: E17.6–E17.13 — every info page,
+the generated regions of `metrics.md` and `ratings.md`, and the public pages' intros cut to the point.
+_AC:_ no page says anyone may run an official event; official events are run by the organising group's
+TOs. The banlist names cards rather than printing oracle ids.
+
+✅ **E17.15 — `robots.txt`, `sitemap.xml`, `llms.txt`** · S · Deps: E17.5 — robots allows every crawler
+outside the signed-in and admin surfaces and points at the sitemap; `/llms.txt` (llmstxt.org) indexes the
+rules and how to get involved first, with the current pool inline; `/llms-full.txt` is every info page as
+Markdown with `<LegalSets />` and `<Banlist />` written out from the live format.
+
 ---
 
 ## E18 — Services
@@ -1486,7 +1496,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
 | E5   | 6       | 6    | E16  | 15      | 14   |
-| E6   | 8       | 8    | E17  | 13      | 12   |
+| E6   | 8       | 8    | E17  | 15      | 14   |
 | E7   | 5       | 5    | E18  | 23      | 7    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
 | E9   | 9       | 9    | E20  | 40      | 27   |
@@ -1495,4 +1505,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 16      | 15   |
 |      |         |      | E24  | 7       | 6    |
 
-**198 of 271 stories done across 24 epics.**
+**200 of 273 stories done across 24 epics.**
