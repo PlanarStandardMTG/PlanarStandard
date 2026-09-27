@@ -35,7 +35,6 @@ const STATUS: Readonly<Record<CompletionStatus, readonly [string, BadgeVariant]>
   retrying: ["Retrying", "neutral"],
   "gave-up": ["Gave up", "accent"],
   processed: ["Processed", "outline"],
-  excluded: ["Not included", "outline"],
 };
 
 const TABS = [
@@ -75,21 +74,21 @@ export default async function AdminProcessingPage({
       <header className="mb-8">
         <h1 className="font-serif text-4xl tracking-tight sm:text-5xl">Tournament processing</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-          When the calendar sees a tournament finish, it queues it here once. Each one goes down the
-          lines ticked for it — Elo rates its matches, Decklists stores its lists against its
-          standings — a single time, by the scheduled job or by the button below. Monthlies start on
-          both; anything on neither is left alone.
+          When the calendar sees a tournament finish, it queues it here once. Every one is processed
+          — its results fetched and stored, which gives it a page — by the scheduled job or the
+          button below. The lines ticked for it decide the rest: Elo rates its matches, Decklists
+          stores its lists against its standings. Monthlies start on both. Ticking a line on a
+          processed event queues it again.
         </p>
       </header>
 
       <Outcome params={params} />
 
-      <dl className="mb-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+      <dl className="mb-6 grid grid-cols-3 gap-3">
         {(
           [
             ["Waiting", pending],
             ["Processed", count("processed")],
-            ["Not included", count("excluded")],
             ["Gave up", count("gave-up")],
           ] as const
         ).map(([label, value]) => (

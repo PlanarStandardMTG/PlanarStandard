@@ -382,7 +382,7 @@ describe.skipIf(!reachable)("repos/events", () => {
       ]);
     });
 
-    it("puts a Monthly on both lines and anything else on neither, which is never claimed", async () => {
+    it("puts a Monthly on both lines and anything else on neither, and claims both", async () => {
       await recordCompletions(
         service,
         TEST_SOURCE,
@@ -393,10 +393,13 @@ describe.skipIf(!reachable)("repos/events", () => {
         NOW,
       );
       const claimed = await claim();
-      expect(claimed.map((c) => [c.externalId, c.elo, c.decklists])).toEqual([["9", true, true]]);
+      expect(claimed.map((c) => [c.externalId, c.elo, c.decklists]).sort()).toEqual([
+        ["10", false, false],
+        ["9", true, true],
+      ]);
     });
 
-    it("lets an admin choose a line while an event waits, and only leave one after", async () => {
+    it("lets an admin choose a line while an event waits, and after, leave one or join one", async () => {
       await recordCompletions(service, TEST_SOURCE, [{ externalId: "10", name: "Weekly" }], NOW);
       const admin = await signIn("newsdesk@planarstandard.test");
       const key = { source: TEST_SOURCE, externalId: "10" };
@@ -412,6 +415,11 @@ describe.skipIf(!reachable)("repos/events", () => {
       expect(await setCompletionLine(admin, key, "decklists", "leave")).toBe(true);
       const [row] = (await listCompletions(admin, 100)).filter((c) => c.externalId === "10");
       expect(row).toMatchObject({ elo: false, decklists: false });
+
+      // Joining after processing queues the event again, so the line runs.
+      expect(await setCompletionLine(admin, key, "elo", "join")).toBe(true);
+      const [again] = await claim();
+      expect(again).toMatchObject({ externalId: "10", elo: true, attempts: 1 });
     });
 
     it("keeps the queue, and the re-run, from anyone but an admin", async () => {

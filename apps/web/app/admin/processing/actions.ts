@@ -59,10 +59,15 @@ export interface EventKey {
   readonly externalId: string;
 }
 
-/** Choose a line for an event that has not been processed yet. */
+/**
+ * Choose a line for an event that is waiting. For one already processed, a line
+ * can only be joined, which queues it again so the next pass runs that line.
+ */
 export async function chooseLine(event: EventKey, line: CompletionLine, on: boolean) {
   await requireRole("admin");
-  await setCompletionLine(await createSessionClient(), event, line, on);
+  const client = await createSessionClient();
+  const changed = await setCompletionLine(client, event, line, on);
+  if (!changed && on) await setCompletionLine(client, event, line, "join");
   revalidatePath("/admin/processing");
 }
 

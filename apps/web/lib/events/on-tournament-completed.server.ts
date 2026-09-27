@@ -4,7 +4,7 @@ import type { EventCompletion, IsoDate } from "@ps/contracts";
 import { fetchChallongeResultsInput } from "@/lib/challonge/results-input.server";
 import { fetchMeleeResultsInput } from "@/lib/melee/results-input.server";
 import { recomputeRatings } from "@/lib/ratings/recompute-ratings.server";
-import { ingestEvent } from "@/lib/results/ingest-event.server";
+import { NoMatchesError, ingestEvent } from "@/lib/results/ingest-event.server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
 
 /**
@@ -13,9 +13,10 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
  * again after it returns — so this is the one place a finished tournament's
  * results are fetched.
  *
- * Its results are fetched scrubbed (E12.10, E12.13) and ingested (E18.20) down
- * the lines an admin chose (E18.22): the ladder recomputes when it is on the Elo
- * line, and its decklists are stored when it is on the decklist line. Challonge
+ * Every finished event's results are fetched scrubbed (E12.10, E12.13) and
+ * ingested (E18.20, E18.24), which gives it a page; the lines an admin chose
+ * (E18.22) decide the rest: the ladder recomputes when it is on the Elo line,
+ * and its decklists are stored when it is on the decklist line. Challonge
  * sends no lists, so its events wait on the decklist tab for an admin's sheet.
  *
  * Throw to fail: the completion is released and retried on a later run, up to
@@ -31,15 +32,23 @@ export async function onTournamentCompleted(completion: EventCompletion): Promis
   }
   if (fetched.status === "failed") throw new Error(fetched.error);
 
-  await ingestEvent(createServiceRoleClient(), {
-    source: completion.source,
-    externalId: completion.externalId,
-    adapter: melee ? meleeApi : challongeApi,
-    input: fetched.input,
-    fallbackDate: completion.detectedAt.slice(0, 10) as IsoDate,
-    rate: completion.elo,
-    decklists: completion.decklists,
-  });
+  try {
+    await ingestEvent(createServiceRoleClient(), {
+      source: completion.source,
+      externalId: completion.externalId,
+      adapter: melee ? meleeApi : challongeApi,
+      input: fetched.input,
+      fallbackDate: completion.detectedAt.slice(0, 10) as IsoDate,
+      rate: completion.elo,
+      decklists: completion.decklists,
+    });
+  } catch (error) {
+    // A bracket closed without a match played. Retrying would spend Challonge's
+    // monthly budget to learn the same; an event on a line still fails, loudly.
+    const onALine = completion.elo || completion.decklists;
+    if (error instanceof NoMatchesError && !onALine) return;
+    throw error;
+  }
 }
 
 /**

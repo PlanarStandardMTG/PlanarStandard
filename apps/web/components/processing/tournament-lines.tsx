@@ -25,8 +25,9 @@ const LINES: readonly { line: Line; label: string; leave: string }[] = [
 
 /**
  * Every finished tournament and the two lines it can go down (E18.22). While it
- * waits, a tick puts it on a line; once processed the ticks are fixed, and
- * taking it off a line undoes that line's work.
+ * waits, a tick puts it on a line or takes it off. Once processed, ticking a line
+ * queues the event again so the line runs (E18.24), and taking it off a line
+ * undoes that line's work.
  *
  * The actions arrive as props: they reach `.server.ts` modules, which a client
  * module may not import (E1.7).
@@ -139,7 +140,7 @@ function LineCell({
         type="checkbox"
         aria-label={label}
         checked={on}
-        disabled={processed || pending}
+        disabled={(processed && on) || pending}
         onChange={(event) => {
           const checked = event.target.checked;
           startTransition(() => choose(checked));

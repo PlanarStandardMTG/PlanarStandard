@@ -71,6 +71,9 @@ export interface IngestReport {
 
 const MAX_SLUG_ATTEMPTS = 20;
 
+/** The platform reported the event finished with no matches in it: nothing to ingest. */
+export class NoMatchesError extends Error {}
+
 export async function ingestEvent(
   service: SupabaseClient,
   event: IngestSource,
@@ -79,7 +82,7 @@ export async function ingestEvent(
   const parsedMatches = parsed.matches ?? [];
   if (parsedMatches.length === 0) {
     const reasons = parsed.issues.map((issue) => issue.message).join(" ");
-    throw new Error(
+    throw new NoMatchesError(
       `${event.source} event ${event.externalId} has no matches to ingest. ${reasons}`,
     );
   }

@@ -37,7 +37,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 14/15 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 14/15 |
-| E18  | Services                              | 5–8   | E3–E13       | 🚧 7/23  |
+| E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
 | E20  | Feature slices                        | 3–10  | E18          | 🚧 28/40 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
@@ -908,7 +908,8 @@ _Note:_ `0029_processing_lines.sql` adds `event_completions.elo` / `decklists`, 
 trigger mirroring `core/elo/rated-by-default`, since both `recordCompletions` and
 `requeue_event_completions` insert. `is_rated` is now the Elo line's to write on every ingest, and a
 re-ingest that flips it recomputes. `EventCompletion` gains `elo` and `decklists` in `@ps/contracts`,
-and `completion-status` an `excluded` state.
+and `completion-status` an `excluded` state. Since E18.24 an event on neither line is claimed too,
+stored unrated, and a processed event can join a line.
 ✅ **E18.23 — The decklist line stores lists on standings** · M · Deps: E18.22, E18.21 — each list
 lands on its player's entry. _AC:_ the member's own saved deck when the player is linked (E20.39) and
 the list is exactly it; else a new deck locked at the event; a re-run with the same lists writes
@@ -916,6 +917,16 @@ nothing; a deck an entry stops naming is deleted if the event made it and nothin
 _Note:_ `lib/decks/attach-event-decks.server.ts`, for melee.gg's lists and an admin's sheet alike.
 `core/similarity/match-saved-deck` decides exact and nearest; a private saved deck is never linked,
 since an event would show everyone a dead link.
+✅ **E18.24 — Every finished event is processed** · S · Deps: E18.22, E20.14 — processing fetches
+and stores every finished event, which gives it a page; the lines decide only what follows. _AC:_ an
+event on neither line is ingested unrated and never reaches the ladder; ticking a line on a
+processed event queues it again so the line runs; an event on neither line that finished with no
+matches is marked processed rather than retried.
+_Note:_ added outside the plan. `0031_process_every_event.sql` drops the line filter from
+`claim_event_completions` and `requeue_event_completions`; `completion-status` loses `excluded`,
+and `/admin/processing` its "Not included" count. `setCompletionLine` gains `join`.
+_Outstanding:_ press "Re-run everything" once in production so events finished before this are
+fetched — about three Challonge requests each from the 500-a-month budget.
 
 ### import-decklists
 
@@ -1523,7 +1534,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E4   | 7       | 5    | E15  | 5       | 1    |
 | E5   | 6       | 6    | E16  | 15      | 14   |
 | E6   | 8       | 8    | E17  | 15      | 14   |
-| E7   | 5       | 5    | E18  | 23      | 7    |
+| E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
 | E9   | 9       | 9    | E20  | 40      | 28   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
@@ -1531,4 +1542,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 
-**204 of 274 stories done across 24 epics.**
+**205 of 275 stories done across 24 epics.**

@@ -340,23 +340,27 @@ export async function requeueAllCompletions(
 export type CompletionLine = "elo" | "decklists";
 
 /**
- * Put an event on a line or take it off while it waits. `leave` takes a
- * processed event off a line too — for a caller that undoes what the line
- * did. False when nothing changed. The admin's own client;
+ * Put an event on a line or take it off while it waits. After it is processed,
+ * `leave` takes it off a line — for a caller that undoes what the line did —
+ * and `join` puts it on one and queues it again, so the next pass runs the
+ * line (E18.24). False when nothing changed. The admin's own client;
  * `event_completions_admin_all` decides.
  */
 export async function setCompletionLine(
   client: SupabaseClient,
   completion: Pick<EventCompletion, "source" | "externalId">,
   line: CompletionLine,
-  on: boolean | "leave",
+  on: boolean | "leave" | "join",
 ): Promise<boolean> {
+  const requeue =
+    on === "join" ? { processed_at: null, attempts: 0, last_error: null, claimed_at: null } : {};
   let update = client
     .from("event_completions")
-    .update({ [line]: on === true })
+    .update({ [line]: on === true || on === "join", ...requeue })
     .eq("source", completion.source)
     .eq("external_id", completion.externalId);
-  if (on !== "leave") update = update.is("processed_at", null);
+  if (on === "join") update = update.not("processed_at", "is", null);
+  else if (on !== "leave") update = update.is("processed_at", null);
 
   const { data, error } = await update.select("source");
   if (error !== null) throw new Error(`setCompletionLine failed: ${error.message}`);

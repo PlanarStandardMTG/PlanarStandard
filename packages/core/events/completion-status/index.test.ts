@@ -35,8 +35,8 @@ describe("core/events/completion-status", () => {
     ).toBe("retrying");
   });
 
-  it("is excluded on neither line until processed", () => {
-    expect(completionStatus(completion({ elo: false }), NOW)).toBe("excluded");
+  it("waits on neither line like any other event, since every event is processed", () => {
+    expect(completionStatus(completion({ elo: false, decklists: false }), NOW)).toBe("waiting");
     expect(completionStatus(completion({ elo: false, decklists: true }), NOW)).toBe("waiting");
     expect(completionStatus(completion({ elo: false, processedAt: ago(1) }), NOW)).toBe(
       "processed",
