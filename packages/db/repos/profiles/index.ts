@@ -170,3 +170,30 @@ export async function setMemberBanned(
   if (error !== null) throw new Error(`setMemberBanned failed: ${error.message}`);
   return toProfile(data as unknown as ProfileRow);
 }
+
+/** What `adminRemoveMemberContent` took away. */
+export interface RemovedContent {
+  readonly posts: number;
+  readonly decksDeleted: number;
+  readonly decksHidden: number;
+}
+
+/**
+ * Every post and saved deck one member made, removed at once by an admin
+ * (E20.42) — never the admin's own. A deck an event names is hidden, not deleted.
+ */
+export async function adminRemoveMemberContent(
+  client: SupabaseClient,
+  id: ProfileId,
+): Promise<RemovedContent> {
+  const { data, error } = await client
+    .rpc("admin_remove_member_content", { p_profile_id: id })
+    .single();
+  if (error !== null) throw new Error(`adminRemoveMemberContent failed: ${error.message}`);
+  const row = data as { posts_deleted: number; decks_deleted: number; decks_hidden: number };
+  return {
+    posts: row.posts_deleted,
+    decksDeleted: row.decks_deleted,
+    decksHidden: row.decks_hidden,
+  };
+}

@@ -16,7 +16,7 @@ import { DeckLegality } from "@/components/decks/deck-legality";
 import { DeleteDeckButton } from "@/components/decks/delete-deck-button";
 import { DeckSectionsGrid } from "@/components/decks/deck-sections-grid";
 import { DeckSectionsList } from "@/components/decks/deck-sections-list";
-import { PlayedEvents } from "@/components/decks/played-events";
+import { PlayedEvents } from "@/components/ui/played-events";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
 import { currentViewer } from "@/lib/auth/viewer";
@@ -24,6 +24,7 @@ import { buildDeckView, type DeckView } from "@/lib/decks/deck-view";
 import { deckAsText } from "@/lib/decks/deck-text";
 import { loadCurrentFormat } from "@/lib/format/current-format";
 import { formatDate } from "@/lib/format-date";
+import { PersonName } from "@/components/ui/person-name";
 import { createSessionClient } from "@/lib/supabase/session";
 
 export const dynamic = "force-dynamic";
@@ -118,7 +119,11 @@ export default async function DeckPage({
             </span>
             <DeckLegality format={deck.format} verdict={view.verdict} />
             <ColorPips colors={view.colors} />
-            {owner !== null && <span>by {owner.displayName}</span>}
+            {owner !== null && (
+              <span>
+                by <PersonName person={{ member: owner.id }}>{owner.displayName}</PersonName>
+              </span>
+            )}
             <span>{formatDate(deck.createdAt)}</span>
           </p>
         </div>

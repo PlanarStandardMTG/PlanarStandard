@@ -6,6 +6,7 @@ import { Notice } from "@/components/auth/form-parts";
 import { Badge } from "@/components/ui/badge";
 import { requireRole } from "@/lib/auth/guard";
 import { formatDate } from "@/lib/format-date";
+import { PersonName } from "@/components/ui/person-name";
 import { createSessionClient } from "@/lib/supabase/session";
 
 import { linkMember, mergeSelected, undoMergeAction } from "./actions";
@@ -168,7 +169,9 @@ export default async function AdminPlayersPage({
                       />
                     </td>
                     <td className="px-4 py-3">
-                      <span className="font-medium">{player.displayName}</span>
+                      <PersonName person={{ player: player.id }} className="font-medium">
+                        {player.displayName}
+                      </PersonName>
                       {player.visibility === "hidden" && (
                         <Badge variant="outline" className="ml-2">
                           Hidden

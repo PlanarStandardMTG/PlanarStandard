@@ -536,6 +536,135 @@ suite("RLS — the allow-deny matrix", () => {
     });
   });
 
+  describe("member history", () => {
+    const stamp = `history-${Date.now()}`;
+    const reader = () => profileIds.get("reader") ?? "";
+
+    async function savedDeck(name: string, parent: string | null = null): Promise<string> {
+      const { data, error } = await service
+        .from("decks")
+        .insert({
+          name: `${stamp}-${name}`,
+          owner_id: reader(),
+          submitted_via: "import",
+          visibility: "private",
+          parent_deck_id: parent,
+        })
+        .select("id")
+        .single();
+      if (error !== null) throw new Error(error.message);
+      return (data as { id: string }).id;
+    }
+
+    async function draftPost(): Promise<string> {
+      const { data, error } = await service
+        .from("posts")
+        .insert({ slug: `${stamp}-${Math.random()}`, title: "Draft", author_id: reader() })
+        .select("id")
+        .single();
+      if (error !== null) throw new Error(error.message);
+      return (data as { id: string }).id;
+    }
+
+    afterAll(async () => {
+      const { data: events } = await service
+        .from("tournaments")
+        .select("id")
+        .like("slug", `${stamp}%`);
+      const eventIds = (events ?? []).map((row) => row.id as string);
+      await service.from("tournament_entries").delete().in("tournament_id", eventIds);
+      await service.from("tournaments").delete().in("id", eventIds);
+      await service.from("players").delete().like("slug", `${stamp}%`);
+      await service.from("decks").update({ parent_deck_id: null }).like("name", `${stamp}%`);
+      await service.from("decks").delete().like("name", `${stamp}%`);
+    });
+
+    it("shows an admin a member's drafts and private decks, and nobody below admin", async () => {
+      const post = await draftPost();
+      const deck = await savedDeck("private");
+
+      for (const [role, sees] of [
+        ["writer", false],
+        ["organizer", false],
+        ["admin", true],
+      ] as const) {
+        const posts = await as(role).from("posts").select("id").eq("id", post);
+        const decks = await as(role).from("decks").select("id").eq("id", deck);
+        expect({ role, posts: posts.data?.length, decks: decks.data?.length }).toStrictEqual({
+          role,
+          posts: sees ? 1 : 0,
+          decks: sees ? 1 : 0,
+        });
+      }
+    });
+
+    it("lets only an admin delete somebody's post", async () => {
+      const post = await draftPost();
+
+      const refused = await as("organizer").rpc("admin_delete_post", { p_post_id: post });
+      expect(refused.error?.code).toBe(RLS_REFUSED);
+
+      expect((await as("admin").rpc("admin_delete_post", { p_post_id: post })).error).toBeNull();
+      expect((await service.from("posts").select("id").eq("id", post)).data).toStrictEqual([]);
+    });
+
+    it("deletes every version of a saved deck, or hides them all when an event names one", async () => {
+      const first = await savedDeck("v1");
+      const second = await savedDeck("v2", first);
+      const removed = await as("admin").rpc("admin_remove_deck", { p_deck_id: second });
+      expect(removed.data).toBe("deleted");
+      expect(
+        (await service.from("decks").select("id").in("id", [first, second])).data,
+      ).toStrictEqual([]);
+
+      const played = await savedDeck("played");
+      const next = await savedDeck("played-v2", played);
+      const { data: player } = await service
+        .from("players")
+        .insert({ display_name: "History test", slug: `${stamp}-player` })
+        .select("id")
+        .single();
+      const { data: event } = await service
+        .from("tournaments")
+        .insert({ name: "History test", slug: `${stamp}-event`, event_date: "2026-09-01" })
+        .select("id")
+        .single();
+      await service.from("tournament_entries").insert({
+        tournament_id: (event as { id: string }).id,
+        player_id: (player as { id: string }).id,
+        deck_id: played,
+        dropped: true,
+      });
+
+      const hidden = await as("admin").rpc("admin_remove_deck", { p_deck_id: next });
+      expect(hidden.data).toBe("hidden");
+      const { data: rows } = await service
+        .from("decks")
+        .select("hidden_at")
+        .in("id", [played, next]);
+      expect(rows?.every((row) => row.hidden_at !== null)).toBe(true);
+    });
+
+    it("removes everything a member made at once, but never the admin's own", async () => {
+      await draftPost();
+      await savedDeck("bulk");
+
+      const own = await as("admin").rpc("admin_remove_member_content", {
+        p_profile_id: profileIds.get("admin"),
+      });
+      expect(own.error?.code).toBe(RLS_REFUSED);
+
+      const { data, error } = await as("admin")
+        .rpc("admin_remove_member_content", { p_profile_id: reader() })
+        .single();
+      expect(error).toBeNull();
+      expect((data as { posts_deleted: number }).posts_deleted).toBeGreaterThan(0);
+      expect(
+        (await service.from("posts").select("id").eq("author_id", reader())).data,
+      ).toStrictEqual([]);
+    });
+  });
+
   describe("the ladder, as the database sees it", () => {
     it("agrees with core/auth/meets-role on all sixteen pairs", async () => {
       expect(LADDER).toHaveLength(ROLES.length ** 2);

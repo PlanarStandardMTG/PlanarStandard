@@ -94,8 +94,9 @@ export async function listPublishedPostSlugs(
  *
  * The only read here that is not published-only, and deliberately so: this
  * answers a subject access request, where a draft somebody never finished is
- * still theirs and still has to be handed over. It is never a feed — the caller
- * is the export, and the author id comes from the session rather than a route.
+ * still theirs and still has to be handed over. It is never a feed. The export
+ * asks for the caller's own; the member history page (E20.42) asks for anyone's,
+ * and RLS decides how much of it the viewer sees — all of it for an admin.
  */
 export async function listPostsByAuthor(
   client: SupabaseClient,
@@ -332,4 +333,10 @@ export async function setOwnPostReaction(
           .single();
 
   if (error !== null) throw new Error(`setOwnPostReaction failed: ${error.message}`);
+}
+
+/** Delete any post, as an admin (E20.42). The function refuses everybody else. */
+export async function adminDeletePost(client: SupabaseClient, postId: PostId): Promise<void> {
+  const { error } = await client.rpc("admin_delete_post", { p_post_id: postId });
+  if (error !== null) throw new Error(`adminDeletePost failed: ${error.message}`);
 }

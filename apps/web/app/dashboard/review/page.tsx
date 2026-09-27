@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { EmptyState } from "@/components/ui/states";
 import { requireRole } from "@/lib/auth/guard";
 import { formatDate } from "@/lib/format-date";
+import { PersonName } from "@/components/ui/person-name";
 import { createSessionClient } from "@/lib/supabase/session";
 
 import { reviewSubmission } from "./actions";
@@ -75,7 +76,10 @@ export default async function ReviewQueuePage({
                     <div className="min-w-0">
                       <h2 className="font-display text-lg font-semibold">{post.title}</h2>
                       <p className="text-sm text-ink-500 dark:text-ink-400">
-                        {post.author.displayName} · submitted {formatDate(post.createdAt)}
+                        <PersonName person={{ member: post.author.id }}>
+                          {post.author.displayName}
+                        </PersonName>{" "}
+                        · submitted {formatDate(post.createdAt)}
                       </p>
                     </div>
                     <form action={reviewSubmission} className="flex shrink-0 gap-2">

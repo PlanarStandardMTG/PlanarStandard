@@ -3,7 +3,7 @@ import { formatRecord } from "@ps/core";
 import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { DotLeader, Placement } from "@/components/ui/marks";
+import { DotLeader, Placement } from "./marks";
 import { formatDate } from "@/lib/format-date";
 
 /**

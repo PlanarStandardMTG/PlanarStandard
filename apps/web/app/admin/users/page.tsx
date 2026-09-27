@@ -6,6 +6,7 @@ import { Notice } from "@/components/auth/form-parts";
 import { Badge } from "@/components/ui/badge";
 import { requireRole } from "@/lib/auth/guard";
 import { formatDate } from "@/lib/format-date";
+import { PersonName } from "@/components/ui/person-name";
 import { createSessionClient } from "@/lib/supabase/session";
 
 import { changeMemberBan, changeMemberRole } from "./actions";
@@ -78,7 +79,7 @@ export default async function AdminUsersPage({
                 <tr key={member.id} className="align-middle">
                   <td className="px-4 py-3">
                     <p className="font-medium">
-                      {member.displayName}
+                      <PersonName person={{ member: member.id }}>{member.displayName}</PersonName>
                       {self && <span className="ml-2 text-xs text-ink-500">(you)</span>}
                     </p>
                     <p className="text-xs text-ink-500 dark:text-ink-400">

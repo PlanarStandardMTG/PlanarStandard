@@ -15,6 +15,7 @@ import type { ReactNode } from "react";
 
 import { createSessionClient } from "@/lib/supabase/session";
 
+import { PersonName } from "@/components/ui/person-name";
 import { DotLeader, Placement } from "@/components/ui/marks";
 
 import { DeckPanel } from "./deck-panel";
@@ -174,7 +175,12 @@ export const EMBED_RENDERERS: { readonly [N in EmbedName]: EmbedRenderer } = {
                 <li key={`${finish.placement}-${finish.playerSlug}`} className="py-2">
                   <div className="flex items-center gap-2">
                     <Placement place={finish.placement} className="text-xl" />
-                    <span className="min-w-0 truncate font-semibold">{finish.name}</span>
+                    <PersonName
+                      person={finish.playerSlug === null ? null : { player: finish.playerSlug }}
+                      className="min-w-0 truncate font-semibold"
+                    >
+                      {finish.name}
+                    </PersonName>
                     <DotLeader />
                     <span className="shrink-0 font-mono text-sm">
                       {formatRecord(finish.record)}

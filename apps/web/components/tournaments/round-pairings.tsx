@@ -1,6 +1,7 @@
 import type { EventRound } from "@ps/core";
 
 import { cn } from "@/lib/cn";
+import { PersonName } from "@/components/ui/person-name";
 import type { Pairing, PairingSide } from "@/lib/tournaments/tournament-view";
 
 import { EntryDeckLink } from "./entry-deck";
@@ -41,7 +42,9 @@ function Side({
       <span
         className={cn("block truncate", won ? "font-semibold" : "text-ink-600 dark:text-ink-400")}
       >
-        {side.name}
+        <PersonName person={side.playerId === null ? null : { player: side.playerId }}>
+          {side.name}
+        </PersonName>
       </span>
       {side.deck !== null && (
         <span className="block text-xs">

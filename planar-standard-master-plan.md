@@ -286,6 +286,7 @@ A component renders on the site through a renderer in `apps/web` and exports as 
 | ----------------- | ---------------------------------------------------------------- |
 | `meets-role`      | Whether a role clears a bar: reader < writer < organizer < admin |
 | `moderation`      | Whether an admin may change a member's role or ban them          |
+| `member-history`  | Who may open a member's history, and who may remove from it      |
 | `password-policy` | Whether a password is acceptable, before it is sent              |
 | `profile-handle`  | Validate the handle a person chooses for themselves              |
 
@@ -380,6 +381,7 @@ Each slice owns its routes, components, and hooks. Slices don't import from each
 | `admin`          | `/admin`, `/admin/users`, `/admin/seasons`, `/admin/processing`                                   |
 | `identity-admin` | `/admin/players` — merge grid and undo; CSV round-trip                                            |
 | `format-admin`   | `/admin/formats`                                                                                  |
+| `members`        | `/members/[id]`, `/members/player/[key]` — a member's history, for writers and up                 |
 
 Admin-only slices live under `/admin`; `/dashboard` is every signed-in member's.
 

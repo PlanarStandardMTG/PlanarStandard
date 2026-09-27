@@ -29,6 +29,8 @@ export interface Standing {
 }
 
 export interface PairingSide {
+  /** Null when the player is hidden. */
+  readonly playerId: PlayerId | null;
   readonly name: string;
   readonly deck: EntryDeck | null;
 }
@@ -97,9 +99,10 @@ export async function loadTournamentView(
   }));
   const byPlayer = new Map(standings.map((standing) => [standing.playerId, standing]));
   const side = (named: MatchSide | null): PairingSide => {
-    if (named === null) return { name: HIDDEN, deck: null };
+    if (named === null) return { playerId: null, name: HIDDEN, deck: null };
     const standing = byPlayer.get(named.playerId);
     return {
+      playerId: named.playerId,
       name: standing === undefined || standing.name === HIDDEN ? named.handle : standing.name,
       deck: standing?.deck ?? null,
     };

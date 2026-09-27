@@ -1,5 +1,6 @@
 import type { PostWithAuthor } from "@ps/contracts";
 
+import { PersonName } from "@/components/ui/person-name";
 import { cn } from "@/lib/cn";
 import { dateAttribute, formatDate } from "@/lib/format-date";
 
@@ -26,7 +27,13 @@ export function PostMeta({
       )}
     >
       {showKind && <PostKindBadge kind={post.kind} />}
-      <span className="font-medium text-ink-700 dark:text-ink-300">{post.author.displayName}</span>
+      {/* Above a card's stretched link, where it is one. */}
+      <PersonName
+        person={{ member: post.author.id }}
+        className="relative z-10 font-medium text-ink-700 dark:text-ink-300"
+      >
+        {post.author.displayName}
+      </PersonName>
       {post.publishedAt !== null && (
         <>
           <span aria-hidden="true">·</span>

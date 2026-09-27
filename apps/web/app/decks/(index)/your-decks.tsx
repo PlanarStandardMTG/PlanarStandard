@@ -10,7 +10,7 @@ import {
 import Link from "next/link";
 
 import { FORMAT_LABELS } from "@/components/decks/format-labels";
-import { PlayedEvents } from "@/components/decks/played-events";
+import { PlayedEvents } from "@/components/ui/played-events";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState, ErrorState } from "@/components/ui/states";
 import { formatDate } from "@/lib/format-date";

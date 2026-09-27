@@ -371,3 +371,16 @@ export async function deleteUnusedEventDecks(
   if (error !== null) throw new Error(`deleteUnusedEventDecks failed: ${error.message}`);
   return data.length;
 }
+
+/**
+ * Remove one of a member's saved decks, every version, as an admin (E20.42).
+ * Deleted outright, or hidden when an event names a version and must keep it.
+ */
+export async function adminRemoveDeck(
+  client: SupabaseClient,
+  deckId: DeckId,
+): Promise<"deleted" | "hidden"> {
+  const { data, error } = await client.rpc("admin_remove_deck", { p_deck_id: deckId });
+  if (error !== null) throw new Error(`adminRemoveDeck failed: ${error.message}`);
+  return data as "deleted" | "hidden";
+}

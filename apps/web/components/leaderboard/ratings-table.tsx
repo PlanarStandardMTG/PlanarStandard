@@ -3,6 +3,7 @@ import type { LeaderboardRow } from "@ps/contracts";
 import { Badge } from "@/components/ui/badge";
 import { Placement } from "@/components/ui/marks";
 import { cn } from "@/lib/cn";
+import { PersonName } from "@/components/ui/person-name";
 import { formatDate } from "@/lib/format-date";
 
 /**
@@ -63,7 +64,9 @@ export function RatingsTable({
                 </td>
               )}
               <td className="px-4 py-3">
-                <span className="text-base font-semibold">{row.displayName}</span>
+                <PersonName person={{ player: row.slug }} className="text-base font-semibold">
+                  {row.displayName}
+                </PersonName>
                 {!row.isActive && (
                   <Badge variant="outline" className="ml-2">
                     Inactive

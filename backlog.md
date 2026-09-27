@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 14/15 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 29/41 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 30/42 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1211,6 +1211,16 @@ link to sign in; a banned member cannot react; nobody but the member can read wh
 tallies come from `post_reaction_counts`.
 _Note:_ added outside the plan, in place of comments: a discussion section was weighed and left out for
 the moderation it would need. The symbols are `mana-font` (ADR 014), loaded only on the post page.
+✅ **E20.42 — `members`: a member's history, and removing what they made** · M · Deps: E14.7,
+E20.39 — `/members/[id]` lists a member's posts, saved decks and events; `/members/player/[key]` sends
+a claimed player on to their member and says plainly when a handle is unclaimed. _AC:_ every name on
+the site (bylines, deck owners, the leaderboard, standings, pairings, tournament embeds, the admin
+lists) links there for a writer or above and is plain text for everyone else, styled the same; an
+admin can delete a post, remove a saved deck with every version, remove everything at once after
+typing the member's name, and ban or lift a ban; a deck an event names is hidden rather than deleted;
+nobody removes their own things from here.
+_Note:_ added outside the plan. The home podium's names are not links: each tile is already a link to
+the deck, and a link cannot sit inside another.
 
 ---
 
@@ -1543,10 +1553,10 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 15      | 14   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 41      | 29   |
+| E9   | 9       | 9    | E20  | 42      | 30   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 
-**206 of 276 stories done across 24 epics.**
+**207 of 277 stories done across 24 epics.**

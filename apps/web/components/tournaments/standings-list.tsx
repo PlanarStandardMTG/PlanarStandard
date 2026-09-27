@@ -1,6 +1,7 @@
 import { formatRecord } from "@ps/core";
 
 import { Placement } from "@/components/ui/marks";
+import { PersonName } from "@/components/ui/person-name";
 import type { Standing } from "@/lib/tournaments/tournament-view";
 
 import { EntryDeckLink } from "./entry-deck";
@@ -18,7 +19,7 @@ export function StandingsList({ standings }: { standings: readonly Standing[] })
           )}
           <div className="min-w-0 flex-1 sm:flex sm:items-center sm:gap-6">
             <span className="block truncate font-medium sm:w-48 sm:shrink-0">
-              {standing.name}
+              <PersonName person={{ player: standing.playerId }}>{standing.name}</PersonName>
               {standing.dropped && (
                 <span className="ml-2 text-xs font-normal text-ink-500 dark:text-ink-400">
                   dropped
