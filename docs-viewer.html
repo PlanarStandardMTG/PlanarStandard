@@ -1,0 +1,461 @@
+<!doctype html>
+<!--
+  A read-only view of the plan and the backlog. It fetches the two Markdown files beside it, so
+  serve the repo root rather than opening it from disk:
+
+    python3 -m http.server 8123   →   http://localhost:8123/docs-viewer.html
+
+  Opened as file://, the browser refuses the fetch and the page asks for the files instead.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Plan and Backlog</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js"></script>
+    <style>
+      :root {
+        --bg: #fbfaf7;
+        --panel: #ffffff;
+        --ink: #1f1d1a;
+        --muted: #6b665e;
+        --line: #e4e0d8;
+        --accent: #5b4bb7;
+        --done: #2f8f5b;
+        --doing: #c7851a;
+        --blocked: #c0392b;
+        --todo: #9a948a;
+        --code: #f2efe9;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root:not([data-theme="light"]) {
+          --bg: #141312;
+          --panel: #1c1b19;
+          --ink: #ebe7e0;
+          --muted: #a09a90;
+          --line: #33302c;
+          --accent: #a99cf0;
+          --done: #52c089;
+          --doing: #e6a940;
+          --blocked: #e8665a;
+          --todo: #7d776e;
+          --code: #26241f;
+        }
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          15px/1.6 system-ui,
+          -apple-system,
+          sans-serif;
+      }
+      header {
+        position: sticky;
+        top: 0;
+        z-index: 5;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 16px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--line);
+      }
+      header h1 {
+        margin: 0 12px 0 0;
+        font-size: 16px;
+      }
+      .tabs button,
+      .tools button {
+        cursor: pointer;
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--ink);
+        border-radius: 6px;
+        padding: 5px 12px;
+        font: inherit;
+        font-size: 14px;
+      }
+      .tabs button[aria-selected="true"] {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+      .tools {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-left: auto;
+      }
+      .tools button[aria-pressed="true"] {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+      .layout {
+        display: grid;
+        grid-template-columns: 280px minmax(0, 1fr);
+        gap: 24px;
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 20px 16px 80px;
+      }
+      nav.toc {
+        position: sticky;
+        top: 64px;
+        align-self: start;
+        max-height: calc(100vh - 84px);
+        overflow-y: auto;
+        font-size: 13px;
+      }
+      nav.toc a {
+        display: block;
+        padding: 3px 6px;
+        border-radius: 4px;
+        color: var(--ink);
+        text-decoration: none;
+      }
+      nav.toc a:hover {
+        background: var(--code);
+      }
+      nav.toc a.sub {
+        padding-left: 18px;
+        color: var(--muted);
+      }
+      .bar {
+        height: 4px;
+        margin-top: 3px;
+        border-radius: 2px;
+        background: var(--line);
+        overflow: hidden;
+      }
+      .bar span {
+        display: block;
+        height: 100%;
+        background: var(--done);
+      }
+      .toc-row {
+        display: flex;
+        justify-content: space-between;
+        gap: 8px;
+      }
+      .toc-row .n {
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+      main {
+        min-width: 0;
+      }
+      .overall {
+        margin-bottom: 20px;
+        padding: 14px 16px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+      .overall .bar {
+        height: 8px;
+      }
+      details.epic {
+        margin-bottom: 10px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        scroll-margin-top: 70px;
+      }
+      details.epic > summary {
+        cursor: pointer;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 10px;
+        padding: 12px 16px;
+        font-weight: 600;
+        list-style: none;
+      }
+      details.epic > summary::-webkit-details-marker {
+        display: none;
+      }
+      details.epic > summary::before {
+        content: "▸";
+        color: var(--muted);
+        transition: transform 0.15s;
+      }
+      details.epic[open] > summary::before {
+        transform: rotate(90deg);
+      }
+      details.epic > summary .n {
+        margin-left: auto;
+        color: var(--muted);
+        font-weight: 400;
+        font-variant-numeric: tabular-nums;
+      }
+      details.epic > summary .bar {
+        flex-basis: 100%;
+      }
+      .epic-body {
+        padding: 0 16px 12px;
+      }
+      p.story {
+        margin: 8px 0;
+        padding: 8px 12px;
+        border-left: 3px solid var(--todo);
+        background: var(--bg);
+        border-radius: 0 6px 6px 0;
+      }
+      p.story.done {
+        border-color: var(--done);
+      }
+      p.story.doing {
+        border-color: var(--doing);
+      }
+      p.story.blocked {
+        border-color: var(--blocked);
+      }
+      body.hide-done p.story.done {
+        display: none;
+      }
+      .doc h1,
+      .doc h2,
+      .doc h3 {
+        scroll-margin-top: 70px;
+        line-height: 1.3;
+      }
+      .doc code {
+        background: var(--code);
+        padding: 1px 4px;
+        border-radius: 3px;
+        font-size: 0.9em;
+      }
+      .doc pre {
+        background: var(--code);
+        padding: 12px;
+        border-radius: 6px;
+        overflow-x: auto;
+      }
+      .doc pre code {
+        padding: 0;
+      }
+      .doc table {
+        display: block;
+        overflow-x: auto;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      .doc th,
+      .doc td {
+        border: 1px solid var(--line);
+        padding: 4px 8px;
+        text-align: left;
+      }
+      .doc a {
+        color: var(--accent);
+      }
+      .doc hr {
+        border: 0;
+        border-top: 1px solid var(--line);
+      }
+      .loader {
+        max-width: 560px;
+        margin: 60px auto;
+        padding: 20px;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+      }
+      [hidden] {
+        display: none !important;
+      }
+      @media (max-width: 800px) {
+        .layout {
+          grid-template-columns: minmax(0, 1fr);
+        }
+        nav.toc {
+          position: static;
+          max-height: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Planar Standard</h1>
+      <div class="tabs" role="tablist">
+        <button role="tab" data-tab="backlog" aria-selected="true">Backlog</button>
+        <button role="tab" data-tab="plan" aria-selected="false">Plan</button>
+      </div>
+      <div class="tools" id="backlog-tools">
+        <button id="expand">Expand all</button>
+        <button id="collapse">Collapse all</button>
+        <button id="hide-done" aria-pressed="false">Hide done</button>
+      </div>
+    </header>
+
+    <div class="loader" id="loader" hidden>
+      <p>
+        The browser will not let a page opened from disk read the files beside it. Either serve the
+        repo root (<code>python3 -m http.server 8123</code>) or pick both files here:
+      </p>
+      <input type="file" id="pick" accept=".md" multiple />
+    </div>
+
+    <div class="layout" data-panel="backlog">
+      <nav class="toc" id="backlog-toc"></nav>
+      <main class="doc" id="backlog"></main>
+    </div>
+    <div class="layout" data-panel="plan" hidden>
+      <nav class="toc" id="plan-toc"></nav>
+      <main class="doc" id="plan"></main>
+    </div>
+
+    <script>
+      const FILES = { plan: "planar-standard-master-plan.md", backlog: "backlog.md" };
+      const MARKERS = { "✅": "done", "🚧": "doing", "⛔": "blocked", "⬜": "todo" };
+      const STORY = /^(✅|🚧|⛔|⬜)\s+\*\*E\d+/;
+      const EPIC = /^## (E\d+) — (.+)$/;
+
+      const slug = (s) =>
+        s
+          .toLowerCase()
+          .replace(/[^\w]+/g, "-")
+          .replace(/^-|-$/g, "");
+      const esc = (s) => s.replace(/[&<>"]/g, (c) => `&#${c.charCodeAt(0)};`);
+      const bar = (done, total) =>
+        `<div class="bar"><span style="width:${total ? (100 * done) / total : 0}%"></span></div>`;
+
+      // Stories sit on consecutive lines with their notes; give each its own paragraph and keep
+      // its _Note:_ / _AC:_ lines on lines of their own.
+      function storyMarkdown(md) {
+        return md
+          .split("\n")
+          .map((line) => (STORY.test(line) ? "\n" + line : line))
+          .join("\n")
+          .replace(/\n(_(?:Note|Outstanding|Blocked|AC):_)/g, "  \n$1");
+      }
+
+      function renderStories(root) {
+        for (const p of root.querySelectorAll("p")) {
+          const m = p.textContent.trim().match(/^(✅|🚧|⛔|⬜)\s+E\d+/);
+          if (m) p.classList.add("story", MARKERS[m[1]]);
+        }
+      }
+
+      function tally(md) {
+        const lines = md.split("\n").filter((l) => STORY.test(l));
+        return { done: lines.filter((l) => l.startsWith("✅")).length, total: lines.length };
+      }
+
+      function renderBacklog(md) {
+        const sections = [];
+        let current = { epic: null, lines: [] };
+        for (const line of md.split("\n")) {
+          const m = line.match(EPIC);
+          if (m || (current.epic && /^## /.test(line))) {
+            sections.push(current);
+            current = { epic: m ? { id: m[1], title: m[2] } : null, lines: [] };
+            if (!m) current.lines.push(line);
+          } else current.lines.push(line);
+        }
+        sections.push(current);
+
+        let html = "";
+        let toc = "";
+        let done = 0;
+        let total = 0;
+        for (const s of sections) {
+          const body = s.lines.join("\n");
+          if (!s.epic) {
+            html += marked.parse(body);
+            continue;
+          }
+          const t = tally(body);
+          done += t.done;
+          total += t.total;
+          const id = s.epic.id.toLowerCase();
+          toc += `<a href="#${id}" data-epic="${id}"><div class="toc-row"><span>${s.epic.id} · ${esc(s.epic.title)}</span><span class="n">${t.done}/${t.total}</span></div>${bar(t.done, t.total)}</a>`;
+          html += `<details class="epic" id="${id}"><summary><span>${s.epic.id} — ${esc(s.epic.title)}</span><span class="n">${t.done}/${t.total}</span>${bar(t.done, t.total)}</summary><div class="epic-body">${marked.parse(storyMarkdown(body))}</div></details>`;
+        }
+
+        const main = document.getElementById("backlog");
+        main.innerHTML =
+          `<div class="overall"><strong>${done} of ${total} stories done</strong> · ${Math.round((100 * done) / total)}%${bar(done, total)}</div>` +
+          html;
+        renderStories(main);
+        document.getElementById("backlog-toc").innerHTML = toc;
+      }
+
+      function renderPlan(md) {
+        const main = document.getElementById("plan");
+        main.innerHTML = marked.parse(md);
+        let toc = "";
+        for (const h of main.querySelectorAll("h2, h3")) {
+          h.id = slug(h.textContent);
+          toc += `<a href="#${h.id}" class="${h.tagName === "H3" ? "sub" : ""}">${esc(h.textContent)}</a>`;
+        }
+        document.getElementById("plan-toc").innerHTML = toc;
+      }
+
+      function show(tab) {
+        for (const b of document.querySelectorAll("[role=tab]")) {
+          b.setAttribute("aria-selected", String(b.dataset.tab === tab));
+        }
+        for (const p of document.querySelectorAll("[data-panel]"))
+          p.hidden = p.dataset.panel !== tab;
+        document.getElementById("backlog-tools").hidden = tab !== "backlog";
+        try {
+          localStorage.setItem("docs-viewer-tab", tab);
+        } catch {}
+      }
+
+      function load(texts) {
+        document.getElementById("loader").hidden = true;
+        if (texts.backlog) renderBacklog(texts.backlog);
+        if (texts.plan) renderPlan(texts.plan);
+      }
+
+      document.querySelector(".tabs").addEventListener("click", (e) => {
+        if (e.target.dataset.tab) show(e.target.dataset.tab);
+      });
+      for (const toc of document.querySelectorAll("nav.toc")) {
+        toc.addEventListener("click", (e) => {
+          const a = e.target.closest("a[href^='#']");
+          if (!a) return;
+          e.preventDefault();
+          const target = document.getElementById(a.getAttribute("href").slice(1));
+          if (target.tagName === "DETAILS") target.open = true;
+          target.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+      }
+      document.getElementById("expand").onclick = () =>
+        document.querySelectorAll("details.epic").forEach((d) => (d.open = true));
+      document.getElementById("collapse").onclick = () =>
+        document.querySelectorAll("details.epic").forEach((d) => (d.open = false));
+      document.getElementById("hide-done").onclick = (e) => {
+        const on = document.body.classList.toggle("hide-done");
+        e.target.setAttribute("aria-pressed", String(on));
+      };
+      document.getElementById("pick").onchange = async (e) => {
+        const texts = {};
+        for (const f of e.target.files) {
+          if (f.name === FILES.plan) texts.plan = await f.text();
+          if (f.name === FILES.backlog) texts.backlog = await f.text();
+        }
+        load(texts);
+      };
+
+      try {
+        show(localStorage.getItem("docs-viewer-tab") || "backlog");
+      } catch {
+        show("backlog");
+      }
+
+      Promise.all(Object.values(FILES).map((f) => fetch(f).then((r) => r.text())))
+        .then(([plan, backlog]) => load({ plan, backlog }))
+        .catch(() => (document.getElementById("loader").hidden = false));
+    </script>
+  </body>
+</html>
