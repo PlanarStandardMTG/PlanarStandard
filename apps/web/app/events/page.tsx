@@ -1,5 +1,6 @@
 import type { EventSyncState, ExternalEvent } from "@ps/contracts";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { EventGroup } from "@/components/events/event-group";
 import { Container } from "@/components/ui/container";
@@ -60,6 +61,7 @@ export default async function EventsPage({
             <PastEvents
               events={events.value.schedule.past}
               page={params["page"]}
+              query={typeof params["q"] === "string" ? params["q"].trim() : ""}
               resultSlugs={events.value.resultSlugs}
             />
 
@@ -73,35 +75,86 @@ export default async function EventsPage({
   );
 }
 
+/** Finished events, newest first, filtered by a word in the name and a page at a time. */
 function PastEvents({
   events,
   page,
+  query,
   resultSlugs,
 }: {
   events: readonly ExternalEvent[];
   page: string | string[] | undefined;
+  query: string;
   resultSlugs: ReadonlyMap<string, string>;
 }) {
-  const shown = pageOf(events, page, PAST_PAGE_SIZE);
+  if (events.length === 0) return null;
+  const needle = query.toLowerCase();
+  const matching =
+    needle === "" ? events : events.filter((event) => event.name.toLowerCase().includes(needle));
+  const shown = pageOf(matching, page, PAST_PAGE_SIZE);
+  const href = (n: number) => {
+    const search = new URLSearchParams();
+    if (query !== "") search.set("q", query);
+    if (n > 1) search.set("page", String(n));
+    const text = search.toString();
+    return `/events${text === "" ? "" : `?${text}`}#past`;
+  };
   return (
     <div id="past" className="scroll-mt-24">
       <EventGroup
         title="Past events"
         events={shown.items}
+        lead={<PastFilter query={query} matches={matching.length} />}
+        empty={
+          <p className="text-sm text-ink-600 dark:text-ink-400">
+            No past event has &ldquo;{query}&rdquo; in its name.
+          </p>
+        }
         resultsHref={(event) => {
           const slug = resultSlugs.get(resultKey(event));
           return slug === undefined ? undefined : `/tournaments/${slug}`;
         }}
       >
-        <Pager
-          page={shown.page}
-          pages={shown.pages}
-          href={(n) => (n === 1 ? "/events#past" : `/events?page=${n}#past`)}
-          previous="Newer"
-          next="Older"
-        />
+        <Pager page={shown.page} pages={shown.pages} href={href} previous="Newer" next="Older" />
       </EventGroup>
     </div>
+  );
+}
+
+function PastFilter({ query, matches }: { query: string; matches: number }) {
+  return (
+    <form action="/events#past" className="mb-5 flex flex-wrap items-center gap-3 text-sm">
+      <label htmlFor="past-q" className="sr-only">
+        Filter past events by name
+      </label>
+      <input
+        id="past-q"
+        type="search"
+        name="q"
+        defaultValue={query}
+        placeholder="Filter by name, e.g. monthly"
+        className="w-full max-w-xs rounded-full border border-ink-200 bg-transparent px-4 py-1.5 placeholder:text-ink-400 focus:border-eclipse-500 focus:outline-none sm:w-72 dark:border-ink-800 dark:placeholder:text-ink-600"
+      />
+      <button
+        type="submit"
+        className="rounded-full border border-ink-200 px-4 py-1.5 hover:border-eclipse-500/60 dark:border-ink-800"
+      >
+        Filter
+      </button>
+      {query !== "" && (
+        <>
+          <span className="text-ink-500 dark:text-ink-400">
+            {matches} {matches === 1 ? "event" : "events"}
+          </span>
+          <Link
+            href="/events#past"
+            className="text-eclipse-700 hover:underline dark:text-eclipse-400"
+          >
+            Clear
+          </Link>
+        </>
+      )}
+    </form>
   );
 }
 

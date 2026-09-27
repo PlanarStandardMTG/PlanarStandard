@@ -1360,7 +1360,8 @@ and the swap would be noise.
 event rather than the last 30 days, ten to a page, newest first. _AC:_ `?page=` out of range shows the
 nearest page; a finished event with results here links to them (E20.14) as well as to its bracket.
 _Note:_ added outside the plan. `eventSchedule` is given no window; `lib/paging.ts` slices, and
-`components/ui/pager.tsx` links newer and older.
+`components/ui/pager.tsx` links newer and older. A `?q=` box filters them by a word in the name, ignoring case,
+and the pager keeps it.
 
 ---
 
