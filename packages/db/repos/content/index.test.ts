@@ -6,14 +6,17 @@ import {
   POST_IMAGE_BUCKET,
   storePostImage,
   createPost,
+  getOwnPostReaction,
   getPostForEditing,
   getPublishedPostBySlug,
+  listPostReactionCounts,
   listPostsAwaitingReview,
   listPostsByAuthor,
   listPublishedPostSlugs,
   listPublishedPostsByKind,
   listRecentPublishedPosts,
   reviewPost,
+  setOwnPostReaction,
   updatePost,
 } from "./index";
 
@@ -140,6 +143,21 @@ describe.skipIf(!reachable)("repos/content — submission and review", () => {
 
   afterAll(async () => {
     await service.from("posts").delete().like("slug", `${prefix}%`);
+  });
+
+  it("sets, swaps and takes back a member's reaction, and counts it", async () => {
+    const post = await createPost(writer, draft("reacted", writerId, "published"));
+
+    await setOwnPostReaction(reader, post.id, readerId, "blue");
+    await setOwnPostReaction(reader, post.id, readerId, "green");
+    expect(await getOwnPostReaction(reader, post.id)).toBe("green");
+    expect(await getOwnPostReaction(writer, post.id)).toBeNull();
+    expect(await listPostReactionCounts(client, post.id)).toEqual([
+      { reaction: "green", total: 1 },
+    ]);
+
+    await setOwnPostReaction(reader, post.id, readerId, null);
+    expect(await listPostReactionCounts(client, post.id)).toEqual([]);
   });
 
   it("holds a reader's submission for review and shows it to its author", async () => {

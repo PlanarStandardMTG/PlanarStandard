@@ -456,6 +456,86 @@ suite("RLS — the allow-deny matrix", () => {
     });
   });
 
+  describe("post reactions", () => {
+    async function postId(slug: string): Promise<string> {
+      const { data } = await service.from("posts").select("id").eq("slug", slug).single();
+      return (data as { id: string }).id;
+    }
+
+    afterAll(async () => {
+      await service
+        .from("post_reactions")
+        .delete()
+        .in("profile_id", [...profileIds.values()]);
+    });
+
+    it("lets a member react, shows them only their own, and counts for everyone", async () => {
+      const post = await postId("the-hub-is-live");
+      const reader = profileIds.get("reader");
+      const writer = profileIds.get("writer");
+
+      expect(
+        (
+          await as("reader")
+            .from("post_reactions")
+            .insert({ post_id: post, profile_id: reader, reaction: "red" })
+        ).error,
+      ).toBeNull();
+      expect(
+        (
+          await as("writer")
+            .from("post_reactions")
+            .insert({ post_id: post, profile_id: writer, reaction: "red" })
+        ).error,
+      ).toBeNull();
+
+      const { data: seen } = await as("writer").from("post_reactions").select("profile_id");
+      expect(seen).toStrictEqual([{ profile_id: writer }]);
+      expect((await anon.from("post_reactions").select("*")).data).toStrictEqual([]);
+
+      const { data: counts } = await anon.rpc("post_reaction_counts", { p_post_id: post });
+      const red = (counts as { reaction: string; total: number }[]).find(
+        (row) => row.reaction === "red",
+      );
+      expect(Number(red?.total)).toBeGreaterThanOrEqual(2);
+    });
+
+    it("refuses a reaction on a draft, or in somebody else's name", async () => {
+      const draft = await postId("season-iii-predictions");
+      const published = await postId("the-hub-is-live");
+
+      const onDraft = await as("organizer")
+        .from("post_reactions")
+        .insert({ post_id: draft, profile_id: profileIds.get("organizer"), reaction: "blue" });
+      expect(onDraft.error?.code).toBe(RLS_REFUSED);
+
+      const forged = await as("organizer")
+        .from("post_reactions")
+        .insert({ post_id: published, profile_id: profileIds.get("admin"), reaction: "blue" });
+      expect(forged.error?.code).toBe(RLS_REFUSED);
+    });
+
+    it("refuses a banned member", async () => {
+      const organizer = profileIds.get("organizer") ?? "";
+      await service
+        .from("profiles")
+        .update({ banned_at: new Date().toISOString() })
+        .eq("id", organizer);
+      try {
+        const { error } = await as("organizer")
+          .from("post_reactions")
+          .insert({
+            post_id: await postId("the-hub-is-live"),
+            profile_id: organizer,
+            reaction: "green",
+          });
+        expect(error?.code).toBe(RLS_REFUSED);
+      } finally {
+        await service.from("profiles").update({ banned_at: null }).eq("id", organizer);
+      }
+    });
+  });
+
   describe("the ladder, as the database sees it", () => {
     it("agrees with core/auth/meets-role on all sixteen pairs", async () => {
       expect(LADDER).toHaveLength(ROLES.length ** 2);

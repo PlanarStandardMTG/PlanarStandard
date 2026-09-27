@@ -1,4 +1,11 @@
-import type { PostId, PostKind, PostStatus, PostWithAuthor, ProfileId } from "@ps/contracts";
+import type {
+  PostId,
+  PostKind,
+  PostReaction,
+  PostStatus,
+  PostWithAuthor,
+  ProfileId,
+} from "@ps/contracts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { POST_COLUMNS, toPostWithAuthor, type PostRow } from "./rows";
@@ -267,4 +274,62 @@ export async function storePostImage(
 
   if (error !== null) throw new Error(`storePostImage failed: ${error.message}`);
   return client.storage.from(POST_IMAGE_BUCKET).getPublicUrl(path).data.publicUrl;
+}
+
+/**
+ * A published post's reactions, one row per kind anybody has used (E20.41).
+ * Counted by `post_reaction_counts`, so anyone may ask and nobody learns who.
+ */
+export async function listPostReactionCounts(
+  client: SupabaseClient,
+  postId: PostId,
+): Promise<readonly { reaction: PostReaction; total: number }[]> {
+  const { data, error } = await client.rpc("post_reaction_counts", { p_post_id: postId });
+
+  if (error !== null) throw new Error(`listPostReactionCounts failed: ${error.message}`);
+  return (data as { reaction: PostReaction; total: number | string }[]).map((row) => ({
+    reaction: row.reaction,
+    total: Number(row.total),
+  }));
+}
+
+/** The caller's own reaction to a post, or null. RLS shows nobody else's. */
+export async function getOwnPostReaction(
+  client: SupabaseClient,
+  postId: PostId,
+): Promise<PostReaction | null> {
+  const { data, error } = await client
+    .from("post_reactions")
+    .select("reaction")
+    .eq("post_id", postId)
+    .maybeSingle();
+
+  if (error !== null) throw new Error(`getOwnPostReaction failed: ${error.message}`);
+  return data === null ? null : (data as { reaction: PostReaction }).reaction;
+}
+
+/**
+ * Set the caller's reaction to a post, or take it back with null. Under the
+ * caller's own client: the policies decide who, and that the post is published.
+ */
+export async function setOwnPostReaction(
+  client: SupabaseClient,
+  postId: PostId,
+  profileId: ProfileId,
+  reaction: PostReaction | null,
+): Promise<void> {
+  const { error } =
+    reaction === null
+      ? await client
+          .from("post_reactions")
+          .delete()
+          .eq("post_id", postId)
+          .eq("profile_id", profileId)
+      : await client
+          .from("post_reactions")
+          .upsert({ post_id: postId, profile_id: profileId, reaction })
+          .select("post_id")
+          .single();
+
+  if (error !== null) throw new Error(`setOwnPostReaction failed: ${error.message}`);
 }

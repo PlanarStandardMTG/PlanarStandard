@@ -263,6 +263,7 @@ Five tiny transforms and a pipeline. Each is a two-minute PR with a before/after
 | `export-post`      | A post body for Reddit or Discord: expand components, then `to-reddit-markdown` |
 | `post-draft`       | Whether an author's input can be saved or submitted                             |
 | `post-workflow`    | The status a post lands in when it is submitted or reviewed                     |
+| `post-reaction`    | The reactions a post offers, and what clicking one does                         |
 
 A component renders on the site through a renderer in `apps/web` and exports as text through core, so a post always copies to Reddit whole.
 

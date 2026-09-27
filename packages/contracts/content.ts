@@ -46,6 +46,12 @@ export type PostStatus = "draft" | "review" | "published" | "archived";
  */
 export type PostKind = "official" | "community";
 
+/** A member's reaction to a published post (E20.41): a thumbs up, or one of the five colours. */
+export type PostReaction = "thumbs_up" | "white" | "blue" | "black" | "red" | "green";
+
+/** A post's reactions, one count per kind, zeros included. */
+export type PostReactionCounts = Readonly<Record<PostReaction, number>>;
+
 /** An article written in the site's editor. The body is Markdown (ADR 001). */
 export interface Post {
   readonly id: PostId;

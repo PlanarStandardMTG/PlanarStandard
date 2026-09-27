@@ -6,6 +6,7 @@ import { FEED_LABEL, feedHref } from "@/lib/post-url";
 
 import { PostBody } from "./post-body";
 import { PostMeta } from "./post-meta";
+import { PostReactions } from "./post-reactions";
 
 /** One post, full. Shared by `/news/[slug]` and `/community/[slug]`. */
 export function PostArticle({ post }: { post: PostWithAuthor }) {
@@ -19,6 +20,10 @@ export function PostArticle({ post }: { post: PostWithAuthor }) {
       </Link>
 
       <PostArticleContent post={post} className="mt-6" />
+
+      <section aria-label="Reactions" className="mt-10">
+        <PostReactions postId={post.id} slug={post.slug} kind={post.kind} />
+      </section>
     </Container>
   );
 }

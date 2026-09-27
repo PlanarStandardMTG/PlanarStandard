@@ -1,6 +1,6 @@
 # `repos/content`
 
-Reads over `posts` and `post_revisions` (§16, E13.22).
+Reads over `posts` and `post_revisions` (§16, E13.22), and each post's reactions (E20.41).
 
 **Inputs.** A `SupabaseClient` supplied by the caller — this package never reads
 the environment, so the same functions serve a server component, a job, and a

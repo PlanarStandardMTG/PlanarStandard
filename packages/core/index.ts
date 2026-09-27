@@ -200,6 +200,12 @@ export {
 } from "./content/post-workflow/index";
 export type { ReviewDecision, SubmittedStatus } from "./content/post-workflow/index";
 export {
+  POST_REACTIONS,
+  isPostReaction,
+  tallyReactions,
+  toggledReaction,
+} from "./content/post-reaction/index";
+export {
   BODY_MAX,
   EXCERPT_MAX,
   SUBTITLE_MAX,
