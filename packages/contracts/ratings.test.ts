@@ -35,7 +35,6 @@ const config = {
   provisionalMatches: 15,
   eliteThreshold: 2100,
   minEventsForLeaderboard: 2,
-  inactiveAfterDays: 120,
   countByes: false,
   countEliminationRounds: true,
 } satisfies RatingConfig;
@@ -47,7 +46,6 @@ describe("ratings contracts", () => {
     expect([config.kProvisional, config.kStandard, config.kElite]).toEqual([40, 24, 16]);
     expectTypeOf<RatingConfig["initialRating"]>().toEqualTypeOf<number>();
     expectTypeOf<RatingConfig["eliteThreshold"]>().toEqualTypeOf<number>();
-    expectTypeOf<RatingConfig["inactiveAfterDays"]>().toEqualTypeOf<number>();
     // Byes and elimination rounds are config, not code.
     expectTypeOf<RatingConfig["countByes"]>().toEqualTypeOf<boolean>();
     expectTypeOf<RatingConfig["countEliminationRounds"]>().toEqualTypeOf<boolean>();
@@ -199,7 +197,6 @@ describe("ratings contracts", () => {
       tournamentsPlayed: 0,
       lastPlayed: null,
       isProvisional: true,
-      isActive: true,
     } satisfies PlayerRating;
     const established = {
       ...unrated,
@@ -291,7 +288,6 @@ describe("ratings contracts", () => {
       tournamentsPlayed: 1,
       lastPlayed: augustOpen,
       isProvisional: true,
-      isActive: true,
     } satisfies PlayerRating;
     const winnerEvent = {
       playerId: serlupidus,

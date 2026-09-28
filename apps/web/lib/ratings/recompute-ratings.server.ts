@@ -1,4 +1,4 @@
-import type { IsoDate, RatingAnomaly } from "@ps/contracts";
+import type { RatingAnomaly } from "@ps/contracts";
 import { replay } from "@ps/core";
 import {
   getCurrentSeason,
@@ -42,9 +42,7 @@ export async function recomputeRatings(
       : listLedgerMatchesBySeason(service, season.id),
   ]);
 
-  const result = replay(ledger.matches, config, {
-    asOf: now.toISOString().slice(0, 10) as IsoDate,
-  });
+  const result = replay(ledger.matches, config);
   await replaceRatings(service, result.ratings, result.events);
   await recordRatingRun(service, {
     trigger,

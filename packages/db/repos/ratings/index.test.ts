@@ -84,7 +84,6 @@ const rating = (playerId: PlayerId, over: Partial<PlayerRating> = {}): PlayerRat
   tournamentsPlayed: 5,
   lastPlayed: "2026-08-22",
   isProvisional: false,
-  isActive: true,
   ...over,
 });
 

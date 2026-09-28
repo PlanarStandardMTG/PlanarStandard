@@ -167,7 +167,6 @@ export async function replaceRatings(
         tournaments_played: rating.tournamentsPlayed,
         last_played: rating.lastPlayed,
         is_provisional: rating.isProvisional,
-        is_active: rating.isActive,
       })),
     );
     if (error !== null) throw new Error(`replaceRatings failed writing ratings: ${error.message}`);

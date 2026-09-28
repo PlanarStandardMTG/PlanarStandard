@@ -25,8 +25,6 @@ export interface RatingConfig {
   readonly eliteThreshold: number;
   /** Events a player must have played in to appear on the leaderboard. */
   readonly minEventsForLeaderboard: number;
-  /** Days without a rated match before `isActive` goes false (E8.6). */
-  readonly inactiveAfterDays: number;
   readonly countByes: boolean;
   readonly countEliminationRounds: boolean;
 }
@@ -88,10 +86,9 @@ export interface PlayerRating {
   readonly losses: number;
   readonly draws: number;
   readonly tournamentsPlayed: number;
-  /** Null until a rated match lands, so `isActive` has nothing to measure. */
+  /** Null until a rated match lands. */
   readonly lastPlayed: IsoDate | null;
   readonly isProvisional: boolean;
-  readonly isActive: boolean;
 }
 
 export type RatingAnomalyKind =

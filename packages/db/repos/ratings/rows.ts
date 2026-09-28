@@ -30,7 +30,6 @@ export interface RatingConfigRow {
   readonly provisional_matches: number;
   readonly elite_threshold: number;
   readonly min_events_for_leaderboard: number;
-  readonly inactive_after_days: number;
   readonly count_byes: boolean;
   readonly count_elimination_rounds: boolean;
 }
@@ -46,7 +45,6 @@ export interface PlayerRatingRow {
   readonly tournaments_played: number;
   readonly last_played: string | null;
   readonly is_provisional: boolean;
-  readonly is_active: boolean;
 }
 
 export interface RatingEventRow {
@@ -89,11 +87,11 @@ export interface RatingRunRow {
 
 export const CONFIG_COLUMNS =
   "initial_rating, k_provisional, k_standard, k_elite, provisional_matches, elite_threshold, " +
-  "min_events_for_leaderboard, inactive_after_days, count_byes, count_elimination_rounds";
+  "min_events_for_leaderboard, count_byes, count_elimination_rounds";
 
 export const RATING_COLUMNS =
   "player_id, rating, peak_rating, matches_played, wins, losses, draws, tournaments_played, " +
-  "last_played, is_provisional, is_active";
+  "last_played, is_provisional";
 
 export const EVENT_COLUMNS =
   "player_id, match_id, tournament_id, opponent_id, event_date, rating_before, rating_after, " +
@@ -115,7 +113,6 @@ export function toRatingConfig(row: RatingConfigRow): RatingConfig {
     provisionalMatches: row.provisional_matches,
     eliteThreshold: row.elite_threshold,
     minEventsForLeaderboard: row.min_events_for_leaderboard,
-    inactiveAfterDays: row.inactive_after_days,
     countByes: row.count_byes,
     countEliminationRounds: row.count_elimination_rounds,
   };
@@ -133,7 +130,6 @@ export function toPlayerRating(row: PlayerRatingRow): PlayerRating {
     tournamentsPlayed: row.tournaments_played,
     lastPlayed: row.last_played,
     isProvisional: row.is_provisional,
-    isActive: row.is_active,
   };
 }
 

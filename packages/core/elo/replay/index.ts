@@ -11,14 +11,6 @@ import type {
 
 import { applyMatch, type PlayerSnapshot } from "../apply-match/index";
 
-export interface ReplayOptions {
-  /**
-   * Reference date for `isActive`. Defaults to the latest event date in the
-   * stream — core is pure, so it cannot ask what today is.
-   */
-  readonly asOf?: IsoDate;
-}
-
 interface PlayerState {
   rating: number;
   peakRating: number;
@@ -41,11 +33,7 @@ interface PlayerState {
  *
  * Does no I/O and never throws. Bad data comes back as anomalies.
  */
-export function replay(
-  matches: readonly LedgerMatch[],
-  config: RatingConfig,
-  options: ReplayOptions = {},
-): ReplayResult {
+export function replay(matches: readonly LedgerMatch[], config: RatingConfig): ReplayResult {
   const ordered = [...matches].sort(byDateThenRoundThenId);
   const states = new Map<PlayerId, PlayerState>();
   const events: RatingEvent[] = [];
@@ -183,9 +171,8 @@ export function replay(
     }
   });
 
-  const asOf = options.asOf ?? latestEventDate(ordered);
   const ratings = [...states]
-    .map(([playerId, state]) => toPlayerRating(playerId, state, config, asOf))
+    .map(([playerId, state]) => toPlayerRating(playerId, state, config))
     .sort((a, b) => b.rating - a.rating || a.playerId.localeCompare(b.playerId));
 
   return { ratings, events, anomalies, matchesApplied };
@@ -206,10 +193,7 @@ function toPlayerRating(
   playerId: PlayerId,
   state: PlayerState,
   config: RatingConfig,
-  asOf: IsoDate | null,
 ): PlayerRating {
-  const idle =
-    state.lastPlayed === null || asOf === null ? null : daysBetween(state.lastPlayed, asOf);
   return {
     playerId,
     rating: state.rating,
@@ -221,7 +205,6 @@ function toPlayerRating(
     tournamentsPlayed: state.tournaments.size,
     lastPlayed: state.lastPlayed,
     isProvisional: state.matchesPlayed < config.provisionalMatches,
-    isActive: idle === null ? true : idle <= config.inactiveAfterDays,
   };
 }
 
@@ -233,26 +216,6 @@ function byDateThenRoundThenId(a: LedgerMatch, b: LedgerMatch): number {
   if (a.eventDate !== b.eventDate) return a.eventDate < b.eventDate ? -1 : 1;
   if (a.round !== b.round) return a.round - b.round;
   return a.matchId < b.matchId ? -1 : a.matchId > b.matchId ? 1 : 0;
-}
-
-function latestEventDate(ordered: readonly LedgerMatch[]): IsoDate | null {
-  const last = ordered[ordered.length - 1];
-  return last === undefined ? null : last.eventDate;
-}
-
-const MS_PER_DAY = 86_400_000;
-
-/** Whole days from `from` to `to`. UTC arithmetic on a `YYYY-MM-DD`: no timezone, no clock. */
-function daysBetween(from: IsoDate, to: IsoDate): number {
-  return Math.round((toUtcMillis(to) - toUtcMillis(from)) / MS_PER_DAY);
-}
-
-function toUtcMillis(date: IsoDate): number {
-  const parts = date.split("-");
-  const year = Number(parts[0]);
-  const month = Number(parts[1]);
-  const day = Number(parts[2]);
-  return Date.UTC(year, month - 1, day);
 }
 
 /**

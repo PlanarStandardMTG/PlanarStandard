@@ -289,6 +289,7 @@ Stream C. Entirely pure; `replay` takes matches already resolved to player IDs.
 ✅ **E8.4 — `replay`** · M · Deps: E8.3 — ordered match stream → full rating history. _AC:_ no I/O; fixture of matches produces an expected rating table; deterministic tiebreak for same-date matches.
 ✅ **E8.5 — Anomaly detection during replay** · M · Deps: E8.4 — self-play, duplicate match IDs, impossible game counts, rating jumps beyond a bound. _AC:_ returns anomalies as data for `rating_runs.anomalies`; does not throw.
 ✅ **E8.6 — Activity and provisional flags** · S · Deps: E8.4 — derive `is_provisional`, `is_active`, `peak_rating`, per-player counters.
+_Note:_ `is_active` was later removed (E20.44): nothing showed it.
 ✅ **E8.7 — `rated-by-default`** · S · Deps: E2.6 — a tournament's name → whether it feeds Elo on
 import. Only Monthlies are rated: `Monthly Championship Series - September 2026` is, `Mid-Month
 Madness #2` and a weekly are not. _AC:_ matches the whole word `Monthly`, case-insensitive; the result
@@ -1243,7 +1244,9 @@ _Note:_ added outside the plan. `0037_leaderboard_by_events.sql` sets `provision
 renames `min_matches_for_leaderboard` to `min_events_for_leaderboard` (2), and drops
 `provisional_ratings` with `getProvisionalRatings`. `RatingConfig.minMatchesForLeaderboard` is now
 `minEventsForLeaderboard`, and `LeaderboardRow` loses `isActive`. `0038_old_app_rating_scale.sql`
-then puts ratings on the old app's scale: start at 1000, K = 32 for everyone. Ratings take the new
+then puts ratings on the old app's scale: start at 1000, K = 32 for everyone, and
+`0039_drop_inactive_flag.sql` drops `is_active` and `inactive_after_days` — `PlayerRating.isActive`,
+`RatingConfig.inactiveAfterDays` and `replay`'s `asOf` option go with them. Ratings take the new
 numbers on the next recompute.
 
 ---

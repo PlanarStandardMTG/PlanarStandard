@@ -11,7 +11,6 @@ const CONFIG: RatingConfig = {
   provisionalMatches: 15,
   eliteThreshold: 2100,
   minEventsForLeaderboard: 2,
-  inactiveAfterDays: 120,
   countByes: false,
   countEliminationRounds: true,
 };

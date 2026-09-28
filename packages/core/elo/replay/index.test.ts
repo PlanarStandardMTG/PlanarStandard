@@ -11,7 +11,6 @@ const CONFIG: RatingConfig = {
   provisionalMatches: 15,
   eliteThreshold: 2100,
   minEventsForLeaderboard: 2,
-  inactiveAfterDays: 120,
   countByes: false,
   countEliminationRounds: true,
 };
@@ -141,24 +140,6 @@ describe("core/elo/replay", () => {
     );
     expect(result.ratings.every((r) => r.draws === 1)).toBe(true);
     expect(result.ratings.every((r) => r.wins === 0 && r.losses === 0)).toBe(true);
-  });
-
-  it("marks a player inactive once the idle window passes", () => {
-    const result = replay([match({ matchId: "m1" })], CONFIG, {
-      asOf: "2026-09-14" as IsoDate,
-    });
-    expect(result.ratings.every((r) => r.isActive)).toBe(false);
-
-    const fresh = replay([match({ matchId: "m1" })], CONFIG, {
-      asOf: "2025-11-30" as IsoDate,
-    });
-    expect(fresh.ratings.every((r) => r.isActive)).toBe(true);
-  });
-
-  it("measures activity against the ledger when no asOf is given", () => {
-    // Core is pure: with no reference date, the stream's own last day is the present.
-    const result = replay([match({ matchId: "m1" })], CONFIG);
-    expect(result.ratings.every((r) => r.isActive)).toBe(true);
   });
 
   it("counts distinct tournaments, not matches", () => {

@@ -2,8 +2,7 @@
 
 **Purpose.** Replay a whole match ledger into a rating table.
 
-**Inputs.** `LedgerMatch[]` already resolved to player ids, a `RatingConfig`, and
-optionally `asOf` for the activity cutoff.
+**Inputs.** `LedgerMatch[]` already resolved to player ids, and a `RatingConfig`.
 
 **Outputs.** `ReplayResult` — the rating table, the ordered `rating_events` rows,
 the anomalies, and how many matches actually moved a rating.
@@ -17,9 +16,6 @@ the anomalies, and how many matches actually moved a rating.
 - **It sorts its own input** by date, then round, then match id. Match ids are
   unique, so that is a total order and two runs over the same matches in any
   input order produce byte-identical output.
-- **`asOf` defaults to the latest event date** in the stream. Core is pure and
-  cannot ask what today is, so activity is measured against the ledger itself
-  unless a caller says otherwise.
 - **It never throws.** Self-play, duplicate match ids, contradictory game counts
   and impossible rating jumps come back in `anomalies` for `rating_runs.anomalies`.
   Self-play and duplicates are skipped; a bad game count is _recorded but still
