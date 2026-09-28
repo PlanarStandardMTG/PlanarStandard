@@ -34,21 +34,12 @@ export default async function DashboardLayout({ children }: { children: ReactNod
           <ul className="flex flex-wrap gap-x-4 gap-y-2 text-sm md:flex-col">
             {sections.map((section) => (
               <li key={section.href}>
-                {section.built ? (
-                  <Link
-                    href={section.href}
-                    className="text-ink-600 hover:text-ink-900 dark:text-ink-400 dark:hover:text-ink-100"
-                  >
-                    {section.label}
-                  </Link>
-                ) : (
-                  <span
-                    className="cursor-default text-ink-400 dark:text-ink-600"
-                    title="Not built yet"
-                  >
-                    {section.label}
-                  </span>
-                )}
+                <Link
+                  href={section.href}
+                  className="text-ink-600 hover:text-ink-900 dark:text-ink-400 dark:hover:text-ink-100"
+                >
+                  {section.label}
+                </Link>
               </li>
             ))}
           </ul>

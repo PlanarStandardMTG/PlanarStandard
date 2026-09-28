@@ -1,5 +1,6 @@
 import { meetsRole } from "@ps/core";
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
 import { DASHBOARD_MINIMUM, DASHBOARD_SECTIONS } from "@/lib/auth/dashboard-sections";
@@ -30,33 +31,24 @@ export default async function DashboardPage() {
       <header className="mb-8">
         <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Dashboard</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-          Everything a {role} account can do here. Nothing on these pages is edited by deploying the
-          site — that is the point of it.
+          Your profile, your posts, and everything else your account can do.
         </p>
       </header>
 
       <ul className="grid gap-4 sm:grid-cols-2">
         {sections.map((section) => (
           <li key={section.href}>
-            <Card className="h-full p-5">
-              <div className="flex items-baseline justify-between gap-3">
+            <Link href={section.href} className="block h-full">
+              <Card className="h-full p-5 transition-colors hover:border-eclipse-400 dark:hover:border-eclipse-600">
                 <h2 className="font-display text-lg font-semibold">{section.label}</h2>
-                {!section.built && (
-                  <span className="shrink-0 text-xs text-ink-400 dark:text-ink-600">
-                    {section.story}
-                  </span>
-                )}
-              </div>
-              <p className="mt-1.5 text-sm text-ink-600 dark:text-ink-400">{section.description}</p>
-            </Card>
+                <p className="mt-1.5 text-sm text-ink-600 dark:text-ink-400">
+                  {section.description}
+                </p>
+              </Card>
+            </Link>
           </li>
         ))}
       </ul>
-
-      <p className="mt-8 text-sm text-ink-500 dark:text-ink-400">
-        Sections you cannot reach are not listed. That is a courtesy and not a control — each one
-        checks for itself, and the database checks again underneath.
-      </p>
     </>
   );
 }

@@ -1,4 +1,3 @@
-import { meetsRole } from "@ps/core";
 import Link from "next/link";
 
 import { loginHref } from "@/lib/auth/next-path";
@@ -11,11 +10,12 @@ import { currentViewer } from "@/lib/auth/viewer";
  * signed-in the way a client-side session check does. `currentViewer` is
  * memoised per request, so a page that also asks does not pay twice.
  *
+ * Signed in, the display name is the one way into the dashboard, which leads to
+ * the profile, the member's posts and, for an admin, `/admin` (E20.47).
  * Signing out is a form and not a link — see `app/auth/sign-out/route.ts`.
+ *
+ * `inline` for the header line at `xl`; `stacked` for the menu below it, one tap target per row.
  */
-const LINK = "text-ink-600 hover:text-ink-900 dark:text-ink-400 dark:hover:text-ink-100";
-
-/** `inline` for the header line at `xl`; `stacked` for the menu below it, one tap target per row. */
 export async function AccountNav({ layout }: { layout: "inline" | "stacked" }) {
   const viewer = await currentViewer();
   const stacked = layout === "stacked";
@@ -32,24 +32,16 @@ export async function AccountNav({ layout }: { layout: "inline" | "stacked" }) {
     );
   }
 
-  const active = viewer.profile.bannedAt === null;
+  // A banned member clears no rung, so the dashboard would turn them away;
+  // their profile still says why.
+  const home = viewer.profile.bannedAt === null ? "/dashboard" : "/profile";
   return (
     <div className={stacked ? "flex flex-col" : "flex shrink-0 items-center gap-3 text-sm"}>
-      {active && (
-        <Link href="/dashboard" className={`${row} ${LINK}`}>
-          Dashboard
-        </Link>
-      )}
-      {active && meetsRole(viewer.profile.role, "admin") && (
-        <Link href="/admin" className={`${row} ${LINK}`}>
-          Admin
-        </Link>
-      )}
       <Link
-        href="/profile"
+        href={home}
         className={`${row} font-medium text-ink-700 hover:text-ink-900 dark:text-ink-300 dark:hover:text-ink-100`}
       >
-        {stacked ? `Profile · ${viewer.profile.displayName}` : viewer.profile.displayName}
+        {viewer.profile.displayName}
       </Link>
       <form method="post" action="/auth/sign-out">
         <button

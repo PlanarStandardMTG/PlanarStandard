@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 14/15 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 35/46 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 36/47 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1275,6 +1275,15 @@ reused deck keeps the season of the event that first made it.
 _Note:_ added outside the plan. Decks made before this are not merged. `listDecksWithCards` takes a
 `playedBy` filter.
 
+✅ **E20.47 — `dashboard`: one way in, and a member's own posts** · S · Deps: E20.22 — the header's
+Dashboard, Admin and Profile links become one link, the display name, into `/dashboard`. Its cards are
+links, in order: Profile, Community posts, News posts (admin), Review queue (writer), Admin dashboard
+(admin). `/dashboard/community` and the new `/dashboard/news` list the viewer's posts of that kind with
+Edit and Delete. _AC:_ no unbuilt placeholder is listed; the news button is only on `/dashboard/news`;
+an author deletes their own post at any status and nobody else's (`posts_author_delete`, migration 0042).
+_Note:_ added outside the plan. A banned member's name still links to `/profile`, since the dashboard
+turns them away. The editor moved under each kind's prefix; `?kind=official` is gone.
+
 ---
 
 ## E21 — Season II backfill
@@ -1663,11 +1672,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 15      | 14   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 46      | 35   |
+| E9   | 9       | 9    | E20  | 47      | 36   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 6       | 4    |
 
-**216 of 287 stories done across 25 epics.**
+**217 of 288 stories done across 25 epics.**

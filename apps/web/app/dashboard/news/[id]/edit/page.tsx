@@ -16,5 +16,5 @@ export default function Page({
   params: Promise<{ id: string }>;
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  return <EditPostPage kind="community" params={params} searchParams={searchParams} />;
+  return <EditPostPage kind="official" params={params} searchParams={searchParams} />;
 }

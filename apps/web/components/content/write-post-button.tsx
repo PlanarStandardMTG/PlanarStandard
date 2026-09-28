@@ -4,13 +4,7 @@ import Link from "next/link";
 
 import { loginHref } from "@/lib/auth/next-path";
 import { currentViewer } from "@/lib/auth/viewer";
-
-/** Where the editor starts for each kind. */
-export function newPostHref(kind: PostKind): string {
-  return kind === "official"
-    ? "/dashboard/community/new?kind=official"
-    : "/dashboard/community/new";
-}
+import { newPostHref } from "@/lib/post-url";
 
 const BUTTON =
   "inline-block shrink-0 rounded-lg bg-ink-900 px-4 py-2 text-sm font-medium text-white " +

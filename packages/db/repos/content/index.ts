@@ -335,6 +335,16 @@ export async function setOwnPostReaction(
   if (error !== null) throw new Error(`setOwnPostReaction failed: ${error.message}`);
 }
 
+/**
+ * Delete one of the caller's own posts (E20.47). Returns false when nothing
+ * went: somebody else's post, or one already gone, is invisible to the delete.
+ */
+export async function deleteOwnPost(client: SupabaseClient, postId: PostId): Promise<boolean> {
+  const { data, error } = await client.from("posts").delete().eq("id", postId).select("id");
+  if (error !== null) throw new Error(`deleteOwnPost failed: ${error.message}`);
+  return data.length > 0;
+}
+
 /** Delete any post, as an admin (E20.42). The function refuses everybody else. */
 export async function adminDeletePost(client: SupabaseClient, postId: PostId): Promise<void> {
   const { error } = await client.rpc("admin_delete_post", { p_post_id: postId });

@@ -19,3 +19,16 @@ export const FEED_LABEL: Record<PostKind, string> = {
   official: "News",
   community: "Community",
 };
+
+/** An author's own posts of one kind, in the dashboard (E20.47). */
+export function ownPostsHref(kind: PostKind): string {
+  return kind === "official" ? "/dashboard/news" : "/dashboard/community";
+}
+
+export function newPostHref(kind: PostKind): string {
+  return `${ownPostsHref(kind)}/new`;
+}
+
+export function editPostHref(post: { id: string; kind: PostKind }): string {
+  return `${ownPostsHref(post.kind)}/${post.id}/edit`;
+}

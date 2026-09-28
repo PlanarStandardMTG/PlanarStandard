@@ -19,6 +19,7 @@ import {
   POST_IMAGE_MAX_BYTES,
   POST_IMAGE_TYPES,
   createPost,
+  deleteOwnPost,
   getPostForEditing,
   getTournamentBySlug,
   listTournamentFinishers,
@@ -33,7 +34,7 @@ import type { ReactNode } from "react";
 import { PostArticleContent } from "@/components/content/post-article";
 import { loadEmbedData } from "@/components/content/embeds/load";
 import { requireRole } from "@/lib/auth/guard";
-import { feedHref, postHref } from "@/lib/post-url";
+import { editPostHref, feedHref, ownPostsHref, postHref } from "@/lib/post-url";
 import { siteOrigin } from "@/lib/site-origin";
 import { createSessionClient } from "@/lib/supabase/session";
 
@@ -111,7 +112,20 @@ export async function savePost(_previous: SaveState, form: FormData): Promise<Sa
 
   revalidatePath("/dashboard", "layout");
   if (saved.status === "published") revalidatePath(feedHref(saved.kind), "layout");
-  redirect(`/dashboard/community/${saved.id}/edit?saved=${saved.status}`);
+  redirect(`${editPostHref(saved)}?saved=${saved.status}`);
+}
+
+/** One of the author's own posts, gone for good (E20.47); `posts_author_delete` is the check. */
+export async function deletePost(form: FormData): Promise<never> {
+  await requireRole("reader");
+  const kind: PostKind = form.get("kind") === "official" ? "official" : "community";
+  const deleted = await deleteOwnPost(
+    await createSessionClient(),
+    form.get("id")?.toString() ?? "",
+  );
+
+  revalidatePath("/", "layout");
+  redirect(`${ownPostsHref(kind)}?${deleted ? "done=deleted" : "error=gone"}`);
 }
 
 export interface Preview {

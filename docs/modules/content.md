@@ -5,8 +5,9 @@ Who may publish is in [`auth.md`](auth.md#posts-who-publishes).
 
 ## Writing
 
-`/dashboard/community/new` (`?kind=official` for a news post, admins only) and
-`/dashboard/community/[id]/edit` (E20.2). Every feed has a button into it. The body
+`/dashboard/community/new` and `/dashboard/community/[id]/edit` (E20.2), or the same
+under `/dashboard/news` for a news post, admins only (E20.47). Each list there
+edits and deletes the author's own posts, and each feed has a button into it. The body
 is Markdown in a textarea (ADR 001: Reddit is Markdown, so the post is too),
 with four tabs:
 
@@ -115,19 +116,19 @@ to compile until it answers for it.
 
 ## Modules
 
-| Module                                    | Job                                                                                           |
-| ----------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `core/content/embed-syntax`               | find and rewrite `:::name{…}` lines                                                           |
-| `core/content/embed-registry`             | what a component is; `expandEmbeds`                                                           |
-| `core/content/embed-catalogue`            | every component, and which a kind of post may place                                           |
-| `core/content/embed-image`                | `:::image`                                                                                    |
-| `core/content/embed-decklist`             | `:::decklist`, and the deck text both decks share                                             |
-| `core/content/embed-tournament`           | `:::tournament`                                                                               |
-| `core/content/embed-card`                 | `:::card`                                                                                     |
-| `core/content/export-post`                | a body for Reddit or Discord                                                                  |
-| `core/content/post-draft`                 | whether input can be saved or submitted; the slug                                             |
-| `core/content/post-workflow`              | which status a submission, save or review lands in                                            |
-| `web/components/content/post-editor`      | the editor                                                                                    |
-| `web/components/content/embeds/`          | renderers, loading, and how a line becomes a block                                            |
-| `web/components/content/embed-inserters`  | the editor's form per component                                                               |
-| `web/app/dashboard/community/actions.tsx` | `savePost`, `previewPost`, the image upload, and a tournament's finishers for the deck picker |
+| Module                                    | Job                                                                                                         |
+| ----------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `core/content/embed-syntax`               | find and rewrite `:::name{…}` lines                                                                         |
+| `core/content/embed-registry`             | what a component is; `expandEmbeds`                                                                         |
+| `core/content/embed-catalogue`            | every component, and which a kind of post may place                                                         |
+| `core/content/embed-image`                | `:::image`                                                                                                  |
+| `core/content/embed-decklist`             | `:::decklist`, and the deck text both decks share                                                           |
+| `core/content/embed-tournament`           | `:::tournament`                                                                                             |
+| `core/content/embed-card`                 | `:::card`                                                                                                   |
+| `core/content/export-post`                | a body for Reddit or Discord                                                                                |
+| `core/content/post-draft`                 | whether input can be saved or submitted; the slug                                                           |
+| `core/content/post-workflow`              | which status a submission, save or review lands in                                                          |
+| `web/components/content/post-editor`      | the editor                                                                                                  |
+| `web/components/content/embeds/`          | renderers, loading, and how a line becomes a block                                                          |
+| `web/components/content/embed-inserters`  | the editor's form per component                                                                             |
+| `web/app/dashboard/community/actions.tsx` | `savePost`, `deletePost`, `previewPost`, the image upload, and a tournament's finishers for the deck picker |

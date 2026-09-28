@@ -6,6 +6,7 @@ import {
   POST_IMAGE_BUCKET,
   storePostImage,
   createPost,
+  deleteOwnPost,
   getOwnPostReaction,
   getPostForEditing,
   getPublishedPostBySlug,
@@ -251,6 +252,18 @@ describe.skipIf(!reachable)("repos/content — submission and review", () => {
     });
 
     expect(await getPostForEditing(reader, post.id)).toBeNull();
+  });
+
+  it("lets an author delete their own post, published or not, and nobody else's", async () => {
+    const mine = await createPost(reader, draft("delete-mine", readerId, "review"));
+    await reviewPost(writer, mine.id, "published");
+    const theirs = await createPost(writer, draft("delete-theirs", writerId, "published"));
+
+    expect(await deleteOwnPost(reader, theirs.id)).toBe(false);
+    expect(await getPostForEditing(writer, theirs.id)).not.toBeNull();
+    expect(await deleteOwnPost(reader, mine.id)).toBe(true);
+    expect(await getPostForEditing(reader, mine.id)).toBeNull();
+    expect(await deleteOwnPost(reader, mine.id)).toBe(false);
   });
 
   it("stores an image in the member's own folder and serves it publicly", async () => {
