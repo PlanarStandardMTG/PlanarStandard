@@ -143,24 +143,23 @@ export async function BrowseDecks({ params }: { params: Params }) {
                     person's name cannot be a second link inside it. */}
                 <Link
                   href={`/decks/${deck.id}`}
-                  className="flex flex-wrap items-center justify-between gap-x-4 gap-y-1 px-4 py-3 hover:bg-ink-50 dark:hover:bg-ink-900"
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-ink-50 dark:hover:bg-ink-900"
                 >
-                  <span className="flex min-w-0 items-center gap-3">
-                    <ColorPips colors={colors} className="w-12 shrink-0" />
-                    <span className="min-w-0 truncate">
-                      <span className="font-medium">{deck.name}</span>
+                  <ColorPips colors={colors} className="w-12 shrink-0" />
+                  <span className="flex min-w-0 flex-1 flex-col gap-y-0.5 sm:flex-row sm:items-center sm:justify-between sm:gap-x-4">
+                    <span className="flex min-w-0 flex-col sm:flex-row sm:items-baseline sm:gap-x-3">
+                      <span className="truncate font-medium">{deck.name}</span>
                       {deck.author !== null && (
-                        <span className="text-sm text-ink-500 dark:text-ink-400">
-                          {" "}
+                        <span className="truncate text-sm text-ink-500 dark:text-ink-400">
                           by {deck.author.name}
                         </span>
                       )}
                     </span>
-                  </span>
-                  <span className="flex items-center gap-3 text-xs text-ink-500 dark:text-ink-400">
-                    <DeckRecord winRate={winRate} />
-                    <span>{FORMAT_LABELS[deck.format]}</span>
-                    <span className="whitespace-nowrap">{formatShortDate(deck.createdAt)}</span>
+                    <span className="flex shrink-0 items-center gap-3 text-xs text-ink-500 dark:text-ink-400">
+                      <DeckRecord winRate={winRate} />
+                      <span>{FORMAT_LABELS[deck.format]}</span>
+                      <span className="whitespace-nowrap">{formatShortDate(deck.createdAt)}</span>
+                    </span>
                   </span>
                 </Link>
               </li>
