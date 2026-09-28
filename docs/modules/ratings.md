@@ -13,7 +13,7 @@ Modules: `core/elo/expected-score`, `pick-k`, `apply-match`, `replay`, `rated-by
 
 ## The short version
 
-Everyone starts at **1500**. Each rated match moves both players' ratings by an
+Everyone starts at **1000**. Each rated match moves both players' ratings by an
 amount that depends on how surprising the result was.
 
 ## What counts
@@ -34,16 +34,12 @@ new rating = old rating + K x (actual - expected)
 `actual` is 1 for a win, 0.5 for a draw, 0 for a loss. A double loss scores 0 for
 both. Both updates use the ratings from before the match.
 
-## K factors
+## K factor
 
-| Tier     | K   | When                    |
-| -------- | --- | ----------------------- |
-| Standard | 24  | the default             |
-| Elite    | 16  | rating at or above 2100 |
-
-There are no placement matches: everyone enters the format on equal footing, so
-a first match moves a rating by the same K as any other. K is multiplied by the
-event's weight, currently 1.0 for all events. Admins can change these settings.
+Every match uses **K = 32**. There are no placement matches: everyone enters the
+format on equal footing, so a first match moves a rating by the same K as any
+other. K is multiplied by the event's weight, currently 1.0 for all events.
+Admins can change these settings.
 
 ## Recalculated, never edited
 

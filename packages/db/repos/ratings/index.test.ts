@@ -176,10 +176,10 @@ describe.skipIf(!reachable)("repos/ratings", () => {
     // wrong every rating on the site is wrong in the same way.
     const config = await getRatingConfig(client);
     expect(config).toMatchObject({
-      initialRating: 1500,
+      initialRating: 1000,
       kProvisional: 40,
-      kStandard: 24,
-      kElite: 16,
+      kStandard: 32,
+      kElite: 32,
       provisionalMatches: 0,
       minEventsForLeaderboard: 2,
       countByes: false,

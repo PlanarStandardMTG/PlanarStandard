@@ -1242,8 +1242,9 @@ appear. No Inactive tag.
 _Note:_ added outside the plan. `0037_leaderboard_by_events.sql` sets `provisional_matches` to 0,
 renames `min_matches_for_leaderboard` to `min_events_for_leaderboard` (2), and drops
 `provisional_ratings` with `getProvisionalRatings`. `RatingConfig.minMatchesForLeaderboard` is now
-`minEventsForLeaderboard`, and `LeaderboardRow` loses `isActive`. Ratings take the new K on the next
-recompute.
+`minEventsForLeaderboard`, and `LeaderboardRow` loses `isActive`. `0038_old_app_rating_scale.sql`
+then puts ratings on the old app's scale: start at 1000, K = 32 for everyone. Ratings take the new
+numbers on the next recompute.
 
 ---
 
