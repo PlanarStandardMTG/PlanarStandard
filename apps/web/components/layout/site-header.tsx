@@ -7,11 +7,6 @@ import { AccountNav } from "./account-nav";
 import { DevAccountSwitcher } from "./dev-account-switcher";
 import { MobileMenu } from "./mobile-menu";
 
-/**
- * `soon` routes are in the plan but not built. Shown greyed rather than linked,
- * and rather than hidden: the shape of the site is worth advertising, and a nav
- * item that 404s is worse than one that says it is not ready.
- */
 const NAV = [
   { href: "/news", label: "News" },
   { href: "/community", label: "Community" },
@@ -21,14 +16,13 @@ const NAV = [
   // The full generated list is in the footer.
   { href: "/rules", label: "Rules" },
   { href: "/events", label: "Events" },
-  { href: "/meta", label: "Metagame", soon: true },
   { href: "/leaderboard", label: "Leaderboard" },
 ] as const;
 
 const LINK = "text-ink-600 hover:text-ink-900 dark:text-ink-400 dark:hover:text-ink-100";
 
 /**
- * One line at `xl` and up; below that the logo and a menu, because seven links
+ * One line at `xl` and up; below that the logo and a menu, because six links
  * and a signed-in admin's four account links ran a 390px header out to 1000px
  * and dragged every page sideways with it.
  */
@@ -50,18 +44,9 @@ export async function SiteHeader() {
           <ul className="flex items-center gap-5 text-sm">
             {NAV.map((item) => (
               <li key={item.href}>
-                {"soon" in item ? (
-                  <span
-                    className="cursor-default text-ink-400 dark:text-ink-600"
-                    title="Not built yet"
-                  >
-                    {item.label}
-                  </span>
-                ) : (
-                  <Link href={item.href} className={LINK}>
-                    {item.label}
-                  </Link>
-                )}
+                <Link href={item.href} className={LINK}>
+                  {item.label}
+                </Link>
               </li>
             ))}
           </ul>
@@ -78,15 +63,9 @@ export async function SiteHeader() {
                 <ul className="divide-y divide-ink-100 dark:divide-ink-900">
                   {NAV.map((item) => (
                     <li key={item.href}>
-                      {"soon" in item ? (
-                        <span className="block py-3 text-ink-400 dark:text-ink-600">
-                          {item.label} <span className="text-xs">· coming soon</span>
-                        </span>
-                      ) : (
-                        <Link href={item.href} className={`block py-3 ${LINK}`}>
-                          {item.label}
-                        </Link>
-                      )}
+                      <Link href={item.href} className={`block py-3 ${LINK}`}>
+                        {item.label}
+                      </Link>
                     </li>
                   ))}
                 </ul>
