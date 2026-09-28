@@ -27,12 +27,17 @@ is **[43.9%, 100%]**.
 | ---------------------------------- | ------------ | ------------ |
 | Win rate of decks including a card | 20 games     | 50 games     |
 | Archetype win rate                 | 3 decks      | 10 decks     |
+| A deck's match win rate at events  | 3 matches    | 10 matches   |
 
 **Hidden** rates read _insufficient data_. **Greyed** rates are shown faded
 because the interval is still wide.
 
 A card's rate is labelled **"win rate of decks including this card"**. A card
 does not win games; decks do.
+
+A deck's match win rate sums every event it was played at, across all its
+versions, and counts a draw as a match played and not won. It is shown next to
+the record it came from.
 
 ---
 

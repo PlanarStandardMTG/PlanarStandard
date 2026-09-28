@@ -13,7 +13,7 @@ import { FORMAT_LABELS } from "@/components/decks/format-labels";
 import { PlayedEvents } from "@/components/ui/played-events";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState, ErrorState } from "@/components/ui/states";
-import { formatDate } from "@/lib/format-date";
+import { formatShortDate } from "@/lib/format-date";
 import { load } from "@/lib/load";
 import { createSessionClient } from "@/lib/supabase/session";
 
@@ -55,7 +55,7 @@ async function OwnDecks({ ownerId }: { ownerId: Parameters<typeof listMemberDeck
                     {deck.visibility}
                   </Badge>
                 )}
-                {formatDate(deck.createdAt)}
+                <span className="whitespace-nowrap">{formatShortDate(deck.createdAt)}</span>
               </span>
             </Link>
           </li>

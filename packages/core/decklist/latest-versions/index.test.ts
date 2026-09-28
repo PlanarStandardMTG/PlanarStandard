@@ -9,13 +9,15 @@ describe("core/decklist/latest-versions", () => {
     const decks = [deck("c", "b"), deck("x"), deck("b", "a"), deck("a")];
 
     expect(latestVersions(decks)).toEqual([
-      { deck: deck("c", "b"), versions: 3 },
-      { deck: deck("x"), versions: 1 },
+      { deck: deck("c", "b"), versions: 3, lineage: [deck("c", "b"), deck("b", "a"), deck("a")] },
+      { deck: deck("x"), versions: 1, lineage: [deck("x")] },
     ]);
   });
 
   it("counts only the versions it was given, when an ancestor is missing", () => {
-    expect(latestVersions([deck("b", "a")])).toEqual([{ deck: deck("b", "a"), versions: 1 }]);
+    expect(latestVersions([deck("b", "a")])).toEqual([
+      { deck: deck("b", "a"), versions: 1, lineage: [deck("b", "a")] },
+    ]);
   });
 
   it("is empty for no decks", () => {

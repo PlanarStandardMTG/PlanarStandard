@@ -1,6 +1,7 @@
 import type { Deck, DeckId } from "@ps/contracts";
 import {
   getDeckWithCards,
+  getPlayer,
   getProfile,
   isDeckInEvent,
   listDeckVersions,
@@ -76,10 +77,12 @@ export default async function DeckPage({
   const hidden = deck.hiddenAt !== null;
   if (hidden && !(await isDeckInEvent(session, deck.id))) notFound();
 
-  const [viewer, format, owner, versions] = await Promise.all([
+  // An event deck is credited to whoever played it, and to nobody if that player is hidden.
+  const [viewer, format, owner, player, versions] = await Promise.all([
     currentViewer(),
     loadCurrentFormat(),
-    deck.ownerId === null ? null : getProfile(session, deck.ownerId),
+    deck.ownerId === null || deck.playerId !== null ? null : getProfile(session, deck.ownerId),
+    deck.playerId === null ? null : getPlayer(session, deck.playerId),
     hidden ? [] : listDeckVersions(session, deck.id),
   ]);
   // Every version's events, since a tuned list is still the same deck (E20.38).
@@ -119,6 +122,11 @@ export default async function DeckPage({
             </span>
             <DeckLegality format={deck.format} verdict={view.verdict} />
             <ColorPips colors={view.colors} />
+            {player !== null && (
+              <span>
+                by <PersonName person={{ player: player.id }}>{player.displayName}</PersonName>
+              </span>
+            )}
             {owner !== null && (
               <span>
                 by <PersonName person={{ member: owner.id }}>{owner.displayName}</PersonName>

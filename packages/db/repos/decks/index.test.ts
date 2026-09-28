@@ -228,6 +228,59 @@ describe.skipIf(!reachable)("repos/decks", () => {
     expect(browsable[0]?.cards.map((c) => c.name)).toEqual(pub.cards.map((c) => c.name));
   });
 
+  it("credits a browsed deck to its player, else its owner, with each event's record", async () => {
+    const { data: profile } = await service
+      .from("profiles")
+      .select("id, display_name")
+      .limit(1)
+      .single();
+    const { data: player } = await service
+      .from("players")
+      .insert({ display_name: "Credited", slug: `credited-${Date.now()}` })
+      .select("id")
+      .single();
+    const { data: tournament } = await service
+      .from("tournaments")
+      .select("id")
+      .neq("status", "draft")
+      .limit(1)
+      .single();
+    const played = await write(
+      deck({ name: "Credit played", playerId: player?.id, submittedVia: "registration" }),
+      [],
+    );
+    await write(deck({ name: "Credit imported", ownerId: profile?.id }), []);
+    const { data: entry } = await service
+      .from("tournament_entries")
+      .insert({
+        tournament_id: tournament?.id,
+        player_id: player?.id,
+        deck_id: played.id,
+        match_wins: 3,
+        match_losses: 1,
+      })
+      .select("id")
+      .single();
+
+    try {
+      const browsable = (await listBrowsableDecks(client)).filter((d) =>
+        d.name.startsWith("Credit "),
+      );
+      expect(browsable.map((d) => [d.name, d.author, d.records])).toEqual([
+        ["Credit imported", { kind: "member", id: profile?.id, name: profile?.display_name }, []],
+        [
+          "Credit played",
+          { kind: "player", id: player?.id, name: "Credited" },
+          [{ wins: 3, losses: 1, draws: 0 }],
+        ],
+      ]);
+    } finally {
+      await service.from("tournament_entries").delete().eq("id", entry?.id);
+      await service.from("decks").delete().eq("id", played.id);
+      await service.from("players").delete().eq("id", player?.id);
+    }
+  });
+
   it("still serves an unlisted deck by id, because that is what unlisted means", async () => {
     const unlisted = await write(deck({ name: "Shared by link", visibility: "unlisted" }), [
       card({ name: "Duress" }),

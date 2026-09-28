@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 14/15 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 32/44 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 33/45 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1250,6 +1250,16 @@ then puts ratings on the old app's scale: start at 1000, K = 32 for everyone, an
 numbers on the next recompute. `0040_leaderboard_events_any_season.sql` counts the 2 events across
 every season, excluding byes, so a new season's ladder is not empty until its second Monthly.
 
+✅ **E20.45 — `decks`: credit, win rate and sorting in the deck browser** · S · Deps: E20.40 — every
+deck in the browser and on its page is credited to the player who took it to an event, or else the
+member who imported it; the browser shows each deck's match win rate at events next to its record and
+sorts by newest (the default) or by win rate. _AC:_ the rate sums every version's events and goes through
+`suppress-small-n` (`DECK_WIN_RATE`: hidden under 3 matches, greyed under 10), a withheld rate sorts last,
+a hidden player is credited to nobody, and the sort survives filtering and paging. The archetype label
+is gone from the list, which read it from the deck's name alone, and list dates are short (`28 Sept 2026`).
+_Note:_ added outside the plan. `listBrowsableDecks` now returns `BrowsableDeck`, embedding the player,
+the owner and the entries' records, and `latestVersions` returns each deck's `lineage`.
+
 ---
 
 ## E21 — Season II backfill
@@ -1627,11 +1637,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 15      | 14   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 44      | 32   |
+| E9   | 9       | 9    | E20  | 45      | 33   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 5       | 3    |
 
-**212 of 284 stories done across 25 epics.**
+**213 of 285 stories done across 25 epics.**

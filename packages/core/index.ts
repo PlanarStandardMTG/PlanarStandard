@@ -11,10 +11,13 @@ export { aggregateBy, countBy, groupBy, shareOf, sum, sumBy } from "./stats/aggr
 export {
   ARCHETYPE_RATE,
   CARD_WIN_RATE,
+  DECK_WIN_RATE,
   INSUFFICIENT_DATA,
   suppressSmallN,
 } from "./stats/suppress-small-n/index";
 export type { SuppressionPolicy } from "./stats/suppress-small-n/index";
+export { compareWinRates, deckWinRate } from "./stats/deck-win-rate/index";
+export type { DeckWinRate } from "./stats/deck-win-rate/index";
 
 // elo — matches to ratings (§8.5)
 export { expectedScore } from "./elo/expected-score/index";

@@ -12,6 +12,7 @@ import type {
   ProfileId,
   SeasonId,
   SetCode,
+  WinLossDraw,
 } from "@ps/contracts";
 
 /**
@@ -75,6 +76,37 @@ export const DECK_SUMMARY_COLUMNS =
 
 export const DECK_WITH_CARDS_COLUMNS = `${DECK_COLUMNS}, cards:deck_cards (${CARD_COLUMNS})`;
 
+/**
+ * Who a deck is credited to: the player who took it to an event, or else the
+ * member who imported it. Null when that person is hidden from the caller.
+ */
+export type DeckAuthor =
+  | { readonly kind: "player"; readonly id: PlayerId; readonly name: string }
+  | { readonly kind: "member"; readonly id: ProfileId; readonly name: string };
+
+/** A deck as the browser lists it (E20.40, E20.45). */
+export interface BrowsableDeck extends DeckWithCards {
+  readonly author: DeckAuthor | null;
+  /** One per event entry that played this version; a draft event's are left out. */
+  readonly records: readonly WinLossDraw[];
+}
+
+export const BROWSABLE_DECK_COLUMNS =
+  `${DECK_WITH_CARDS_COLUMNS}, player:players (id, display_name), ` +
+  "owner:profiles (id, display_name), entries:tournament_entries (match_wins, match_losses, match_draws)";
+
+export interface BrowsableDeckRow extends DeckWithCardsRow {
+  readonly player: { readonly id: string; readonly display_name: string } | null;
+  readonly owner: { readonly id: string; readonly display_name: string } | null;
+  readonly entries:
+    | readonly {
+        readonly match_wins: number | null;
+        readonly match_losses: number | null;
+        readonly match_draws: number | null;
+      }[]
+    | null;
+}
+
 /** How a deck arrives from an event rather than from a member (E18.23). */
 export const EVENT_ROUTES: readonly string[] = ["registration", "organizer"];
 
@@ -123,6 +155,30 @@ export function toDeckWithCards(row: DeckWithCardsRow): DeckWithCards {
       BOARD_ORDER.indexOf(a.board) - BOARD_ORDER.indexOf(b.board) || a.name.localeCompare(b.name),
   );
   return { ...toDeck(row), cards };
+}
+
+/**
+ * The player when the deck has one — an event deck is theirs whoever uploaded
+ * it — and nobody when that player is hidden, rather than falling back to a name.
+ */
+export function toBrowsableDeck(row: BrowsableDeckRow): BrowsableDeck {
+  const author: DeckAuthor | null =
+    row.player_id !== null
+      ? row.player === null
+        ? null
+        : { kind: "player", id: row.player.id as PlayerId, name: row.player.display_name }
+      : row.owner !== null
+        ? { kind: "member", id: row.owner.id as ProfileId, name: row.owner.display_name }
+        : null;
+  return {
+    ...toDeckWithCards(row),
+    author,
+    records: (row.entries ?? []).map((entry) => ({
+      wins: entry.match_wins ?? 0,
+      losses: entry.match_losses ?? 0,
+      draws: entry.match_draws ?? 0,
+    })),
+  };
 }
 
 const BOARD_ORDER: readonly DeckCard["board"][] = ["main", "side", "command"];

@@ -13,9 +13,13 @@ import {
   DECK_COLUMNS,
   DECK_SUMMARY_COLUMNS,
   DECK_WITH_CARDS_COLUMNS,
+  BROWSABLE_DECK_COLUMNS,
   EVENT_ROUTES,
+  toBrowsableDeck,
   toDeck,
   toDeckWithCards,
+  type BrowsableDeck,
+  type BrowsableDeckRow,
   type DeckRow,
   type DeckWithCardsRow,
 } from "./rows";
@@ -206,6 +210,8 @@ export async function listMemberDecks(
   return (data as unknown as DeckRow[]).map(toDeck);
 }
 
+export type { BrowsableDeck, DeckAuthor } from "./rows";
+
 /**
  * Every public deck with its list, newest first — the deck browser (E20.40),
  * which filters by colour and card in the app, because cards are not in
@@ -213,16 +219,16 @@ export async function listMemberDecks(
  */
 export async function listBrowsableDecks(
   client: SupabaseClient,
-): Promise<readonly DeckWithCards[]> {
+): Promise<readonly BrowsableDeck[]> {
   const { data, error } = await client
     .from("decks")
-    .select(DECK_WITH_CARDS_COLUMNS)
+    .select(BROWSABLE_DECK_COLUMNS)
     .eq("visibility", "public")
     .is("hidden_at", null)
     .order("created_at", { ascending: false });
 
   if (error !== null) throw new Error(`listBrowsableDecks failed: ${error.message}`);
-  return (data as unknown as DeckWithCardsRow[]).map(toDeckWithCards);
+  return (data as unknown as BrowsableDeckRow[]).map(toBrowsableDeck);
 }
 
 /** What a member supplies when importing a deck; the database fills in the rest. */

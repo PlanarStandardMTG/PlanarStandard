@@ -15,6 +15,18 @@ export function formatDate(iso: string): string {
   return FORMAT.format(new Date(iso));
 }
 
+const SHORT_FORMAT = new Intl.DateTimeFormat("en-GB", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+/** `28 Sept 2026`, for a list where the full month is too wide. */
+export function formatShortDate(iso: string): string {
+  return SHORT_FORMAT.format(new Date(iso));
+}
+
 /** `2026-09-11T20:00:00Z` → `2026-09-11`, for a `<time dateTime>` attribute. */
 export function dateAttribute(iso: string): string {
   return iso.slice(0, 10);

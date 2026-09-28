@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 
-import { dateAttribute, formatDate, formatDateTime, formatTimeAgo } from "./format-date";
+import {
+  dateAttribute,
+  formatDate,
+  formatDateTime,
+  formatShortDate,
+  formatTimeAgo,
+} from "./format-date";
 
 const NOW = new Date("2026-09-15T12:00:00.000Z");
 
@@ -8,6 +14,11 @@ describe("lib/format-date", () => {
   it("renders a date the same way regardless of where it runs", () => {
     expect(formatDate("2026-09-11T20:00:00Z")).toBe("11 September 2026");
     expect(dateAttribute("2026-09-11T20:00:00Z")).toBe("2026-09-11");
+  });
+
+  it("shortens the month for a list", () => {
+    expect(formatShortDate("2026-09-11T20:00:00Z")).toBe("11 Sept 2026");
+    expect(formatShortDate("2026-01-31T23:59:59Z")).toBe("31 Jan 2026");
   });
 
   it("labels an event time as UTC, in the zone it was written in", () => {

@@ -1,6 +1,6 @@
 /**
  * A member's decks as one entry per deck: the newest version of each, with how
- * many versions it has (E20.30). An edit writes a new row whose parent is the
+ * many versions it has (E20.30), and those versions newest first. An edit writes a new row whose parent is the
  * one it replaced, so a deck is a chain of rows and its newest is the one no
  * other row names as a parent.
  */
@@ -12,6 +12,8 @@ export interface Versioned {
 export interface LatestVersion<T> {
   readonly deck: T;
   readonly versions: number;
+  /** Every version given, `deck` first — what a deck's event record sums over. */
+  readonly lineage: readonly T[];
 }
 
 export function latestVersions<T extends Versioned>(
@@ -23,12 +25,12 @@ export function latestVersions<T extends Versioned>(
   return decks
     .filter((deck) => !replaced.has(deck.id))
     .map((deck) => {
-      let versions = 1;
+      const lineage = [deck];
       let parent = deck.parentDeckId === null ? undefined : byId.get(deck.parentDeckId);
       while (parent !== undefined) {
-        versions += 1;
+        lineage.push(parent);
         parent = parent.parentDeckId === null ? undefined : byId.get(parent.parentDeckId);
       }
-      return { deck, versions };
+      return { deck, versions: lineage.length, lineage };
     });
 }

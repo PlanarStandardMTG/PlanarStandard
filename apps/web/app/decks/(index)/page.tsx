@@ -46,7 +46,9 @@ export default async function DecksPage({
           <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Decks</h1>
           <p className="mt-1 text-sm text-ink-600 dark:text-ink-400">
             {view === "browse"
-              ? "The format's public decks, newest first."
+              ? params["sort"] === "win-rate"
+                ? "The format's public decks, best match win rate at events first."
+                : "The format's public decks, newest first."
               : "Import a list, see it card by card, and check it against the current format."}
           </p>
         </div>

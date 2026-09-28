@@ -43,6 +43,16 @@ export const ARCHETYPE_RATE: SuppressionPolicy = {
 };
 
 /**
+ * One deck's matches at events (E20.45). A single pilot, so the floors are
+ * counted in matches: one short event clears 3, and 10 is two or three events.
+ */
+export const DECK_WIN_RATE: SuppressionPolicy = {
+  hideBelow: 3,
+  greyBelow: 10,
+  label: "match win rate",
+};
+
+/**
  * Decides whether a rate may be shown, and returns it together with its interval
  * and its `n`.
  *

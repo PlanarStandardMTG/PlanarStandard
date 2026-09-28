@@ -3,9 +3,10 @@
 **Purpose.** Decide whether a rate has enough observations behind it to be shown,
 greyed, or withheld.
 
-**Inputs.** `successes`, `trials`, and a `SuppressionPolicy`. Two policies ship:
-`CARD_WIN_RATE` (hide under 20 games) and `ARCHETYPE_RATE` (hide under 3 decks).
-Both floors are pinned by the master plan; the grey thresholds are a project
+**Inputs.** `successes`, `trials`, and a `SuppressionPolicy`. Three policies ship:
+`CARD_WIN_RATE` (hide under 20 games), `ARCHETYPE_RATE` (hide under 3 decks) and
+`DECK_WIN_RATE` (hide under 3 matches).
+The first two floors are pinned by the master plan; the grey thresholds are a project
 choice, documented in `docs/modules/metrics.md`.
 
 **Outputs.** `SuppressionVerdict` — a union whose `hide` arm carries **no rate at
