@@ -115,9 +115,21 @@ export function SeasonForm({
           <Problems messages={about("startsOn")} />
         </div>
         <div>
-          <label htmlFor="ends_on" className="text-sm font-medium">
-            Ends <span className="font-normal text-ink-500">(blank while it runs)</span>
-          </label>
+          {/* A date input offers no way back to empty in every browser. */}
+          <div className="flex items-baseline justify-between gap-2">
+            <label htmlFor="ends_on" className="text-sm font-medium">
+              Ends <span className="font-normal text-ink-500">(blank while it runs)</span>
+            </label>
+            {values.endsOn !== "" && (
+              <button
+                type="button"
+                onClick={() => set("endsOn", "")}
+                className="cursor-pointer text-xs font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
+              >
+                Clear
+              </button>
+            )}
+          </div>
           <input
             id="ends_on"
             name="ends_on"
