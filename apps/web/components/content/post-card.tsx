@@ -28,12 +28,7 @@ export function PostCard({
       <article className={cn("p-5", compact ? "sm:p-5" : "sm:p-6")}>
         <PostMeta post={post} showKind={showKind} className="mb-2.5" />
 
-        <h3
-          className={cn(
-            "font-display font-semibold tracking-tight",
-            compact ? "text-base/snug" : "text-lg/snug",
-          )}
-        >
+        <h3 className={cn("font-bold tracking-tight", compact ? "text-base/snug" : "text-lg/snug")}>
           <Link
             href={postHref(post)}
             className="after:absolute after:inset-0 group-hover:text-eclipse-700 dark:group-hover:text-eclipse-400"

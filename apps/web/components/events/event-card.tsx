@@ -52,7 +52,7 @@ export function EventCard({
             )}
           </div>
 
-          <h3 className="font-display text-lg/snug font-semibold tracking-tight">{event.name}</h3>
+          <h3 className="text-lg/snug font-bold tracking-tight">{event.name}</h3>
 
           <p className="mt-1 text-sm text-ink-600 dark:text-ink-400">
             {event.startsAt === null ? "Date to be announced" : <LocalTime iso={event.startsAt} />}

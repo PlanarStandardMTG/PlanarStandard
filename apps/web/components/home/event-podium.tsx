@@ -68,7 +68,7 @@ function PodiumCard({ finish }: { finish: PodiumFinish }) {
       </div>
 
       <div className="min-w-0">
-        <h3 className="line-clamp-2 font-display text-lg/snug break-words" title={title}>
+        <h3 className="line-clamp-2 text-lg/snug font-bold break-words" title={title}>
           {title}
         </h3>
         {finish.archetype !== null && finish.archetype !== title && (

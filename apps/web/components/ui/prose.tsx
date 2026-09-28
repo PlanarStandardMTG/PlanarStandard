@@ -18,7 +18,7 @@ export function Prose({ children, className }: { children: ReactNode; className?
       className={cn(
         "max-w-prose text-[17px]/8 text-ink-800 dark:text-ink-200",
         "[&_h2]:in-prose:mt-10 [&_h2]:in-prose:mb-3 [&_h2]:in-prose:font-display [&_h2]:in-prose:text-2xl [&_h2]:in-prose:tracking-tight",
-        "[&_h3]:in-prose:mt-8 [&_h3]:in-prose:mb-2 [&_h3]:in-prose:font-semibold",
+        "[&_h3]:in-prose:mt-8 [&_h3]:in-prose:mb-2 [&_h3]:in-prose:font-bold",
         "[&_p]:in-prose:my-4",
         "[&_ul]:in-prose:my-4 [&_ul]:in-prose:list-disc [&_ul]:in-prose:pl-6 [&_ol]:in-prose:my-4 [&_ol]:in-prose:list-decimal [&_ol]:in-prose:pl-6",
         "[&_li]:in-prose:my-1.5 [&_li]:in-prose:pl-1",
