@@ -1,17 +1,26 @@
 {
-  "bulkUpdatedAt": "2026-09-15T21:05:31.704+00:00",
-  "setCodes": ["fdn", "dft", "tdm", "eoe", "ecl", "sos"],
-  "oracleCardCount": 1826,
-  "printingCount": 2916,
+  "bulkUpdatedAt": "2026-09-28T09:05:39.947+00:00",
+  "setCodes": [
+    "fdn",
+    "dft",
+    "tdm",
+    "eoe",
+    "ecl",
+    "sos",
+    "fra"
+  ],
+  "oracleCardCount": 2103,
+  "printingCount": 3376,
   "printingCountBySet": {
     "dft": 553,
     "ecl": 403,
     "eoe": 400,
     "fdn": 771,
+    "fra": 461,
     "sos": 368,
-    "tdm": 421
+    "tdm": 420
   },
-  "generatedAt": "2026-09-16T01:09:39.415Z",
+  "generatedAt": "2026-09-28T18:20:37.387Z",
   "attribution": {
     "source": "Scryfall",
     "sourceUrl": "https://scryfall.com",
