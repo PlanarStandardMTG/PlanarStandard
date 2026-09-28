@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 14/15 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 34/46 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 35/46 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1083,6 +1083,8 @@ without a Reddit and a Discord export; planned ones are listed in the editor wit
 _Note:_ no component is live. `core/content/embed-*` holds the syntax, the registry and the catalogue;
 `web/components/content/embeds` the renderers. Submission refuses a component that is not live, so
 nothing unrenderable is published. How to add one: [`docs/modules/content.md`](docs/modules/content.md).
+_Note:_ the planned list was later dropped from the editor, once card went live and chart was the only
+one left; each component now names the kinds of post it may go in.
 ✅ **E20.24 — Decklist component** · M · Deps: E20.23, E19.13, E20.7 — `:::decklist{id}`; the picker
 lists the author's own decks first. _AC:_ Reddit gets a link and the list as text; Discord a link
 with the deck's name and record.
@@ -1095,15 +1097,21 @@ where uploads are stored (Supabase Storage is the obvious one) and on size limit
 _Note:_ decided: a public `post-images` Storage bucket (migration `0028_post_images.sql`), a folder
 per writer's auth id enforced by policy, 4 MB of PNG, JPEG, WebP or GIF — under Vercel's 4.5 MB
 request cap, which the upload server action passes through. An image can also be linked by address.
-Alt text is required.
+Alt text is required. Later made news only, since a member's own pictures would need moderating: the
+editor offers it only on a news post, a community post cannot be submitted with one, and the upload
+refuses anyone who cannot write news.
 ✅ **E20.36 — Tournament component** · M · Deps: E20.23, E20.24, E18.21 —
 `:::tournament{slug show deck player}`: an event's winner, top 2 or top 4 as one card, with a deck
 either under a finisher or paired beside the results. _AC:_ on the site the deck sits inside the
 tournament card; every export writes the event and its finishers, then the deck separately, the way
 the decklist component does; an event with no standings says so rather than showing an empty list.
+_Note:_ news only, like the image component: results are the format speaking.
 
-⬜ **E20.26 — Card component** · S · Deps: E20.23, E4.7 — `:::card{name}`, resolved against the card
+✅ **E20.26 — Card component** · S · Deps: E20.23, E4.7 — `:::card{name}`, resolved against the card
 index. _AC:_ exports as the name linked to Scryfall.
+_Note:_ the site shows Scryfall's image of the card's default printing, linked to its Scryfall page,
+rather than the image and Oracle text the plan listed. Discord gets the same masked link as Reddit. A
+name that does not resolve shows as a missing card and exports as an exact-name Scryfall search.
 ✅ **E20.27 — `content`: "Articles" becomes "Community", with a way in from every feed** · S · Deps:
 E20.2 — _AC:_ `/articles` answers at `/community`, and every old link still works; each feed offers
 the editor to whoever may use it.
@@ -1573,8 +1581,8 @@ can start today, in rough order of how much it unblocks.
 - **E19.13 — `DeckVisualizer`.** E20.29's text list already links each card to Scryfall and shows it on
   hover; what E19.13 adds is mana cost per line, the Spells | Lands | Sideboard grouping, and a
   component that takes shaped lines as props.
-- **E20.4, E20.26, E22.11 — the card dataset's other readers,** now that E4.7 loads it: `/cards`, the
-  card component in posts, and the integrity test.
+- **E20.4, E22.11 — the card dataset's other readers,** now that E4.7 loads it: `/cards` and the
+  integrity test.
 - **E17.4 — `<Chart />`,** the last thing between E17 and a finished epic. It waits on E19.
 
 **Needs nothing but a sitting**
@@ -1602,8 +1610,9 @@ needs.
 - **Events.** E23 is complete bar E23.14: `/events` and the home page fetch Challonge and melee.gg
   independently, each against its own ledger row, and render from the seed anywhere the credentials
   are unset. See [`docs/modules/events.md`](docs/modules/events.md).
-- **Posts.** News and community posts are written in one editor (E20.2, E20.27) with image, decklist
-  and tournament components (E20.24, E20.25, E20.36), and export whole to Reddit and Discord. See
+- **Posts.** News and community posts are written in one editor (E20.2, E20.27) with card and decklist
+  components anywhere and image and tournament ones in news only (E20.24–E20.26, E20.36), and export
+  whole to Reddit and Discord. See
   [`docs/modules/content.md`](docs/modules/content.md).
 - **Decks.** Members import, edit, version and remove their decks (E20.28–E20.31); admins edit the
   format at `/admin/formats` (E20.33).
@@ -1644,11 +1653,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 15      | 14   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 46      | 34   |
+| E9   | 9       | 9    | E20  | 46      | 35   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 5       | 3    |
 
-**214 of 286 stories done across 25 epics.**
+**215 of 286 stories done across 25 epics.**

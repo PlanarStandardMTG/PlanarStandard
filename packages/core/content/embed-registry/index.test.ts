@@ -8,6 +8,7 @@ const deck = defineEmbed<"deck", { id: string }, { cards: readonly string[] }>({
   label: "Deck",
   description: "A test component.",
   attributes: [{ name: "id", required: true, description: "Which deck." }],
+  kinds: ["official", "community"],
   parse: (raw) =>
     raw["id"] === undefined || raw["id"] === ""
       ? { ok: false, problem: "needs an id" }

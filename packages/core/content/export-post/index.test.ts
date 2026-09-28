@@ -11,6 +11,7 @@ const note = defineEmbed<"note", { text: string }, never>({
   label: "Note",
   description: "A test component.",
   attributes: [],
+  kinds: ["official", "community"],
   parse: (raw) => ({ ok: true, value: { text: raw["text"] ?? "" } }),
   export: {
     reddit: ({ text }) => `> **Note:** ${text}`,

@@ -1,3 +1,4 @@
+import type { PostKind } from "@ps/contracts";
 import type { ComponentPropsWithoutRef, ReactElement } from "react";
 import ReactMarkdown, { type ExtraProps } from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -15,14 +16,18 @@ import { EMBED_LANGUAGE, prepareEmbeds } from "./embeds/prepare";
  * never become an executed one.
  *
  * Components (`:::name{…}`, E20.23) arrive as fenced blocks from
- * `prepareEmbeds` and leave as `EmbedBlock`s.
+ * `prepareEmbeds` and leave as `EmbedBlock`s, which refuse any the post's kind
+ * may not place.
  */
-export function PostBody({ markdown }: { markdown: string }) {
+export function PostBody({ markdown, kind }: { markdown: string; kind: PostKind }) {
   return (
     <Prose>
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
-        components={{ ...PROSE_MARKDOWN_COMPONENTS, pre: Pre }}
+        components={{
+          ...PROSE_MARKDOWN_COMPONENTS,
+          pre: (props) => <Pre {...props} kind={kind} />,
+        }}
       >
         {prepareEmbeds(markdown)}
       </ReactMarkdown>
@@ -30,14 +35,18 @@ export function PostBody({ markdown }: { markdown: string }) {
   );
 }
 
-function Pre({ children, ...rest }: ComponentPropsWithoutRef<"pre"> & ExtraProps) {
+function Pre({
+  children,
+  kind,
+  ...rest
+}: ComponentPropsWithoutRef<"pre"> & ExtraProps & { kind: PostKind }) {
   // react-markdown's syntax-tree node is not a DOM attribute.
   const { node, ...props } = rest;
   void node;
 
   const code = children as ReactElement<{ className?: string; children?: unknown }> | undefined;
   if (code?.props.className === `language-${EMBED_LANGUAGE}`) {
-    return <EmbedBlock source={String(code.props.children ?? "").trim()} />;
+    return <EmbedBlock source={String(code.props.children ?? "").trim()} kind={kind} />;
   }
   return <pre {...props}>{children}</pre>;
 }

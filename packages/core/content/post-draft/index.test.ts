@@ -10,6 +10,7 @@ const deck = defineEmbed<"deck", { id: string }, never>({
   label: "Deck",
   description: "",
   attributes: [],
+  kinds: ["official", "community"],
   parse: (raw) =>
     raw["id"] ? { ok: true, value: { id: raw["id"] } } : { ok: false, problem: "needs an id" },
   export: { reddit: () => "", discord: () => "" },
@@ -21,17 +22,17 @@ function problems(check: DraftCheck): readonly string[] {
 
 describe("checkPostDraft", () => {
   it("needs a title even for a draft", () => {
-    expect(problems(checkPostDraft(blank, "save", []))).toStrictEqual(["title:empty"]);
+    expect(problems(checkPostDraft(blank, "save", [], "community"))).toStrictEqual(["title:empty"]);
   });
 
   it("saves a draft with an empty body", () => {
-    expect(checkPostDraft({ ...blank, title: "Soon" }, "save", []).ok).toBe(true);
+    expect(checkPostDraft({ ...blank, title: "Soon" }, "save", [], "community").ok).toBe(true);
   });
 
   it("refuses to submit an empty body", () => {
-    expect(problems(checkPostDraft({ ...blank, title: "Soon" }, "submit", []))).toStrictEqual([
-      "body:empty",
-    ]);
+    expect(
+      problems(checkPostDraft({ ...blank, title: "Soon" }, "submit", [], "community")),
+    ).toStrictEqual(["body:empty"]);
   });
 
   it("normalises tags and trims fields to null", () => {
@@ -39,6 +40,7 @@ describe("checkPostDraft", () => {
       { ...blank, title: " A title ", tags: "Season I, meta,  meta ", bodyMarkdown: "Body\r\n" },
       "submit",
       [],
+      "community",
     );
     expect(check).toStrictEqual({
       ok: true,
@@ -57,20 +59,37 @@ describe("checkPostDraft", () => {
       { ...blank, title: "x".repeat(TITLE_MAX + 1), tags: "a,b,c,d,e,f,no/slash" },
       "save",
       [],
+      "community",
     );
     expect(problems(check)).toStrictEqual(["title:long", "tags:many", "tags:invalid"]);
   });
 
   it("checks components on submit, not on save", () => {
     const body = ':::deck{}\n\n:::mystery{}\n\n:::deck{id="a"}';
-    expect(checkPostDraft({ ...blank, title: "T", bodyMarkdown: body }, "save", [deck]).ok).toBe(
-      true,
-    );
+    expect(
+      checkPostDraft({ ...blank, title: "T", bodyMarkdown: body }, "save", [deck], "community").ok,
+    ).toBe(true);
 
-    const check = checkPostDraft({ ...blank, title: "T", bodyMarkdown: body }, "submit", [deck]);
+    const check = checkPostDraft(
+      { ...blank, title: "T", bodyMarkdown: body },
+      "submit",
+      [deck],
+      "community",
+    );
     expect(check.ok ? [] : check.problems).toStrictEqual([
       { field: "body", code: "bad-embed", detail: "deck: needs an id" },
       { field: "body", code: "unknown-embed", detail: "mystery" },
+    ]);
+  });
+
+  it("refuses a component the post's kind may not place, on submit", () => {
+    const newsOnly = { ...deck, kinds: ["official" as const] };
+    const input = { ...blank, title: "T", bodyMarkdown: ':::deck{id="a"}' };
+    expect(checkPostDraft(input, "submit", [newsOnly], "official").ok).toBe(true);
+    expect(checkPostDraft(input, "save", [newsOnly], "community").ok).toBe(true);
+    const check = checkPostDraft(input, "submit", [newsOnly], "community");
+    expect(check.ok ? [] : check.problems).toStrictEqual([
+      { field: "body", code: "wrong-kind-embed", detail: "deck" },
     ]);
   });
 });

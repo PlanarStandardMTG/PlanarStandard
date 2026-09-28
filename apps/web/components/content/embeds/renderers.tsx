@@ -3,16 +3,23 @@ import {
   TOURNAMENT_SHOW,
   deckOwner,
   formatRecord,
+  frontImage,
   longDate,
+  parseCardEmbed,
   parseDecklistEmbed,
   parseImageEmbed,
   parseTournamentEmbed,
+  pickPrinting,
+  resolveCardName,
+  scryfallSearchUrl,
+  type CardEmbedData,
   type EmbedName,
   type TournamentEmbedData,
 } from "@ps/core";
 import { getTournamentBySlug, listTournamentFinishers } from "@ps/db";
 import type { ReactNode } from "react";
 
+import { cardIndex } from "@/lib/cards/card-index";
 import { createSessionClient } from "@/lib/supabase/session";
 
 import { PersonName } from "@/components/ui/person-name";
@@ -207,6 +214,62 @@ export const EMBED_RENDERERS: { readonly [N in EmbedName]: EmbedRenderer } = {
             </div>
           )}
         </section>
+      );
+    },
+  },
+
+  card: {
+    async load(attributes): Promise<CardEmbedData | null> {
+      const call = parseCardEmbed(attributes);
+      if (!call.ok) return null;
+      const index = cardIndex();
+      const resolved = resolveCardName(call.value.name, index);
+      const entry = resolved.ok ? index.byOracleId.get(resolved.oracleId) : undefined;
+      if (entry === undefined) return null;
+      const printing = pickPrinting(entry);
+      return {
+        name: entry.card.name,
+        scryfallUrl:
+          printing === null
+            ? scryfallSearchUrl(entry.card.name)
+            : `https://scryfall.com/card/${printing.setCode}/${encodeURIComponent(printing.collectorNumber)}`,
+        image: printing === null ? null : (frontImage(printing)?.normal ?? null),
+      };
+    },
+    Render({ attributes, data }) {
+      const call = parseCardEmbed(attributes);
+      const card = data as CardEmbedData | null;
+      if (card === null) {
+        return (
+          <div className="not-prose my-6 rounded-lg border border-dashed border-ink-300 px-4 py-3 dark:border-ink-700">
+            <Missing>No card called “{call.ok ? call.value.name : ""}”.</Missing>
+          </div>
+        );
+      }
+      return (
+        <figure className="not-prose my-6">
+          <a
+            href={card.scryfallUrl}
+            target="_blank"
+            rel="noreferrer"
+            title={`${card.name} on Scryfall`}
+            className="mx-auto block w-fit"
+          >
+            {card.image === null ? (
+              <span className="font-medium underline">{card.name}</span>
+            ) : (
+              // Hotlinked from Scryfall, as their terms ask, so not next/image.
+              <img
+                src={card.image}
+                alt={card.name}
+                width={244}
+                height={340}
+                loading="lazy"
+                className="h-auto w-[244px] max-w-full rounded-[4.75%/3.5%] shadow-md"
+              />
+            )}
+          </a>
+        </figure>
       );
     },
   },

@@ -51,7 +51,7 @@ export function PostArticleContent({
         <PostMeta post={post} className="mt-4" />
       </header>
 
-      <PostBody markdown={post.bodyMarkdown} />
+      <PostBody markdown={post.bodyMarkdown} kind={post.kind} />
 
       {post.tags.length > 0 && (
         <ul className="mt-10 flex flex-wrap gap-1.5 border-t border-ink-200 pt-6 dark:border-ink-800">

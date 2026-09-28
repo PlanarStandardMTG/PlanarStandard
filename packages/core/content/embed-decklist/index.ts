@@ -74,6 +74,7 @@ export const decklistEmbed = defineEmbed<"decklist", DecklistEmbed, DecklistEmbe
     { name: "id", required: true, description: "The deck's id, from its page's address." },
     { name: "title", required: false, description: "A heading to use instead of its name." },
   ],
+  kinds: ["official", "community"],
   parse: parseDecklistEmbed,
   export: {
     reddit: ({ id, title }, deck, { origin }) =>

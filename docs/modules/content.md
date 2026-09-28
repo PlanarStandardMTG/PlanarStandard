@@ -24,7 +24,7 @@ preview is a server action returning rendered JSX, so a component can load its
 data and the preview is the page, not an approximation of it.
 
 A draft may be half-written. A submission must have a body, and every component
-in it must exist and have valid attributes.
+in it must exist, have valid attributes, and be allowed in its kind of post.
 
 ## Components
 
@@ -35,20 +35,27 @@ A component is one line alone, attributes double-quoted:
 ```
 
 The shape `:::chart{…}` already had. Lines inside fenced code are text, so a
-post can show the syntax without invoking it. Card and chart are listed as
-planned in the editor, with how each will export, and an article that uses one
-can be saved but not submitted.
+post can show the syntax without invoking it.
 
-### The live components
+### The components
 
-The editor's Components panel has a small form for each that writes the line;
-the line is all the post stores, so it can be edited by hand afterwards.
+The editor's Components panel has a small form for each the post's kind may
+place, and writes the line; the line is all the post stores, so it can be
+edited by hand afterwards.
+
+Image and tournament are **news only**: a member's own pictures would need
+moderating, and results belong to the format's voice. Each definition carries
+the `kinds` it may go in, and `embedsFor(kind)` is what the editor offers.
+Submitting a community post with one is refused; one already in a community
+post renders as a note saying so, and its exports leave the line as written.
+The image upload action refuses anyone who cannot write news.
 
 | Component                              | Site                                                                                  | Reddit                                                                     | Discord                                     |
 | -------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------- |
 | `:::image{src alt caption}`            | the picture, with its caption                                                         | a link named by the alt text, the caption under it                         | the bare address, which Discord unfurls     |
 | `:::decklist{id title}`                | the list by section, with card previews                                               | a link and counts, then the list as an indented block                      | name, counts and link                       |
 | `:::tournament{slug show deck player}` | one card: winner, top 2 or top 4 (`show`), and the deck under `player` or beside them | the event and its finishers, then the deck exactly as `decklist` writes it | the event, finishers, its link and the deck |
+| `:::card{name}`                        | Scryfall's image of the card, linked to its Scryfall page                             | the name linked to its Scryfall page                                       | the same, as a masked link                  |
 
 A tournament's finishers come from `tournament_entries`, which every ingest
 writes (E18.21). The deck picker lists the author's own decks; any deck can be
@@ -60,22 +67,27 @@ Images are uploaded to the public `post-images` Storage bucket (migration
 0028), into a folder named by the writer's auth id, at most 4 MB of PNG, JPEG,
 WebP or GIF; or linked from anywhere by address.
 
+A card's name is resolved against the card index when the site loads it, and
+shown at its default printing (`pickPrinting`). A name that does not resolve
+shows as a missing card and exports as a Scryfall exact-name search.
+
 ### Adding one
 
 1. **`packages/core/content/embed-<name>/`** — `defineEmbed({ name, label,
-description, attributes, parse, export })`, a test, and a README. `export`
+description, attributes, kinds, parse, export })`, a test, and a README. `export`
    is a `Record` over every `ExportTarget`, so it does not compile without a
    Reddit and a Discord answer. Each gets the parsed attributes, whatever the
    site loaded (or null), and the site origin.
-2. **`packages/core/content/embed-catalogue`** — add it to `EMBEDS`, remove it
-   from `PLANNED_EMBEDS`.
+2. **`packages/core/content/embed-catalogue`** — add it to `EMBEDS`.
 3. **`apps/web/components/content/embeds/renderers.tsx`** — an `EmbedRenderer`
    under the same name: `Render`, and `load` if it needs data. The map is typed
    by `EmbedName`, so step 2 does not compile until this exists, and
    `renderers.test.ts` checks both directions.
 
-That is all: the editor lists it with an Insert button, `PostBody` renders it,
-submission validates it, and both exports expand it.
+4. **`apps/web/components/content/embed-inserters.tsx`** — its form, offered in
+   `post-editor`'s Components panel when `embedsFor(kind)` includes it.
+
+`PostBody` then renders it, submission validates it, and both exports expand it.
 
 ### Exporting data-backed components
 
@@ -107,10 +119,11 @@ to compile until it answers for it.
 | ----------------------------------------- | --------------------------------------------------------------------------------------------- |
 | `core/content/embed-syntax`               | find and rewrite `:::name{…}` lines                                                           |
 | `core/content/embed-registry`             | what a component is; `expandEmbeds`                                                           |
-| `core/content/embed-catalogue`            | the live components, and the planned ones                                                     |
+| `core/content/embed-catalogue`            | every component, and which a kind of post may place                                           |
 | `core/content/embed-image`                | `:::image`                                                                                    |
 | `core/content/embed-decklist`             | `:::decklist`, and the deck text both decks share                                             |
 | `core/content/embed-tournament`           | `:::tournament`                                                                               |
+| `core/content/embed-card`                 | `:::card`                                                                                     |
 | `core/content/export-post`                | a body for Reddit or Discord                                                                  |
 | `core/content/post-draft`                 | whether input can be saved or submitted; the slug                                             |
 | `core/content/post-workflow`              | which status a submission, save or review lands in                                            |

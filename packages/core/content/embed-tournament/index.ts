@@ -184,6 +184,7 @@ export const tournamentEmbed = defineEmbed<"tournament", TournamentEmbed, Tourna
     { name: "deck", required: false, description: "A deck id to show with the event." },
     { name: "player", required: false, description: "The finisher the deck belongs to." },
   ],
+  kinds: ["official"],
   parse: parseTournamentEmbed,
   export: {
     reddit: (embed, data, { origin }) => reddit(embed, data, origin),

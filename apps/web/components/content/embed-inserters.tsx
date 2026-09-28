@@ -11,7 +11,7 @@ import {
 import { cn } from "@/lib/cn";
 
 /**
- * A small form per live component (E20.24, E20.25, E20.36): pick what to show,
+ * A small form per component (E20.24, E20.25, E20.26, E20.36): pick what to show,
  * and it writes the `:::name{…}` line into the post. The line is all a post
  * stores, so anything inserted can still be edited by hand afterwards.
  */
@@ -35,6 +35,30 @@ const INPUT =
 const BUTTON =
   "cursor-pointer rounded-md border border-ink-300 px-2.5 py-1 text-xs font-medium " +
   "hover:bg-ink-100 disabled:cursor-default disabled:opacity-50 dark:border-ink-700 dark:hover:bg-ink-900";
+
+export function CardInserter({ insert }: { insert: Insert }) {
+  const [name, setName] = useState("");
+
+  return (
+    <Inserter title="Card" note="Its image, linked to Scryfall. Reddit gets the name as a link.">
+      <Field label="Card name">
+        <input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="Llanowar Elves"
+          className={INPUT}
+        />
+      </Field>
+      <InsertButton
+        disabled={name.trim() === ""}
+        onClick={() => {
+          insert(formatEmbed("card", { name: name.trim() }));
+          setName("");
+        }}
+      />
+    </Inserter>
+  );
+}
 
 export function ImageInserter({ insert }: { insert: Insert }) {
   const [src, setSrc] = useState("");

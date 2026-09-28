@@ -12,6 +12,6 @@ site renderer.
 is paired with the event. The site shows one card, but both exports write the
 event and then the deck separately, the deck the way `embed-decklist` does.
 Tied places (two 3rds from a playoff) are both shown. No standings is a line
-saying so, not an empty list.
+saying so, not an empty list. News posts only.
 
 Policy: [`docs/modules/content.md`](../../../../docs/modules/content.md).

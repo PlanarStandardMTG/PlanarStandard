@@ -110,7 +110,7 @@ export default async function ReviewQueuePage({
                       Read it
                     </summary>
                     <div className="mt-3 border-t border-ink-200 pt-3 dark:border-ink-800">
-                      <PostBody markdown={post.bodyMarkdown} />
+                      <PostBody markdown={post.bodyMarkdown} kind={post.kind} />
                     </div>
                   </details>
                 </Card>

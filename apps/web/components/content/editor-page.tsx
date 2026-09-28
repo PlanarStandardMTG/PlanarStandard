@@ -1,11 +1,5 @@
 import type { PostKind, PostStatus, UserRole } from "@ps/contracts";
-import {
-  EMBED_REGISTRY,
-  PLANNED_EMBEDS,
-  formatEmbed,
-  submissionStatus,
-  type PostDraftInput,
-} from "@ps/core";
+import { embedsFor, submissionStatus, type PostDraftInput } from "@ps/core";
 
 import type { ProfileId } from "@ps/contracts";
 import { listMemberDecks, listTournamentsWithResults } from "@ps/db";
@@ -23,9 +17,9 @@ const TOURNAMENT_CHOICES = 40;
 
 /**
  * What the editor is told about the author and the post — the labels that say
- * where a save will land, the component catalogue flattened to data that can
- * cross into the browser (definitions carry functions; these do not), and the
- * author's decks and recent events for the component pickers.
+ * where a save will land, the names of the components this kind of post may
+ * place (definitions carry functions, so only names cross into the browser),
+ * and the author's decks and recent events for the component pickers.
  */
 export async function EditorFor({
   authorId,
@@ -69,16 +63,7 @@ export async function EditorFor({
               ? "Publishing makes it live straight away."
               : "A writer or an admin approves it before it goes live."
       }
-      liveComponents={EMBED_REGISTRY.map((embed) => ({
-        name: embed.name,
-        label: embed.label,
-        description: embed.description,
-        example: formatEmbed(
-          embed.name,
-          Object.fromEntries(embed.attributes.map((attribute) => [attribute.name, ""])),
-        ),
-      }))}
-      plannedComponents={PLANNED_EMBEDS}
+      components={embedsFor(kind).map((embed) => embed.name)}
       decks={decks.map((deck) => ({ id: deck.id, name: deck.name, visibility: deck.visibility }))}
       tournaments={tournaments.map((t) => ({ slug: t.slug, name: t.name, date: t.eventDate }))}
     />

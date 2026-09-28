@@ -1,12 +1,7 @@
 "use client";
 
 import type { PostKind } from "@ps/contracts";
-import {
-  DISCORD_MESSAGE_LIMIT,
-  type DraftProblem,
-  type PlannedEmbed,
-  type PostDraftInput,
-} from "@ps/core";
+import { DISCORD_MESSAGE_LIMIT, type DraftProblem, type PostDraftInput } from "@ps/core";
 import { useActionState, useRef, useState, useTransition, type ReactNode } from "react";
 
 import {
@@ -18,6 +13,7 @@ import {
 import { cn } from "@/lib/cn";
 
 import {
+  CardInserter,
   DecklistInserter,
   ImageInserter,
   TournamentInserter,
@@ -35,13 +31,6 @@ import {
  * RLS, and the preview is rendered there too, so components can load their data
  * and the preview is the real page rather than a second renderer's guess at it.
  */
-export interface EditorComponent {
-  readonly name: string;
-  readonly label: string;
-  readonly description: string;
-  readonly example: string;
-}
-
 export interface PostEditorProps {
   readonly id: string | null;
   readonly kind: PostKind;
@@ -50,8 +39,8 @@ export interface PostEditorProps {
   readonly submitLabel: string;
   readonly saveLabel: string;
   readonly statusNote: string;
-  readonly liveComponents: readonly EditorComponent[];
-  readonly plannedComponents: readonly PlannedEmbed[];
+  /** The names of the components this kind of post may place. */
+  readonly components: readonly string[];
   /** The author's own decks and the events with results, for the component pickers. */
   readonly decks: readonly DeckOption[];
   readonly tournaments: readonly TournamentOption[];
@@ -111,7 +100,7 @@ export function PostEditor(props: PostEditorProps) {
     });
   }
 
-  const problems = describe(state.problems, props.plannedComponents);
+  const problems = describe(state.problems);
 
   return (
     <form action={saveAction} className="space-y-5">
@@ -227,8 +216,7 @@ export function PostEditor(props: PostEditorProps) {
           />
           <FieldProblems messages={problems.body} />
           <ComponentsPanel
-            live={props.liveComponents}
-            planned={props.plannedComponents}
+            components={props.components}
             decks={props.decks}
             tournaments={props.tournaments}
             insert={(line) =>
@@ -348,30 +336,25 @@ function Toolbar({ edit }: { edit: Edit }) {
   );
 }
 
-/**
- * The extension point, as an author sees it: what can be placed in a post
- * now, and what is coming along with how each will look outside the site.
- */
+/** What an author can place in this kind of post, a small form for each. */
 function ComponentsPanel({
-  live,
-  planned,
+  components,
   decks,
   tournaments,
   insert,
 }: {
-  live: readonly EditorComponent[];
-  planned: readonly PlannedEmbed[];
+  components: readonly string[];
   decks: readonly DeckOption[];
   tournaments: readonly TournamentOption[];
   insert: (line: string) => void;
 }) {
+  const offers = (name: string) => components.includes(name);
   return (
     <details className="mt-4 rounded-lg border border-ink-200 dark:border-ink-800">
       <summary className="cursor-pointer px-4 py-2.5 text-sm font-medium">
         Components{" "}
         <span className="font-normal text-ink-500 dark:text-ink-400">
-          — {live.length === 0 ? "none available yet" : `${live.length} available`},{" "}
-          {planned.length} planned
+          — {components.length} available
         </span>
       </summary>
       <div className="space-y-4 border-t border-ink-200 px-4 py-4 text-sm dark:border-ink-800">
@@ -384,33 +367,13 @@ function ComponentsPanel({
         </p>
 
         <div className="grid gap-2">
-          <ImageInserter insert={insert} />
-          <DecklistInserter insert={insert} decks={decks} />
-          <TournamentInserter insert={insert} decks={decks} tournaments={tournaments} />
+          {offers("card") && <CardInserter insert={insert} />}
+          {offers("decklist") && <DecklistInserter insert={insert} decks={decks} />}
+          {offers("image") && <ImageInserter insert={insert} />}
+          {offers("tournament") && (
+            <TournamentInserter insert={insert} decks={decks} tournaments={tournaments} />
+          )}
         </div>
-
-        <ul className="space-y-4">
-          {planned.map((component) => (
-            <li key={component.name} className="opacity-80">
-              <p className="font-medium">
-                {component.label}{" "}
-                <span className="ml-1 rounded-full bg-ink-100 px-2 py-0.5 text-xs font-normal text-ink-600 dark:bg-ink-800 dark:text-ink-400">
-                  coming soon
-                </span>
-              </p>
-              <p className="text-ink-600 dark:text-ink-400">{component.description}</p>
-              <code className="mt-1 block text-xs text-ink-500">{component.example}</code>
-              <dl className="mt-2 grid grid-cols-[5rem_1fr] gap-x-3 gap-y-1 text-xs text-ink-600 dark:text-ink-400">
-                <dt className="font-medium text-ink-700 dark:text-ink-300">Site</dt>
-                <dd>{component.site}</dd>
-                <dt className="font-medium text-ink-700 dark:text-ink-300">Reddit</dt>
-                <dd>{component.reddit}</dd>
-                <dt className="font-medium text-ink-700 dark:text-ink-300">Discord</dt>
-                <dd>{component.discord}</dd>
-              </dl>
-            </li>
-          ))}
-        </ul>
       </div>
     </details>
   );
@@ -461,22 +424,17 @@ const PROBLEM_TEXT: Readonly<Record<string, string>> = {
   "body:long": "That is longer than a post can be.",
 };
 
-function describe(
-  problems: readonly DraftProblem[],
-  planned: readonly PlannedEmbed[],
-): Readonly<Record<string, readonly string[]>> {
+function describe(problems: readonly DraftProblem[]): Readonly<Record<string, readonly string[]>> {
   const out: Record<string, string[]> = {};
   for (const problem of problems) {
-    const detail = "detail" in problem ? problem.detail : "";
-    const coming = planned.find((component) => component.name === detail);
     const message =
       problem.code === "unknown-embed"
-        ? coming === undefined
-          ? `There is no component called “${problem.detail}”.`
-          : `${coming.label} is not available yet — remove it to submit, or save a draft.`
-        : problem.code === "bad-embed"
-          ? `Component problem — ${problem.detail}.`
-          : (PROBLEM_TEXT[`${problem.field}:${problem.code}`] ?? "Check this field.");
+        ? `There is no component called “${problem.detail}”.`
+        : problem.code === "wrong-kind-embed"
+          ? `The ${problem.detail} component is for news posts only — remove it to submit.`
+          : problem.code === "bad-embed"
+            ? `Component problem — ${problem.detail}.`
+            : (PROBLEM_TEXT[`${problem.field}:${problem.code}`] ?? "Check this field.");
     (out[problem.field] ??= []).push(message);
   }
   return out;

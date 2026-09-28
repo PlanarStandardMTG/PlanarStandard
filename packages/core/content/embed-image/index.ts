@@ -36,6 +36,7 @@ export const imageEmbed = defineEmbed<"image", ImageEmbed, null>({
     { name: "alt", required: true, description: "What the image shows, for screen readers." },
     { name: "caption", required: false, description: "A line shown under the image." },
   ],
+  kinds: ["official"],
   parse: parseImageEmbed,
   export: {
     reddit: ({ src, alt, caption }) =>

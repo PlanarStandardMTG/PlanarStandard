@@ -244,11 +244,13 @@ export type {
   ExportTarget,
   RegisteredEmbed,
 } from "./content/embed-registry/index";
-export { EMBEDS, EMBED_REGISTRY, PLANNED_EMBEDS } from "./content/embed-catalogue/index";
-export type { EmbedName, PlannedEmbed } from "./content/embed-catalogue/index";
+export { EMBEDS, EMBED_REGISTRY, embedsFor } from "./content/embed-catalogue/index";
+export type { EmbedName } from "./content/embed-catalogue/index";
 export { DISCORD_MESSAGE_LIMIT, exportPost } from "./content/export-post/index";
 export { imageEmbed, parseImageEmbed } from "./content/embed-image/index";
 export type { ImageEmbed } from "./content/embed-image/index";
+export { cardEmbed, parseCardEmbed, scryfallSearchUrl } from "./content/embed-card/index";
+export type { CardEmbed, CardEmbedData } from "./content/embed-card/index";
 export {
   deckCounts,
   deckHref,

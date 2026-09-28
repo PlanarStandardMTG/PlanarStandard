@@ -7,6 +7,7 @@ import {
   canEditOwnPost,
   canWriteKind,
   checkPostDraft,
+  embedsFor,
   exportPost,
   ordinal,
   postSlug,
@@ -65,9 +66,6 @@ export async function savePost(_previous: SaveState, form: FormData): Promise<Sa
   const id = form.get("id")?.toString() ?? "";
   const intent = form.get("intent") === "submit" ? "submit" : "save";
 
-  const check = checkPostDraft(fields(form), intent, EMBED_REGISTRY);
-  if (!check.ok) return { problems: check.problems };
-
   const supabase = await createSessionClient();
   const { role } = viewer.profile;
   let saved: PostWithAuthor;
@@ -77,6 +75,8 @@ export async function savePost(_previous: SaveState, form: FormData): Promise<Sa
     // official post from anyone but an admin whatever this says.
     const kind: PostKind = form.get("kind") === "official" ? "official" : "community";
     if (!canWriteKind(role, kind)) return { problems: [], failed: "not-allowed" };
+    const check = checkPostDraft(fields(form), intent, EMBED_REGISTRY, kind);
+    if (!check.ok) return { problems: check.problems };
 
     const status = savedStatus(null, intent, role);
     const base = postSlug(check.draft.title) || "post";
@@ -103,6 +103,8 @@ export async function savePost(_previous: SaveState, form: FormData): Promise<Sa
     ) {
       return { problems: [], failed: "not-editable" };
     }
+    const check = checkPostDraft(fields(form), intent, EMBED_REGISTRY, existing.kind);
+    if (!check.ok) return { problems: check.problems };
     const status = savedStatus(existing.status, intent, role);
     saved = await updatePost(supabase, id, { ...check.draft, status });
   }
@@ -133,7 +135,7 @@ export async function previewPost(
   const kind: PostKind = input.kind === "official" ? "official" : "community";
   const canonicalUrl = `${await siteOrigin()}${postHref({ slug, kind })}`;
   const markdown = input.bodyMarkdown;
-  const tidied = checkPostDraft(input, "save", EMBED_REGISTRY);
+  const tidied = checkPostDraft(input, "save", EMBED_REGISTRY, kind);
   const data = await loadEmbedData(markdown);
   const now = new Date().toISOString();
 
@@ -163,7 +165,7 @@ export async function previewPost(
     },
   };
 
-  const exported = { markdown, canonicalUrl, registry: EMBED_REGISTRY, data };
+  const exported = { markdown, canonicalUrl, registry: embedsFor(kind), data };
   return {
     rendered: <PostArticleContent post={post} />,
     reddit: exportPost(exported, "reddit"),
@@ -174,9 +176,12 @@ export async function previewPost(
 export type UploadResult =
   { readonly ok: true; readonly url: string } | { readonly ok: false; readonly problem: string };
 
-/** One picture for the image component (E20.25), into the author's own folder. */
+/** One picture for the image component (E20.25), into the author's own folder. News only. */
 export async function uploadPostImage(form: FormData): Promise<UploadResult> {
-  await requireRole("reader");
+  const viewer = await requireRole("reader");
+  if (!canWriteKind(viewer.profile.role, "official")) {
+    return { ok: false, problem: "Images are for news posts only." };
+  }
   const file = form.get("image");
   if (!(file instanceof File) || file.size === 0) return { ok: false, problem: "Choose an image." };
 

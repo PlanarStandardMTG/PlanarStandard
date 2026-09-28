@@ -1,3 +1,5 @@
+import type { PostKind } from "@ps/contracts";
+
 import { findEmbeds } from "../embed-syntax/index";
 import type { RegisteredEmbed } from "../embed-registry/index";
 
@@ -37,7 +39,8 @@ export type DraftProblem =
   | { readonly field: "body"; readonly code: "empty" | "long" }
   | {
       readonly field: "body";
-      readonly code: "unknown-embed" | "bad-embed";
+      /** `wrong-kind-embed`: a component this kind of post may not place. */
+      readonly code: "unknown-embed" | "bad-embed" | "wrong-kind-embed";
       readonly detail: string;
     };
 
@@ -51,6 +54,7 @@ export function checkPostDraft(
   input: PostDraftInput,
   intent: "save" | "submit",
   registry: readonly RegisteredEmbed[],
+  kind: PostKind,
 ): DraftCheck {
   const title = input.title.trim();
   const subtitle = input.subtitle.trim();
@@ -77,7 +81,7 @@ export function checkPostDraft(
   // A draft may be half-written, components included; what goes to readers may not.
   if (intent === "submit") {
     if (bodyMarkdown.trim() === "") problems.push({ field: "body", code: "empty" });
-    problems.push(...embedProblems(bodyMarkdown, registry));
+    problems.push(...embedProblems(bodyMarkdown, registry, kind));
   }
 
   if (problems.length > 0) return { ok: false, problems };
@@ -93,11 +97,18 @@ export function checkPostDraft(
   };
 }
 
-function embedProblems(markdown: string, registry: readonly RegisteredEmbed[]): DraftProblem[] {
+function embedProblems(
+  markdown: string,
+  registry: readonly RegisteredEmbed[],
+  kind: PostKind,
+): DraftProblem[] {
   const byName = new Map(registry.map((embed) => [embed.name, embed]));
   return findEmbeds(markdown).flatMap((call): DraftProblem[] => {
     const embed = byName.get(call.name);
     if (embed === undefined) return [{ field: "body", code: "unknown-embed", detail: call.name }];
+    if (!embed.kinds.includes(kind)) {
+      return [{ field: "body", code: "wrong-kind-embed", detail: call.name }];
+    }
     const problem = embed.check(call.attributes);
     return problem === null
       ? []

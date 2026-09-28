@@ -8,6 +8,6 @@
 **Gotchas.** `src` must be an `http(s)` address — an upload's public URL or an
 image hosted elsewhere — and alt text is required. Neither export target can
 show an image inline in a text post: Reddit gets a link named by the alt text,
-Discord the bare address, which it unfurls.
+Discord the bare address, which it unfurls. News posts only.
 
 Policy: [`docs/modules/content.md`](../../../../docs/modules/content.md).
