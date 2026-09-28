@@ -3,7 +3,6 @@ import {
   colorIdentity,
   compareWinRates,
   deckWinRate,
-  DECK_WIN_RATE,
   formatRecord,
   latestVersions,
   matchesDeckFilter,
@@ -18,7 +17,6 @@ import { FORMAT_LABELS } from "@/components/decks/format-labels";
 import { EmptyState, ErrorState } from "@/components/ui/states";
 import { cardIndex } from "@/lib/cards/card-index";
 import { toResolvedDeck } from "@/lib/decks/deck-view";
-import { cn } from "@/lib/cn";
 import { formatShortDate } from "@/lib/format-date";
 import { load } from "@/lib/load";
 import { createSessionClient } from "@/lib/supabase/session";
@@ -74,8 +72,8 @@ const clearedHref = (filter: Browse) => pageHref({ ...filter, colors: [], cards:
  * The Browse tab (E20.40): every public deck at its newest version, narrowed
  * by colour and card name, ten to a page. Cards are not in Postgres, so the
  * filter runs here against the card index rather than in the query. Each deck
- * shows who it is credited to and its match win rate over every version's
- * events, and can be sorted by that rate (E20.45).
+ * shows who it is credited to and its record over every version's events,
+ * and can be sorted by match win rate (E20.45).
  */
 export async function BrowseDecks({ params }: { params: Params }) {
   const filter = readFilter(params);
@@ -160,7 +158,7 @@ export async function BrowseDecks({ params }: { params: Params }) {
                     </span>
                   </span>
                   <span className="flex items-center gap-3 text-xs text-ink-500 dark:text-ink-400">
-                    <WinRate winRate={winRate} />
+                    <DeckRecord winRate={winRate} />
                     <span>{FORMAT_LABELS[deck.format]}</span>
                     <span className="whitespace-nowrap">{formatShortDate(deck.createdAt)}</span>
                   </span>
@@ -189,29 +187,12 @@ export async function BrowseDecks({ params }: { params: Params }) {
 }
 
 /**
- * The rate beside the record it came from, which is its `n`; greyed while the
- * sample is thin, and only the record under `DECK_WIN_RATE`'s floor. A deck
- * never played at an event shows nothing.
+ * The record only (E20.45): the rate orders the win-rate sort but is never
+ * shown. A deck never played at an event shows nothing.
  */
-function WinRate({ winRate }: { winRate: DeckWinRate }) {
-  const { record, verdict } = winRate;
-  if (verdict.n === 0) return null;
-  const played = formatRecord(record);
-  if (verdict.level === "hide") {
-    return (
-      <span title={`${verdict.n} matches: too few for a ${DECK_WIN_RATE.label}`}>{played}</span>
-    );
-  }
-  const percent = (value: number) => `${Math.round(value * 100)}%`;
-  return (
-    <span
-      title={`${DECK_WIN_RATE.label} over ${verdict.n} matches, 95% interval ${percent(verdict.interval.low)}–${percent(verdict.interval.high)}`}
-      className={cn("whitespace-nowrap", verdict.level === "grey" && "opacity-60")}
-    >
-      <span className="font-medium text-ink-800 dark:text-ink-200">{percent(verdict.rate)}</span>{" "}
-      {played}
-    </span>
-  );
+function DeckRecord({ winRate }: { winRate: DeckWinRate }) {
+  if (winRate.verdict.n === 0) return null;
+  return <span className="whitespace-nowrap">{formatRecord(winRate.record)}</span>;
 }
 
 function PageLink({ href, children }: { href: string | null; children: React.ReactNode }) {

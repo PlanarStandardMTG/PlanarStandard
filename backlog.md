@@ -1252,9 +1252,9 @@ every season, excluding byes, so a new season's ladder is not empty until its se
 
 ✅ **E20.45 — `decks`: credit, win rate and sorting in the deck browser** · S · Deps: E20.40 — every
 deck in the browser and on its page is credited to the player who took it to an event, or else the
-member who imported it; the browser shows each deck's match win rate at events next to its record and
-sorts by newest (the default) or by win rate. _AC:_ the rate sums every version's events and goes through
-`suppress-small-n` (`DECK_WIN_RATE`: hidden under 3 matches, greyed under 10), a withheld rate sorts last,
+member who imported it; the browser shows each deck's record at events and sorts by newest (the
+default) or by match win rate. _AC:_ the rate sums every version's events and is never shown, only the
+record; under `DECK_WIN_RATE`'s floor of 3 matches a deck sorts after every deck above it,
 a hidden player is credited to nobody, and the sort survives filtering and paging. The archetype label
 is gone from the list, which read it from the deck's name alone, and list dates are short (`28 Sept 2026`).
 _Note:_ added outside the plan. `listBrowsableDecks` now returns `BrowsableDeck`, embedding the player,
