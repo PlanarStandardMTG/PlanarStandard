@@ -24,7 +24,7 @@ export async function AccountNav({ layout }: { layout: "inline" | "stacked" }) {
   if (viewer === null) {
     return (
       <Link
-        href={loginHref("/profile")}
+        href={loginHref("/dashboard/profile")}
         className={`${row} shrink-0 font-medium text-eclipse-700 hover:underline dark:text-eclipse-400 ${stacked ? "" : "text-sm"}`}
       >
         Sign in
@@ -32,9 +32,9 @@ export async function AccountNav({ layout }: { layout: "inline" | "stacked" }) {
     );
   }
 
-  // A banned member clears no rung, so the dashboard would turn them away;
-  // their profile still says why.
-  const home = viewer.profile.bannedAt === null ? "/dashboard" : "/profile";
+  // A banned member clears no rung, so the dashboard's index would turn them
+  // away; their profile still says why.
+  const home = viewer.profile.bannedAt === null ? "/dashboard" : "/dashboard/profile";
   return (
     <div className={stacked ? "flex flex-col" : "flex shrink-0 items-center gap-3 text-sm"}>
       <Link

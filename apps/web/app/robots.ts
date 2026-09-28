@@ -11,7 +11,6 @@ const PRIVATE = [
   "/api/",
   "/auth",
   "/dashboard",
-  "/profile",
   "/decks/new",
   "/login",
   "/signup",

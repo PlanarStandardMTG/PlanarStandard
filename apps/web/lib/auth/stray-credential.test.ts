@@ -15,12 +15,12 @@ describe("strayCredentialTarget", () => {
     // What Supabase's own verify endpoint does: it redirects to the project's
     // Site URL with the credential in the query string, and there is nothing at
     // the root to spend it.
-    expect(at("/?code=abc123")).toBe("/auth/confirm?next=%2Fprofile&code=abc123");
+    expect(at("/?code=abc123")).toBe("/auth/confirm?next=%2Fdashboard%2Fprofile&code=abc123");
   });
 
   it("rescues a token hash and keeps the type it needs to be verified with", () => {
     expect(at("/?token_hash=deadbeef&type=magiclink")).toBe(
-      "/auth/confirm?next=%2Fprofile&token_hash=deadbeef&type=magiclink",
+      "/auth/confirm?next=%2Fdashboard%2Fprofile&token_hash=deadbeef&type=magiclink",
     );
   });
 
@@ -44,10 +44,10 @@ describe("strayCredentialTarget", () => {
     // The credential arrives from an email, so the whole URL is attacker-shaped:
     // a crafted link must not be able to aim the redirect off the origin.
     expect(at("/?code=abc123&next=https%3A%2F%2Fevil.example")).toBe(
-      "/auth/confirm?next=%2Fprofile&code=abc123",
+      "/auth/confirm?next=%2Fdashboard%2Fprofile&code=abc123",
     );
     expect(at("/?code=abc123&next=%2F%2Fevil.example")).toBe(
-      "/auth/confirm?next=%2Fprofile&code=abc123",
+      "/auth/confirm?next=%2Fdashboard%2Fprofile&code=abc123",
     );
   });
 

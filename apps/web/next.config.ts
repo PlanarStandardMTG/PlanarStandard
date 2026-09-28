@@ -26,6 +26,8 @@ const config: NextConfig = {
     return [
       { source: "/articles", destination: "/community", permanent: true },
       { source: "/articles/:slug", destination: "/community/:slug", permanent: true },
+      // E20.48: the profile moved into the dashboard; sign-in links carry the old path.
+      { source: "/profile", destination: "/dashboard/profile", permanent: true },
       {
         source: "/dashboard/articles/:path*",
         destination: "/dashboard/community/:path*",

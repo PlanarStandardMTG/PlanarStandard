@@ -6,6 +6,6 @@
  * importing the reader would do. And a name shared between two files should be
  * written once: a typo in one of two string literals degrades silently, with
  * every post-login redirect still working and every one of them landing on
- * `/profile`.
+ * `/dashboard/profile`.
  */
 export const CURRENT_PATH_HEADER = "x-planar-path";

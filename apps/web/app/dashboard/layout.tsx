@@ -3,26 +3,28 @@ import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Container } from "@/components/ui/container";
-import { DASHBOARD_MINIMUM, DASHBOARD_SECTIONS } from "@/lib/auth/dashboard-sections";
-import { requireRole } from "@/lib/auth/guard";
+import { DASHBOARD_SECTIONS } from "@/lib/auth/dashboard-sections";
+import { requireViewer } from "@/lib/auth/guard";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Everything behind `/dashboard` (E16.6).
  *
- * The guard is in the layout, so a new page under this segment is protected the
+ * The guard is in the layout, so a new page under this segment is signed-in the
  * moment it exists rather than the moment somebody remembers. That is the floor,
- * not the whole rule: a section that needs more than `writer` calls
- * `requireRole` again in its own page, because a layout guard cannot express
- * "organizer here, admin there" and a route that relies on its parent for a
- * stricter check is one refactor away from having no check at all.
+ * not the whole rule: every page calls `requireRole` again for its own rung,
+ * because a layout guard cannot express "organizer here, admin there" and a
+ * route that relies on its parent for a stricter check is one refactor away
+ * from having no check at all. The floor is signed-in rather than `reader` so a
+ * banned member still reaches `/dashboard/profile` (E20.48); they clear no rung,
+ * so their nav is empty.
  */
 export default async function DashboardLayout({ children }: { children: ReactNode }) {
-  const viewer = await requireRole(DASHBOARD_MINIMUM);
-  const sections = DASHBOARD_SECTIONS.filter((section) =>
-    meetsRole(viewer.profile.role, section.role),
-  );
+  const viewer = await requireViewer();
+  const { role, bannedAt } = viewer.profile;
+  const sections =
+    bannedAt === null ? DASHBOARD_SECTIONS.filter((section) => meetsRole(role, section.role)) : [];
 
   return (
     <Container className="py-12">

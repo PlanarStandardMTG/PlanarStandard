@@ -16,7 +16,7 @@ import { createSessionClient } from "@/lib/supabase/session";
  * The target comes from the form — that is the point of the page — so it is
  * checked by `checkModeration` here and by `profiles_admin_update` underneath,
  * which refuses an admin acting on themselves whatever this file believes.
- * Outcomes travel back as codes, like `/profile`'s.
+ * Outcomes travel back as codes, like `/dashboard/profile`'s.
  */
 async function target(viewer: Viewer, form: FormData): Promise<Profile> {
   const supabase = await createSessionClient();

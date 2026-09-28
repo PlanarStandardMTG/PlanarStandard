@@ -17,7 +17,7 @@ export interface DashboardSection {
 
 export const DASHBOARD_SECTIONS: readonly DashboardSection[] = [
   {
-    href: "/profile",
+    href: "/dashboard/profile",
     label: "Profile",
     description: "Your display name, handle and bio.",
     role: "reader",
@@ -50,7 +50,7 @@ export const DASHBOARD_SECTIONS: readonly DashboardSection[] = [
 ];
 
 /**
- * The lowest rung with anything to do here. The layout guards at this. Every
+ * The lowest rung with anything to do here; the index guards at this. Every
  * member since E20.22, because anyone may write a community post.
  */
 export const DASHBOARD_MINIMUM: UserRole = "reader";

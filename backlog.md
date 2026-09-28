@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 14/15 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 36/47 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 37/48 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1284,6 +1284,12 @@ an author deletes their own post at any status and nobody else's (`posts_author_
 _Note:_ added outside the plan. A banned member's name still links to `/profile`, since the dashboard
 turns them away. The editor moved under each kind's prefix; `?kind=official` is gone.
 
+✅ **E20.48 — `dashboard`: the profile inside the dashboard** · XS · Deps: E20.47 — `/profile` moves to
+`/dashboard/profile`, with the dashboard's side nav. _AC:_ `/profile` redirects permanently; sign-in
+lands there by default; a banned member still reaches it.
+_Note:_ added outside the plan. The layout's floor drops from `reader` to signed-in so a ban does not lock
+a member out of their profile; every page under it already guards its own rung.
+
 ---
 
 ## E21 — Season II backfill
@@ -1672,11 +1678,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 15      | 14   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 47      | 36   |
+| E9   | 9       | 9    | E20  | 48      | 37   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 6       | 4    |
 
-**217 of 288 stories done across 25 epics.**
+**218 of 289 stories done across 25 epics.**

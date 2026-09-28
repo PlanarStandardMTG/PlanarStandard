@@ -26,22 +26,22 @@ const BIO_MAX = 280;
 export async function saveProfile(form: FormData): Promise<never> {
   const viewer = await requireViewer();
   // `profiles_self_update` refuses this too (E14.7); saying so beats a 500.
-  if (viewer.profile.bannedAt !== null) redirect("/profile?error=banned");
+  if (viewer.profile.bannedAt !== null) redirect("/dashboard/profile?error=banned");
 
   const displayName = (form.get("displayName")?.toString() ?? "").trim();
   const rawHandle = (form.get("handle")?.toString() ?? "").trim();
   const bio = (form.get("bio")?.toString() ?? "").trim();
 
-  if (displayName === "") redirect("/profile?error=name-empty");
-  if (displayName.length > DISPLAY_NAME_MAX) redirect("/profile?error=name-long");
-  if (bio.length > BIO_MAX) redirect("/profile?error=bio-long");
+  if (displayName === "") redirect("/dashboard/profile?error=name-empty");
+  if (displayName.length > DISPLAY_NAME_MAX) redirect("/dashboard/profile?error=name-long");
+  if (bio.length > BIO_MAX) redirect("/dashboard/profile?error=bio-long");
 
   // An empty handle is a real choice — nobody is required to claim a URL — so
   // it clears the column rather than failing validation.
   let handle: string | null = null;
   if (rawHandle !== "") {
     const checked = checkProfileHandle(rawHandle);
-    if (!checked.ok) redirect(`/profile?error=handle-${checked.problem}`);
+    if (!checked.ok) redirect(`/dashboard/profile?error=handle-${checked.problem}`);
     handle = checked.handle;
   }
 
@@ -54,12 +54,12 @@ export async function saveProfile(form: FormData): Promise<never> {
     // 23505 is the unique index on `handle`. Someone else got there first, which
     // is an ordinary thing to tell a person rather than a server error.
     if (message.includes("23505") || message.toLowerCase().includes("duplicate")) {
-      redirect("/profile?error=handle-taken");
+      redirect("/dashboard/profile?error=handle-taken");
     }
     throw cause;
   }
 
   // The header shows the display name, and it is rendered by the root layout.
   revalidatePath("/", "layout");
-  redirect("/profile?saved=1");
+  redirect("/dashboard/profile?saved=1");
 }

@@ -58,7 +58,7 @@ export default async function UnauthorizedPage({
             An admin banned it on {formatDate(viewer.profile.bannedAt)}. You can still read the
             site, and export or delete your data from{" "}
             <Link
-              href="/profile"
+              href="/dashboard/profile"
               className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
             >
               your profile
@@ -120,7 +120,7 @@ export default async function UnauthorizedPage({
             </Link>
             {viewer !== null && (
               <Link
-                href="/profile"
+                href="/dashboard/profile"
                 className="text-ink-500 hover:text-ink-800 dark:text-ink-400 dark:hover:text-ink-200"
               >
                 Your profile

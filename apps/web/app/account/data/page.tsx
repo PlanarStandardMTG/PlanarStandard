@@ -129,7 +129,7 @@ export default async function AccountDataPage({
 
       <p className="mt-6 text-center text-sm">
         <Link
-          href="/profile"
+          href="/dashboard/profile"
           className="text-ink-500 hover:text-ink-800 dark:text-ink-400 dark:hover:text-ink-200"
         >
           Back to {viewer.profile.displayName}&rsquo;s profile

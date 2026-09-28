@@ -37,5 +37,5 @@ export async function POST(request: Request): Promise<never> {
     redirect(`/account/password?error=${authErrorCode(error) ?? "unknown"}`);
   }
 
-  redirect("/profile?saved=password");
+  redirect("/dashboard/profile?saved=password");
 }
