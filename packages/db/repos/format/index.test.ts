@@ -56,8 +56,9 @@ describe.skipIf(!reachable)("db/repos/format", () => {
   it("returns the pool the rules page publishes", async () => {
     const detail = await getCurrentFormatDetail(client);
 
-    // Six sets, sorted, exactly as `content/pages/rules.mdx` lists them.
-    expect(detail?.legalSets).toEqual(["DFT", "ECL", "EOE", "FDN", "SOS", "TDM"]);
+    // Six sets in the admin's order, the core one first.
+    expect(detail?.legalSets).toEqual(["FDN", "DFT", "TDM", "EOE", "ECL", "SOS"]);
+    expect(detail?.coreSets).toEqual(["FDN"]);
   });
 
   it("returns the constraints rather than assuming the defaults", async () => {
@@ -115,6 +116,7 @@ describe.skipIf(!reachable)("db/repos/format — admin edits", () => {
     notesMarkdown: null,
     isCurrent: false,
     legalSets: ["FDN" as SetCode],
+    coreSets: [],
     constraints: {
       minMaindeck: 40,
       maxMaindeck: null,
@@ -149,11 +151,16 @@ describe.skipIf(!reachable)("db/repos/format — admin edits", () => {
       await saveFormatVersion(
         admin,
         id,
-        draft({ name: "Renamed", legalSets: ["DFT", "TDM"] as SetCode[] }),
+        draft({
+          name: "Renamed",
+          legalSets: ["TDM", "FDN", "DFT"] as SetCode[],
+          coreSets: ["FDN"] as SetCode[],
+        }),
       );
       const replaced = await getFormatDetail(client, id);
       expect(replaced?.version.name).toBe("Renamed");
-      expect(replaced?.legalSets).toEqual(["DFT", "TDM"]);
+      expect(replaced?.legalSets).toEqual(["TDM", "FDN", "DFT"]);
+      expect(replaced?.coreSets).toEqual(["FDN"]);
       expect(replaced?.cardRules).toEqual([]);
       expect((await listFormatVersions(client)).map((v) => v.id)).toContain(id);
     } finally {

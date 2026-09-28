@@ -11,6 +11,7 @@ const BOLT = "bolt-id" as OracleId;
 const format = {
   version: { name: "2026 pool" },
   legalSets: ["FDN", "DFT"],
+  coreSets: ["FDN"],
   cardRules: [{ ruling: "banned", oracleId: BOLT }],
   constraints: null,
 } as unknown as FormatVersionDetail;
@@ -24,7 +25,7 @@ describe("pageMarkdown", () => {
       context,
     );
     expect(text).toBe(
-      "Legal sets (2026 pool): FDN, DFT.\n\n- Lightning Bolt: banned\n\nSee [FAQ](https://ps.test/faq).",
+      "Legal sets (2026 pool): FDN (core), DFT.\n\n- Lightning Bolt: banned\n\nSee [FAQ](https://ps.test/faq).",
     );
   });
 

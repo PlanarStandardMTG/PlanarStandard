@@ -1,7 +1,8 @@
-import { Badge } from "@/components/ui/badge";
 import { EmptyState, ErrorState } from "@/components/ui/states";
 import { formatDate } from "@/lib/format-date";
 import { loadCurrentFormat } from "@/lib/format/current-format";
+
+import { scryfallSetSearch, SetSymbol } from "./set-symbol";
 
 /**
  * E17.2 — the legal pool, read from `format_legal_sets` at request time.
@@ -24,7 +25,8 @@ export async function LegalSets() {
     );
   }
 
-  const { version, legalSets } = format.value;
+  const { version, legalSets, coreSets } = format.value;
+  const rotating = legalSets.filter((code) => !coreSets.includes(code));
 
   return (
     <div className="not-prose my-6 rounded-xl border border-ink-200 p-5 dark:border-ink-800">
@@ -35,19 +37,50 @@ export async function LegalSets() {
         </p>
       </div>
 
-      <ul className="mt-4 flex flex-wrap gap-2">
-        {legalSets.map((setCode) => (
-          <li key={setCode}>
-            <Badge variant="outline" className="font-mono text-sm">
-              {setCode}
-            </Badge>
-          </li>
-        ))}
-      </ul>
+      {coreSets.length === 0 ? (
+        <SetChips codes={legalSets} />
+      ) : (
+        <>
+          <SetGroup label="Core" codes={coreSets} />
+          {rotating.length > 0 && <SetGroup label="Rotating" codes={rotating} />}
+        </>
+      )}
 
       {version.notesMarkdown !== null && (
         <p className="mt-4 text-sm text-ink-600 dark:text-ink-400">{version.notesMarkdown}</p>
       )}
     </div>
+  );
+}
+
+function SetGroup({ label, codes }: { label: string; codes: readonly string[] }) {
+  return (
+    <div className="mt-4">
+      <p className="font-mono text-xs tracking-[0.08em] text-ink-500 uppercase dark:text-ink-400">
+        {label}
+      </p>
+      <SetChips codes={codes} />
+    </div>
+  );
+}
+
+function SetChips({ codes }: { codes: readonly string[] }) {
+  return (
+    <ul className="mt-2 flex flex-wrap gap-2">
+      {codes.map((code) => (
+        <li key={code}>
+          <a
+            href={scryfallSetSearch(code)}
+            target="_blank"
+            rel="noopener noreferrer"
+            title={`${code} on Scryfall`}
+            className="inline-flex items-center gap-1.5 rounded-full border border-ink-300 px-3 py-1 font-mono text-sm text-ink-700 transition-colors hover:border-eclipse-500 hover:text-eclipse-700 dark:border-ink-700 dark:text-ink-300 dark:hover:text-eclipse-400"
+          >
+            <SetSymbol code={code} />
+            {code}
+          </a>
+        </li>
+      ))}
+    </ul>
   );
 }

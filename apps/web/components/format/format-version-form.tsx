@@ -6,6 +6,8 @@ import { startTransition, useActionState, useState, type FormEvent } from "react
 
 import { saveFormat, type FormatSaveState } from "@/app/admin/formats/actions";
 
+import { LegalSetList } from "./legal-set-list";
+
 /**
  * One format version's fields, legal sets, deck limits and card rules (E20.33).
  * A client component so a failed save keeps what the admin typed; the checking
@@ -32,6 +34,7 @@ export interface FormatFormValues {
   readonly notes: string;
   readonly isCurrent: boolean;
   readonly legalSets: readonly string[];
+  readonly coreSets: readonly string[];
   readonly minMaindeck: string;
   readonly maxMaindeck: string;
   readonly maxSideboard: string;
@@ -97,7 +100,7 @@ export function FormatVersionForm({
   /** Null for a new version. */
   id: string | null;
   initial: FormatFormValues;
-  /** The sets the card dataset holds, offered as checkboxes. */
+  /** The sets the card dataset holds, offered to add with one click. */
   knownSets: readonly string[];
 }) {
   const [state, action, pending] = useActionState<FormatSaveState, FormData>(saveFormat, {
@@ -106,12 +109,6 @@ export function FormatVersionForm({
   const [values, setValues] = useState(initial);
   const [rules, setRules] = useState<readonly CardRuleInput[]>(
     initial.cardRules.length > 0 ? initial.cardRules : [BLANK_RULE],
-  );
-  const [sets, setSets] = useState<ReadonlySet<string>>(
-    new Set(initial.legalSets.filter((s) => knownSets.includes(s))),
-  );
-  const [otherSets, setOtherSets] = useState(
-    initial.legalSets.filter((s) => !knownSets.includes(s)).join(", "),
   );
 
   const set = <K extends keyof FormatFormValues>(key: K, value: FormatFormValues[K]) =>
@@ -216,39 +213,13 @@ export function FormatVersionForm({
 
       <fieldset>
         <legend className="text-sm font-medium">Legal sets</legend>
-        <div className="mt-2 flex flex-wrap gap-2">
-          {knownSets.map((code) => (
-            <label
-              key={code}
-              className="flex cursor-pointer items-center gap-2 rounded-lg border border-ink-300 px-3 py-1.5 font-mono text-sm has-checked:border-eclipse-500 dark:border-ink-700"
-            >
-              <input
-                type="checkbox"
-                name="set"
-                value={code}
-                checked={sets.has(code)}
-                onChange={() =>
-                  setSets((previous) => {
-                    const next = new Set(previous);
-                    if (next.has(code)) next.delete(code);
-                    else next.add(code);
-                    return next;
-                  })
-                }
-              />
-              {code}
-            </label>
-          ))}
-        </div>
-        <label htmlFor="other_sets" className="mt-3 block text-xs text-ink-500 dark:text-ink-400">
-          Other set codes, comma-separated — for a set the card data doesn’t hold yet
-        </label>
-        <input
-          id="other_sets"
-          name="other_sets"
-          value={otherSets}
-          onChange={(e) => setOtherSets(e.target.value)}
-          className={`${FIELD} font-mono`}
+        <LegalSetList
+          initial={initial.legalSets.map((code) => ({
+            code,
+            core: initial.coreSets.includes(code),
+          }))}
+          knownSets={knownSets}
+          fieldClassName={FIELD}
         />
         <Problems messages={about("legalSets")} />
       </fieldset>

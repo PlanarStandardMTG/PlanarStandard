@@ -58,7 +58,10 @@ export interface FormatVersionDraft {
   readonly effectiveTo: IsoDate | null;
   readonly notesMarkdown: string | null;
   readonly isCurrent: boolean;
+  /** In the order `/rules` lists them, which is also set attribution's tiebreak. */
   readonly legalSets: readonly SetCode[];
+  /** The legal sets that do not rotate; each one is also in `legalSets`. */
+  readonly coreSets: readonly SetCode[];
   readonly constraints: Omit<DeckConstraints, "extraRules">;
   readonly cardRules: readonly CardRuleDraft[];
 }
@@ -82,7 +85,10 @@ export interface FormatRules {
  */
 export interface FormatVersionDetail {
   readonly version: FormatVersion;
+  /** In the admin's order. */
   readonly legalSets: readonly SetCode[];
+  /** The legal sets that do not rotate; each one is also in `legalSets`. */
+  readonly coreSets: readonly SetCode[];
   readonly cardRules: readonly FormatCardRule[];
   readonly constraints: DeckConstraints | null;
 }

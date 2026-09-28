@@ -24,7 +24,10 @@ export interface MarkdownContext {
 export function legalSetsText(format: FormatVersionDetail | null): string {
   if (format === null || format.legalSets.length === 0)
     return "The pool is announced in the Discord.";
-  return `Legal sets (${format.version.name}): ${format.legalSets.join(", ")}.`;
+  const sets = format.legalSets.map((code) =>
+    format.coreSets.includes(code) ? `${code} (core)` : code,
+  );
+  return `Legal sets (${format.version.name}): ${sets.join(", ")}.`;
 }
 
 function banlistText(

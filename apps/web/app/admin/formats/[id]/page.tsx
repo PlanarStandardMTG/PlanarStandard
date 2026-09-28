@@ -44,7 +44,7 @@ export default async function EditFormatPage({
   const detail = await getFormatDetail(await createSessionClient(), id as FormatVersionId);
   if (detail === null) notFound();
 
-  const { version, legalSets, cardRules } = detail;
+  const { version, legalSets, coreSets, cardRules } = detail;
   const constraints = detail.constraints ?? DEFAULT_CONSTRAINTS;
   const index = cardIndex();
 
@@ -77,6 +77,7 @@ export default async function EditFormatPage({
           notes: version.notesMarkdown ?? "",
           isCurrent: version.isCurrent,
           legalSets,
+          coreSets,
           minMaindeck: String(constraints.minMaindeck),
           maxMaindeck: constraints.maxMaindeck === null ? "" : String(constraints.maxMaindeck),
           maxSideboard: String(constraints.maxSideboard),

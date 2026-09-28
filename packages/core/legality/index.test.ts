@@ -471,6 +471,7 @@ describe("core/legality/check-format-draft", () => {
     notes: "",
     isCurrent: true,
     legalSets: ["fdn", "DFT", "fdn", " "],
+    coreSets: ["fdn"],
     minMaindeck: "60",
     maxMaindeck: "",
     maxSideboard: "15",
@@ -482,6 +483,15 @@ describe("core/legality/check-format-draft", () => {
     ],
   };
 
+  it("keeps the sets' order and only core codes that are also legal", () => {
+    const check = checkFormatDraft(
+      { ...input, legalSets: ["tdm", "FDN", "dft"], coreSets: ["dft", "FDN", "EOE"] },
+      INDEX,
+    );
+    expect(check.ok && check.value.legalSets).toEqual(["TDM", "FDN", "DFT"]);
+    expect(check.ok && check.value.coreSets).toEqual(["FDN", "DFT"]);
+  });
+
   it("accepts a version, trimming, upper-casing sets and resolving card rules by name", () => {
     const check = checkFormatDraft(input, INDEX);
 
@@ -492,6 +502,7 @@ describe("core/legality/check-format-draft", () => {
       effectiveTo: null,
       notesMarkdown: null,
       legalSets: ["FDN", "DFT"],
+      coreSets: ["FDN"],
       constraints: { minMaindeck: 60, maxMaindeck: null, maxSideboard: 15, maxCopies: 4 },
     });
     expect(check.value.cardRules).toEqual([

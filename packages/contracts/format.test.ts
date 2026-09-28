@@ -278,6 +278,7 @@ describe("format contracts", () => {
           isCurrent: true,
         },
         legalSets: [setCode("FDN"), setCode("DFT")],
+        coreSets: [setCode("FDN")],
         cardRules: [],
         constraints: seasonTwoConstraints,
       };

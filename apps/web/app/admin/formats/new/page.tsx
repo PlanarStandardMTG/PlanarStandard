@@ -4,6 +4,7 @@ import Link from "next/link";
 import { FormatVersionForm } from "@/components/format/format-version-form";
 import { requireRole } from "@/lib/auth/guard";
 import { cardSetCodes } from "@/lib/cards/card-index";
+import { loadCurrentFormat } from "@/lib/format/current-format";
 
 export const dynamic = "force-dynamic";
 
@@ -16,6 +17,13 @@ export const metadata: Metadata = {
 export default async function NewFormatPage() {
   await requireRole("admin");
   const knownSets = cardSetCodes();
+  // The next version usually keeps the current pool and adds to it.
+  const current = await loadCurrentFormat();
+  const from = current.ok ? current.value : null;
+  const legalSets = [
+    ...(from?.legalSets ?? []),
+    ...knownSets.filter((code) => !(from?.legalSets ?? []).includes(code)),
+  ];
 
   return (
     <>
@@ -37,7 +45,8 @@ export default async function NewFormatPage() {
           effectiveTo: "",
           notes: "",
           isCurrent: false,
-          legalSets: knownSets,
+          legalSets,
+          coreSets: from?.coreSets ?? [],
           minMaindeck: "60",
           maxMaindeck: "",
           maxSideboard: "15",

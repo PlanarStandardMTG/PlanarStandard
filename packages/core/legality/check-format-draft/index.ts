@@ -32,7 +32,10 @@ export interface FormatDraftInput {
   readonly effectiveTo: string;
   readonly notes: string;
   readonly isCurrent: boolean;
+  /** In order; a repeated code keeps its first place. */
   readonly legalSets: readonly string[];
+  /** Codes from `legalSets` that do not rotate; any other code is ignored. */
+  readonly coreSets: readonly string[];
   readonly minMaindeck: string;
   readonly maxMaindeck: string;
   readonly maxSideboard: string;
@@ -106,6 +109,8 @@ export function checkFormatDraft(input: FormatDraftInput, index: CardIndex): For
   for (const set of legalSets) {
     if (!SET_CODE.test(set)) problems.push({ field: "legalSets", code: "invalid", set });
   }
+  const core = new Set(input.coreSets.map((s) => s.trim().toUpperCase()));
+  const coreSets = legalSets.filter((s) => core.has(s));
 
   const whole = (field: NumberField, value: string, minimum: number): number | null => {
     const trimmed = value.trim();
@@ -182,6 +187,7 @@ export function checkFormatDraft(input: FormatDraftInput, index: CardIndex): For
       notesMarkdown: input.notes.trim() === "" ? null : input.notes.trim(),
       isCurrent: input.isCurrent,
       legalSets: legalSets as SetCode[],
+      coreSets: coreSets as SetCode[],
       constraints: {
         minMaindeck,
         maxMaindeck,

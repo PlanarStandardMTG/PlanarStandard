@@ -24,14 +24,14 @@ insert into format_versions (id, name, effective_from, effective_to, is_current,
     'A one-weekend throwback: Foundations only, singleton, 100-card decks.'
   );
 
-insert into format_legal_sets (format_version_id, set_code) values
-  ('22222222-2222-4222-8222-000000000001', 'FDN'),
-  ('22222222-2222-4222-8222-000000000001', 'DFT'),
-  ('22222222-2222-4222-8222-000000000001', 'TDM'),
-  ('22222222-2222-4222-8222-000000000001', 'EOE'),
-  ('22222222-2222-4222-8222-000000000001', 'ECL'),
-  ('22222222-2222-4222-8222-000000000001', 'SOS'),
-  ('22222222-2222-4222-8222-000000000002', 'FDN');
+insert into format_legal_sets (format_version_id, set_code, position, is_core) values
+  ('22222222-2222-4222-8222-000000000001', 'FDN', 1, true),
+  ('22222222-2222-4222-8222-000000000001', 'DFT', 2, false),
+  ('22222222-2222-4222-8222-000000000001', 'TDM', 3, false),
+  ('22222222-2222-4222-8222-000000000001', 'EOE', 4, false),
+  ('22222222-2222-4222-8222-000000000001', 'ECL', 5, false),
+  ('22222222-2222-4222-8222-000000000001', 'SOS', 6, false),
+  ('22222222-2222-4222-8222-000000000002', 'FDN', 1, true);
 
 insert into format_constraints
   (format_version_id, min_maindeck, max_maindeck, max_sideboard, max_copies, singleton) values

@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 14/15 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 30/42 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 31/43 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1053,8 +1053,8 @@ list below with Undo. Server components and forms only, so no client module reac
 service-role action.
 ⬜ **E20.17 — `identity-admin`: CSV round-trip** · M · Deps: E20.16
 ✅ **E20.18 — `format-admin`: `/dashboard/format`** · L · Deps: E13.15 — _AC:_ validates `format_legal_sets` against `data/sets.json` and warns when a selected set is absent from the dataset; bans and exceptions editable without a deploy.
-_Note:_ delivered by E20.33 at `/admin/formats`, not `/dashboard/format`. The legal sets are checkboxes
-over the sets the card data holds; a set it does not hold can only be typed into a separate field
+_Note:_ delivered by E20.33 at `/admin/formats`, not `/dashboard/format`. The legal sets are an ordered
+list (E20.43) that adds from the sets the card data holds; a set it does not hold can only be typed into a separate field
 labelled for exactly that, which is the warning, rather than a message after the fact.
 ⬜ **E20.19 — Site search** · M · Deps: E20.4
 ✅ **E20.20 — `auth`: `/profile`** · M · Deps: E16.5 — the page every signed-in account has: display
@@ -1222,6 +1222,15 @@ typing the member's name, and ban or lift a ban; a deck an event names is hidden
 nobody removes their own things from here.
 _Note:_ added outside the plan. The home podium's names are not links: each tile is already a link to
 the deck, and a link cannot sit inside another.
+✅ **E20.43 — `format`: order the legal sets, and mark the core ones** · S · Deps: E20.33 — the
+format form lists a version's legal sets in an order the admin sets, each marked core or rotating;
+`/rules` lists them in that order under Core and Rotating. _AC:_ each set shows its keyrune symbol
+(ADR 014) and links to its paper cards on Scryfall; the order is also set attribution's tiebreak,
+which until now read the sets alphabetically.
+_Note:_ added outside the plan. `0035_legal_set_order.sql` adds `position` and `is_core` to
+`format_legal_sets`, backfilling FDN as core and first; `save_format_version` still reads a bare code,
+so a deploy landing after the migration keeps saving. `coreSets` is new on `FormatVersionDraft` and
+`FormatVersionDetail`.
 
 ---
 
@@ -1600,11 +1609,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 15      | 14   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 42      | 30   |
+| E9   | 9       | 9    | E20  | 43      | 31   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 5       | 3    |
 
-**210 of 282 stories done across 25 epics.**
+**211 of 283 stories done across 25 epics.**

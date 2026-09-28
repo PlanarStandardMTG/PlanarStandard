@@ -38,6 +38,7 @@ export async function saveFormat(
       notes: text("notes"),
       isCurrent: form.get("is_current") === "on",
       legalSets: [...all("set"), ...text("other_sets").split(/[\s,]+/)],
+      coreSets: all("core_set"),
       minMaindeck: text("min_maindeck"),
       maxMaindeck: text("max_maindeck"),
       maxSideboard: text("max_sideboard"),

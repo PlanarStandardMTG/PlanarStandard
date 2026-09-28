@@ -106,7 +106,7 @@ export async function saveFormatVersion(
       effective_to: draft.effectiveTo,
       notes_markdown: draft.notesMarkdown,
       is_current: draft.isCurrent,
-      legal_sets: draft.legalSets,
+      legal_sets: draft.legalSets.map((code) => ({ code, core: draft.coreSets.includes(code) })),
       constraints: {
         min_maindeck: draft.constraints.minMaindeck,
         max_maindeck: draft.constraints.maxMaindeck,
@@ -156,27 +156,36 @@ async function detailFor(
   client: SupabaseClient,
   version: FormatVersion,
 ): Promise<FormatVersionDetail> {
-  const [legalSets, cardRules, constraints] = await Promise.all([
+  const [sets, cardRules, constraints] = await Promise.all([
     listLegalSets(client, version.id),
     listCardRules(client, version.id),
     getConstraints(client, version.id),
   ]);
 
-  return { version, legalSets, cardRules, constraints };
+  return {
+    version,
+    legalSets: sets.map((set) => set.code),
+    coreSets: sets.filter((set) => set.core).map((set) => set.code),
+    cardRules,
+    constraints,
+  };
 }
 
 async function listLegalSets(
   client: SupabaseClient,
   formatVersionId: FormatVersionId,
-): Promise<readonly SetCode[]> {
+): Promise<readonly { readonly code: SetCode; readonly core: boolean }[]> {
   const { data, error } = await client
     .from("format_legal_sets")
-    .select("set_code")
+    .select("set_code, is_core")
     .eq("format_version_id", formatVersionId)
-    .order("set_code");
+    .order("position");
 
   if (error !== null) throw new Error(`listLegalSets failed: ${error.message}`);
-  return (data ?? []).map((row) => (row as { set_code: string }).set_code as SetCode);
+  return (data ?? []).map((row) => {
+    const { set_code, is_core } = row as { set_code: string; is_core: boolean };
+    return { code: set_code as SetCode, core: is_core };
+  });
 }
 
 async function listCardRules(
