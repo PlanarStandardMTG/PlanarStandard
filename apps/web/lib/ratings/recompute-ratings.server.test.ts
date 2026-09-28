@@ -28,7 +28,7 @@ const CONFIG: RatingConfig = {
   kElite: 16,
   provisionalMatches: 10,
   eliteThreshold: 2000,
-  minMatchesForLeaderboard: 5,
+  minEventsForLeaderboard: 2,
   inactiveAfterDays: 90,
   countByes: false,
   countEliminationRounds: true,

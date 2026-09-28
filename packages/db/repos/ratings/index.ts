@@ -53,9 +53,9 @@ export async function getRatingConfig(client: SupabaseClient): Promise<RatingCon
  * The leaderboard, highest first.
  *
  * Reads the **view**, not `player_ratings`. Who qualifies — public, unmerged,
- * past provisional, over the configured match threshold — is answered in one
- * place, and a caller filtering `player_ratings` by hand would be a second
- * answer that eventually disagrees with the first.
+ * over the configured event threshold — is answered in one place, and a caller
+ * filtering `player_ratings` by hand would be a second answer that eventually
+ * disagrees with the first.
  */
 export async function getLeaderboard(
   client: SupabaseClient,
@@ -75,31 +75,9 @@ export async function getLeaderboard(
 }
 
 /**
- * Everyone rated who is not on the leaderboard yet, highest first — the page's
- * second table (E20.12).
- *
- * Reads the `provisional_ratings` view, which is `leaderboard`'s complement
- * with the same visibility rules, so a shown player is in exactly one of the two.
- */
-export async function getProvisionalRatings(
-  client: SupabaseClient,
-  limit: number,
-): Promise<readonly LeaderboardRow[]> {
-  const { data, error } = await client
-    .from("provisional_ratings")
-    .select(LEADERBOARD_COLUMNS)
-    .order("rating", { ascending: false })
-    .order("slug", { ascending: true })
-    .limit(limit);
-
-  if (error !== null) throw new Error(`getProvisionalRatings failed: ${error.message}`);
-  return (data as unknown as LeaderboardViewRow[]).map(toLeaderboardRow);
-}
-
-/**
  * One player's current standing, whether or not they are on the leaderboard.
  *
- * A provisional player has a rating and does not appear in the view; their own
+ * A player under the event threshold has a rating and does not appear in the view; their own
  * page still shows it, labelled. Null when they have never played a rated match.
  */
 export async function getPlayerRating(

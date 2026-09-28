@@ -29,7 +29,7 @@ export interface RatingConfigRow {
   readonly k_elite: number;
   readonly provisional_matches: number;
   readonly elite_threshold: number;
-  readonly min_matches_for_leaderboard: number;
+  readonly min_events_for_leaderboard: number;
   readonly inactive_after_days: number;
   readonly count_byes: boolean;
   readonly count_elimination_rounds: boolean;
@@ -75,7 +75,6 @@ export interface LeaderboardViewRow {
   readonly draws: number;
   readonly tournaments_played: number;
   readonly last_played: string | null;
-  readonly is_active: boolean;
 }
 
 export interface RatingRunRow {
@@ -90,7 +89,7 @@ export interface RatingRunRow {
 
 export const CONFIG_COLUMNS =
   "initial_rating, k_provisional, k_standard, k_elite, provisional_matches, elite_threshold, " +
-  "min_matches_for_leaderboard, inactive_after_days, count_byes, count_elimination_rounds";
+  "min_events_for_leaderboard, inactive_after_days, count_byes, count_elimination_rounds";
 
 export const RATING_COLUMNS =
   "player_id, rating, peak_rating, matches_played, wins, losses, draws, tournaments_played, " +
@@ -102,7 +101,7 @@ export const EVENT_COLUMNS =
 
 export const LEADERBOARD_COLUMNS =
   "id, slug, display_name, rating, peak_rating, matches_played, wins, losses, draws, " +
-  "tournaments_played, last_played, is_active";
+  "tournaments_played, last_played";
 
 export const RUN_COLUMNS =
   "id, trigger, match_count, player_count, duration_ms, anomalies, created_at";
@@ -115,7 +114,7 @@ export function toRatingConfig(row: RatingConfigRow): RatingConfig {
     kElite: row.k_elite,
     provisionalMatches: row.provisional_matches,
     eliteThreshold: row.elite_threshold,
-    minMatchesForLeaderboard: row.min_matches_for_leaderboard,
+    minEventsForLeaderboard: row.min_events_for_leaderboard,
     inactiveAfterDays: row.inactive_after_days,
     countByes: row.count_byes,
     countEliminationRounds: row.count_elimination_rounds,
@@ -167,7 +166,6 @@ export function toLeaderboardRow(row: LeaderboardViewRow): LeaderboardRow {
     draws: row.draws,
     tournamentsPlayed: row.tournaments_played,
     lastPlayed: row.last_played,
-    isActive: row.is_active,
   };
 }
 

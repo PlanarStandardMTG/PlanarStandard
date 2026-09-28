@@ -23,7 +23,8 @@ export interface RatingConfig {
   readonly provisionalMatches: number;
   /** The rating that separates standard K from elite K. */
   readonly eliteThreshold: number;
-  readonly minMatchesForLeaderboard: number;
+  /** Events a player must have played in to appear on the leaderboard. */
+  readonly minEventsForLeaderboard: number;
   /** Days without a rated match before `isActive` goes false (E8.6). */
   readonly inactiveAfterDays: number;
   readonly countByes: boolean;
@@ -160,8 +161,8 @@ export interface ReplayResult {
  * One row of the `leaderboard` view.
  *
  * The view is the only place the question "who appears on the leaderboard" is
- * answered — public, unmerged, past provisional, and over the configured match
- * threshold. A caller reading `player_ratings` directly and filtering by hand is
+ * answered — public, unmerged, and over the configured event threshold. A
+ * caller reading `player_ratings` directly and filtering by hand is
  * a second answer to that question, and the two will disagree eventually.
  */
 export interface LeaderboardRow {
@@ -176,7 +177,6 @@ export interface LeaderboardRow {
   readonly draws: number;
   readonly tournamentsPlayed: number;
   readonly lastPlayed: IsoDate | null;
-  readonly isActive: boolean;
 }
 
 /**

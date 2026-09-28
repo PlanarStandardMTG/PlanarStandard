@@ -25,12 +25,13 @@ by policies that follow the player's visibility. `replaceRatings`,
   not for the ledger — everything being deleted is derived, the inputs are
   untouched, and a failed recompute is fixed by running it again.
 - **`getLeaderboard` reads the view, not `player_ratings`.** Who qualifies —
-  public, unmerged, past provisional, over the configured match threshold — is
+  public, unmerged, over the configured event threshold — is
   answered in one place. A caller filtering the table by hand is a second answer,
   and the two disagree eventually. Ties break on slug so equal ratings are in a
   stable order.
-- A provisional player has a rating and is not on the leaderboard.
-  `getPlayerRating` still returns it: they are off the board, not unrated.
+- A player under the event threshold has a rating and is not on the
+  leaderboard. `getPlayerRating` still returns it: they are off the board, not
+  unrated.
 - A hidden player is absent from the read entirely, not merely from the view.
   Their matches still moved everyone else's numbers.
 - **Every `numeric` goes through `Number`.** PostgREST returns them as JSON

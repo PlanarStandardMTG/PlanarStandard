@@ -4,7 +4,6 @@ import { afterEach, describe, expect, it } from "vitest";
 
 import {
   getLeaderboard,
-  getProvisionalRatings,
   getPlayerRating,
   getRatingConfig,
   listRatingHistory,
@@ -181,8 +180,8 @@ describe.skipIf(!reachable)("repos/ratings", () => {
       kProvisional: 40,
       kStandard: 24,
       kElite: 16,
-      provisionalMatches: 5,
-      minMatchesForLeaderboard: 5,
+      provisionalMatches: 0,
+      minEventsForLeaderboard: 2,
       countByes: false,
     });
   });
@@ -253,38 +252,31 @@ describe.skipIf(!reachable)("repos/ratings", () => {
   it("puts only qualifying players on the leaderboard, highest first", async () => {
     const top = await makePlayer("top");
     const second = await makePlayer("second");
-    const provisional = await makePlayer("provisional");
     const hidden = await makePlayer("hidden", "hidden");
-    const thin = await makePlayer("thin");
+    const once = await makePlayer("once");
 
     await replaceRatings(
       service,
       [
         rating(top, { rating: 1900 }),
-        rating(second, { rating: 1800 }),
-        rating(provisional, { rating: 2000, isProvisional: true }),
+        rating(second, { rating: 1800, tournamentsPlayed: 2 }),
         rating(hidden, { rating: 2100 }),
-        // Under `min_matches_for_leaderboard` (5).
-        rating(thin, { rating: 1950, matchesPlayed: 4 }),
+        // Under `min_events_for_leaderboard` (2), however many matches.
+        rating(once, { rating: 1950, tournamentsPlayed: 1 }),
       ],
       [],
     );
 
     const board = await getLeaderboard(client, 10);
-    // The three excluded each fail a different clause of the view, and each
+    // The two excluded each fail a different clause of the view, and each
     // would otherwise have been at the top.
     expect(board.map((row) => row.rating)).toEqual([1900, 1800]);
-
-    // The complement, for the page's second table: the two that are not there
-    // yet, and never the hidden one.
-    const waiting = await getProvisionalRatings(client, 10);
-    expect(waiting.map((row) => row.rating)).toEqual([2000, 1950]);
   });
 
-  it("still gives a provisional player their own rating", async () => {
+  it("still gives a player under the event threshold their own rating", async () => {
     // They are off the leaderboard, not unrated — their own page shows it.
-    const player = await makePlayer("provisional");
-    await replaceRatings(service, [rating(player, { isProvisional: true })], []);
+    const player = await makePlayer("once");
+    await replaceRatings(service, [rating(player, { tournamentsPlayed: 1 })], []);
 
     expect(await getPlayerRating(client, player)).not.toBeNull();
     expect(await getLeaderboard(client, 10)).toEqual([]);

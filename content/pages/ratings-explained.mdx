@@ -36,14 +36,14 @@ both. Both updates use the ratings from before the match.
 
 ## K factors
 
-| Tier        | K   | When                       |
-| ----------- | --- | -------------------------- |
-| Provisional | 40  | fewer than 5 rated matches |
-| Standard    | 24  | the default                |
-| Elite       | 16  | rating at or above 2100    |
+| Tier     | K   | When                    |
+| -------- | --- | ----------------------- |
+| Standard | 24  | the default             |
+| Elite    | 16  | rating at or above 2100 |
 
-Provisional is checked first. K is multiplied by the event's weight, currently
-1.0 for all events. Admins can change these settings.
+There are no placement matches: everyone enters the format on equal footing, so
+a first match moves a rating by the same K as any other. K is multiplied by the
+event's weight, currently 1.0 for all events. Admins can change these settings.
 
 ## Recalculated, never edited
 
@@ -53,9 +53,8 @@ two handles to one player merges their ratings without changing any results.
 
 ## Leaderboard
 
-The leaderboard covers the current season. A player is ranked after 5 rated
-matches; others are listed below, unranked. No rated match in 120 days marks a
-player inactive.
+The leaderboard covers the current season. A player appears on it after playing
+in 2 or more rated events; before that they have a rating but no place.
 
 ## Anomalies
 

@@ -34,7 +34,7 @@ const config = {
   kElite: 16,
   provisionalMatches: 15,
   eliteThreshold: 2100,
-  minMatchesForLeaderboard: 10,
+  minEventsForLeaderboard: 2,
   inactiveAfterDays: 120,
   countByes: false,
   countEliminationRounds: true,
@@ -45,7 +45,6 @@ describe("ratings contracts", () => {
     expectTypeOf(config).toExtend<RatingConfig>();
     // E8.2 picks K from these three and never from a literal of its own.
     expect([config.kProvisional, config.kStandard, config.kElite]).toEqual([40, 24, 16]);
-    expect(config.provisionalMatches).toBeLessThan(config.minMatchesForLeaderboard * 2);
     expectTypeOf<RatingConfig["initialRating"]>().toEqualTypeOf<number>();
     expectTypeOf<RatingConfig["eliteThreshold"]>().toEqualTypeOf<number>();
     expectTypeOf<RatingConfig["inactiveAfterDays"]>().toEqualTypeOf<number>();

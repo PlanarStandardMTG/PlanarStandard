@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 14/15 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 31/43 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 32/44 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1234,6 +1234,16 @@ _Note:_ added outside the plan. `0035_legal_set_order.sql` adds `position` and `
 `format_legal_sets`, backfilling FDN as core and first; `save_format_version` still reads a bare code,
 so a deploy landing after the migration keeps saving. `coreSets` is new on `FormatVersionDraft` and
 `FormatVersionDetail`.
+✅ **E20.44 — `leaderboard`: ranked by events played, ten to a page** · S · Deps: E20.12 — a player
+ranks after playing in 2 or more events rather than 5 rated matches, and nobody is provisional: every
+match moves a rating by the same K. _AC:_ one table, searchable by name and paged ten at a time, with
+ranks that are places on the whole ladder; under it, a line saying how many events it takes to
+appear. No Inactive tag.
+_Note:_ added outside the plan. `0037_leaderboard_by_events.sql` sets `provisional_matches` to 0,
+renames `min_matches_for_leaderboard` to `min_events_for_leaderboard` (2), and drops
+`provisional_ratings` with `getProvisionalRatings`. `RatingConfig.minMatchesForLeaderboard` is now
+`minEventsForLeaderboard`, and `LeaderboardRow` loses `isActive`. Ratings take the new K on the next
+recompute.
 
 ---
 
@@ -1612,11 +1622,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 15      | 14   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 43      | 31   |
+| E9   | 9       | 9    | E20  | 44      | 32   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 5       | 3    |
 
-**211 of 283 stories done across 25 epics.**
+**212 of 284 stories done across 25 epics.**

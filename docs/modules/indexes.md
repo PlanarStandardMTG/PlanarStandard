@@ -33,7 +33,7 @@ Incremental Sort  (rows=100)
   Presorted Key: r.rating
   ->  Nested Loop
         ->  Index Scan using player_ratings_rating_idx on player_ratings r
-              Filter: ((NOT is_provisional) AND (matches_played >= min_matches_for_leaderboard))
+              Filter: (tournaments_played >= min_events_for_leaderboard)
               Rows Removed by Filter: 42
         ->  Index Scan using players_pkey on players p
               Filter: ((merged_into IS NULL) AND (visibility = 'public'))
@@ -41,13 +41,13 @@ Execution Time: 0.440 ms
 ```
 
 `player_ratings_rating_idx` supplies the order, so the top hundred is a hundred
-index rows rather than a sort of four thousand. The two eligibility filters are
+index rows rather than a sort of four thousand. The eligibility filters are
 applied after the index scan — reading 144 rows to return 100.
 
 **When to revisit.** That ratio is the thing to watch. It holds while most rated
-players qualify; if provisional and below-threshold players ever became the
+players qualify; if below-threshold players ever became the
 majority, the scan would read most of the table to fill one page, and the answer
-would be a partial index on the qualifying predicate. `min_matches_for_leaderboard`
+would be a partial index on the qualifying predicate. `min_events_for_leaderboard`
 is admin-editable, so raising it is the change most likely to cause this.
 
 ### Card statistics for a season
