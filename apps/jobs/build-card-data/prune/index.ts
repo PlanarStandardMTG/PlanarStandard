@@ -57,6 +57,7 @@ export type PruneStats = {
   readonly droppedUnkeyed: number;
   readonly droppedLayout: number;
   readonly droppedMalformed: number;
+  readonly droppedAlchemy: number;
 };
 
 export type PruneResult = {
@@ -94,6 +95,7 @@ export function createPruner(scope: readonly SetCode[]): Pruner {
   let droppedUnkeyed = 0;
   let droppedLayout = 0;
   let droppedMalformed = 0;
+  let droppedAlchemy = 0;
 
   function accept(raw: unknown): void {
     if (!isRecord(raw)) return;
@@ -102,6 +104,11 @@ export function createPruner(scope: readonly SetCode[]): Pruner {
     const setCode = asString(raw["set"])?.toLowerCase();
     if (setCode === undefined || !wanted.has(setCode)) {
       outOfScope += 1;
+      return;
+    }
+
+    if (isAlchemy(raw)) {
+      droppedAlchemy += 1;
       return;
     }
 
@@ -173,6 +180,7 @@ export function createPruner(scope: readonly SetCode[]): Pruner {
         droppedUnkeyed,
         droppedLayout,
         droppedMalformed,
+        droppedAlchemy,
       },
       unreachableOracleIds,
     };
@@ -265,6 +273,13 @@ function toImageUris(raw: unknown): CardImageUris | null {
   return small !== undefined && normal !== undefined && artCrop !== undefined
     ? { small, normal, artCrop }
     : null;
+}
+
+function isAlchemy(raw: Record<string, unknown>): boolean {
+  return (
+    asArray(raw["promo_types"])?.includes("rebalanced") === true ||
+    asString(raw["collector_number"])?.startsWith("A-") === true
+  );
 }
 
 /** Reversible rows key their oracle on each face instead of the row. */

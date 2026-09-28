@@ -277,7 +277,8 @@
     "outOfScope": 0,
     "droppedUnkeyed": 1,
     "droppedLayout": 0,
-    "droppedMalformed": 0
+    "droppedMalformed": 0,
+    "droppedAlchemy": 0
   },
   "unreachableOracleIds": []
 }

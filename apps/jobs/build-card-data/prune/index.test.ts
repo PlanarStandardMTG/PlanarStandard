@@ -123,6 +123,15 @@ describe("createPruner", () => {
   it("drops a layout the fetch scope is not expected to contain", () => {
     expect(run([{ set: "fdn", layout: "art_series", oracle_id: "x" }]).stats.droppedLayout).toBe(1);
   });
+
+  it("drops Alchemy rebalances, by promo type or by collector number", () => {
+    const [row] = sample().filter((r) => (r as { layout?: string }).layout === "normal");
+    const tagged = { ...(row as object), promo_types: ["rebalanced"] };
+    const numbered = { ...(row as object), collector_number: "A-103" };
+    const result = run([tagged, numbered]);
+    expect(result.printings).toEqual([]);
+    expect(result.stats.droppedAlchemy).toBe(2);
+  });
 });
 
 function findOracleId(name: string): string | undefined {

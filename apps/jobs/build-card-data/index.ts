@@ -136,7 +136,8 @@ async function main(argv: readonly string[]): Promise<void> {
   );
   console.log(
     `dropped: ${stats.outOfScope} out of scope, ${stats.droppedUnkeyed} unkeyed, ` +
-      `${stats.droppedLayout} unsupported layout, ${stats.droppedMalformed} malformed`,
+      `${stats.droppedLayout} unsupported layout, ${stats.droppedMalformed} malformed, ` +
+      `${stats.droppedAlchemy} alchemy`,
   );
   console.log(`wrote ${outDir} — ${(bytes / 1048576).toFixed(2)} MB`);
   // E4.3 asserts a bounded peak in the log: this tracks the pool, not the download.
