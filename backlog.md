@@ -1247,7 +1247,8 @@ renames `min_matches_for_leaderboard` to `min_events_for_leaderboard` (2), and d
 then puts ratings on the old app's scale: start at 1000, K = 32 for everyone, and
 `0039_drop_inactive_flag.sql` drops `is_active` and `inactive_after_days` — `PlayerRating.isActive`,
 `RatingConfig.inactiveAfterDays` and `replay`'s `asOf` option go with them. Ratings take the new
-numbers on the next recompute.
+numbers on the next recompute. `0040_leaderboard_events_any_season.sql` counts the 2 events across
+every season, excluding byes, so a new season's ladder is not empty until its second Monthly.
 
 ---
 

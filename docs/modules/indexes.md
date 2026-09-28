@@ -33,7 +33,7 @@ Incremental Sort  (rows=100)
   Presorted Key: r.rating
   ->  Nested Loop
         ->  Index Scan using player_ratings_rating_idx on player_ratings r
-              Filter: (tournaments_played >= min_events_for_leaderboard)
+              Filter: ((NOT is_provisional) AND (matches_played >= min_matches_for_leaderboard))
               Rows Removed by Filter: 42
         ->  Index Scan using players_pkey on players p
               Filter: ((merged_into IS NULL) AND (visibility = 'public'))
@@ -49,6 +49,11 @@ players qualify; if below-threshold players ever became the
 majority, the scan would read most of the table to fill one page, and the answer
 would be a partial index on the qualifying predicate. `min_events_for_leaderboard`
 is admin-editable, so raising it is the change most likely to cause this.
+
+The plan above predates E20.44. The predicate is now a count of each player's
+rated events across every season, a subquery per candidate row over
+`matches_p1_idx` / `matches_p2_idx`; at a season's field that is cheap, and it
+is the first thing to re-`EXPLAIN` if the page slows.
 
 ### Card statistics for a season
 

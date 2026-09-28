@@ -49,8 +49,10 @@ two handles to one player merges their ratings without changing any results.
 
 ## Leaderboard
 
-The leaderboard covers the current season. A player appears on it after playing
-in 2 or more rated events; before that they have a rating but no place.
+The leaderboard covers the current season. A player appears on it once they have
+played in 2 or more rated events, counting past seasons, so a returning player is
+ranked from a new season's first Monthly. A bye is not playing. Before that they
+have a rating but no place.
 
 ## Anomalies
 

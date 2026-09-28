@@ -87,27 +87,45 @@ const rating = (playerId: PlayerId, over: Partial<PlayerRating> = {}): PlayerRat
   ...over,
 });
 
+/** A second rated event, from another season, for the leaderboard's event count. Only read elsewhere. */
+const OTHER_RATED_TOURNAMENT = "season-i-opener";
+
+async function tournamentId(slug: string): Promise<TournamentId> {
+  const { data } = await service.from("tournaments").select("id").eq("slug", slug).single();
+  return (data as { id: string }).id as TournamentId;
+}
+
+async function identityOf(playerId: PlayerId): Promise<string> {
+  const { data, error } = await service
+    .from("player_identities")
+    .insert({
+      player_id: playerId,
+      platform: "challonge",
+      handle: `vitest-ledger-${playerId}`,
+      source: "import_inferred",
+    })
+    .select("id")
+    .single();
+  if (error !== null) throw new Error(`could not create an identity: ${error.message}`);
+  return (data as { id: string }).id;
+}
+
 /**
- * A committed match to hang rating events on.
- *
- * `rating_events.match_id` has a foreign key and nothing seeds `matches`, so the
- * history test has to build one. Written directly rather than through
+ * A committed match in a seeded event, written directly rather than through
  * `repos/results` — this suite is testing the rating reads, and going through
  * another repository to set up would make a failure there look like a failure
- * here.
+ * here. `p2` null is a bye.
  */
-async function aRealMatch(): Promise<{ matchId: MatchId; tournamentId: TournamentId }> {
-  const { data: tournament } = await service
-    .from("tournaments")
-    .select("id")
-    .eq("slug", LEDGER_TOURNAMENT)
-    .single();
-  const tournamentId = (tournament as { id: string }).id as TournamentId;
-
+async function aMatchIn(
+  slug: string,
+  p1: string,
+  p2: string | null,
+): Promise<{ matchId: MatchId; tournamentId: TournamentId }> {
+  const id = await tournamentId(slug);
   const { data: imported, error: importError } = await service
     .from("result_imports")
     .insert({
-      tournament_id: tournamentId,
+      tournament_id: id,
       adapter_id: "vitest",
       content_hash: `ratings-${Date.now()}-${Math.random()}`,
       capabilities: ["matches"],
@@ -117,40 +135,27 @@ async function aRealMatch(): Promise<{ matchId: MatchId; tournamentId: Tournamen
   if (importError !== null) throw new Error(`could not create an import: ${importError.message}`);
   imports.push((imported as { id: string }).id);
 
-  const one = await makePlayer("ledger-one");
-  const two = await makePlayer("ledger-two");
-  const identities = await Promise.all(
-    [one, two].map(async (playerId, index) => {
-      const { data, error } = await service
-        .from("player_identities")
-        .insert({
-          player_id: playerId,
-          platform: "challonge",
-          handle: `vitest-ledger-${index}-${Date.now()}`,
-          source: "import_inferred",
-        })
-        .select("id")
-        .single();
-      if (error !== null) throw new Error(`could not create an identity: ${error.message}`);
-      return (data as { id: string }).id;
-    }),
-  );
-
   const { data: match, error } = await service
     .from("matches")
     .insert({
-      tournament_id: tournamentId,
+      tournament_id: id,
       source_import_id: (imported as { id: string }).id,
       round: 1,
-      p1_identity_id: identities[0],
-      p2_identity_id: identities[1],
-      result: "p1_win",
+      p1_identity_id: p1,
+      p2_identity_id: p2,
+      result: p2 === null ? "bye" : "p1_win",
     })
     .select("id")
     .single();
   if (error !== null) throw new Error(`could not create a match: ${error.message}`);
+  return { matchId: (match as { id: string }).id as MatchId, tournamentId: id };
+}
 
-  return { matchId: (match as { id: string }).id as MatchId, tournamentId };
+/** A match to hang rating events on: `rating_events.match_id` has a foreign key and nothing seeds `matches`. */
+async function aRealMatch(): Promise<{ matchId: MatchId; tournamentId: TournamentId }> {
+  const one = await identityOf(await makePlayer("ledger-one"));
+  const two = await identityOf(await makePlayer("ledger-two"));
+  return aMatchIn(LEDGER_TOURNAMENT, one, two);
 }
 
 describe.skipIf(!reachable)("repos/ratings", () => {
@@ -253,29 +258,40 @@ describe.skipIf(!reachable)("repos/ratings", () => {
     const second = await makePlayer("second");
     const hidden = await makePlayer("hidden", "hidden");
     const once = await makePlayer("once");
+    const byed = await makePlayer("byed");
+    const [topId, secondId, hiddenId, onceId, byedId] = await Promise.all(
+      [top, second, hidden, once, byed].map(identityOf),
+    );
+
+    // Two rated events each, in different seasons, for all but `once` and
+    // `byed`: one event, and a bye in the other, which is not playing.
+    await aMatchIn(LEDGER_TOURNAMENT, topId, secondId);
+    await aMatchIn(OTHER_RATED_TOURNAMENT, topId, secondId);
+    await aMatchIn(LEDGER_TOURNAMENT, hiddenId, onceId);
+    await aMatchIn(OTHER_RATED_TOURNAMENT, hiddenId, byedId);
+    await aMatchIn(LEDGER_TOURNAMENT, byedId, null);
 
     await replaceRatings(
       service,
       [
         rating(top, { rating: 1900 }),
-        rating(second, { rating: 1800, tournamentsPlayed: 2 }),
+        rating(second, { rating: 1800 }),
         rating(hidden, { rating: 2100 }),
-        // Under `min_events_for_leaderboard` (2), however many matches.
-        rating(once, { rating: 1950, tournamentsPlayed: 1 }),
+        rating(once, { rating: 1950 }),
+        rating(byed, { rating: 1990 }),
       ],
       [],
     );
 
     const board = await getLeaderboard(client, 10);
-    // The two excluded each fail a different clause of the view, and each
-    // would otherwise have been at the top.
+    // Each excluded player would otherwise have been at the top.
     expect(board.map((row) => row.rating)).toEqual([1900, 1800]);
   });
 
   it("still gives a player under the event threshold their own rating", async () => {
     // They are off the leaderboard, not unrated — their own page shows it.
     const player = await makePlayer("once");
-    await replaceRatings(service, [rating(player, { tournamentsPlayed: 1 })], []);
+    await replaceRatings(service, [rating(player)], []);
 
     expect(await getPlayerRating(client, player)).not.toBeNull();
     expect(await getLeaderboard(client, 10)).toEqual([]);
