@@ -14,11 +14,18 @@ export function EventCarousel({ children, footer }: { children: ReactNode; foote
   const slides = Children.toArray(children);
   const strip = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
+  // While an arrow or dot scrolls the strip, the dots hold on its target:
+  // following the scroll position would flick back and through every slide on
+  // the way. They take the position again once scrolling has settled.
+  const target = useRef<number | null>(null);
+  const settle = useRef<ReturnType<typeof setTimeout>>(undefined);
 
   const go = (index: number) => {
     const el = strip.current;
     if (el === null) return;
     setActive(index);
+    if (index === slideInView(el)) return;
+    target.current = index;
     el.scrollTo({ left: index * el.clientWidth, behavior: "smooth" });
   };
 
@@ -64,8 +71,13 @@ export function EventCarousel({ children, footer }: { children: ReactNode; foote
         aria-roledescription="carousel"
         aria-label="Upcoming events"
         onScroll={(event) => {
-          const el = event.currentTarget;
-          setActive(Math.round(el.scrollLeft / Math.max(1, el.clientWidth)));
+          const index = slideInView(event.currentTarget);
+          if (target.current === null) setActive(index);
+          clearTimeout(settle.current);
+          settle.current = setTimeout(() => {
+            target.current = null;
+            setActive(index);
+          }, 150);
         }}
         className="flex flex-1 snap-x snap-mandatory overflow-x-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
       >
@@ -87,6 +99,10 @@ export function EventCarousel({ children, footer }: { children: ReactNode; foote
       </div>
     </>
   );
+}
+
+function slideInView(el: HTMLElement): number {
+  return Math.round(el.scrollLeft / Math.max(1, el.clientWidth));
 }
 
 function StepButton({
