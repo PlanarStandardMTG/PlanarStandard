@@ -44,7 +44,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
-| E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 3/5   |
+| E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 4/6   |
 
 ---
 
@@ -1555,6 +1555,16 @@ organizer-upload path.
 ⬜ **E25.5 — Card statistics read `in_card_stats`** · S · Deps: E25.3, E18.13 — the card and
 archetype statistics count only the events that processing includes.
 
+✅ **E25.6 — The dates Elo rates** · S · Deps: E25.3 — a start date and an optional end date at
+the top of `/admin/processing`, stored on `rating_config`, in place of "the current season".
+_AC:_ both dates are inclusive, and with no end date every rated event from the start onwards
+counts; the end date has a clear button; saving recomputes the ladder once, and staged Elo ticks
+stay staged; an event ticked for Elo but dated outside is marked "Outside time frame"; the
+leaderboard says which dates it covers; saving a season no longer recomputes.
+_Note:_ the migration starts the window where the current season does, so the first recompute
+after it rates what the last one did. The leaderboard's two-event threshold still counts rated
+events from before the start date, as it counted past seasons.
+
 ---
 
 ## What's ready now
@@ -1658,6 +1668,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
-|      |         |      | E25  | 5       | 3    |
+|      |         |      | E25  | 6       | 4    |
 
-**215 of 286 stories done across 25 epics.**
+**216 of 287 stories done across 25 epics.**

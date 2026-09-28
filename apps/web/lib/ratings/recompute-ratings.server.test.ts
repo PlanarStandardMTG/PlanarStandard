@@ -8,9 +8,9 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
  * beside this one. `core/elo/replay` is real — this asserts the wiring.
  */
 const db = vi.hoisted(() => ({
-  getCurrentSeason: vi.fn(),
   getRatingConfig: vi.fn(),
-  listLedgerMatchesBySeason: vi.fn(),
+  getRatingWindow: vi.fn(),
+  listLedgerMatchesInWindow: vi.fn(),
   replaceRatings: vi.fn(async () => {}),
   recordRatingRun: vi.fn(async () => ({})),
 }));
@@ -33,6 +33,8 @@ const CONFIG: RatingConfig = {
   countEliminationRounds: true,
 };
 
+const WINDOW = { from: "2026-09-01", until: null };
+
 const match = (id: string, p1: string, p2: string): LedgerMatch =>
   ({
     matchId: id,
@@ -52,19 +54,19 @@ const match = (id: string, p1: string, p2: string): LedgerMatch =>
 beforeEach(() => {
   vi.clearAllMocks();
   db.getRatingConfig.mockResolvedValue(CONFIG);
+  db.getRatingWindow.mockResolvedValue(WINDOW);
 });
 
 describe("lib/ratings/recompute-ratings", () => {
-  it("replays the current season's ledger and replaces every rating with the result", async () => {
-    db.getCurrentSeason.mockResolvedValue({ id: "s3" });
-    db.listLedgerMatchesBySeason.mockResolvedValue({
+  it("replays the window's ledger and replaces every rating with the result", async () => {
+    db.listLedgerMatchesInWindow.mockResolvedValue({
       matches: [match("m1", "alice", "bob")],
       unresolved: 0,
     });
 
     const report = await recomputeRatings(service, "tournament:melee:1", NOW);
 
-    expect(db.listLedgerMatchesBySeason).toHaveBeenCalledWith(service, "s3");
+    expect(db.listLedgerMatchesInWindow).toHaveBeenCalledWith(service, WINDOW);
     const [, ratings, events] = db.replaceRatings.mock.calls[0] as unknown as [
       unknown,
       { playerId: string; rating: number }[],
@@ -73,12 +75,11 @@ describe("lib/ratings/recompute-ratings", () => {
     expect(ratings.find((r) => r.playerId === "alice")?.rating).toBeGreaterThan(1500);
     expect(ratings.find((r) => r.playerId === "bob")?.rating).toBeLessThan(1500);
     expect(events).toHaveLength(2);
-    expect(report).toMatchObject({ seasonId: "s3", matchesApplied: 1, players: 2 });
+    expect(report).toMatchObject({ window: WINDOW, matchesApplied: 1, players: 2 });
   });
 
   it("logs the run, anomalies included", async () => {
-    db.getCurrentSeason.mockResolvedValue({ id: "s3" });
-    db.listLedgerMatchesBySeason.mockResolvedValue({
+    db.listLedgerMatchesInWindow.mockResolvedValue({
       matches: [match("m1", "alice", "alice")],
       unresolved: 0,
     });
@@ -93,15 +94,5 @@ describe("lib/ratings/recompute-ratings", () => {
         anomalies: [expect.objectContaining({ kind: "self-play" })],
       }),
     );
-  });
-
-  it("empties the ladder when no season is open, rather than keeping a stale one", async () => {
-    db.getCurrentSeason.mockResolvedValue(null);
-
-    const report = await recomputeRatings(service, "manual", NOW);
-
-    expect(db.listLedgerMatchesBySeason).not.toHaveBeenCalled();
-    expect(db.replaceRatings).toHaveBeenCalledWith(service, [], []);
-    expect(report.seasonId).toBeNull();
   });
 });

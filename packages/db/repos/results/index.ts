@@ -11,11 +11,11 @@ import type {
   NewMatch,
   ParseIssue,
   PlayerId,
+  RatingWindow,
   ProfileId,
   RawRow,
   ResultImport,
   ResultImportId,
-  SeasonId,
   StagedMatch,
   StagedMatchId,
   TournamentId,
@@ -412,7 +412,8 @@ export interface LedgerRead {
 }
 
 /**
- * Every rated match of a season, resolved to players, in replay order.
+ * Every rated match in the Elo window (E25.6), both dates inclusive, resolved
+ * to players, in replay order.
  *
  * The read `core/elo/replay` consumes. Two things it does that are the whole
  * reason it lives here rather than in the service:
@@ -426,24 +427,26 @@ export interface LedgerRead {
  * different leaderboard, silently (ADR 004, E8.4). The match id breaks ties so
  * two matches in one round replay reproducibly.
  */
-export async function listLedgerMatchesBySeason(
+export async function listLedgerMatchesInWindow(
   client: SupabaseClient,
-  seasonId: SeasonId,
+  window: RatingWindow,
 ): Promise<LedgerRead> {
-  const { data, error } = await client
+  let query = client
     .from("matches")
     .select(LEDGER_MATCH_COLUMNS)
-    .eq("tournament.season_id", seasonId)
+    .gte("tournament.event_date", window.from)
     .eq("tournament.is_rated", true)
     .in("tournament.status", ["results_imported", "verified"]);
+  if (window.until !== null) query = query.lte("tournament.event_date", window.until);
+  const { data, error } = await query;
 
-  if (error !== null) throw new Error(`listLedgerMatchesBySeason failed: ${error.message}`);
+  if (error !== null) throw new Error(`listLedgerMatchesInWindow failed: ${error.message}`);
 
   const rows = data as unknown as LedgerMatchRow[];
   const matches = rows.map(toLedgerMatch).filter((match) => match !== null);
 
   // Sorted here rather than in the query: PostgREST cannot order by a column of
-  // an embedded resource, and `event_date` is one. The set is a season of
+  // an embedded resource, and `event_date` is one. The set is a window of
   // matches — low thousands at most — so this is cheaper than the round trip it
   // would take to avoid it.
   matches.sort(

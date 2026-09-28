@@ -30,6 +30,15 @@ export interface RatingConfig {
 }
 
 /**
+ * The dates Elo replays (E25.6), both inclusive. Stored on `rating_config` and
+ * edited at `/admin/processing`; a null `until` runs to the newest event.
+ */
+export interface RatingWindow {
+  readonly from: IsoDate;
+  readonly until: IsoDate | null;
+}
+
+/**
  * One `matches` row as `core/elo/replay` consumes it.
  *
  * The ledger stores `p1_identity_id` / `p2_identity_id` — handles, not people

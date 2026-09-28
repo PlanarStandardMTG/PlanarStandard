@@ -16,8 +16,8 @@ export const metadata: Metadata = {
 };
 
 const DONE: Readonly<Record<string, string>> = {
-  created: "Season created, and the ladder recomputed.",
-  saved: "Season saved, and the ladder recomputed.",
+  created: "Season created.",
+  saved: "Season saved.",
 };
 
 const BUTTON =
@@ -40,8 +40,8 @@ export default async function AdminSeasonsPage({
         <div>
           <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Seasons</h1>
           <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-            The leaderboard rates the current season’s Monthlies, and every tournament belongs to
-            the season its date falls in.
+            Every tournament belongs to the season its date falls in. The dates the leaderboard
+            rates are set under Data processing.
           </p>
         </div>
         <Link href="/admin/seasons/new" className={BUTTON}>
@@ -54,7 +54,7 @@ export default async function AdminSeasonsPage({
       )}
       {seasons.every((season) => !season.isCurrent) && (
         <Notice tone="warn">
-          No season is current, so the leaderboard is empty. Mark one as the current season.
+          No season is current. Mark one as the current season.
         </Notice>
       )}
 

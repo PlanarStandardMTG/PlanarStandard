@@ -8,15 +8,13 @@ import { redirect } from "next/navigation";
 
 import type { SeasonSaveState } from "@/components/seasons/season-form";
 import { requireRole } from "@/lib/auth/guard";
-import { recomputeRatings } from "@/lib/ratings/recompute-ratings.server";
-import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
 import { createSessionClient } from "@/lib/supabase/session";
 
 /**
  * Create and edit seasons (E20.35). Written with the admin's own client, so
- * `seasons_admin_write` checks the role again underneath. The ladder is the
- * current season's (E18.12), and a save can change which season that is or
- * which events it holds, so every save recomputes.
+ * `seasons_admin_write` checks the role again underneath. Seasons do not
+ * decide what Elo rates — its dates are set at `/admin/processing` (E25.6) — so
+ * a save leaves the ladder alone.
  */
 
 export async function saveSeason(
@@ -40,8 +38,7 @@ export async function saveSeason(
   );
   if (!check.ok) return { problems: check.problems };
 
-  const saved = await saveSeasonRow(session, id, check.value);
-  await recomputeRatings(createServiceRoleClient(), `season:${saved}`);
+  await saveSeasonRow(session, id, check.value);
 
   revalidatePath("/admin/seasons");
   revalidatePath("/leaderboard");

@@ -17,6 +17,8 @@ export interface InclusionRow {
   readonly elo: boolean;
   /** The ladder has not caught up with `elo` yet. */
   readonly eloWaiting: boolean;
+  /** Dated outside the Elo time frame, so its matches are not replayed whatever the tick says. */
+  readonly outsideWindow: boolean;
   /** False without a single decklist: there is nothing for card statistics to count. */
   readonly hasDecks: boolean;
   readonly cardStats: boolean;
@@ -79,6 +81,7 @@ export function InclusionTable({
                       set={(on) => include(row.id, "elo", on)}
                     />
                     {row.eloWaiting && <Badge variant="accent">Waiting</Badge>}
+                    {row.elo && row.outsideWindow && <Badge>Outside time frame</Badge>}
                   </>
                 ) : (
                   <Missing>No matches</Missing>

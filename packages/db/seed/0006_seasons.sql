@@ -14,3 +14,7 @@ insert into seasons (id, name, ordinal, starts_on, ends_on, format_version_id, i
    '2026-05-09', '2026-08-29', '22222222-2222-4222-8222-000000000001', false),
   ('44444444-4444-4444-8444-000000000003', 'Season III', 3,
    '2026-09-26', null, '22222222-2222-4222-8222-000000000001', true);
+
+-- Migrations run before seeds, so the Elo window (E25.6) is set here to the
+-- current season's start, as `0041_rating_window.sql` sets it in production.
+update rating_config set rated_from = '2026-09-26', rated_until = null where id = 1;

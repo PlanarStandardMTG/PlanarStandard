@@ -6,6 +6,7 @@ import type {
   RatingConfig,
   RatingEvent,
   RatingRun,
+  RatingWindow,
 } from "@ps/contracts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -47,6 +48,32 @@ export async function getRatingConfig(client: SupabaseClient): Promise<RatingCon
 
   if (error !== null) throw new Error(`getRatingConfig failed: ${error.message}`);
   return toRatingConfig(data as unknown as RatingConfigRow);
+}
+
+/** The dates Elo replays (E25.6), both inclusive; a null `until` has no end. */
+export async function getRatingWindow(client: SupabaseClient): Promise<RatingWindow> {
+  const { data, error } = await client
+    .from("rating_config")
+    .select("rated_from, rated_until")
+    .eq("id", 1)
+    .single();
+
+  if (error !== null) throw new Error(`getRatingWindow failed: ${error.message}`);
+  const row = data as { rated_from: string; rated_until: string | null };
+  return { from: row.rated_from, until: row.rated_until };
+}
+
+/** Changes what the next recompute replays; the ladder moves only when it runs. */
+export async function setRatingWindow(
+  serviceClient: SupabaseClient,
+  window: RatingWindow,
+): Promise<void> {
+  const { error } = await serviceClient
+    .from("rating_config")
+    .update({ rated_from: window.from, rated_until: window.until })
+    .eq("id", 1);
+
+  if (error !== null) throw new Error(`setRatingWindow failed: ${error.message}`);
 }
 
 /**

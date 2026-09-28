@@ -25,14 +25,14 @@ role-gated writes are E14.3.
   `[]` and no error. Passing the public client to a staging function here is a
   bug that looks like an event with no rows, so those functions name their
   parameter `serviceClient`.
-- **`listLedgerMatchesBySeason` is where ADR 003 happens.** The ledger stores
+- **`listLedgerMatchesInWindow` is where ADR 003 happens.** The ledger stores
   identities; `LedgerMatch` names players. That translation is done at read time,
   here, which is exactly why a merge changes every rating and rewrites no
   history. It also orders by date, then round, then match id — Elo is
   path-dependent, so the order is a contract, and a different one is a different
   leaderboard, silently (ADR 004, E8.4).
 - That sort happens in TypeScript, not in the query: PostgREST cannot order by a
-  column of an embedded resource and `event_date` is one. A season is low
+  column of an embedded resource and `event_date` is one. A window is low
   thousands of matches at most, so it is cheaper than the round trip avoiding it
   would cost.
 - The read returns `unresolved` alongside the matches — rows whose tournament or

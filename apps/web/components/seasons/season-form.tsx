@@ -8,9 +8,8 @@ import { startTransition, useActionState, useState, type FormEvent } from "react
  * component so a failed save keeps what the admin typed; the checking is the
  * server action's.
  *
- * The action arrives as a prop rather than an import: it recomputes the ladder
- * with the service-role client, and `scripts/check-server-only.ts` (E1.7)
- * refuses any client module that can reach that.
+ * The action arrives as a prop rather than an import, so this client module
+ * never reaches a server-only one (E1.7).
  */
 export interface SeasonSaveState {
   readonly problems: readonly SeasonDraftProblem[];
@@ -153,8 +152,8 @@ export function SeasonForm({
         <span>
           <span className="font-medium">The current season</span>
           <span className="block text-xs text-ink-500 dark:text-ink-400">
-            The leaderboard rates only this season’s Monthlies. Saving takes it from whichever
-            season has it now, and the ladder is recomputed.
+            The season the site shows. Saving takes it from whichever season has it now. The
+            dates Elo rates are set under Data processing.
           </span>
         </span>
       </label>

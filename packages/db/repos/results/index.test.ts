@@ -1,11 +1,11 @@
-import type { IdentityId, PlayerId, SeasonId, TournamentId } from "@ps/contracts";
+import type { IdentityId, PlayerId, RatingWindow, TournamentId } from "@ps/contracts";
 import { createClient } from "@supabase/supabase-js";
 import { afterEach, describe, expect, it } from "vitest";
 
 import {
   createImport,
   findImportByContentHash,
-  listLedgerMatchesBySeason,
+  listLedgerMatchesInWindow,
   listMatchCorrections,
   listMatchesByTournament,
   listNamedMatchesByTournament,
@@ -48,8 +48,11 @@ const reachable = await fetch(`${url}/rest/v1/`, {
 const client = createClient(url, anonKey);
 const service = createClient(url, serviceKey);
 
-/** From the seeds. Weekly #40 is rated and `results_imported`; Season II holds it. */
-const SEASON_II = "44444444-4444-4444-8444-000000000002" as SeasonId;
+/**
+ * From the seeds: Weekly #40 is rated, `results_imported`, and alone on its day.
+ * Other suites make events at the same time, so a wider window reads theirs.
+ */
+const WEEKLY_40_DAY: RatingWindow = { from: "2026-08-22", until: "2026-08-22" };
 
 const players: string[] = [];
 const imports: string[] = [];
@@ -297,7 +300,7 @@ describe.skipIf(!reachable)("repos/results", () => {
       match(alpha, null, 2),
     ]);
 
-    const { matches, unresolved } = await listLedgerMatchesBySeason(client, SEASON_II);
+    const { matches, unresolved } = await listLedgerMatchesInWindow(client, WEEKLY_40_DAY);
 
     expect(unresolved).toBe(0);
     expect(matches.map((m) => m.round)).toEqual([1, 2, 3]);
@@ -307,6 +310,22 @@ describe.skipIf(!reachable)("repos/results", () => {
     expect(matches[1]?.p2PlayerId).toBeNull();
     // `numeric` — a string weight would multiply a rating by NaN.
     expect(typeof matches[0]?.tournamentWeight).toBe("number");
+  });
+
+  it("reads the window's end dates inclusively, and an open end as no end", async () => {
+    const created = await anImport();
+    const alpha = await makeIdentity("alpha");
+    const beta = await makeIdentity("beta");
+    await replaceTournamentMatches(service, weekly40, created.id, [match(alpha, beta, 1)]);
+
+    const count = async (window: RatingWindow) =>
+      (await listLedgerMatchesInWindow(client, window)).matches.filter(
+        (m) => m.tournamentId === weekly40,
+      ).length;
+    expect(await count({ from: "2026-08-22", until: "2026-08-22" })).toBe(1);
+    expect(await count({ from: "2026-08-22", until: null })).toBe(1);
+    expect(await count({ from: "2026-05-09", until: "2026-08-21" })).toBe(0);
+    expect(await count({ from: "2026-08-23", until: null })).toBe(0);
   });
 
   it("names each side of an event's matches, and hides a hidden player's side", async () => {
@@ -341,7 +360,7 @@ describe.skipIf(!reachable)("repos/results", () => {
     const beta = await makeIdentity("beta");
     await replaceTournamentMatches(service, showcase, created.id, [match(alpha, beta, 1)]);
 
-    const { matches } = await listLedgerMatchesBySeason(client, SEASON_II);
+    const { matches } = await listLedgerMatchesInWindow(client, WEEKLY_40_DAY);
     expect(matches).toHaveLength(0);
   });
 

@@ -1,5 +1,5 @@
-import type { LeaderboardRow } from "@ps/contracts";
-import { getCurrentSeason, getLeaderboard, getRatingConfig } from "@ps/db";
+import type { LeaderboardRow, RatingWindow } from "@ps/contracts";
+import { getLeaderboard, getRatingConfig, getRatingWindow } from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -9,24 +9,25 @@ import { Container } from "@/components/ui/container";
 import { PageHeader } from "@/components/ui/page-header";
 import { Pager } from "@/components/ui/pager";
 import { EmptyState, ErrorState } from "@/components/ui/states";
+import { formatDate } from "@/lib/format-date";
 import { load } from "@/lib/load";
 import { pageOf } from "@/lib/paging";
 import { createPublicClient } from "@/lib/supabase/server";
 
-/** Recomputed whenever an event is ingested or a season changes; never pinned to build time. */
+/** Recomputed whenever an event is ingested or Elo's dates change; never pinned to build time. */
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Leaderboard",
-  description: "Elo ratings for the current Planar Standard season, computed from its Monthlies.",
+  description: "Elo ratings for Planar Standard, computed from its rated Monthlies.",
 };
 
-/** Enough for a season's field; ranks are places on the whole ladder, so it is read whole. */
+/** Enough for the whole field; ranks are places on the whole ladder, so it is read whole. */
 const LIMIT = 500;
 const PAGE_SIZE = 10;
 
 /**
- * The current season's ladder (E20.12, E20.44), ten to a page and filtered by
+ * The ladder over the dates an admin chose (E20.12, E20.44, E25.6), ten to a page and filtered by
  * name. Who qualifies is the `leaderboard` view's question; a player under the
  * event threshold is rated but absent, and the line under the table says why.
  */
@@ -39,19 +40,19 @@ export default async function LeaderboardPage({
   const query = typeof params["q"] === "string" ? params["q"].trim() : "";
   const client = createPublicClient();
   const data = await load(async () => {
-    const [season, config, ranked] = await Promise.all([
-      getCurrentSeason(client),
+    const [window, config, ranked] = await Promise.all([
+      getRatingWindow(client),
       getRatingConfig(client),
       getLeaderboard(client, LIMIT),
     ]);
-    return { season, config, ranked };
+    return { window, config, ranked };
   });
 
   return (
     <div className="night flex-1">
       <Container className="py-12">
         <PageHeader kicker="Rated Monthlies" title="Leaderboard" aside={<SeasonBadge large />}>
-          Elo ratings from this season&rsquo;s Monthlies.{" "}
+          Elo ratings from rated events{data.ok ? ` ${describeWindow(data.value.window)}` : ""}.{" "}
           <Link
             href="/ratings-explained"
             className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
@@ -62,13 +63,11 @@ export default async function LeaderboardPage({
 
         {!data.ok ? (
           <ErrorState title="Could not load the leaderboard" detail={data.error} />
-        ) : data.value.season === null ? (
-          <EmptyState title="No season is open">There is no current season.</EmptyState>
         ) : (
           <>
             {data.value.ranked.length === 0 ? (
               <EmptyState title="Nobody is ranked yet">
-                The leaderboard fills in after this season&rsquo;s second Monthly.
+                The leaderboard fills in after the second rated event.
               </EmptyState>
             ) : (
               <Ladder rows={data.value.ranked} query={query} page={params["page"]} />
@@ -83,6 +82,12 @@ export default async function LeaderboardPage({
       </Container>
     </div>
   );
+}
+
+function describeWindow(window: RatingWindow): string {
+  return window.until === null
+    ? `since ${formatDate(window.from)}`
+    : `from ${formatDate(window.from)} to ${formatDate(window.until)}`;
 }
 
 function Ladder({

@@ -6,10 +6,12 @@ import {
   getLeaderboard,
   getPlayerRating,
   getRatingConfig,
+  getRatingWindow,
   listRatingHistory,
   listRatingRuns,
   recordRatingRun,
   replaceRatings,
+  setRatingWindow,
 } from "./index";
 
 /**
@@ -188,6 +190,21 @@ describe.skipIf(!reachable)("repos/ratings", () => {
       minEventsForLeaderboard: 2,
       countByes: false,
     });
+  });
+
+  it("saves the Elo window, and refuses one that ends before it starts", async () => {
+    const before = await getRatingWindow(client);
+    try {
+      await setRatingWindow(service, { from: "2026-01-21", until: "2026-04-18" });
+      expect(await getRatingWindow(client)).toEqual({ from: "2026-01-21", until: "2026-04-18" });
+      await setRatingWindow(service, { from: "2026-01-21", until: null });
+      expect(await getRatingWindow(client)).toEqual({ from: "2026-01-21", until: null });
+      await expect(
+        setRatingWindow(service, { from: "2026-04-18", until: "2026-01-21" }),
+      ).rejects.toThrow(/rating_window_in_order/);
+    } finally {
+      await setRatingWindow(service, before);
+    }
   });
 
   it("writes a whole replay and reads it back as numbers", async () => {

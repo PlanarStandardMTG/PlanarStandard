@@ -1,16 +1,18 @@
-import { listRatingRuns, listTournamentCoverage } from "@ps/db";
+import { inRatingWindow } from "@ps/core";
+import { getRatingWindow, listRatingRuns, listTournamentCoverage } from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Notice } from "@/components/auth/form-parts";
 import { InclusionTable } from "@/components/processing/inclusion-table";
+import { RatingWindowForm } from "@/components/processing/rating-window-form";
 import { requireRole } from "@/lib/auth/guard";
 import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";
 import { formatDate, formatDateTime } from "@/lib/format-date";
 import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
 import { createSessionClient } from "@/lib/supabase/session";
 
-import { include, recomputeNow } from "./actions";
+import { include, recomputeNow, saveRatingWindow } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -27,7 +29,8 @@ const BUTTON =
  * What each stored tournament counts towards (E25.3): Elo and card statistics.
  * Every tournament from any source, and no external request — fetching is
  * `/admin/fetching`. Elo choices are staged and applied together, so several
- * changes cost one full replay (ADR 004).
+ * changes cost one full replay (ADR 004). The dates Elo replays sit above
+ * them (E25.6).
  */
 export default async function AdminProcessingPage({
   searchParams,
@@ -37,8 +40,10 @@ export default async function AdminProcessingPage({
   await requireRole("admin");
   const params = await searchParams;
 
-  const [coverage, [lastRun]] = await Promise.all([
-    listTournamentCoverage(await createSessionClient()),
+  const session = await createSessionClient();
+  const [coverage, window, [lastRun]] = await Promise.all([
+    listTournamentCoverage(session),
+    getRatingWindow(session),
     listRatingRuns(createServiceRoleClient(), 1),
   ]);
   const waiting = coverage.filter((row) => row.includeInElo !== row.tournament.isRated).length;
@@ -62,6 +67,9 @@ export default async function AdminProcessingPage({
         </p>
       </header>
 
+      {params["done"] === "window" && (
+        <Notice tone="good">Time frame saved and ratings recomputed.</Notice>
+      )}
       {params["done"] === "recomputed" && (
         <Notice tone="good">
           Ratings recomputed
@@ -70,6 +78,12 @@ export default async function AdminProcessingPage({
             : ` with ${String(params["changed"])} Elo ${params["changed"] === "1" ? "change" : "changes"}.`}
         </Notice>
       )}
+
+      <RatingWindowForm
+        key={`${window.from}:${window.until ?? ""}`}
+        initial={window}
+        save={saveRatingWindow}
+      />
 
       <div className="mb-8 flex flex-wrap items-center gap-4 rounded-xl border border-ink-200 px-5 py-4 dark:border-ink-800">
         <div className="min-w-0 flex-1">
@@ -109,6 +123,7 @@ export default async function AdminProcessingPage({
             rateable: row.matches > 0,
             elo: row.includeInElo,
             eloWaiting: row.includeInElo !== row.tournament.isRated,
+            outsideWindow: !inRatingWindow(row.tournament.eventDate, window),
             hasDecks: row.decks > 0,
             cardStats: row.inCardStats,
           }))}

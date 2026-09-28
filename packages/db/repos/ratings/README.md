@@ -1,15 +1,15 @@
 # `repos/ratings`
 
 **Purpose.** Read and write the rating tables (E13.20): the config every K comes
-from, the leaderboard, one player's standing and history, and the single write a
+from, the dates Elo replays (E25.6), the leaderboard, one player's standing and history, and the single write a
 recompute makes.
 
 **Inputs.** A `SupabaseClient`. The reads take the public client and are covered
 by policies that follow the player's visibility. `replaceRatings`,
-`recordRatingRun` and `listRatingRuns` take the **service-role** client —
+`setRatingWindow`, `recordRatingRun` and `listRatingRuns` take the **service-role** client —
 `rating_runs` has no read policy at all.
 
-**Outputs.** `RatingConfig`, `LeaderboardRow`, `PlayerRating`, `RatingEvent` and
+**Outputs.** `RatingConfig`, `RatingWindow`, `LeaderboardRow`, `PlayerRating`, `RatingEvent` and
 `RatingRun` from `@ps/contracts`. The snake_case row shape does not leave
 `rows.ts`.
 
@@ -39,6 +39,8 @@ by policies that follow the player's visibility. `replaceRatings`,
   arrives as `"1712.5"` sorts as text and renders as text without ever throwing.
   This is not defensive tidying; it is the reason a leaderboard cannot silently
   order itself alphabetically.
+- `setRatingWindow` does not move the ladder. The next recompute reads it, and
+  the database refuses an end before the start.
 - `recordRatingRun` is written whether the run was clean or not. A run that found
   four self-play anomalies and applied everything else is exactly the one
   somebody will want to find later (E8.5).
