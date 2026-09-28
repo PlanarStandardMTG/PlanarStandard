@@ -22,8 +22,8 @@ import { toDeckCards } from "@/lib/decks/deck-cards";
  * Each list lands on its player's entry as, in order: the deck the entry
  * already has, if it is the same list, so a re-run writes nothing; the
  * member's own saved deck with exactly these cards, when the player is linked
- * to a member (E20.39); the deck an earlier event this season made for the
- * player with exactly these cards, so its records add up (E20.46); or a new
+ * to a member (E20.39); the deck an earlier event made for the player with
+ * exactly these cards, in any season, so its records add up (E20.46); or a new
  * deck, locked at the event (ADR 013). A deck an entry stops naming is deleted
  * if the event made it and nothing else uses it.
  */
@@ -71,11 +71,7 @@ export async function attachEventDecks(
     }
     return saved.get(profileId) ?? [];
   };
-  // Within the season only: a deck carries one season, and that is where it is counted.
-  const playedBy = async (playerId: PlayerId) =>
-    (await listDecksWithCards(service, { playedBy: playerId })).filter(
-      (deck) => deck.seasonId === tournament.seasonId,
-    );
+  const playedBy = (playerId: PlayerId) => listDecksWithCards(service, { playedBy: playerId });
 
   const links: { playerId: PlayerId; deckId: DeckId }[] = [];
   const replaced: DeckId[] = [];

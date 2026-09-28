@@ -1260,10 +1260,10 @@ is gone from the list, which read it from the deck's name alone, and list dates 
 _Note:_ added outside the plan. `listBrowsableDecks` now returns `BrowsableDeck`, embedding the player,
 the owner and the entries' records, and `latestVersions` returns each deck's `lineage`.
 ✅ **E20.46 — `decks`: one deck for a list a player takes to several events** · S · Deps: E20.45 —
-attaching an event's decklists points an entry at the deck an earlier event this season made for the
-same player when the list is exactly the same, rather than making another, so its records add up in the
-deck browser. _AC:_ a member's own saved deck still wins; a list in a new season gets a new deck, since
-a deck carries one season; a changed list still gets its own deck.
+attaching an event's decklists points an entry at the deck an earlier event made for the same player,
+in any season, when the list is exactly the same, rather than making another, so its records add up in the
+deck browser. _AC:_ a member's own saved deck still wins; a changed list still gets its own deck. The
+reused deck keeps the season of the event that first made it.
 _Note:_ added outside the plan. Decks made before this are not merged. `listDecksWithCards` takes a
 `playedBy` filter.
 

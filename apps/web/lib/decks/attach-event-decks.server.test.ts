@@ -168,7 +168,7 @@ describe.skipIf(!reachable)("lib/decks/attach-event-decks", () => {
     expect(await getDeckWithCards(service, first[stranger] as DeckId)).toBeNull();
   });
 
-  it("reuses the deck an earlier event this season made for the same player and list", async () => {
+  it("reuses the deck an earlier event made for the same player and list, in any season", async () => {
     const event = (n: number, seasonId: string | null) =>
       saveSourcedTournament(service, {
         source: "melee",
@@ -224,6 +224,7 @@ describe.skipIf(!reachable)("lib/decks/attach-event-decks", () => {
 
     const original = await deckAt(first, OTHER);
     expect(await deckAt(second, "20 Mountain\n4 Shock")).toBe(original);
-    expect(await deckAt(otherSeason, OTHER)).not.toBe(original);
+    expect(await deckAt(otherSeason, OTHER)).toBe(original);
+    expect(await deckAt(otherSeason, SAVED)).not.toBe(original);
   });
 });
