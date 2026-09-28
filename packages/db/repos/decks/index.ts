@@ -326,17 +326,26 @@ export async function isDeckInEvent(client: SupabaseClient, deckId: DeckId): Pro
 
 /**
  * Decks with their lists: a member's saved decks, every version, hidden ones
- * left out — what an event's list is matched against (E18.23) — or these ones.
+ * left out — what an event's list is matched against (E18.23) — the decks
+ * events made for a player (E20.46), or these ones.
  */
 export async function listDecksWithCards(
   client: SupabaseClient,
-  filter: { readonly savedBy: ProfileId } | { readonly ids: readonly DeckId[] },
+  filter:
+    | { readonly savedBy: ProfileId }
+    | { readonly playedBy: PlayerId }
+    | { readonly ids: readonly DeckId[] },
 ): Promise<readonly DeckWithCards[]> {
   let query = client.from("decks").select(DECK_WITH_CARDS_COLUMNS);
   if ("savedBy" in filter) {
     query = query
       .eq("owner_id", filter.savedBy)
       .eq("submitted_via", "import")
+      .is("hidden_at", null);
+  } else if ("playedBy" in filter) {
+    query = query
+      .eq("player_id", filter.playedBy)
+      .in("submitted_via", EVENT_ROUTES)
       .is("hidden_at", null);
   } else {
     if (filter.ids.length === 0) return [];

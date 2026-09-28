@@ -1,4 +1,4 @@
-import type { DeckId, IsoDate, PlayerId, ProfileId } from "@ps/contracts";
+import type { DeckId, IsoDate, PlayerId, ProfileId, Tournament } from "@ps/contracts";
 import {
   createPlayerWithIdentity,
   getDeckWithCards,
@@ -37,6 +37,8 @@ const service = createClient(url, serviceKey);
 const tag = String(Date.now()).slice(-8);
 /** Seeded Ines Quillfeather (`seed/0001_profiles.sql`); nothing else links them. */
 const MEMBER = "11111111-1111-4111-8111-000000000004" as ProfileId;
+/** From `seed/0006_seasons.sql`. */
+const SEASON_II = "44444444-4444-4444-8444-000000000002";
 
 const SAVED = "4 Opt\n20 Island\n\nSideboard\n2 Negate";
 const OTHER = "4 Shock\n20 Mountain";
@@ -164,5 +166,64 @@ describe.skipIf(!reachable)("lib/decks/attach-event-decks", () => {
     );
     expect((await decks())[stranger]).not.toBe(first[stranger]);
     expect(await getDeckWithCards(service, first[stranger] as DeckId)).toBeNull();
+  });
+
+  it("reuses the deck an earlier event this season made for the same player and list", async () => {
+    const event = (n: number, seasonId: string | null) =>
+      saveSourcedTournament(service, {
+        source: "melee",
+        externalId: `vitest-reuse-${n}-${tag}`,
+        name: `Reuse ${n} ${tag}`,
+        slug: `vitest-reuse-${n}-${tag}`,
+        eventDate: `2020-03-0${n}` as IsoDate,
+        seasonId: seasonId as Tournament["seasonId"],
+        platform: "melee",
+        externalUrl: null,
+        structure: null,
+        rounds: null,
+        playerCount: null,
+        isRated: false,
+        inCardStats: false,
+      });
+    const [first, second, otherSeason] = await Promise.all([
+      event(1, null),
+      event(2, null),
+      event(3, SEASON_II),
+    ]);
+    made.tournaments.push(first.id, second.id, otherSeason.id);
+    const { playerId } = await createPlayerWithIdentity(service, {
+      displayName: `Repeat ${tag}`,
+      slug: `vitest-attach-repeat-${tag}`,
+      platform: "melee",
+      handle: `Repeat${tag}`,
+      source: "import_inferred",
+    });
+    made.players.push(playerId);
+
+    const deckAt = async (tournament: Tournament, text: string) => {
+      await replaceTournamentEntries(service, tournament.id, [
+        {
+          playerId,
+          placement: 1,
+          matchWins: 3,
+          matchLosses: 1,
+          matchDraws: 0,
+          gameWins: 6,
+          gameLosses: 2,
+          dropped: false,
+        },
+      ]);
+      await attachEventDecks(
+        service,
+        tournament,
+        [{ playerId, deck: { kind: "text", text } }],
+        "registration",
+      );
+      return (await listNamedEntries(service, [tournament.id]))[0]?.deckId;
+    };
+
+    const original = await deckAt(first, OTHER);
+    expect(await deckAt(second, "20 Mountain\n4 Shock")).toBe(original);
+    expect(await deckAt(otherSeason, OTHER)).not.toBe(original);
   });
 });

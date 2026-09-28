@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 14/15 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 33/45 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 34/46 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1259,6 +1259,13 @@ a hidden player is credited to nobody, and the sort survives filtering and pagin
 is gone from the list, which read it from the deck's name alone, and list dates are short (`28 Sept 2026`).
 _Note:_ added outside the plan. `listBrowsableDecks` now returns `BrowsableDeck`, embedding the player,
 the owner and the entries' records, and `latestVersions` returns each deck's `lineage`.
+✅ **E20.46 — `decks`: one deck for a list a player takes to several events** · S · Deps: E20.45 —
+attaching an event's decklists points an entry at the deck an earlier event this season made for the
+same player when the list is exactly the same, rather than making another, so its records add up in the
+deck browser. _AC:_ a member's own saved deck still wins; a list in a new season gets a new deck, since
+a deck carries one season; a changed list still gets its own deck.
+_Note:_ added outside the plan. Decks made before this are not merged. `listDecksWithCards` takes a
+`playedBy` filter.
 
 ---
 
@@ -1637,11 +1644,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 15      | 14   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 45      | 33   |
+| E9   | 9       | 9    | E20  | 46      | 34   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 5       | 3    |
 
-**213 of 285 stories done across 25 epics.**
+**214 of 286 stories done across 25 epics.**
