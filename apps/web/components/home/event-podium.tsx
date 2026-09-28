@@ -49,7 +49,7 @@ export function EventPodium({ podium }: { podium: EventPodiumData }) {
 
 function PodiumCard({ finish }: { finish: PodiumFinish }) {
   const winner = finish.placement === 1;
-  const title = finish.deckName ?? finish.archetype ?? "Unlabelled deck";
+  const title = finish.deckName ?? "Unlabelled deck";
 
   return (
     <Card
@@ -71,11 +71,6 @@ function PodiumCard({ finish }: { finish: PodiumFinish }) {
         <h3 className="line-clamp-2 text-lg/snug font-bold break-words" title={title}>
           {title}
         </h3>
-        {finish.archetype !== null && finish.archetype !== title && (
-          <p className="truncate text-sm text-ink-600 italic dark:text-ink-300">
-            {finish.archetype}
-          </p>
-        )}
         <p className="mt-1 truncate text-sm text-ink-500 dark:text-ink-400">{finish.handle}</p>
       </div>
 
