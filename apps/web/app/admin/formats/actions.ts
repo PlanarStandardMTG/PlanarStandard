@@ -33,8 +33,6 @@ export async function saveFormat(
   const check = checkFormatDraft(
     {
       name: text("name"),
-      effectiveFrom: text("effective_from"),
-      effectiveTo: text("effective_to"),
       notes: text("notes"),
       isCurrent: form.get("is_current") === "on",
       legalSets: [...all("set"), ...text("other_sets").split(/[\s,]+/)],

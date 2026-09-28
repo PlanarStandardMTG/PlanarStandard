@@ -1162,6 +1162,9 @@ _Note:_ added outside the plan, so a production database can get its format with
 applies migrations and never seeds. `0023_admin_format_versions.sql` adds `save_format_version` and
 `delete_format_version`, both security invoker so the E14.4 admin policies decide.
 `core/legality/check-format-draft` checks the form. `extra_rules` has no editor yet and is kept as it is.
+The dates have since left the form: `is_current` says which version is in force, and the pool changes
+as sets release rather than on a date. `0036_format_version_dates.sql` keeps `effective_from` as the
+day a version was created, which orders the admin list.
 ✅ **E20.34 — `admin`: rate or unrate a tournament** · S · Deps: E8.7, E18.12 — flip
 `tournaments.is_rated` after E8.7 guessed it, and recompute. _AC:_ admin-only; the leaderboard
 reflects the change once the recompute finishes, with no deploy.

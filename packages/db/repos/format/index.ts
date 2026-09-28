@@ -102,8 +102,8 @@ export async function saveFormatVersion(
     format_version_id: formatVersionId,
     draft: {
       name: draft.name,
-      effective_from: draft.effectiveFrom,
-      effective_to: draft.effectiveTo,
+      // No dates: which version is in force is `is_current` (0036).
+      effective_to: null,
       notes_markdown: draft.notesMarkdown,
       is_current: draft.isCurrent,
       legal_sets: draft.legalSets.map((code) => ({ code, core: draft.coreSets.includes(code) })),

@@ -5,7 +5,6 @@ import Link from "next/link";
 import { Notice } from "@/components/auth/form-parts";
 import { Badge } from "@/components/ui/badge";
 import { requireRole } from "@/lib/auth/guard";
-import { formatDate } from "@/lib/format-date";
 import { createSessionClient } from "@/lib/supabase/session";
 
 export const dynamic = "force-dynamic";
@@ -74,10 +73,6 @@ export default async function AdminFormatsPage({
                 <span className="flex items-center gap-3">
                   <span className="font-medium">{version.name}</span>
                   {version.isCurrent && <Badge>In force</Badge>}
-                </span>
-                <span className="text-xs text-ink-500 dark:text-ink-400">
-                  {formatDate(version.effectiveFrom)}
-                  {version.effectiveTo !== null && ` – ${formatDate(version.effectiveTo)}`}
                 </span>
               </Link>
             </li>

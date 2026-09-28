@@ -54,8 +54,6 @@ export interface CardRuleDraft {
  */
 export interface FormatVersionDraft {
   readonly name: string;
-  readonly effectiveFrom: IsoDate;
-  readonly effectiveTo: IsoDate | null;
   readonly notesMarkdown: string | null;
   readonly isCurrent: boolean;
   /** In the order `/rules` lists them, which is also set attribution's tiebreak. */

@@ -28,8 +28,6 @@ export interface CardRuleInput {
 
 export interface FormatDraftInput {
   readonly name: string;
-  readonly effectiveFrom: string;
-  readonly effectiveTo: string;
   readonly notes: string;
   readonly isCurrent: boolean;
   /** In order; a repeated code keeps its first place. */
@@ -48,8 +46,6 @@ type NumberField = "minMaindeck" | "maxMaindeck" | "maxSideboard" | "maxCopies";
 
 export type FormatDraftProblem =
   | { readonly field: "name"; readonly code: "empty" | "long" }
-  | { readonly field: "effectiveFrom"; readonly code: "invalid" }
-  | { readonly field: "effectiveTo"; readonly code: "invalid" | "before-start" }
   | { readonly field: "legalSets"; readonly code: "empty" }
   | { readonly field: "legalSets"; readonly code: "invalid"; readonly set: string }
   | { readonly field: NumberField; readonly code: "invalid" }
@@ -92,15 +88,6 @@ export function checkFormatDraft(input: FormatDraftInput, index: CardIndex): For
   const name = input.name.trim();
   if (name.length === 0) problems.push({ field: "name", code: "empty" });
   else if (name.length > FORMAT_NAME_MAX) problems.push({ field: "name", code: "long" });
-
-  const effectiveFrom = input.effectiveFrom.trim();
-  if (!isIsoDate(effectiveFrom)) problems.push({ field: "effectiveFrom", code: "invalid" });
-  const effectiveTo = input.effectiveTo.trim();
-  if (effectiveTo !== "" && !isIsoDate(effectiveTo)) {
-    problems.push({ field: "effectiveTo", code: "invalid" });
-  } else if (effectiveTo !== "" && isIsoDate(effectiveFrom) && effectiveTo < effectiveFrom) {
-    problems.push({ field: "effectiveTo", code: "before-start" });
-  }
 
   const legalSets = [...new Set(input.legalSets.map((s) => s.trim().toUpperCase()))].filter(
     (s) => s !== "",
@@ -168,13 +155,7 @@ export function checkFormatDraft(input: FormatDraftInput, index: CardIndex): For
     }
   });
 
-  if (
-    problems.length > 0 ||
-    !isIsoDate(effectiveFrom) ||
-    minMaindeck === null ||
-    maxSideboard === null ||
-    maxCopies === null
-  ) {
+  if (problems.length > 0 || minMaindeck === null || maxSideboard === null || maxCopies === null) {
     return { ok: false, problems };
   }
 
@@ -182,8 +163,6 @@ export function checkFormatDraft(input: FormatDraftInput, index: CardIndex): For
     ok: true,
     value: {
       name,
-      effectiveFrom,
-      effectiveTo: isIsoDate(effectiveTo) ? effectiveTo : null,
       notesMarkdown: input.notes.trim() === "" ? null : input.notes.trim(),
       isCurrent: input.isCurrent,
       legalSets: legalSets as SetCode[],

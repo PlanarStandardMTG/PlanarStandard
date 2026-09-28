@@ -25,7 +25,7 @@ const ERRORS: Readonly<Record<string, string>> = {
   current:
     "The version in force can’t be deleted. Mark another version as in force first, then delete this one.",
   "in-use":
-    "A season, tournament or deck was checked against this version, so it can’t be deleted. Give it an end date instead.",
+    "A season, tournament or deck was checked against this version, so it can’t be deleted. It can stay as a past version.",
 };
 
 /** View and edit one version, card rules shown by name (E20.33). */
@@ -72,8 +72,6 @@ export default async function EditFormatPage({
         knownSets={cardSetCodes()}
         initial={{
           name: version.name,
-          effectiveFrom: version.effectiveFrom,
-          effectiveTo: version.effectiveTo ?? "",
           notes: version.notesMarkdown ?? "",
           isCurrent: version.isCurrent,
           legalSets,

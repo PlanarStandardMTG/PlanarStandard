@@ -29,8 +29,6 @@ const RULINGS: ReadonlyArray<{ readonly value: CardRuling; readonly label: strin
 
 export interface FormatFormValues {
   readonly name: string;
-  readonly effectiveFrom: string;
-  readonly effectiveTo: string;
   readonly notes: string;
   readonly isCurrent: boolean;
   readonly legalSets: readonly string[];
@@ -51,12 +49,6 @@ function describe(problem: FormatDraftProblem): string {
       return problem.code === "empty"
         ? "Give the version a name."
         : `Keep the name under ${FORMAT_NAME_MAX} characters.`;
-    case "effectiveFrom":
-      return "Choose the date this version takes effect.";
-    case "effectiveTo":
-      return problem.code === "invalid"
-        ? "That end date isn’t a date."
-        : "The end date is before the start.";
     case "legalSets":
       return problem.code === "empty"
         ? "Choose at least one legal set."
@@ -146,37 +138,6 @@ export function FormatVersionForm({
             className={FIELD}
           />
           <Problems messages={about("name")} />
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label htmlFor="effective_from" className="text-sm font-medium">
-              Takes effect
-            </label>
-            <input
-              id="effective_from"
-              name="effective_from"
-              type="date"
-              value={values.effectiveFrom}
-              onChange={(e) => set("effectiveFrom", e.target.value)}
-              className={FIELD}
-            />
-            <Problems messages={about("effectiveFrom")} />
-          </div>
-          <div>
-            <label htmlFor="effective_to" className="text-sm font-medium">
-              Ends <span className="font-normal text-ink-500">(optional)</span>
-            </label>
-            <input
-              id="effective_to"
-              name="effective_to"
-              type="date"
-              value={values.effectiveTo}
-              onChange={(e) => set("effectiveTo", e.target.value)}
-              className={FIELD}
-            />
-            <Problems messages={about("effectiveTo")} />
-          </div>
         </div>
 
         <label className="flex items-start gap-3 rounded-lg border border-ink-300 px-3 py-2 text-sm has-checked:border-eclipse-500 dark:border-ink-700">

@@ -41,8 +41,6 @@ export default async function NewFormatPage() {
         knownSets={knownSets}
         initial={{
           name: "",
-          effectiveFrom: "",
-          effectiveTo: "",
           notes: "",
           isCurrent: false,
           legalSets,

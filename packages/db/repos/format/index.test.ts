@@ -111,8 +111,6 @@ describe.skipIf(!reachable)("db/repos/format — admin edits", () => {
 
   const draft = (over: Partial<FormatVersionDraft> = {}): FormatVersionDraft => ({
     name: "Test pool",
-    effectiveFrom: "2026-10-01",
-    effectiveTo: null,
     notesMarkdown: null,
     isCurrent: false,
     legalSets: ["FDN" as SetCode],

@@ -1,5 +1,4 @@
 import { EmptyState, ErrorState } from "@/components/ui/states";
-import { formatDate } from "@/lib/format-date";
 import { loadCurrentFormat } from "@/lib/format/current-format";
 
 import { scryfallSetSearch, SetSymbol } from "./set-symbol";
@@ -32,9 +31,7 @@ export async function LegalSets() {
     <div className="not-prose my-6 rounded-xl border border-ink-200 p-5 dark:border-ink-800">
       <div className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
         <h3 className="font-medium text-ink-900 dark:text-ink-100">{version.name}</h3>
-        <p className="text-sm text-ink-500 dark:text-ink-400">
-          {legalSets.length} sets · in force since {formatDate(version.effectiveFrom)}
-        </p>
+        <p className="text-sm text-ink-500 dark:text-ink-400">{legalSets.length} sets</p>
       </div>
 
       {coreSets.length === 0 ? (

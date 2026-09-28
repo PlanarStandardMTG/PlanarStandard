@@ -466,8 +466,6 @@ describe("core/legality/check-deck-in-format", () => {
 describe("core/legality/check-format-draft", () => {
   const input = {
     name: "  Season III  ",
-    effectiveFrom: "2027-01-20",
-    effectiveTo: "",
     notes: "",
     isCurrent: true,
     legalSets: ["fdn", "DFT", "fdn", " "],
@@ -499,7 +497,6 @@ describe("core/legality/check-format-draft", () => {
     if (!check.ok) return;
     expect(check.value).toMatchObject({
       name: "Season III",
-      effectiveTo: null,
       notesMarkdown: null,
       legalSets: ["FDN", "DFT"],
       coreSets: ["FDN"],
@@ -515,13 +512,11 @@ describe("core/legality/check-format-draft", () => {
     ]);
   });
 
-  it("names every problem: dates, sets, limits, and card rules it cannot resolve", () => {
+  it("names every problem: sets, limits, and card rules it cannot resolve", () => {
     const check = checkFormatDraft(
       {
         ...input,
         name: "",
-        effectiveFrom: "2027-02-30",
-        effectiveTo: "2026-01-01",
         legalSets: ["F-DN"],
         minMaindeck: "60",
         maxMaindeck: "40",
@@ -539,7 +534,6 @@ describe("core/legality/check-format-draft", () => {
     if (check.ok) return;
     expect(check.problems.map((p) => `${p.field}:${p.code}`)).toEqual([
       "name:empty",
-      "effectiveFrom:invalid",
       "legalSets:invalid",
       "maxCopies:invalid",
       "maxMaindeck:below-minimum",
@@ -551,10 +545,9 @@ describe("core/legality/check-format-draft", () => {
     expect(unknown && "suggestions" in unknown ? unknown.suggestions[0] : null).toBe("Stock Up");
   });
 
-  it("refuses an end date before the start, and a pool with no sets", () => {
-    const check = checkFormatDraft({ ...input, effectiveTo: "2027-01-01", legalSets: [] }, INDEX);
+  it("refuses a pool with no sets", () => {
+    const check = checkFormatDraft({ ...input, legalSets: [] }, INDEX);
     expect(check.ok ? [] : check.problems.map((p) => `${p.field}:${p.code}`)).toEqual([
-      "effectiveTo:before-start",
       "legalSets:empty",
     ]);
   });
