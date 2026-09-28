@@ -1289,6 +1289,7 @@ turns them away. The editor moved under each kind's prefix; `?kind=official` is 
 lands there by default; a banned member still reaches it.
 _Note:_ added outside the plan. The layout's floor drops from `reader` to signed-in so a ban does not lock
 a member out of their profile; every page under it already guards its own rung.
+A Decks card after Profile links to `/decks?view=mine` until the dashboard has its own deck page.
 
 ---
 
