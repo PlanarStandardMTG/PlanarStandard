@@ -28,15 +28,15 @@ const LINK = "text-ink-600 hover:text-ink-900 dark:text-ink-400 dark:hover:text-
  */
 export async function SiteHeader() {
   return (
-    <header className="night relative z-40 border-b border-ink-800">
+    <header className="relative z-40 border-b border-ink-200 dark:border-ink-800">
       <Container className="flex h-16 items-center justify-between gap-3 sm:gap-6">
         <Link
           href="/"
           className="flex shrink-0 items-center gap-2.5 font-display text-xl tracking-tight whitespace-nowrap"
         >
-          <PlanarMark className="size-8 text-gold-400" />
+          <PlanarMark className="size-8 text-gold-700 dark:text-gold-400" />
           <span>
-            Planar <em className="text-gold-400">Standard</em>
+            Planar <em className="text-gold-700 dark:text-gold-400">Standard</em>
           </span>
         </Link>
 

@@ -4,16 +4,19 @@
 @custom-variant in-prose (&:not(.not-prose, .not-prose *));
 
 /*
- * `dark:` means the reader's dark theme, or anything inside a `.night` region.
- * The ledger pages, the header and the footer are night in both themes; the
- * reading pages follow the reader.
+ * `dark:` is one theme for the whole site: the reader's system preference,
+ * unless they picked light or dark from the footer, which the inline script in
+ * `app/layout.tsx` writes to `<html data-theme>` before first paint. With no
+ * script at all the system preference still applies.
  */
 @custom-variant dark {
-  @media (prefers-color-scheme: dark) {
+  &:where([data-theme="dark"], [data-theme="dark"] *) {
     @slot;
   }
-  &:where(.night, .night *) {
-    @slot;
+  @media (prefers-color-scheme: dark) {
+    &:where(:root:not([data-theme="light"]), :root:not([data-theme="light"]) *) {
+      @slot;
+    }
   }
 }
 
@@ -54,22 +57,18 @@
   --font-mono: var(--font-jetbrains-mono), ui-monospace, monospace;
 }
 
-@utility night {
-  color-scheme: dark;
-  background-color: var(--color-ink-950);
-  color: var(--color-ink-100);
-}
-
 :root {
   color-scheme: light dark;
 }
 
-body {
-  @apply bg-ink-50 text-ink-900 antialiased;
+:root[data-theme="light"] {
+  color-scheme: light;
 }
 
-@media (prefers-color-scheme: dark) {
-  body {
-    @apply bg-ink-950 text-ink-100;
-  }
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-ink-50 text-ink-900 antialiased dark:bg-ink-950 dark:text-ink-100;
 }

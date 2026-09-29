@@ -5,6 +5,8 @@ import type { ReactNode } from "react";
 
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
+import { InlineScript } from "@/components/ui/inline-script";
+import { THEME_SCRIPT } from "@/lib/preferences";
 
 import "./globals.css";
 
@@ -32,7 +34,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html
       lang="en"
       className={`${functionTwo.variable} ${instrumentSans.variable} ${jetbrainsMono.variable}`}
+      // The head script sets `data-theme` before React hydrates.
+      suppressHydrationWarning
     >
+      <head>
+        <InlineScript html={THEME_SCRIPT} />
+      </head>
       <body className="flex min-h-dvh flex-col font-sans">
         <SiteHeader />
         <main className="flex flex-1 flex-col">{children}</main>

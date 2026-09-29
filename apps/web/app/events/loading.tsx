@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/states";
 
 export default function Loading() {
   return (
-    <div className="night flex-1">
+    <div className="flex-1">
       <Container className="py-12">
         <Skeleton className="h-9 w-40" />
         <Skeleton className="mt-3 h-5 w-full max-w-prose" />

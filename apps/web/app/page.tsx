@@ -51,15 +51,16 @@ export default async function HomePage() {
 
   return (
     <>
-      <section className="night relative overflow-hidden">
-        <PlanarMark className="pointer-events-none absolute -top-48 -right-56 size-[46rem] text-ink-900" />
+      <section className="relative overflow-hidden border-b border-ink-200 dark:border-ink-800">
+        <PlanarMark className="pointer-events-none absolute -top-48 -right-56 size-[46rem] text-ink-100 dark:text-ink-900" />
         <Container className="relative grid items-center gap-10 py-14 lg:grid-cols-[1fr_20rem] lg:py-20">
           <div>
             <SeasonBadge />
             <h1 className="mt-6 font-display text-5xl/[0.98] tracking-tight text-balance sm:text-6xl/[0.95]">
-              Welcome to the <em className="text-gold-400">Planar Standard</em> portal
+              Welcome to the <em className="text-gold-700 dark:text-gold-400">Planar Standard</em>{" "}
+              portal
             </h1>
-            <p className="mt-5 max-w-xl text-lg text-ink-300">
+            <p className="mt-5 max-w-xl text-lg text-ink-600 dark:text-ink-300">
               Results, decklists and an Elo leaderboard for the format.
             </p>
           </div>
@@ -67,7 +68,7 @@ export default async function HomePage() {
           {/* `min-w-0`: a grid cell is otherwise as wide as its longest
               unbreakable line, and a long event name pushed past a phone's margin. */}
           <div className="relative min-w-0 lg:pt-44">
-            <PlanarMark className="absolute -top-6 left-1/2 hidden size-64 -translate-x-1/2 text-gold-400 lg:block" />
+            <PlanarMark className="absolute -top-6 left-1/2 hidden size-64 -translate-x-1/2 text-gold-500 lg:block dark:text-gold-400" />
             <div className="relative">
               {events.ok ? (
                 <NextEventPanel events={ahead.slice(0, UPCOMING_EVENT_COUNT)} />

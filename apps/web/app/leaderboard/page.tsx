@@ -49,7 +49,7 @@ export default async function LeaderboardPage({
   });
 
   return (
-    <div className="night flex-1">
+    <div className="flex-1">
       <Container className="py-12">
         <PageHeader kicker="Rated Monthlies" title="Leaderboard" aside={<SeasonBadge large />}>
           Elo ratings from rated events{data.ok ? ` ${describeWindow(data.value.window)}` : ""}.{" "}
@@ -72,7 +72,7 @@ export default async function LeaderboardPage({
             ) : (
               <Ladder rows={data.value.ranked} query={query} page={params["page"]} />
             )}
-            <p className="mt-8 text-sm text-ink-400">
+            <p className="mt-8 text-sm text-ink-500 dark:text-ink-400">
               Can&rsquo;t find your name? Players need to play in{" "}
               {data.value.config.minEventsForLeaderboard} or more events to appear on the
               leaderboard.
@@ -126,20 +126,23 @@ function Ladder({
           name="q"
           defaultValue={query}
           placeholder="Find a player"
-          className="w-full max-w-xs rounded-full border border-ink-800 bg-transparent px-4 py-1.5 placeholder:text-ink-600 focus:border-eclipse-500 focus:outline-none sm:w-72"
+          className="w-full max-w-xs rounded-full border border-ink-300 bg-transparent px-4 py-1.5 placeholder:text-ink-500 dark:border-ink-800 dark:placeholder:text-ink-600 focus:border-eclipse-500 focus:outline-none sm:w-72"
         />
         <button
           type="submit"
-          className="rounded-full border border-ink-800 px-4 py-1.5 hover:border-eclipse-500/60"
+          className="rounded-full border border-ink-300 px-4 py-1.5 hover:border-eclipse-500/60 dark:border-ink-800"
         >
           Search
         </button>
         {query !== "" && (
           <>
-            <span className="text-ink-400">
+            <span className="text-ink-500 dark:text-ink-400">
               {matching.length} {matching.length === 1 ? "player" : "players"}
             </span>
-            <Link href="/leaderboard" className="text-eclipse-400 hover:underline">
+            <Link
+              href="/leaderboard"
+              className="text-eclipse-700 hover:underline dark:text-eclipse-400"
+            >
               Clear
             </Link>
           </>
@@ -147,7 +150,9 @@ function Ladder({
       </form>
 
       {matching.length === 0 ? (
-        <p className="text-ink-400">No ranked player has &ldquo;{query}&rdquo; in their name.</p>
+        <p className="text-ink-500 dark:text-ink-400">
+          No ranked player has &ldquo;{query}&rdquo; in their name.
+        </p>
       ) : (
         <RatingsTable rows={shown.items} caption="Ranked players" />
       )}

@@ -35,7 +35,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | ✅ 23/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
-| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 14/15 |
+| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 15/16 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
@@ -803,6 +803,13 @@ replaces E24.1's grid.
 through the next three events, one to a slide, each showing only its own details; arrows and dots step
 it and a phone swipes it; "The full schedule" sits under the slides and shows on every one.
 _Note:_ added outside the plan. It replaces the "then" list of the following two events under the lead.
+✅ **E16.16 — One theme for every page, with a toggle** · S · Deps: E16.14 — _AC:_ every page, header
+and footer follows one theme: the system's by default, or light or dark chosen from a toggle in the
+footer; the choice persists in `localStorage` and applies before first paint, with no flash.
+_Note:_ added outside the plan. It retires E16.14's night regions: `dark:` is now driven by
+`<html data-theme>`, set by a head script in `app/layout.tsx`, and falls back to
+`prefers-color-scheme` with no script at all. The stored-preference helpers in `lib/preferences.ts`
+also back the deck page's remembered layout (E20.29).
 
 ---
 
@@ -1139,8 +1146,9 @@ deck and its list are one transaction. Other formats arrive as adapters behind t
 ✅ **E20.29 — `decks`: a deck reads as a text list, with images a click away** · S · Deps: E20.6 —
 _AC:_ `/decks/[id]` opens as a text list by section, flowed into as many columns as the screen fits;
 each name links to Scryfall and shows its card on hover; a button switches to the image grid and back.
-_Note:_ added outside the plan. The layout is `?layout=images` in the URL, so the page stays
-server-rendered and either view can be linked; the hover preview only shows where the device can hover.
+_Note:_ added outside the plan. The hover preview only shows where the device can hover. The layout
+was `?layout=images` in the URL until the reader's last choice was remembered in `localStorage`
+instead (`lib/preferences.ts`); the images mount only once that choice is read, so text never loads one.
 ✅ **E20.30 — `decks`: edit a deck, keep its history, and choose its format** · M · Deps: E20.28 —
 `/decks/[id]/edit`. _AC:_ an owner edits their latest version and saving writes a new deck whose
 parent is the old one, which stays at its URL; the deck page lists every version; a deck is Planar
@@ -1680,7 +1688,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E2   | 9       | 9    | E13  | 23      | 23   |
 | E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
-| E5   | 6       | 6    | E16  | 15      | 14   |
+| E5   | 6       | 6    | E16  | 16      | 15   |
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
@@ -1691,4 +1699,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 6       | 4    |
 
-**219 of 290 stories done across 25 epics.**
+**220 of 291 stories done across 25 epics.**

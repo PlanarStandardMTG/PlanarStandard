@@ -15,6 +15,7 @@ import { cache } from "react";
 import { ColorPips } from "@/components/decks/color-pips";
 import { DeckLegality } from "@/components/decks/deck-legality";
 import { DeleteDeckButton } from "@/components/decks/delete-deck-button";
+import { DeckLayoutToggle } from "@/components/decks/deck-layout-toggle";
 import { DeckSectionsGrid } from "@/components/decks/deck-sections-grid";
 import { DeckSectionsList } from "@/components/decks/deck-sections-list";
 import { PlayedEvents } from "@/components/ui/played-events";
@@ -61,13 +62,7 @@ export async function generateMetadata({
  * One deck, card by card, checked against its format (E20.6), and every other
  * version of it (E20.30).
  */
-export default async function DeckPage({
-  params,
-  searchParams,
-}: {
-  params: Promise<{ id: string }>;
-  searchParams: Promise<{ layout?: string | string[] }>;
-}) {
+export default async function DeckPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
   const deck = await findDeck(id);
   if (deck === null) notFound();
@@ -94,7 +89,6 @@ export default async function DeckPage({
   const canManage = isOwner && !hidden && deck.submittedVia === "import" && deck.lockedAt === null;
   const latest = versions.at(-1) ?? deck;
   const isLatest = latest.id === deck.id;
-  const showImages = (await searchParams).layout === "images";
 
   return (
     <Container className="py-12">
@@ -168,21 +162,11 @@ export default async function DeckPage({
         </p>
       )}
 
-      <div className="mb-4 flex justify-end">
-        <Link
-          href={showImages ? `/decks/${id}` : `/decks/${id}?layout=images`}
-          scroll={false}
-          className={`${OUTLINE_BUTTON} hover:border-ink-500`}
-        >
-          {showImages ? "Show as text" : "Show as images"}
-        </Link>
-      </div>
-
-      {showImages ? (
-        <DeckSectionsGrid sections={view.sections} />
-      ) : (
-        <DeckSectionsList sections={view.sections} />
-      )}
+      <DeckLayoutToggle
+        list={<DeckSectionsList sections={view.sections} />}
+        grid={<DeckSectionsGrid sections={view.sections} />}
+        buttonClassName={OUTLINE_BUTTON}
+      />
 
       {played.length > 0 && (
         <section aria-labelledby="played" className="mt-12">

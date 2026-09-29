@@ -58,8 +58,6 @@ type LoadedTournament = TournamentEmbedData & { readonly deck: LoadedDeck | null
 
 const CARD =
   "not-prose my-6 rounded-lg border font-sans text-base border-ink-200 bg-paper p-4 sm:p-5 dark:border-ink-800 dark:bg-ink-900";
-/** An event is a ledger, so it is night on any page. */
-const NIGHT_CARD = `${CARD} night`;
 
 export const EMBED_RENDERERS: { readonly [N in EmbedName]: EmbedRenderer } = {
   image: {
@@ -141,7 +139,7 @@ export const EMBED_RENDERERS: { readonly [N in EmbedName]: EmbedRenderer } = {
       const event = data as LoadedTournament | null;
       if (!call.ok || event === null) {
         return (
-          <section className={NIGHT_CARD}>
+          <section className={CARD}>
             <Missing>This tournament could not be found.</Missing>
           </section>
         );
@@ -152,7 +150,7 @@ export const EMBED_RENDERERS: { readonly [N in EmbedName]: EmbedRenderer } = {
       const missingDeck = call.value.deck !== null && deck === null;
 
       return (
-        <section className={NIGHT_CARD}>
+        <section className={CARD}>
           <header className="flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1">
             <h3 className="min-w-0 text-2xl font-bold text-ink-900 dark:text-ink-100">
               {event.url === null ? (

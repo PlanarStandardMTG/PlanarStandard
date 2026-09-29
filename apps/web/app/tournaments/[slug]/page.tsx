@@ -48,7 +48,7 @@ export default async function TournamentPage({ params }: { params: Promise<{ slu
   const players = standings.length > 0 ? standings.length : tournament.playerCount;
 
   return (
-    <div className="night flex-1">
+    <div className="flex-1">
       <Container className="py-12">
         <PageHeader
           kicker={

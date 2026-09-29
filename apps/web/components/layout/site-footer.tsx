@@ -3,6 +3,7 @@ import { StarRule } from "@/components/ui/marks";
 import { PlanarMark } from "@/components/ui/planar-mark";
 
 import { InfoNav } from "./info-nav";
+import { ThemeToggle } from "./theme-toggle";
 
 // The community's own links, as listed on the existing site's footer.
 const LINKS = [
@@ -14,11 +15,12 @@ const LINKS = [
 
 export function SiteFooter() {
   return (
-    <footer className="night py-10 text-sm">
+    <footer className="border-t border-ink-200 py-10 text-sm dark:border-ink-800">
       <Container className="flex flex-col gap-6">
         <div className="flex items-center gap-4">
-          <PlanarMark className="size-8 text-gold-400" />
+          <PlanarMark className="size-8 text-gold-700 dark:text-gold-400" />
           <StarRule />
+          <ThemeToggle />
         </div>
         <InfoNav />
 

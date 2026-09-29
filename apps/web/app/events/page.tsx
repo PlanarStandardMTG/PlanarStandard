@@ -38,7 +38,7 @@ export default async function EventsPage({
   const [events, params] = await Promise.all([load(() => loadEvents(now)), searchParams]);
 
   return (
-    <div className="night flex-1">
+    <div className="flex-1">
       <Container className="py-12">
         <PageHeader kicker="The schedule" title="Events">
           Upcoming and live events, and results from every past one.

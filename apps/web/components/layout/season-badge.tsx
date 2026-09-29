@@ -28,7 +28,7 @@ export async function SeasonBadge({ large = false }: { large?: boolean }) {
           </p>
         </div>
       ) : (
-        <p className="font-mono text-xs tracking-[0.08em] text-ink-400 uppercase">
+        <p className="font-mono text-xs tracking-[0.08em] text-ink-500 uppercase dark:text-ink-400">
           {season.value.name} · {month}
         </p>
       )}
