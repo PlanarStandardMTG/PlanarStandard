@@ -3,13 +3,13 @@ import { describe, expect, it } from "vitest";
 import { POST_REACTIONS, isPostReaction, tallyReactions, toggledReaction } from "./index";
 
 describe("content/post-reaction", () => {
-  it("offers a thumbs up, then the colours in WUBRG order", () => {
-    expect(POST_REACTIONS).toEqual(["thumbs_up", "white", "blue", "black", "red", "green"]);
+  it("offers a thumbs up alone", () => {
+    expect(POST_REACTIONS).toEqual(["thumbs_up"]);
   });
 
-  it("narrows an untrusted value", () => {
-    expect(isPostReaction("red")).toBe(true);
-    expect(isPostReaction("purple")).toBe(false);
+  it("narrows an untrusted value, refusing the retired colours", () => {
+    expect(isPostReaction("thumbs_up")).toBe(true);
+    expect(isPostReaction("red")).toBe(false);
     expect(isPostReaction(undefined)).toBe(false);
   });
 
@@ -18,14 +18,13 @@ describe("content/post-reaction", () => {
       tallyReactions([
         { reaction: "blue", total: 3 },
         { reaction: "thumbs_up", total: 1 },
-        { reaction: "purple", total: 9 },
       ]),
-    ).toEqual({ thumbs_up: 1, white: 0, blue: 3, black: 0, red: 0, green: 0 });
+    ).toEqual({ thumbs_up: 1 });
+    expect(tallyReactions([])).toEqual({ thumbs_up: 0 });
   });
 
-  it("takes a reaction back when it is clicked again, and swaps it otherwise", () => {
-    expect(toggledReaction(null, "red")).toBe("red");
-    expect(toggledReaction("red", "red")).toBeNull();
-    expect(toggledReaction("red", "green")).toBe("green");
+  it("takes a reaction back when it is clicked again", () => {
+    expect(toggledReaction(null, "thumbs_up")).toBe("thumbs_up");
+    expect(toggledReaction("thumbs_up", "thumbs_up")).toBeNull();
   });
 });

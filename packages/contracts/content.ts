@@ -46,8 +46,8 @@ export type PostStatus = "draft" | "review" | "published" | "archived";
  */
 export type PostKind = "official" | "community";
 
-/** A member's reaction to a published post (E20.41): a thumbs up, or one of the five colours. */
-export type PostReaction = "thumbs_up" | "white" | "blue" | "black" | "red" | "green";
+/** A member's reaction to a published post (E20.41): a thumbs up, the only kind since E20.49. */
+export type PostReaction = "thumbs_up";
 
 /** A post's reactions, one count per kind, zeros included. */
 export type PostReactionCounts = Readonly<Record<PostReaction, number>>;

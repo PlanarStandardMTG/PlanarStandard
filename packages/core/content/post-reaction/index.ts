@@ -1,14 +1,7 @@
 import type { PostReaction, PostReactionCounts } from "@ps/contracts";
 
-/** The reactions a post offers, in the order they are shown: thumbs up, then WUBRG (E20.41). */
-export const POST_REACTIONS = [
-  "thumbs_up",
-  "white",
-  "blue",
-  "black",
-  "red",
-  "green",
-] as const satisfies readonly PostReaction[];
+/** The reactions a post offers, in the order they are shown: a thumbs up alone (E20.49). */
+export const POST_REACTIONS = ["thumbs_up"] as const satisfies readonly PostReaction[];
 
 export function isPostReaction(value: unknown): value is PostReaction {
   return (POST_REACTIONS as readonly unknown[]).includes(value);

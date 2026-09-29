@@ -1,7 +1,5 @@
 "use client";
 
-import "mana-font/css/mana.min.css";
-
 import type { PostReaction, PostReactionCounts } from "@ps/contracts";
 import { POST_REACTIONS, toggledReaction } from "@ps/core";
 import Link from "next/link";
@@ -9,28 +7,12 @@ import { useOptimistic, useTransition } from "react";
 
 import { cn } from "@/lib/cn";
 
-const LABELS: Readonly<Record<PostReaction, string>> = {
-  thumbs_up: "Thumbs up",
-  white: "White",
-  blue: "Blue",
-  black: "Black",
-  red: "Red",
-  green: "Green",
-};
-
-const MANA: Readonly<Record<Exclude<PostReaction, "thumbs_up">, string>> = {
-  white: "ms-w",
-  blue: "ms-u",
-  black: "ms-b",
-  red: "ms-r",
-  green: "ms-g",
-};
+const LABELS: Readonly<Record<PostReaction, string>> = { thumbs_up: "Thumbs up" };
 
 export type ReactionAccess = "member" | "signed-out" | "banned";
 
 /**
- * A thumbs up and the five mana symbols, each with its count (E20.41). One per
- * member: clicking another swaps it, clicking the same one takes it back.
+ * A thumbs up with its count (E20.41, E20.49). Clicking it again takes it back.
  *
  * The action arrives as a prop, like `TournamentLines`'. Signed out, each
  * button is a link to sign in and come back.
@@ -82,7 +64,9 @@ export function ReactionBar({
         );
         const content = (
           <>
-            <Symbol reaction={reaction} />
+            <span aria-hidden="true" className="text-base leading-none">
+              👍
+            </span>
             <span>{count}</span>
           </>
         );
@@ -113,15 +97,4 @@ export function ReactionBar({
       })}
     </div>
   );
-}
-
-function Symbol({ reaction }: { reaction: PostReaction }) {
-  if (reaction === "thumbs_up") {
-    return (
-      <span aria-hidden="true" className="text-base leading-none">
-        👍
-      </span>
-    );
-  }
-  return <i aria-hidden="true" className={cn("ms ms-cost ms-shadow", MANA[reaction])} />;
 }

@@ -146,15 +146,15 @@ describe.skipIf(!reachable)("repos/content — submission and review", () => {
     await service.from("posts").delete().like("slug", `${prefix}%`);
   });
 
-  it("sets, swaps and takes back a member's reaction, and counts it", async () => {
+  it("sets and takes back a member's reaction, and counts it", async () => {
     const post = await createPost(writer, draft("reacted", writerId, "published"));
 
-    await setOwnPostReaction(reader, post.id, readerId, "blue");
-    await setOwnPostReaction(reader, post.id, readerId, "green");
-    expect(await getOwnPostReaction(reader, post.id)).toBe("green");
+    await setOwnPostReaction(reader, post.id, readerId, "thumbs_up");
+    await setOwnPostReaction(reader, post.id, readerId, "thumbs_up");
+    expect(await getOwnPostReaction(reader, post.id)).toBe("thumbs_up");
     expect(await getOwnPostReaction(writer, post.id)).toBeNull();
     expect(await listPostReactionCounts(client, post.id)).toEqual([
-      { reaction: "green", total: 1 },
+      { reaction: "thumbs_up", total: 1 },
     ]);
 
     await setOwnPostReaction(reader, post.id, readerId, null);

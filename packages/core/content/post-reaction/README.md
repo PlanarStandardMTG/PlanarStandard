@@ -6,4 +6,5 @@
 **Outputs.** `POST_REACTIONS` in display order · `isPostReaction` · `tallyReactions` → every kind
 with zeros filled · `toggledReaction` → the new reaction, or null to take it back.
 
-**Gotchas.** The list must match the `post_reaction` enum in migration 0032.
+**Gotchas.** The list must match what `post_reactions` accepts: the enum from migration 0032, narrowed
+to a thumbs up by the check in 0043. A retired kind in a count row is dropped.

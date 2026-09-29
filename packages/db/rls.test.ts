@@ -478,14 +478,14 @@ suite("RLS — the allow-deny matrix", () => {
         (
           await as("reader")
             .from("post_reactions")
-            .insert({ post_id: post, profile_id: reader, reaction: "red" })
+            .insert({ post_id: post, profile_id: reader, reaction: "thumbs_up" })
         ).error,
       ).toBeNull();
       expect(
         (
           await as("writer")
             .from("post_reactions")
-            .insert({ post_id: post, profile_id: writer, reaction: "red" })
+            .insert({ post_id: post, profile_id: writer, reaction: "thumbs_up" })
         ).error,
       ).toBeNull();
 
@@ -494,10 +494,10 @@ suite("RLS — the allow-deny matrix", () => {
       expect((await anon.from("post_reactions").select("*")).data).toStrictEqual([]);
 
       const { data: counts } = await anon.rpc("post_reaction_counts", { p_post_id: post });
-      const red = (counts as { reaction: string; total: number }[]).find(
-        (row) => row.reaction === "red",
+      const thumbs = (counts as { reaction: string; total: number }[]).find(
+        (row) => row.reaction === "thumbs_up",
       );
-      expect(Number(red?.total)).toBeGreaterThanOrEqual(2);
+      expect(Number(thumbs?.total)).toBeGreaterThanOrEqual(2);
     });
 
     it("refuses a reaction on a draft, or in somebody else's name", async () => {
@@ -506,13 +506,24 @@ suite("RLS — the allow-deny matrix", () => {
 
       const onDraft = await as("organizer")
         .from("post_reactions")
-        .insert({ post_id: draft, profile_id: profileIds.get("organizer"), reaction: "blue" });
+        .insert({ post_id: draft, profile_id: profileIds.get("organizer"), reaction: "thumbs_up" });
       expect(onDraft.error?.code).toBe(RLS_REFUSED);
 
       const forged = await as("organizer")
         .from("post_reactions")
-        .insert({ post_id: published, profile_id: profileIds.get("admin"), reaction: "blue" });
+        .insert({ post_id: published, profile_id: profileIds.get("admin"), reaction: "thumbs_up" });
       expect(forged.error?.code).toBe(RLS_REFUSED);
+    });
+
+    it("refuses a retired colour (E20.49)", async () => {
+      const { error } = await as("organizer")
+        .from("post_reactions")
+        .insert({
+          post_id: await postId("the-hub-is-live"),
+          profile_id: profileIds.get("organizer"),
+          reaction: "red",
+        });
+      expect(error?.code).toBe("23514");
     });
 
     it("refuses a banned member", async () => {
@@ -527,7 +538,7 @@ suite("RLS — the allow-deny matrix", () => {
           .insert({
             post_id: await postId("the-hub-is-live"),
             profile_id: organizer,
-            reaction: "green",
+            reaction: "thumbs_up",
           });
         expect(error?.code).toBe(RLS_REFUSED);
       } finally {

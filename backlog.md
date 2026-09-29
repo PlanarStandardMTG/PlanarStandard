@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 37/48 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 38/49 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1304,6 +1304,12 @@ _Note:_ added outside the plan. The layout's floor drops from `reader` to signed
 a member out of their profile; every page under it already guards its own rung.
 A Decks card after Profile links to `/decks?view=mine` until the dashboard has its own deck page.
 
+✅ **E20.49 — `content`: a thumbs up is the only reaction** · XS · Deps: E20.41 — the five mana
+symbols come off posts. _AC:_ a post shows a thumbs up and its count alone; a colour reaction already
+given becomes a thumbs up; the database refuses a colour.
+_Note:_ added outside the plan. Migration 0043 converts and then checks rather than dropping the enum's
+values, which Postgres cannot do without rebuilding the type.
+
 ---
 
 ## E21 — Season II backfill
@@ -1692,11 +1698,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 48      | 37   |
+| E9   | 9       | 9    | E20  | 49      | 38   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 6       | 4    |
 
-**220 of 291 stories done across 25 epics.**
+**221 of 292 stories done across 25 epics.**
