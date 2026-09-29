@@ -152,8 +152,8 @@ export function SeasonForm({
         <span>
           <span className="font-medium">The current season</span>
           <span className="block text-xs text-ink-500 dark:text-ink-400">
-            The season the site shows. Saving takes it from whichever season has it now. The
-            dates Elo rates are set under Data processing.
+            The season the site shows. Saving takes it from whichever season has it now. The dates
+            Elo rates are set under Data processing.
           </span>
         </span>
       </label>

@@ -53,9 +53,7 @@ export default async function AdminSeasonsPage({
         <Notice tone="good">{DONE[done]}</Notice>
       )}
       {seasons.every((season) => !season.isCurrent) && (
-        <Notice tone="warn">
-          No season is current. Mark one as the current season.
-        </Notice>
+        <Notice tone="warn">No season is current. Mark one as the current season.</Notice>
       )}
 
       {seasons.length === 0 ? (

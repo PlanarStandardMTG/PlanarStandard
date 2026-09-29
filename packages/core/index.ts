@@ -189,11 +189,7 @@ export {
 export type { PasswordCheck, PasswordProblem } from "./auth/password-policy/index";
 export { checkModeration } from "./auth/moderation/index";
 export type { ModerationCheck, ModerationProblem } from "./auth/moderation/index";
-export {
-  HISTORY_ROLE,
-  canRemoveContent,
-  canViewHistory,
-} from "./auth/member-history/index";
+export { HISTORY_ROLE, canRemoveContent, canViewHistory } from "./auth/member-history/index";
 
 // content — where a post goes, and what it may contain (E14.6, E20.2, E20.23)
 export {
