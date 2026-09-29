@@ -18,11 +18,8 @@ amount that depends on how surprising the result was.
 
 ## What counts
 
-Only **Monthly** events are rated: events with "Monthly" in the name, which an
+At this time, only **Monthly** events are rated: events with "Monthly" in the name, which an
 admin can override. Other events still count for the metagame.
-
-A match is rated only if the event reports **who played whom**. Pairings are never
-guessed from standings (ADR 006). Byes never count; elimination rounds do.
 
 ## The formula
 
@@ -43,9 +40,9 @@ Admins can change these settings.
 
 ## Recalculated, never edited
 
-The whole ladder is replayed from match results whenever anything changes
-(ADR 004). Results are stored against handles, not people (ADR 003), so linking
-two handles to one player merges their ratings without changing any results.
+The whole ladder is replayed from match results whenever anything changes.
+Results are stored against handles, not people, so linking two handles to
+one player merges their ratings without changing any results.
 
 ## Leaderboard
 
