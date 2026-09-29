@@ -8,7 +8,8 @@ import { InfoNav } from "./info-nav";
 const LINKS = [
   { href: "https://discord.gg/eeYH9XMCjT", label: "Discord" },
   { href: "https://www.reddit.com/r/planarMTG/", label: "Reddit" },
-  { href: "https://github.com/planarstandard", label: "GitHub" },
+  { href: "https://www.twitch.tv/planarstandardmtg", label: "Twitch" },
+  { href: "https://www.youtube.com/@PlanarStandardMTG", label: "YouTube" },
 ] as const;
 
 export function SiteFooter() {
