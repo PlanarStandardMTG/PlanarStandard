@@ -1,7 +1,6 @@
 /**
- * Some info pages publish a module doc verbatim. `/methodology` is the standing
- * example: §19 and Part VIII both require that a metric definition and the page
- * describing it cannot drift, so the page does not restate the doc — it embeds
+ * Some info pages publish a module doc verbatim. `/ratings-explained` is the
+ * standing example: a definition and the page describing it cannot drift, so the page does not restate the doc — it embeds
  * a region derived from it, and a test fails when the two disagree.
  *
  * Markers, not heuristics:

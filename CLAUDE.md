@@ -164,8 +164,8 @@ split it. Every module ships `index.ts` (usually under 60 lines), `index.test.ts
   `remarkInfoPageWhitelist` refuses raw JSX, brace expressions, and `import` at compile time. MDX's
   `components` prop cannot do this — it only intercepts Markdown-derived elements, so a literal
   `<script>` compiles straight past it.
-- **`/methodology` and `/ratings-explained` are generated, not written.** Their bodies come from
-  `docs/modules/metrics.md` and `ratings.md`, between the `publish:start` / `publish:end` markers. Edit
+- **`/ratings-explained` is generated, not written.** Its body comes from `docs/modules/ratings.md`,
+  between the `publish:start` / `publish:end` markers. Edit
   the doc, run `pnpm content:sync`, commit both — a test fails when they disagree (§19).
 - **A post's `kind` is who is speaking, not how far through review it is.** `official` is the format —
   B&R notices, season openings, event recaps, at `/news`; `community` is a member under their own
@@ -183,8 +183,8 @@ split it. Every module ships `index.ts` (usually under 60 lines), `index.test.ts
 - **Fixtures** (`fixtures/<source>/`) are real exports committed verbatim, with expected outputs as
   sibling `.expected.json`. Parser and adapter work is fixture-driven; a new edge case is a fixture plus
   a branch.
-- **Changing a metric definition also changes `content/pages/methodology.mdx`** — definitions are
-  published verbatim next to the code.
+- **Changing a metric definition also changes `docs/modules/metrics.md`** — definitions are
+  recorded in prose next to the code.
 - **Decisions are listed in §21 of the plan** (ADRs 001–014). `docs/adr/` is meant to hold one file
   each but holds only its README until E22.6; until then §21 and the plan sections it points to are the
   record. Check there before reopening a settled question.

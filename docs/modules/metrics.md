@@ -1,20 +1,13 @@
 # Metric definitions
 
-**This file is the source for `/methodology`.** Everything between the
-`publish:start` and `publish:end` markers below is copied verbatim into
-`content/pages/methodology.mdx`; a test fails when the two disagree, and
-`pnpm content:sync` resolves it. Blocks after a `publish:omit` marker stay here
-and do not reach the page (E17.12, §19).
+Every metric the site shows, defined in prose. The `/methodology` page that
+published this verbatim was retired at E17.16; this file is the record.
 
 Filled in per epic. Sections marked _pending_ land with the story named.
 
 ---
 
-<!-- publish:start -->
-
 ## Sample-size guardrails
-
-<!-- publish:omit -->
 
 _Module: `core/stats/suppress-small-n` (E10.3). Enforced in shared components
 (ADR 012). The two hide floors come from master plan §24._
@@ -42,8 +35,6 @@ after every deck with more.
 ---
 
 ## Deck metrics
-
-<!-- publish:omit -->
 
 _Modules: `core/metrics/*` (E6). Derived and recomputable (ADR 008)._
 
@@ -87,8 +78,6 @@ statistics until fixed.
 
 ## Similarity
 
-<!-- publish:omit -->
-
 _Modules: `core/similarity/deck-vector`, `weighted-jaccard`,
 `build-similarity-graph`, `force-layout` (E7). Layout coordinates travel with
 `layout_version`._
@@ -103,8 +92,6 @@ Basic lands and unresolved cards are ignored. Pairs at **0.5** or above are
 linked on the archetype map; at **0.85** or above they are flagged for a human as
 possible duplicates, never merged automatically. The map uses a seeded layout, so
 the same data always draws the same map.
-
-<!-- publish:end -->
 
 ## Ratings
 

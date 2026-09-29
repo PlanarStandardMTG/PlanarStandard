@@ -10,4 +10,4 @@ zero-cost non-land falls in bucket 1; the plan's bucket list has nowhere else fo
 it. Copy-weighted.
 
 Definition: [`docs/modules/metrics.md`](../../../../docs/modules/metrics.md),
-published verbatim at `/methodology`. Changing it means changing both in one PR.
+Changing it means changing both in one PR.

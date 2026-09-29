@@ -21,11 +21,11 @@ const context = { origin: "https://ps.test", format, cardName: () => "Lightning 
 describe("pageMarkdown", () => {
   it("writes the data components out and makes links absolute", () => {
     const text = pageMarkdown(
-      "{/* generated:start x */}\n\n<LegalSets />\n\n<Banlist />\n\nSee [FAQ](/faq).",
+      "{/* generated:start x */}\n\n<LegalSets />\n\n<Banlist />\n\nSee [the rules](/rules).",
       context,
     );
     expect(text).toBe(
-      "Legal sets (2026 pool): FDN (core), DFT.\n\n- Lightning Bolt: banned\n\nSee [FAQ](https://ps.test/faq).",
+      "Legal sets (2026 pool): FDN (core), DFT.\n\n- Lightning Bolt: banned\n\nSee [the rules](https://ps.test/rules).",
     );
   });
 

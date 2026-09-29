@@ -36,7 +36,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 14/15 |
-| E17  | MDX info pages                        | 2     | E16          | 🚧 14/15 |
+| E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
 | E20  | Feature slices                        | 3–10  | E18          | 🚧 37/48 |
@@ -842,6 +842,11 @@ TOs. The banlist names cards rather than printing oracle ids.
 outside the signed-in and admin surfaces and points at the sitemap; `/llms.txt` (llmstxt.org) indexes the
 rules and how to get involved first, with the current pool inline; `/llms-full.txt` is every info page as
 Markdown with `<LegalSets />` and `<Banlist />` written out from the live format.
+
+✅ **E17.16 — Retire faq, organizers and methodology** · S · Deps: E17.15 — the three pages go, with
+every link to them; the sitemap and `llms.txt` list only what remains.
+_Note:_ `docs/modules/metrics.md` stays as the record of every definition but is no longer published, so
+its `publish:` markers went with the page and the drift test now covers `/ratings-explained` alone.
 
 ---
 
@@ -1676,7 +1681,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
 | E5   | 6       | 6    | E16  | 15      | 14   |
-| E6   | 8       | 8    | E17  | 15      | 14   |
+| E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
 | E9   | 9       | 9    | E20  | 48      | 37   |
@@ -1686,4 +1691,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 6       | 4    |
 
-**218 of 289 stories done across 25 epics.**
+**219 of 290 stories done across 25 epics.**

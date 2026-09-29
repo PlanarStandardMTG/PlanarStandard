@@ -67,7 +67,7 @@ export type CardTypeBucket =
 
 /**
  * A multi-type card lands in more than one bucket, so these need not sum to the deck size.
- * The rule is pinned in `docs/modules/metrics.md` and published at `/methodology` (E6.3, E6.8).
+ * The rule is pinned in `docs/modules/metrics.md` (E6.3, E6.8).
  */
 export type TypeCounts = Readonly<Record<CardTypeBucket, number>>;
 

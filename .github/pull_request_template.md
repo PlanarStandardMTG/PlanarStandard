@@ -14,7 +14,7 @@ From §19 of `planar-standard-master-plan.md`. Tick every box or say why it does
 - [ ] Pure modules import nothing from `db`, `next`, `react`, or `@supabase/*`.
 - [ ] No new dependency without a line in the PR description explaining why.
 - [ ] Any user-visible rate or percentage goes through `suppress-small-n` and shows `n`.
-- [ ] Any changed metric definition is reflected in `content/pages/methodology.mdx`.
+- [ ] Any changed metric definition is reflected in `docs/modules/metrics.md`.
 - [ ] `pnpm lint && pnpm test && pnpm depcruise` pass.
 
 ## Breaking changes

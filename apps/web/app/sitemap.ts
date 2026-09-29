@@ -18,7 +18,6 @@ const PRIORITY: Readonly<Record<string, number>> = {
   "/": 1,
   "/rules": 0.9,
   "/getting-started": 0.9,
-  "/faq": 0.8,
   "/events": 0.8,
 };
 

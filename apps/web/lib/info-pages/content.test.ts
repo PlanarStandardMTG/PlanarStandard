@@ -17,7 +17,7 @@ describe("content/pages", () => {
     expect(new Set(orders).size).toBe(orders.length);
   });
 
-  it("ships the eight pages §25 names, plus the privacy notice", () => {
+  it("ships the §25 pages still in use, plus the privacy notice", () => {
     // `/privacy` is not in §25's list because §25 predates the site holding
     // anybody's data (E16.12). It is an info page by the same split rule: it
     // describes how the site works, and it should not be editable without a
@@ -28,10 +28,7 @@ describe("content/pages", () => {
         .sort(),
     ).toEqual([
       "/about",
-      "/faq",
       "/getting-started",
-      "/methodology",
-      "/organizers",
       "/privacy",
       "/ratings-explained",
       "/resources",
@@ -58,12 +55,9 @@ describe("published definitions do not drift (E17.12)", () => {
     ).toEqual([]);
   });
 
-  it("checks at least the two pages that have a source", () => {
+  it("checks the page that has a source", () => {
     const synced = syncContent({ write: false });
-    expect(synced.map((result) => result.source).sort()).toEqual([
-      "docs/modules/metrics.md",
-      "docs/modules/ratings.md",
-    ]);
+    expect(synced.map((result) => result.source)).toEqual(["docs/modules/ratings.md"]);
   });
 
   it("publishes the definitions themselves, not the doc's own notes", () => {

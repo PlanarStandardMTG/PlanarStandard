@@ -193,8 +193,8 @@ will see "insufficient data" rather than a number computed from four matches.
 ## It is open source
 
 Every number on this site is computed from data you can read, by code you can
-read. If a statistic looks wrong, the methodology page says exactly how it was
-derived, and the repository will take your pull request.
+read. If a statistic looks wrong, the code says exactly how it was derived, and
+the repository will take your pull request.
 $md$
 ),
 

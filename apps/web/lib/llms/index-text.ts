@@ -10,10 +10,7 @@ const REDDIT = "https://www.reddit.com/r/planarMTG/";
 /** Which `llms.txt` section an info page belongs in; anything unlisted goes under Optional. */
 const SECTIONS: Readonly<Record<string, "rules" | "involved" | "numbers">> = {
   "/rules": "rules",
-  "/faq": "rules",
   "/getting-started": "involved",
-  "/organizers": "involved",
-  "/methodology": "numbers",
   "/ratings-explained": "numbers",
 };
 

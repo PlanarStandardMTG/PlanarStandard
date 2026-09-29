@@ -87,7 +87,7 @@ Every PR, from §19 of the master plan:
 - [ ] Pure modules import nothing from `db`, `next`, `react`, or `@supabase/*`.
 - [ ] No new dependency without a line in the PR description explaining why.
 - [ ] Any user-visible rate or percentage goes through `suppress-small-n` and shows `n`.
-- [ ] Any changed metric definition is reflected in `content/pages/methodology.mdx`.
+- [ ] Any changed metric definition is reflected in `docs/modules/metrics.md`.
 - [ ] `pnpm lint && pnpm test && pnpm depcruise` pass.
 
 Changing an exported type in `packages/contracts` is a breaking change and must
