@@ -12,12 +12,13 @@ import { Notice } from "@/components/auth/form-parts";
 import { InclusionTable } from "@/components/processing/inclusion-table";
 import { RatingWindowForm } from "@/components/processing/rating-window-form";
 import { requireRole } from "@/lib/auth/guard";
+import { findCardMatches } from "@/lib/decks/match-deck-cards.server";
 import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";
 import { formatDate, formatDateTime } from "@/lib/format-date";
 import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
 import { createSessionClient } from "@/lib/supabase/session";
 
-import { include, recomputeNow, saveRatingWindow, setEventFormat } from "./actions";
+import { include, matchCards, recomputeNow, saveRatingWindow, setEventFormat } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -36,7 +37,8 @@ const BUTTON =
  * Every tournament from any source, and no external request — fetching is
  * `/admin/fetching`. Elo choices are staged and applied together, so several
  * changes cost one full replay (ADR 004). The dates Elo replays sit above
- * them (E25.6).
+ * them (E25.6), and decklist lines the card data has learned to read since
+ * they were saved below those (E20.56).
  */
 export default async function AdminProcessingPage({
   searchParams,
@@ -47,11 +49,13 @@ export default async function AdminProcessingPage({
   const params = await searchParams;
 
   const session = await createSessionClient();
-  const [coverage, window, [lastRun], versions] = await Promise.all([
+  const service = createServiceRoleClient();
+  const [coverage, window, [lastRun], versions, cards] = await Promise.all([
     listTournamentCoverage(session),
     getRatingWindow(session),
-    listRatingRuns(createServiceRoleClient(), 1),
+    listRatingRuns(service, 1),
     listFormatVersions(session),
+    findCardMatches(service),
   ]);
   const waiting = coverage.filter((row) => row.includeInElo !== row.tournament.isRated).length;
 
@@ -87,6 +91,15 @@ export default async function AdminProcessingPage({
         </Notice>
       )}
 
+      {params["done"] === "matched" && (
+        <Notice tone="good">
+          {params["lines"] === "1"
+            ? "1 decklist line"
+            : `${String(params["lines"])} decklist lines`}{" "}
+          matched.
+        </Notice>
+      )}
+
       <RatingWindowForm
         key={`${window.from}:${window.until ?? ""}`}
         initial={window}
@@ -112,6 +125,39 @@ export default async function AdminProcessingPage({
           </button>
         </form>
       </div>
+
+      {(cards.matches.length > 0 || cards.unmatched.length > 0) && (
+        <div className="mb-8 flex flex-wrap items-center gap-4 rounded-xl border border-ink-200 px-5 py-4 dark:border-ink-800">
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold">
+              {cards.matches.length === 0
+                ? "Every decklist line the card data can read is matched"
+                : `${cards.matches.length} unmatched ${cards.matches.length === 1 ? "card name" : "card names"} can now be matched`}
+            </p>
+            <p className="text-xs text-ink-500 dark:text-ink-400">
+              A decklist&rsquo;s cards are matched when it is saved, against the card data of the
+              time. After a set is added to the card data, this matches the lines that name its
+              cards.
+            </p>
+            {cards.unmatched.length > 0 && (
+              <details className="mt-2 text-xs text-ink-600 dark:text-ink-400">
+                <summary className="cursor-pointer">
+                  {cards.unmatched.length} {cards.unmatched.length === 1 ? "name" : "names"} the
+                  card data doesn&rsquo;t know
+                </summary>
+                <p className="mt-1">{cards.unmatched.join(" · ")}</p>
+              </details>
+            )}
+          </div>
+          {cards.matches.length > 0 && (
+            <form action={matchCards}>
+              <button type="submit" className={BUTTON}>
+                Match cards
+              </button>
+            </form>
+          )}
+        </div>
+      )}
 
       {coverage.length === 0 ? (
         <p className="text-sm text-ink-600 dark:text-ink-400">No tournament is stored yet.</p>

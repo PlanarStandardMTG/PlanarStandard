@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 44/55 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 45/56 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1375,6 +1375,15 @@ Community and Tournament; each tab says what it lists, and when it has nothing.
 _Note:_ added outside the plan. Replaces the Browse tab; `?view=community` and `?view=tournament`
 sit beside `?view=mine`.
 
+✅ **E20.56 — `admin`: match decklist lines once the card data can read them** · S · Deps: E18.10,
+E25.3 — a line's card is matched when the deck is saved, against the card data deployed then, so a
+set added to `data/sets.json` later left its cards unmatched in every deck saved before. Data
+processing now counts the unmatched names the current card data knows and matches them in one click.
+_AC:_ exact name matches only, never a fuzzy guess; a line already matched is never touched; the names
+still unknown are listed; matching works on every deck, private ones included.
+_Note:_ added outside the plan. An admin step rather than one run at deploy, because the card data
+changes by pull request and a deploy has no database write of its own.
+
 ---
 
 ## E21 — Season II backfill
@@ -1783,11 +1792,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 55      | 44   |
+| E9   | 9       | 9    | E20  | 56      | 45   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
 
-**230 of 301 stories done across 25 epics.**
+**231 of 302 stories done across 25 epics.**

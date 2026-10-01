@@ -36,7 +36,9 @@ snake_case row shape does not leave `rows.ts`.
   left when an event's lists are replaced — and never a member's import.
 - A card whose name did not resolve is stored with a null `oracle_id` and the
   deck is flagged (E18.10). Dropping the line would make a 60-card deck read as
-  59 and legal.
+  59 and legal. Names resolve against the card data deployed when the deck is
+  saved, so a set added later leaves its lines null until `matchDeckCards`
+  fills them in from `listUnmatchedCardNames` (E20.56, `/admin/processing`).
 - The listings select a narrower column set: `raw_import` is the whole decklist
   and `validation` is a verdict payload, and a browse page pulling both per row
   is a query that is fine at twelve decks and not at twelve hundred. `toDeck`

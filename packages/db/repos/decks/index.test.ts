@@ -24,6 +24,8 @@ import {
   listDecksWithCards,
   listMemberDecks,
   listPublicDecksBySeason,
+  listUnmatchedCardNames,
+  matchDeckCards,
   type NewDeck,
 } from "./index";
 
@@ -160,6 +162,48 @@ describe.skipIf(!reachable)("repos/decks", () => {
     expect(stored.cards[0]?.oracleId).toBeNull();
     expect(stored.cards[0]?.name).toBe("Llanowar Elfs");
     expect(stored.isLegal).toBe(false);
+  });
+
+  it("matches an unresolved line once the card data knows its name", async () => {
+    // E20.56: a set added to the card data after the deck was saved.
+    const elves = "6a0b230b-d391-4998-a3f7-7b158a0ec2cd" as OracleId;
+    const known = "8f2b1c4d-5e6a-4071-9b8c-2d3e4f5a6b70" as OracleId;
+    const stored = await write(deck({ name: "Before the set" }), [
+      card({ name: "Unmatched Test Elf" }),
+      card({ name: "Unmatched Test Elf", board: "side", quantity: 1 }),
+      card({ name: "Still Unmatched Test Card" }),
+      card({ name: "Matched Test Card", oracleId: known }),
+    ]);
+
+    const names = await listUnmatchedCardNames(service);
+    expect(names).toEqual(
+      expect.arrayContaining(["Unmatched Test Elf", "Still Unmatched Test Card"]),
+    );
+    expect(names).not.toContain("Matched Test Card");
+
+    expect(
+      await matchDeckCards(service, [
+        { name: "Unmatched Test Elf", oracleId: elves },
+        { name: "Matched Test Card", oracleId: elves },
+      ]),
+    ).toBe(2);
+    const after = await getDeckWithCards(service, stored.id);
+    expect(after?.cards.map((c) => [c.name, c.oracleId])).toEqual([
+      ["Matched Test Card", known],
+      ["Still Unmatched Test Card", null],
+      ["Unmatched Test Elf", elves],
+      ["Unmatched Test Elf", elves],
+    ]);
+  });
+
+  it("leaves unmatched-line matching to the service role", async () => {
+    const { error } = await client.rpc("unmatched_card_names");
+    expect(error).not.toBeNull();
+    await expect(
+      matchDeckCards(client, [
+        { name: "x", oracleId: "6a0b230b-d391-4998-a3f7-7b158a0ec2cd" as OracleId },
+      ]),
+    ).rejects.toThrow();
   });
 
   it("orders the list maindeck, sideboard, command zone, then by name", async () => {

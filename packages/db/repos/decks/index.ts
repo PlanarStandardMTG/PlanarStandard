@@ -3,6 +3,7 @@ import type {
   DeckCard,
   DeckId,
   DeckWithCards,
+  OracleId,
   PlayerId,
   ProfileId,
   SeasonId,
@@ -398,4 +399,30 @@ export async function adminRemoveDeck(
   const { data, error } = await client.rpc("admin_remove_deck", { p_deck_id: deckId });
   if (error !== null) throw new Error(`adminRemoveDeck failed: ${error.message}`);
   return data as "deleted" | "hidden";
+}
+
+/** Every card name a decklist line carries that did not resolve, once each (E20.56). */
+export async function listUnmatchedCardNames(
+  serviceClient: SupabaseClient,
+): Promise<readonly string[]> {
+  const { data, error } = await serviceClient.rpc("unmatched_card_names");
+  if (error !== null) throw new Error(`listUnmatchedCardNames failed: ${error.message}`);
+  return data as string[];
+}
+
+/**
+ * Give every unmatched line naming one of these cards its oracle id (E20.56).
+ * Lines that already have one are left alone. Returns how many were matched.
+ */
+export async function matchDeckCards(
+  serviceClient: SupabaseClient,
+  matches: readonly { readonly name: string; readonly oracleId: OracleId }[],
+): Promise<number> {
+  if (matches.length === 0) return 0;
+  const { data, error } = await serviceClient.rpc("match_deck_cards", {
+    p_names: matches.map((match) => match.name),
+    p_oracle_ids: matches.map((match) => match.oracleId),
+  });
+  if (error !== null) throw new Error(`matchDeckCards failed: ${error.message}`);
+  return data as number;
 }

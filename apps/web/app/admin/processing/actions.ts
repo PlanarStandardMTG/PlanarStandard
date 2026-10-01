@@ -6,6 +6,7 @@ import {
   applyEloInclusion,
   listFormatVersions,
   listTournamentCoverage,
+  matchDeckCards,
   setRatingWindow,
   setTournamentFormat,
   setTournamentInclusion,
@@ -15,6 +16,7 @@ import { redirect } from "next/navigation";
 
 import type { RatingWindowState } from "@/components/processing/rating-window-form";
 import { requireRole } from "@/lib/auth/guard";
+import { findCardMatches } from "@/lib/decks/match-deck-cards.server";
 import { recomputeRatings } from "@/lib/ratings/recompute-ratings.server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
 
@@ -51,6 +53,16 @@ export async function setEventFormat(id: string, formatVersionId: string) {
 
   await setTournamentFormat(service, id as TournamentId, formatVersionId as FormatVersionId);
   revalidatePath("/", "layout");
+}
+
+/** Match the decklist lines that name a card the card data has gained since (E20.56). */
+export async function matchCards(): Promise<never> {
+  await requireRole("admin");
+  const service = createServiceRoleClient();
+  const matched = await matchDeckCards(service, (await findCardMatches(service)).matches);
+
+  revalidatePath("/", "layout");
+  redirect(`/admin/processing?done=matched&lines=${matched}`);
 }
 
 /** Apply every staged Elo choice, then rebuild the ladder once (ADR 004). */
