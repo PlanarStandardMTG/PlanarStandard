@@ -1,5 +1,6 @@
 import type {
   DeckId,
+  FormatVersionId,
   IsoDate,
   PlayerId,
   SeasonId,
@@ -497,6 +498,24 @@ export async function setTournamentInclusion(
 
   if (error !== null) throw new Error(`setTournamentInclusion failed: ${error.message}`);
   return data.length > 0;
+}
+
+/**
+ * Put an event in a format version, and every deck the event made with it
+ * (E25.8). A member's own saved deck that an entry names keeps its owner's
+ * choice. Returns how many decks moved.
+ */
+export async function setTournamentFormat(
+  serviceClient: SupabaseClient,
+  tournamentId: TournamentId,
+  formatVersionId: FormatVersionId,
+): Promise<number> {
+  const { data, error } = await serviceClient.rpc("set_tournament_format", {
+    p_tournament_id: tournamentId,
+    p_format_version_id: formatVersionId,
+  });
+  if (error !== null) throw new Error(`setTournamentFormat failed: ${error.message}`);
+  return data as number;
 }
 
 /**

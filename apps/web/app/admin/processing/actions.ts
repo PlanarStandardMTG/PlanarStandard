@@ -1,11 +1,13 @@
 "use server";
 
-import type { TournamentId } from "@ps/contracts";
+import type { FormatVersionId, TournamentId } from "@ps/contracts";
 import { parseRatingWindow } from "@ps/core";
 import {
   applyEloInclusion,
+  listFormatVersions,
   listTournamentCoverage,
   setRatingWindow,
+  setTournamentFormat,
   setTournamentInclusion,
 } from "@ps/db";
 import { revalidatePath } from "next/cache";
@@ -38,6 +40,17 @@ export async function include(id: string, what: "elo" | "cardStats", on: boolean
     what === "elo" ? { elo: on } : { cardStats: on },
   );
   revalidatePath("/admin", "layout");
+}
+
+/** Put an event, and every deck it made, in another format version (E25.8). */
+export async function setEventFormat(id: string, formatVersionId: string) {
+  await requireRole("admin");
+  const service = createServiceRoleClient();
+  const versions = await listFormatVersions(service);
+  if (!versions.some((version) => version.id === formatVersionId)) return;
+
+  await setTournamentFormat(service, id as TournamentId, formatVersionId as FormatVersionId);
+  revalidatePath("/", "layout");
 }
 
 /** Apply every staged Elo choice, then rebuild the ladder once (ADR 004). */

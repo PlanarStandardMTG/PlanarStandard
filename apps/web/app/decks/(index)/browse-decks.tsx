@@ -37,7 +37,20 @@ type Params = Record<string, string | string[] | undefined>;
 /** Newest first unless `?sort=win-rate` asks otherwise. */
 type Sort = "newest" | "win-rate";
 
+/** Which decks a tab lists (E20.55): every one, members' own, or those from events. */
+export type DeckScope = "all" | "community" | "tournament";
+
+const NONE_YET: Record<DeckScope, [title: string, detail: string]> = {
+  all: ["No public decks yet", "Public decks will be listed here."],
+  community: [
+    "No community decks yet",
+    "Decks members import and make public will be listed here.",
+  ],
+  tournament: ["No tournament decks yet", "Decks played at events will be listed here."],
+};
+
 type Browse = DeckFilter & {
+  readonly scope: DeckScope;
   readonly text: string;
   /** A format version's id, or null for any. */
   readonly legal: string | null;
@@ -47,10 +60,14 @@ type Browse = DeckFilter & {
 const all = (value: string | string[] | undefined) =>
   value === undefined ? [] : Array.isArray(value) ? value : [value];
 
-/** The browser's state as the URL carries it: `?color=W&cards=Shock;Opt&legal=<id>&sort=win-rate&page=2`. */
-function readFilter(params: Params): Browse {
+/**
+ * The browser's state as the URL carries it:
+ * `?view=community&color=W&cards=Shock;Opt&legal=<id>&sort=win-rate&page=2`.
+ */
+function readFilter(scope: DeckScope, params: Params): Browse {
   const text = all(params["cards"])[0] ?? "";
   return {
+    scope,
     colors: COLORS.map((c) => c.color).filter((color) => all(params["color"]).includes(color)),
     cards: text
       .split(";")
@@ -64,6 +81,7 @@ function readFilter(params: Params): Browse {
 
 function pageHref(filter: Browse, page: number, sort: Sort = filter.sort) {
   const query = new URLSearchParams();
+  if (filter.scope !== "all") query.set("view", filter.scope);
   for (const color of filter.colors) query.append("color", color);
   if (filter.text.trim() !== "") query.set("cards", filter.text);
   if (filter.legal !== null) query.set("legal", filter.legal);
@@ -73,12 +91,29 @@ function pageHref(filter: Browse, page: number, sort: Sort = filter.sort) {
   return search === "" ? "/decks" : `/decks?${search}`;
 }
 
-/** The filter cleared, the sort kept. */
+/** The filter cleared, the tab and the sort kept. */
 const clearedHref = (filter: Browse) =>
   pageHref({ ...filter, colors: [], cards: [], text: "", legal: null }, 1);
 
 /**
- * The Browse tab (E20.40): every public deck at its newest version, narrowed
+ * A member's own import is a community deck; a deck an event made, or one
+ * played at an event, is a tournament deck. A member's deck taken to an event
+ * is both.
+ */
+function inScope(
+  scope: DeckScope,
+  deck: { readonly submittedVia: string | null },
+  lineage: readonly { readonly records: readonly unknown[] }[],
+): boolean {
+  const own = deck.submittedVia === "import";
+  if (scope === "community") return own;
+  if (scope === "tournament") return !own || lineage.some((version) => version.records.length > 0);
+  return true;
+}
+
+/**
+ * The All, Community and Tournament tabs (E20.40, E20.55): every public deck
+ * in the tab at its newest version, narrowed
  * by colour, card name and the format version it is legal in (E20.53), ten to
  * a page. Cards are not in Postgres, so the filter runs here against the card
  * index rather than in the query. Each deck shows who it is credited to and its
@@ -87,8 +122,8 @@ const clearedHref = (filter: Browse) =>
  * Legality is checked on every request against the version's rules as they are
  * now, whatever format the deck was saved for.
  */
-export async function BrowseDecks({ params }: { params: Params }) {
-  const asked = readFilter(params);
+export async function BrowseDecks({ scope, params }: { scope: DeckScope; params: Params }) {
+  const asked = readFilter(scope, params);
   const loaded = await load(async () => {
     const client = await createSessionClient();
     const [decks, versions] = await Promise.all([
@@ -108,7 +143,8 @@ export async function BrowseDecks({ params }: { params: Params }) {
   const rules = formatRules(legalIn);
   const matching = latestVersions(decks).flatMap(({ deck, lineage }) => {
     const resolved = toResolvedDeck(deck);
-    return matchesDeckFilter(resolved, index, filter) &&
+    return inScope(filter.scope, deck, lineage) &&
+      matchesDeckFilter(resolved, index, filter) &&
       (rules === null || checkDeck(resolved, rules, index).legal)
       ? [
           {
@@ -151,13 +187,13 @@ export async function BrowseDecks({ params }: { params: Params }) {
       </div>
 
       {shown.length === 0 ? (
-        <EmptyState title={filtering ? "No deck matches that filter" : "No public decks yet"}>
+        <EmptyState title={filtering ? "No deck matches that filter" : NONE_YET[filter.scope][0]}>
           {filtering ? (
             <Link href={clearedHref(filter)} className="underline underline-offset-2">
               Clear the filter
             </Link>
           ) : (
-            "Public decks will be listed here."
+            NONE_YET[filter.scope][1]
           )}
         </EmptyState>
       ) : (
@@ -252,6 +288,7 @@ function FilterMenu({
         action="/decks"
         className="absolute z-10 mt-2 w-72 max-w-[calc(100vw-2rem)] rounded-xl border border-ink-200 bg-paper p-4 shadow-lg dark:border-ink-800 dark:bg-ink-950"
       >
+        {filter.scope !== "all" && <input type="hidden" name="view" value={filter.scope} />}
         {filter.sort !== "newest" && <input type="hidden" name="sort" value={filter.sort} />}
         <fieldset>
           <legend className="mb-2 text-xs font-medium text-ink-500 dark:text-ink-400">

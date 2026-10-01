@@ -3,6 +3,7 @@ import { colorIdentity, eventRounds, type EventRound } from "@ps/core";
 import {
   getTournamentBySlug,
   listDecksWithCards,
+  listFormatVersions,
   listNamedEntries,
   listNamedMatchesByTournament,
   type MatchSide,
@@ -53,6 +54,8 @@ export interface TournamentView {
   readonly standings: readonly Standing[];
   readonly rounds: readonly EventRound<Pairing>[];
   readonly decks: number;
+  /** The format version it was played in (E25.8); null when it names none. */
+  readonly format: string | null;
 }
 
 const HIDDEN = "Hidden player";
@@ -69,9 +72,10 @@ export async function loadTournamentView(
   const tournament = await getTournamentBySlug(client, slug);
   if (tournament === null) return null;
 
-  const [entries, matches] = await Promise.all([
+  const [entries, matches, versions] = await Promise.all([
     listNamedEntries(client, [tournament.id]),
     listNamedMatchesByTournament(client, tournament.id),
+    listFormatVersions(client),
   ]);
   const decks = await listDecksWithCards(client, {
     ids: entries.flatMap((entry) => (entry.deckId === null ? [] : [entry.deckId])),
@@ -125,5 +129,6 @@ export async function loadTournamentView(
     standings,
     rounds: eventRounds(pairings),
     decks: standings.filter((standing) => standing.deck !== null).length,
+    format: versions.find((version) => version.id === tournament.formatVersionId)?.name ?? null,
   };
 }

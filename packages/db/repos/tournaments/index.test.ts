@@ -1,4 +1,11 @@
-import type { DeckId, IsoDate, PlayerId, SeasonId, TournamentId } from "@ps/contracts";
+import type {
+  DeckId,
+  FormatVersionId,
+  IsoDate,
+  PlayerId,
+  SeasonId,
+  TournamentId,
+} from "@ps/contracts";
 import { createClient } from "@supabase/supabase-js";
 import { afterAll, afterEach, describe, expect, it } from "vitest";
 
@@ -19,6 +26,7 @@ import {
   replaceTournamentEntries,
   saveSourcedTournament,
   setEntryDecks,
+  setTournamentFormat,
   setTournamentInclusion,
   applyEloInclusion,
   listTournamentCoverage,
@@ -57,6 +65,11 @@ const service = createClient(url, serviceKey);
 /** From `seed/0006_seasons.sql`. */
 const SEASON_I = "44444444-4444-4444-8444-000000000001" as SeasonId;
 const SEASON_II = "44444444-4444-4444-8444-000000000002" as SeasonId;
+/** From `seed/0004_format.sql`: the version in force, and a one-weekend special. */
+const PLANAR_STANDARD = "22222222-2222-4222-8222-000000000001" as FormatVersionId;
+const GAUNTLET = "22222222-2222-4222-8222-000000000002" as FormatVersionId;
+/** From `seed/0001_profiles.sql`. */
+const MEMBER = "11111111-1111-4111-8111-000000000002";
 
 async function tournamentId(slug: string): Promise<TournamentId> {
   const tournament = await getTournamentBySlug(client, slug);
@@ -277,6 +290,66 @@ describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () =>
     });
     const row = (await listTournamentCoverage(service)).find((r) => r.tournament.id === first.id);
     expect(row).toMatchObject({ includeInElo: false, inCardStats: false });
+  });
+
+  it("starts an event in the version in force, and moves the decks it made with it", async () => {
+    const event = await saveSourcedTournament(
+      service,
+      sourced({ externalId: `format-${run}`, slug: `vitest-format-${run}` }),
+    );
+    made.push(event.id);
+    expect(event.formatVersionId).toBe(PLANAR_STANDARD);
+
+    const [made1, made2] = [await makePlayer("event-deck"), await makePlayer("own-deck")];
+    const entry = { matchWins: 0, matchLosses: 0, matchDraws: 0, gameWins: 0, gameLosses: 0 };
+    await replaceTournamentEntries(service, event.id, [
+      { ...entry, playerId: made1, placement: 1, dropped: false },
+      { ...entry, playerId: made2, placement: 2, dropped: false },
+    ]);
+    const { data, error } = await service
+      .from("decks")
+      .insert([
+        {
+          name: "Event's",
+          player_id: made1,
+          submitted_via: "registration",
+          format_version_id: PLANAR_STANDARD,
+        },
+        {
+          name: "Member's",
+          owner_id: MEMBER,
+          submitted_via: "import",
+          format_version_id: PLANAR_STANDARD,
+        },
+      ])
+      .select("id");
+    if (error !== null) throw new Error(error.message);
+    const [eventDeck, ownDeck] = (data as { id: DeckId }[]).map((row) => row.id);
+    await setEntryDecks(service, event.id, [
+      { playerId: made1, deckId: eventDeck ?? null },
+      { playerId: made2, deckId: ownDeck ?? null },
+    ]);
+
+    expect(await setTournamentFormat(service, event.id, GAUNTLET)).toBe(1);
+    expect(await setTournamentFormat(service, event.id, GAUNTLET)).toBe(0);
+
+    const [moved] = await listTournamentsByIds(service, [event.id]);
+    expect(moved?.formatVersionId).toBe(GAUNTLET);
+    const { data: decks } = await service
+      .from("decks")
+      .select("id, format_version_id")
+      .in("id", [eventDeck, ownDeck]);
+    expect(Object.fromEntries((decks ?? []).map((d) => [d.id, d.format_version_id]))).toEqual({
+      [eventDeck as string]: GAUNTLET,
+      [ownDeck as string]: PLANAR_STANDARD,
+    });
+
+    await setEntryDecks(service, event.id, [
+      { playerId: made1, deckId: null },
+      { playerId: made2, deckId: null },
+    ]);
+    await service.from("decks").delete().in("id", [eventDeck, ownDeck]);
+    await service.from("tournament_entries").delete().eq("tournament_id", event.id);
   });
 
   it("reads events back by id, oldest first", async () => {

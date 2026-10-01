@@ -8,6 +8,7 @@ import {
   listDecksWithCards,
   listNamedEntries,
   setEntryDecks,
+  setTournamentFormat,
   type NamedEntry,
 } from "@ps/db";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -25,7 +26,8 @@ import { toDeckCards } from "@/lib/decks/deck-cards";
  * to a member (E20.39); the deck an earlier event made for the player with
  * exactly these cards, in any season, so its records add up (E20.46); or a new
  * deck, locked at the event (ADR 013). A deck an entry stops naming is deleted
- * if the event made it and nothing else uses it.
+ * if the event made it and nothing else uses it. Every deck an event made is
+ * in the event's format version (E25.8); a member's own keeps theirs.
  */
 
 export interface EventDeck {
@@ -133,6 +135,9 @@ export async function attachEventDecks(
 
   await setEntryDecks(service, tournament.id, links);
   await deleteUnusedEventDecks(service, replaced);
+  if (tournament.formatVersionId !== null) {
+    await setTournamentFormat(service, tournament.id, tournament.formatVersionId);
+  }
   return { attached: links.length, unchanged, problems };
 }
 

@@ -39,12 +39,12 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 43/54 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 44/55 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
-| E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 5/7   |
+| E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
 
 ---
 
@@ -1367,6 +1367,14 @@ _Note:_ added outside the plan. `decks.format` still says Planar Standard or Kit
 `format_version_id`, already there, now holds the member's choice rather than whatever was current
 at the save.
 
+✅ **E20.55 — `decks`: All, Community and Tournament tabs** · S · Deps: E20.40, E25.8 — `/decks`
+opens on All, every public deck; Community is the decks members imported; Tournament is the decks
+played at events. Your decks stays last.
+_AC:_ the filter, the sort and paging keep the tab; a member's deck taken to an event is in both
+Community and Tournament; each tab says what it lists, and when it has nothing.
+_Note:_ added outside the plan. Replaces the Browse tab; `?view=community` and `?view=tournament`
+sit beside `?view=mine`.
+
 ---
 
 ## E21 — Season II backfill
@@ -1666,6 +1674,17 @@ ago it was last fetched, how many events it holds, and when it is due again by i
 last attempt shows its error; an unconfigured platform's button is disabled; the outcome says how
 many events were newly queued.
 
+✅ **E25.8 — An event's format version** · S · Deps: E25.3, E20.54 — a fetched event starts in the
+format version in force, and so does every deck it makes; `/admin/processing` gains a Format column
+to move an event to another version, and the decks the event made move with it. The event's page
+names its format.
+_AC:_ a new tournament takes the current version whoever inserts it; moving an event moves its event
+decks in one transaction and leaves a member's own saved deck on its owner's choice; events and
+event decks stored before the change take the version in force.
+_Note:_ added outside the plan. `0045_tournament_format.sql` adds the insert trigger,
+`set_tournament_format`, and the backfill. A deck an event reused from an earlier one (E20.46)
+follows whichever event last set it.
+
 ---
 
 ## What's ready now
@@ -1764,11 +1783,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 54      | 43   |
+| E9   | 9       | 9    | E20  | 55      | 44   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
-|      |         |      | E25  | 7       | 5    |
+|      |         |      | E25  | 8       | 6    |
 
-**228 of 299 stories done across 25 epics.**
+**230 of 301 stories done across 25 epics.**

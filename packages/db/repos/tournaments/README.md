@@ -33,6 +33,9 @@ snake_case row shape does not leave `rows.ts`.
 - An entry with no placement sorts **last** rather than being dropped. A
   matches-only import knows who played and not who won, and those players were
   still there.
+- **A tournament always starts in a format version** — the one in force, set by
+  a trigger whoever inserts it (E25.8). `setTournamentFormat` moves the event
+  and the decks it made together; a member's own saved deck keeps its version.
 - An entry's `record` is `0-0-0` when the columns are unset, not an absent
   record. The columns default to zero, so a null means somebody wrote one.
 

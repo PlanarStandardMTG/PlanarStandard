@@ -1,5 +1,10 @@
 import { inRatingWindow } from "@ps/core";
-import { getRatingWindow, listRatingRuns, listTournamentCoverage } from "@ps/db";
+import {
+  getRatingWindow,
+  listFormatVersions,
+  listRatingRuns,
+  listTournamentCoverage,
+} from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -12,7 +17,7 @@ import { formatDate, formatDateTime } from "@/lib/format-date";
 import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
 import { createSessionClient } from "@/lib/supabase/session";
 
-import { include, recomputeNow, saveRatingWindow } from "./actions";
+import { include, recomputeNow, saveRatingWindow, setEventFormat } from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -26,7 +31,8 @@ const BUTTON =
   "dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-paper";
 
 /**
- * What each stored tournament counts towards (E25.3): Elo and card statistics.
+ * What each stored tournament counts towards (E25.3): Elo and card statistics,
+ * and the format version it was played in (E25.8).
  * Every tournament from any source, and no external request — fetching is
  * `/admin/fetching`. Elo choices are staged and applied together, so several
  * changes cost one full replay (ADR 004). The dates Elo replays sit above
@@ -41,10 +47,11 @@ export default async function AdminProcessingPage({
   const params = await searchParams;
 
   const session = await createSessionClient();
-  const [coverage, window, [lastRun]] = await Promise.all([
+  const [coverage, window, [lastRun], versions] = await Promise.all([
     listTournamentCoverage(session),
     getRatingWindow(session),
     listRatingRuns(createServiceRoleClient(), 1),
+    listFormatVersions(session),
   ]);
   const waiting = coverage.filter((row) => row.includeInElo !== row.tournament.isRated).length;
 
@@ -63,7 +70,8 @@ export default async function AdminProcessingPage({
           </Link>
           . A Monthly starts in both. Elo needs an event&rsquo;s matches, and card statistics its
           decklists. Elo changes wait until you recompute; card statistics are saved as you tick
-          them.
+          them. An event starts in the format version in force; changing it moves the decks the
+          event made with it, while a member&rsquo;s own deck keeps theirs.
         </p>
       </header>
 
@@ -126,8 +134,11 @@ export default async function AdminProcessingPage({
             outsideWindow: !inRatingWindow(row.tournament.eventDate, window),
             hasDecks: row.decks > 0,
             cardStats: row.inCardStats,
+            formatVersionId: row.tournament.formatVersionId,
           }))}
+          formats={versions.map((version) => ({ id: version.id, name: version.name }))}
           include={include}
+          setFormat={setEventFormat}
         />
       )}
     </>
