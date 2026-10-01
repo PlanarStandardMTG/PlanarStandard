@@ -271,7 +271,7 @@ otp_expiry = 3600
 # `content_path` is relative to the directory the CLI runs in, and
 # `supabase/templates` is symlinked to `packages/db/templates` by `pnpm db:setup`.
 [auth.email.template.confirmation]
-subject = "Confirm your Planar Standard account"
+subject = "Welcome to Planar Standard — please confirm your email"
 content_path = "./supabase/templates/confirmation.html"
 
 [auth.email.template.magic_link]
@@ -283,7 +283,7 @@ subject = "Reset your Planar Standard password"
 content_path = "./supabase/templates/recovery.html"
 
 [auth.email.template.email_change]
-subject = "Confirm your new email address"
+subject = "Please confirm your new email address"
 content_path = "./supabase/templates/email_change.html"
 
 # Uncomment to customize notification email template
