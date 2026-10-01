@@ -16,6 +16,7 @@ import { ColorPips } from "@/components/decks/color-pips";
 import { DeckLegality } from "@/components/decks/deck-legality";
 import { DeleteDeckButton } from "@/components/decks/delete-deck-button";
 import { DeckDisplay } from "@/components/decks/deck-display";
+import { FORMAT_LABELS } from "@/components/decks/format-labels";
 import { PlayedEvents } from "@/components/ui/played-events";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -23,7 +24,7 @@ import { Container } from "@/components/ui/container";
 import { currentViewer } from "@/lib/auth/viewer";
 import { buildDeckView, type DeckView } from "@/lib/decks/deck-view";
 import { deckAsText } from "@/lib/decks/deck-text";
-import { loadCurrentFormat } from "@/lib/format/current-format";
+import { loadDeckFormat } from "@/lib/format/current-format";
 import { formatDate } from "@/lib/format-date";
 import { PersonName } from "@/components/ui/person-name";
 import { createSessionClient } from "@/lib/supabase/session";
@@ -58,7 +59,8 @@ export async function generateMetadata({
 }
 
 /**
- * One deck, card by card, checked against its format (E20.6), and every other
+ * One deck, card by card, checked against the format version it was saved for
+ * (E20.6, E20.54), and every other
  * version of it (E20.30).
  */
 export default async function DeckPage({ params }: { params: Promise<{ id: string }> }) {
@@ -74,7 +76,7 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
   // An event deck is credited to whoever played it, and to nobody if that player is hidden.
   const [viewer, format, owner, player, versions] = await Promise.all([
     currentViewer(),
-    loadCurrentFormat(),
+    loadDeckFormat(deck.formatVersionId),
     deck.ownerId === null || deck.playerId !== null ? null : getProfile(session, deck.ownerId),
     deck.playerId === null ? null : getPlayer(session, deck.playerId),
     hidden ? [] : listDeckVersions(session, deck.id),
@@ -83,7 +85,8 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
   const played = await listPlayedEntries(session, {
     deckIds: versions.length === 0 ? [deck.id] : versions.map((version) => version.id),
   });
-  const view: DeckView = buildDeckView(deck, format.ok ? format.value : null);
+  const detail = format.ok ? format.value : null;
+  const view: DeckView = buildDeckView(deck, detail);
   const isOwner = viewer !== null && viewer.profile.id === deck.ownerId;
   const canManage = isOwner && !hidden && deck.submittedVia === "import" && deck.lockedAt === null;
   const latest = versions.at(-1) ?? deck;
@@ -113,7 +116,14 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
               {view.mainCount} cards
               {view.sideCount > 0 && ` · ${view.sideCount} sideboard`}
             </span>
-            <DeckLegality format={deck.format} verdict={view.verdict} />
+            <DeckLegality
+              label={
+                deck.format === "kitchen_table"
+                  ? FORMAT_LABELS.kitchen_table
+                  : (detail?.version.name ?? FORMAT_LABELS.planar_standard)
+              }
+              verdict={view.verdict}
+            />
             <ColorPips colors={view.colors} />
             {player !== null && (
               <span>

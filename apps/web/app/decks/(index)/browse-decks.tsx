@@ -14,7 +14,7 @@ import { getFormatDetail, listBrowsableDecks, listFormatVersions } from "@ps/db"
 import Link from "next/link";
 
 import { ColorPips } from "@/components/decks/color-pips";
-import { FORMAT_LABELS } from "@/components/decks/format-labels";
+import { deckFormatLabel } from "@/components/decks/format-labels";
 import { EmptyState, ErrorState } from "@/components/ui/states";
 import { cardIndex } from "@/lib/cards/card-index";
 import { formatRules, toResolvedDeck } from "@/lib/decks/deck-view";
@@ -183,7 +183,7 @@ export async function BrowseDecks({ params }: { params: Params }) {
                     </span>
                     <span className="flex shrink-0 items-center gap-3 text-xs text-ink-500 dark:text-ink-400">
                       <DeckRecord winRate={winRate} />
-                      <span>{FORMAT_LABELS[deck.format]}</span>
+                      <span>{deckFormatLabel(deck, versions)}</span>
                       <span className="whitespace-nowrap">{formatShortDate(deck.createdAt)}</span>
                     </span>
                   </span>

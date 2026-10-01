@@ -1,5 +1,5 @@
-import type { FormatVersionDetail } from "@ps/contracts";
-import { getCurrentFormatDetail } from "@ps/db";
+import type { FormatVersionDetail, FormatVersionId } from "@ps/contracts";
+import { getCurrentFormatDetail, getFormatDetail } from "@ps/db";
 
 import { load, type Loaded } from "@/lib/load";
 import { createPublicClient } from "@/lib/supabase/server";
@@ -13,4 +13,15 @@ import { createPublicClient } from "@/lib/supabase/server";
  */
 export async function loadCurrentFormat(): Promise<Loaded<FormatVersionDetail | null>> {
   return await load(async () => await getCurrentFormatDetail(createPublicClient()));
+}
+
+/** The version a deck was saved for (E20.54), or the one in force when it names none. */
+export async function loadDeckFormat(
+  formatVersionId: FormatVersionId | null,
+): Promise<Loaded<FormatVersionDetail | null>> {
+  return await load(async () => {
+    const client = createPublicClient();
+    const own = formatVersionId === null ? null : await getFormatDetail(client, formatVersionId);
+    return own ?? (await getCurrentFormatDetail(client));
+  });
 }

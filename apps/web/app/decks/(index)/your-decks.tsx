@@ -3,13 +3,14 @@ import { latestVersions, matchSavedDeck } from "@ps/core";
 import {
   getPlayerByProfile,
   listDecksWithCards,
+  listFormatVersions,
   listMemberDecks,
   listPlayedEntries,
   type PlayedEntry,
 } from "@ps/db";
 import Link from "next/link";
 
-import { FORMAT_LABELS } from "@/components/decks/format-labels";
+import { deckFormatLabel } from "@/components/decks/format-labels";
 import { PlayedEvents } from "@/components/ui/played-events";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState, ErrorState } from "@/components/ui/states";
@@ -28,9 +29,14 @@ export function YourDecks({ profileId }: { profileId: ProfileId }) {
 }
 
 async function OwnDecks({ ownerId }: { ownerId: Parameters<typeof listMemberDecks>[1] }) {
-  const decks = await load(async () => listMemberDecks(await createSessionClient(), ownerId));
-  if (!decks.ok) return <ErrorState title="Your decks could not be loaded" detail={decks.error} />;
-  if (decks.value.length === 0) {
+  const loaded = await load(async () => {
+    const client = await createSessionClient();
+    return await Promise.all([listMemberDecks(client, ownerId), listFormatVersions(client)]);
+  });
+  if (!loaded.ok)
+    return <ErrorState title="Your decks could not be loaded" detail={loaded.error} />;
+  const [decks, formats] = loaded.value;
+  if (decks.length === 0) {
     return <EmptyState title="No decks yet">Imported decks will be listed here.</EmptyState>;
   }
 
@@ -40,7 +46,7 @@ async function OwnDecks({ ownerId }: { ownerId: Parameters<typeof listMemberDeck
         Saved decks
       </h2>
       <ul className="divide-y divide-ink-200 rounded-xl border border-ink-200 dark:divide-ink-800 dark:border-ink-800">
-        {latestVersions(decks.value).map(({ deck, versions }) => (
+        {latestVersions(decks).map(({ deck, versions }) => (
           <li key={deck.id}>
             <Link
               href={`/decks/${deck.id}`}
@@ -48,7 +54,7 @@ async function OwnDecks({ ownerId }: { ownerId: Parameters<typeof listMemberDeck
             >
               <span className="font-medium">{deck.name}</span>
               <span className="flex items-center gap-3 text-xs text-ink-500 dark:text-ink-400">
-                <span>{FORMAT_LABELS[deck.format]}</span>
+                <span>{deckFormatLabel(deck, formats)}</span>
                 {versions > 1 && <span>{versions} versions</span>}
                 {deck.visibility !== "public" && (
                   <Badge variant="outline" className="capitalize">

@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 42/53 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 43/54 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1357,6 +1357,16 @@ _Note:_ added outside the plan. Checked on every request against the version's r
 whatever format the deck was saved for; a stored `deck_legality` table is the step to take if loading
 every deck per request ever gets slow.
 
+✅ **E20.54 — `decks`: a deck is built for a format version** · S · Deps: E20.30, E20.33 — the
+editor's format menu lists every format version an admin has made, the current one chosen by default,
+then Kitchen Table; the list is checked against the version chosen, and the deck keeps it.
+_AC:_ a saved deck's page checks it against its own version and names it; the deck lists name the
+version; editing a deck starts from its version; a deck with no version (an event's) is checked
+against the current one.
+_Note:_ added outside the plan. `decks.format` still says Planar Standard or Kitchen Table, and
+`format_version_id`, already there, now holds the member's choice rather than whatever was current
+at the save.
+
 ---
 
 ## E21 — Season II backfill
@@ -1754,11 +1764,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 53      | 42   |
+| E9   | 9       | 9    | E20  | 54      | 43   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 7       | 5    |
 
-**227 of 298 stories done across 25 epics.**
+**228 of 299 stories done across 25 epics.**

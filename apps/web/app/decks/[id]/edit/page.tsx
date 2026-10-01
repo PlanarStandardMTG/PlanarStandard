@@ -1,10 +1,11 @@
 import type { DeckId } from "@ps/contracts";
-import { getDeckWithCards, listDeckVersions } from "@ps/db";
+import { getDeckWithCards, listDeckVersions, listFormatVersions } from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { DeckEditorForm } from "@/components/decks/deck-editor-form";
+import { formatChoice, formatOptions } from "@/components/decks/format-labels";
 import { Container } from "@/components/ui/container";
 import { requireRole } from "@/lib/auth/guard";
 import { deckAsText } from "@/lib/decks/deck-text";
@@ -41,7 +42,11 @@ export default async function EditDeckPage({ params }: { params: Promise<{ id: s
     notFound();
   }
 
-  const latest = (await listDeckVersions(supabase, deck.id)).at(-1);
+  const [history, versions] = await Promise.all([
+    listDeckVersions(supabase, deck.id),
+    listFormatVersions(supabase),
+  ]);
+  const latest = history.at(-1);
   if (latest !== undefined && latest.id !== deck.id) redirect(`/decks/${latest.id}/edit`);
 
   return (
@@ -58,10 +63,11 @@ export default async function EditDeckPage({ params }: { params: Promise<{ id: s
       </p>
       <DeckEditorForm
         parentId={deck.id}
+        formats={formatOptions(versions)}
         initial={{
           name: deck.name,
           visibility: deck.visibility,
-          format: deck.format,
+          format: formatChoice(deck, versions),
           decklist: deck.rawImport ?? deckAsText(deck.cards),
         }}
       />

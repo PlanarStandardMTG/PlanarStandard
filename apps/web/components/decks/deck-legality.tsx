@@ -1,6 +1,4 @@
-import type { DeckFormat, LegalityVerdict } from "@ps/contracts";
-
-import { FORMAT_LABELS } from "@/components/decks/format-labels";
+import type { LegalityVerdict } from "@ps/contracts";
 
 /**
  * The deck's format, and whether it is legal there. Checked when the page is
@@ -8,14 +6,12 @@ import { FORMAT_LABELS } from "@/components/decks/format-labels";
  * The reasons are the editor's to show (E20.30).
  */
 export function DeckLegality({
-  format,
+  label,
   verdict,
 }: {
-  format: DeckFormat;
+  label: string;
   verdict: LegalityVerdict | null;
 }) {
-  const label = FORMAT_LABELS[format];
-
   return (
     <span className="inline-flex items-center gap-1.5">
       {label}

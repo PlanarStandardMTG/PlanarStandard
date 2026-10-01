@@ -43,11 +43,11 @@ export interface DeckView {
   readonly mainCount: number;
   readonly sideCount: number;
   readonly colors: readonly Color[];
-  /** Null when a Planar Standard deck has no version in force to check against. */
+  /** Null when a Planar Standard deck has no version to check against. */
   readonly verdict: LegalityVerdict | null;
 }
 
-/** The rules of the Planar Standard version in force, or null when none is. */
+/** A Planar Standard version's rules, or null for no version. */
 export function formatRules(format: FormatVersionDetail | null): FormatRules | null {
   return format === null
     ? null

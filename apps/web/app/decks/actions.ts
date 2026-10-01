@@ -1,9 +1,14 @@
 "use server";
 
 import { cardIndex } from "@/lib/cards/card-index";
-import type { DeckFormat, DeckId, LegalityVerdict, ResolvedDeck } from "@ps/contracts";
+import type {
+  DeckFormat,
+  DeckId,
+  FormatVersionDetail,
+  LegalityVerdict,
+  ResolvedDeck,
+} from "@ps/contracts";
 import {
-  DECK_FORMATS,
   checkDeckImport,
   checkDeckInFormat,
   readDecklist,
@@ -12,9 +17,10 @@ import {
 } from "@ps/core";
 import {
   createMemberDeck,
-  getCurrentFormatDetail,
+  getFormatDetail,
   hideMemberDeckVersions,
   listDeckVersions,
+  listFormatVersions,
 } from "@ps/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -34,7 +40,7 @@ import { createSessionClient } from "@/lib/supabase/session";
 export interface DraftCheck {
   readonly problems: readonly DeckImportProblem[];
   readonly unknownCards: readonly UnknownCard[];
-  /** Null when a Planar Standard deck has no version in force to check against. */
+  /** Null when the format chosen names no version to check against. */
   readonly verdict: LegalityVerdict | null;
 }
 
@@ -45,12 +51,27 @@ export interface SaveState {
   readonly error: string | null;
 }
 
-async function verdictFor(deck: ResolvedDeck, format: DeckFormat) {
-  const detail =
-    format === "planar_standard" ? await getCurrentFormatDetail(createPublicClient()) : null;
+interface ChosenFormat {
+  readonly format: DeckFormat;
+  readonly detail: FormatVersionDetail | null;
+}
+
+/** The editor's format menu answer: a format version's id, or Kitchen Table (E20.54). */
+async function readFormatChoice(choice: string): Promise<ChosenFormat | null> {
+  if (choice === "kitchen_table") return { format: "kitchen_table", detail: null };
+  const client = createPublicClient();
+  const version = (await listFormatVersions(client)).find((v) => v.id === choice);
+  if (version === undefined) return null;
+  return { format: "planar_standard", detail: await getFormatDetail(client, version.id) };
+}
+
+function verdictFor(deck: ResolvedDeck, chosen: ChosenFormat | null) {
   return {
-    formatVersionId: detail?.version.id ?? null,
-    verdict: checkDeckInFormat(deck, format, formatRules(detail), cardIndex()),
+    formatVersionId: chosen?.detail?.version.id ?? null,
+    verdict:
+      chosen === null
+        ? null
+        : checkDeckInFormat(deck, chosen.format, formatRules(chosen.detail), cardIndex()),
   };
 }
 
@@ -60,8 +81,7 @@ const needsConfirming = (check: Omit<DraftCheck, "problems">) =>
 export async function checkDraft(format: string, decklist: string): Promise<DraftCheck> {
   await requireRole("reader");
   const reading = readDecklist(decklist, cardIndex());
-  const deckFormat = DECK_FORMATS.find((f) => f === format) ?? "planar_standard";
-  const { verdict } = await verdictFor(reading.deck, deckFormat);
+  const { verdict } = verdictFor(reading.deck, await readFormatChoice(format));
   return { problems: reading.problems, unknownCards: reading.unknownCards, verdict };
 }
 
@@ -70,15 +90,16 @@ export async function saveDeck(_previous: SaveState, form: FormData): Promise<Sa
   const text = (name: string) => form.get(name)?.toString() ?? "";
   const decklist = text("decklist");
   const parentId = text("parent") === "" ? null : (text("parent") as DeckId);
+  const chosen = await readFormatChoice(text("format"));
 
   const check = checkDeckImport(
-    { name: text("name"), visibility: text("visibility"), format: text("format"), decklist },
+    { name: text("name"), visibility: text("visibility"), format: chosen?.format ?? "", decklist },
     cardIndex(),
   );
   if (!check.ok) return { problems: check.problems, confirm: null, error: null };
 
   const { name, visibility, format, deck, unknownCards } = check.value;
-  const { formatVersionId, verdict } = await verdictFor(deck, format);
+  const { formatVersionId, verdict } = verdictFor(deck, chosen);
   if (needsConfirming({ unknownCards, verdict }) && text("confirmed") !== "yes") {
     return { problems: [], confirm: { problems: [], unknownCards, verdict }, error: null };
   }

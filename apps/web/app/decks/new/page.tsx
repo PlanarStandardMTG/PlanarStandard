@@ -1,9 +1,12 @@
+import { listFormatVersions } from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import { DeckEditorForm } from "@/components/decks/deck-editor-form";
+import { formatChoice, formatOptions } from "@/components/decks/format-labels";
 import { Container } from "@/components/ui/container";
 import { requireRole } from "@/lib/auth/guard";
+import { createPublicClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
@@ -15,6 +18,7 @@ export const metadata: Metadata = {
 /** Paste a text list (E20.28, E20.30). Other list formats arrive as adapters later. */
 export default async function NewDeckPage() {
   await requireRole("reader");
+  const versions = await listFormatVersions(createPublicClient());
 
   return (
     <Container className="max-w-3xl py-12">
@@ -29,7 +33,15 @@ export default async function NewDeckPage() {
         Paste a list from Arena, MTGO or a text file. It is checked as you type; illegal decks can
         still be saved.
       </p>
-      <DeckEditorForm />
+      <DeckEditorForm
+        formats={formatOptions(versions)}
+        initial={{
+          name: "",
+          visibility: "public",
+          format: formatChoice(null, versions),
+          decklist: "",
+        }}
+      />
     </Container>
   );
 }

@@ -1,6 +1,5 @@
 "use client";
 
-import type { DeckFormat } from "@ps/contracts";
 import { DECK_NAME_MAX, DECKLIST_MAX, type DeckImportProblem, type UnknownCard } from "@ps/core";
 import {
   startTransition,
@@ -12,11 +11,11 @@ import {
 } from "react";
 
 import { checkDraft, saveDeck, type DraftCheck, type SaveState } from "@/app/decks/actions";
-import { FORMAT_LABELS } from "@/components/decks/format-labels";
+import type { FormatOption } from "@/components/decks/format-labels";
 
 /**
- * Write or edit a deck (E20.28, E20.30). The list is checked against its format
- * as the member types, and a deck that is not legal still saves once they say
+ * Write or edit a deck (E20.28, E20.30). The list is checked against the format
+ * version chosen (E20.54) as the member types, and a deck that is not legal still saves once they say
  * so — a brew is still a deck. The server action decides both; this component
  * only keeps the list from being lost on the way back.
  */
@@ -79,22 +78,18 @@ function legalityIssues(check: DraftCheck): string[] {
 export interface DeckDraft {
   readonly name: string;
   readonly visibility: string;
-  readonly format: DeckFormat;
+  /** A format version's id, or `kitchen_table`. */
+  readonly format: string;
   readonly decklist: string;
 }
 
-const BLANK: DeckDraft = {
-  name: "",
-  visibility: "public",
-  format: "planar_standard",
-  decklist: "",
-};
-
 export function DeckEditorForm({
-  initial = BLANK,
+  initial,
+  formats,
   parentId = null,
 }: {
-  initial?: DeckDraft;
+  initial: DeckDraft;
+  formats: readonly FormatOption[];
   /** The version being edited; the save becomes its successor. */
   parentId?: string | null;
 }) {
@@ -105,9 +100,12 @@ export function DeckEditorForm({
   });
   const [name, setName] = useState(initial.name);
   const [visibility, setVisibility] = useState(initial.visibility);
-  const [format, setFormat] = useState<DeckFormat>(initial.format);
+  const [format, setFormat] = useState(initial.format);
+  const labelOf = (value: string) =>
+    formats.find((option) => option.value === value)?.label ?? "the format";
   const [decklist, setDecklist] = useState(initial.decklist);
-  const [check, setCheck] = useState<DraftCheck | null>(null);
+  // Kept with the format it was made for: a reply can land after the menu has moved on.
+  const [check, setCheck] = useState<{ format: string; result: DraftCheck } | null>(null);
   const formRef = useRef<HTMLFormElement>(null);
   const dialogRef = useRef<HTMLDialogElement>(null);
 
@@ -119,7 +117,7 @@ export function DeckEditorForm({
     let current = true;
     const timer = setTimeout(() => {
       void checkDraft(format, decklist).then((result) => {
-        if (current) setCheck(result);
+        if (current) setCheck({ format, result });
       });
     }, CHECK_AFTER_MS);
     return () => {
@@ -177,12 +175,13 @@ export function DeckEditorForm({
             id="format"
             name="format"
             value={format}
-            onChange={(e) => setFormat(e.target.value as DeckFormat)}
+            onChange={(e) => setFormat(e.target.value)}
             className={FIELD}
           >
-            {Object.entries(FORMAT_LABELS).map(([value, label]) => (
-              <option key={value} value={value}>
-                {label}
+            {formats.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+                {option.current && " (current)"}
               </option>
             ))}
           </select>
@@ -235,7 +234,9 @@ export function DeckEditorForm({
           className={`${FIELD} font-mono`}
         />
         <Problems messages={about("decklist")} />
-        {check !== null && <CheckPanel format={format} check={check} />}
+        {check !== null && (
+          <CheckPanel format={check.format} label={labelOf(check.format)} check={check.result} />
+        )}
       </div>
 
       {state.error !== null && <Problems messages={[state.error]} />}
@@ -251,7 +252,7 @@ export function DeckEditorForm({
       >
         <h2 id="confirm-title" className="font-semibold">
           {state.confirm?.verdict?.legal === false
-            ? `This deck isn’t legal in ${FORMAT_LABELS[format]}`
+            ? `This deck isn’t legal in ${labelOf(format)}`
             : "Some cards weren’t recognised"}
         </h2>
         {state.confirm !== null && (
@@ -286,8 +287,15 @@ export function DeckEditorForm({
 }
 
 /** The list against its format, as it stands — kept current while the member types. */
-function CheckPanel({ format, check }: { format: DeckFormat; check: DraftCheck }) {
-  const label = FORMAT_LABELS[format];
+function CheckPanel({
+  format,
+  label,
+  check,
+}: {
+  format: string;
+  label: string;
+  check: DraftCheck;
+}) {
   const unreadable = check.problems.map(describe);
   const issues = legalityIssues(check);
   const unknown = check.unknownCards.map(describeUnknown);
@@ -296,7 +304,7 @@ function CheckPanel({ format, check }: { format: DeckFormat; check: DraftCheck }
     <div aria-live="polite" className="mt-3 space-y-2 text-sm">
       {check.verdict === null ? (
         <p className="rounded-lg border border-ink-200 px-3 py-2 text-ink-600 dark:border-ink-800 dark:text-ink-400">
-          No version of {label} is in force, so this deck can’t be checked yet.
+          Choose a format to check this deck against.
         </p>
       ) : check.verdict.legal ? (
         <p className="rounded-lg border border-emerald-200 bg-emerald-50/60 px-3 py-2 text-emerald-900 dark:border-emerald-900/60 dark:bg-emerald-950/30 dark:text-emerald-200">
