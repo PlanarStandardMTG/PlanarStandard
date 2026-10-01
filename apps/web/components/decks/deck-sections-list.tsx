@@ -32,7 +32,7 @@ export function DeckSectionsList({
           >
             {SECTION_LABELS[section.key]} ({section.count})
           </h2>
-          <ul>
+          <ul className="divide-y divide-ink-200/30 dark:divide-ink-800/30">
             {section.cards.map((card) => (
               <li key={`${card.board}-${card.name}`} className="flex gap-3 py-1">
                 <span className="w-4 shrink-0 text-right text-sm font-semibold tabular-nums">
