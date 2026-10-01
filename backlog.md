@@ -1343,7 +1343,7 @@ in (land first, then creature) is unchanged.
 
 ✅ **E20.52 — `decks`: mana costs in the text list** · XS · Deps: E20.51 — each line of a deck's
 text view, on `/decks/[id]` and in a post, ends with the card's mana cost in `mana-font` symbols,
-and a faint rule (the section rule at 30%) separates one line from the next.
+and a faint rule (the section rule at 30%, 50% in dark mode) separates one line from the next.
 _AC:_ hybrid and two-brid symbols render; a card with two halves shows its front cost; a land shows
 none; the symbols carry the cost as text for a screen reader.
 _Note:_ added outside the plan. Adds `mana-font`, which ADR 014 already allows.
