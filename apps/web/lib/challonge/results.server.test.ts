@@ -78,12 +78,23 @@ describe("lib/challonge/results", () => {
 
     expect(result).toEqual({
       status: "ok",
-      value: [{ id: "501", username: "pilot-7", finalRank: 1 }],
+      value: [{ id: "501", username: "pilot-7", typedName: null, finalRank: 1 }],
     });
     const text = JSON.stringify(result);
     for (const leaked of ["Jane", "example.com", "jane#1234", "0f3c"]) {
       expect(text).not.toContain(leaked);
     }
+  });
+
+  it("holds the typed name only for a participant with no account", async () => {
+    stubPages([
+      { ...PARTICIPANT, id: "505", attributes: { ...PARTICIPANT.attributes, username: null } },
+    ]);
+
+    expect(await getParticipants("16049001")).toEqual({
+      status: "ok",
+      value: [{ id: "505", username: null, typedName: "Jane Doe", finalRank: 1 }],
+    });
   });
 
   it("reads a match's players, winner and games per participant", async () => {

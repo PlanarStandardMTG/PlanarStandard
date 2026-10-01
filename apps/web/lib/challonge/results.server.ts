@@ -13,7 +13,10 @@ import { challongeGet, challongeGetAllPages, type ChallongeFetch } from "./trans
  * A participant is their Challonge id and their Challonge username and nothing
  * else. The username is kept because identity needs a handle to resolve and an
  * admin needs one to merge, as with melee (E12.12); the free-text `name` is not,
- * since an organiser can type anything there, a real name included.
+ * since an organiser can type anything there, a real name included. The one
+ * exception is a participant with no account, whose typed name is held in memory
+ * for `results-input.server.ts` to match against handles the site already knows
+ * (E12.15). It never reaches the payload.
  *
  * Scrubbing happens in memory on the way out of the fetch; the raw payload is
  * never returned, logged or stored. `transport.server.ts` cannot be imported from
@@ -40,6 +43,8 @@ export interface ChallongeTournament {
 export interface ChallongeParticipant {
   readonly id: string;
   readonly username: string | null;
+  /** Only when `username` is null: what an organiser typed. Matched, then dropped (E12.15). */
+  readonly typedName: string | null;
   readonly finalRank: number | null;
 }
 
@@ -107,10 +112,12 @@ export async function getParticipants(
       const participantId = asId(member["id"]);
       const attributes = asRecord(member["attributes"]);
       if (participantId === null || attributes === null) return [];
+      const username = asText(attributes["username"]);
       return [
         {
           id: participantId,
-          username: asText(attributes["username"]),
+          username,
+          typedName: username === null ? asText(attributes["name"]) : null,
           finalRank: asInt(attributes["final_rank"]),
         },
       ];

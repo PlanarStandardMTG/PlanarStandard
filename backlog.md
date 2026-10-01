@@ -31,7 +31,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E9   | Identity signals and scoring          | 4     | E2           | ✅ 9/9   |
 | E10  | Stats primitives                      | 8     | E2           | ✅ 3/3   |
 | E11  | Reddit transforms                     | 9     | —            | ✅ 6/6   |
-| E12  | Source adapters                       | 5     | E2           | 🚧 11/14 |
+| E12  | Source adapters                       | 5     | E2           | 🚧 12/15 |
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | ✅ 23/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
@@ -414,6 +414,18 @@ from there. Where the games and `winner_id` disagree, the winner stands with a
 free-text name. The fixture is invented, since a capture names people.
 _Outstanding:_ press "Re-run everything" once in production, so the Challonge events already
 marked processed are ingested.
+
+✅ **E12.15 — `challonge-api`: a participant added by name goes in under their known handle** · S ·
+Deps: E12.14, E18.20 — an organiser can add someone to a Challonge event as a typed name with no
+account. That name is matched against the handles the site already knows, by the same exact
+normalized match an import makes, and a match records them under that player's handle instead of a
+new `challonge-player-<id>`. _AC:_ no match, several players, a player already in the event, or a
+name that collides with another entrant's keeps the stand-in; the typed name is never written to the
+payload, the ledger or a player.
+_Note:_ added outside the plan. `getParticipants` holds `typedName` in memory for an account-less
+participant only; `fetchChallongeResultsInput` now takes the service client, swaps it for `knownAs`
+via `core/identity/known-handle-for-name`, and drops it. Events already ingested keep their stand-ins
+until they are re-fetched on `/admin/fetching`.
 
 ---
 
@@ -1699,7 +1711,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 
 | Epic | Stories | Done | Epic | Stories | Done |
 | ---- | ------- | ---- | ---- | ------- | ---- |
-| E1   | 9       | 9    | E12  | 14      | 11   |
+| E1   | 9       | 9    | E12  | 15      | 12   |
 | E2   | 9       | 9    | E13  | 23      | 23   |
 | E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
@@ -1714,4 +1726,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 6       | 4    |
 
-**222 of 293 stories done across 25 epics.**
+**223 of 294 stories done across 25 epics.**

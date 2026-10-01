@@ -78,6 +78,7 @@ export type { LayoutNode, LayoutOptions } from "./similarity/force-layout/index"
 // identity — handles to suggested merges (§8.6)
 export { normalizeHandle } from "./identity/normalize-handle/index";
 export { resolveHandles } from "./identity/resolve-handles/index";
+export { knownHandlesForNames } from "./identity/known-handle-for-name/index";
 export { playerSlug } from "./identity/player-slug/index";
 export { mergeBlockers } from "./identity/merge-blockers/index";
 export type { HandleResolution, ResolvedHandles } from "./identity/resolve-handles/index";

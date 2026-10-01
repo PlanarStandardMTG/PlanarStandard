@@ -66,6 +66,17 @@ describe("adapters/challonge-api", () => {
     expect(parsed.issues.map((i) => i.code)).toContain("missing-username");
   });
 
+  it("records a participant with no account under the handle the site already knew them by", () => {
+    const participants = (BUNDLE["participants"] as Record<string, unknown>[]).map((p) =>
+      p["id"] === "505" ? { ...p, knownAs: "Lantern_Bearer" } : p,
+    );
+    const parsed = challongeApi.parse(upload({ ...BUNDLE, participants }));
+
+    expect(parsed.roster?.map((r) => r.handle)).toContain("Lantern_Bearer");
+    expect(parsed.roster?.map((r) => r.handle)).not.toContain("challonge-player-505");
+    expect(parsed.issues.map((i) => i.code)).not.toContain("missing-username");
+  });
+
   it("never claims decklists", () => {
     expect(challongeApi.parse(upload(BUNDLE)).capabilities).toEqual([
       "matches",

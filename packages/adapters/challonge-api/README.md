@@ -11,7 +11,8 @@ results.
 rank. Never decklists — Challonge has none; the admin's sheet brings them (E20.37).
 
 **Gotchas.** The handle is the Challonge username; a participant without an
-account becomes `challonge-player-<id>`, never their free-text name. Where the
+account goes in under `knownAs`, the handle the site already knew their typed name
+as (E12.15), or else becomes `challonge-player-<id>`, never their free-text name. Where the
 games and `winner_id` disagree, the winner stands and the games are left out. A
 two-stage event lists its group matches and then its bracket's, which restart
 round at 1 and identifier at "A"; nothing else marks the stage, so the bracket starts

@@ -23,16 +23,17 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
  */
 export async function onTournamentCompleted(completion: EventCompletion): Promise<void> {
   const melee = completion.source === "melee";
+  const service = createServiceRoleClient();
   const fetched = melee
     ? await fetchMeleeResultsInput(Number(completion.externalId))
-    : await fetchChallongeResultsInput(completion.externalId);
+    : await fetchChallongeResultsInput(service, completion.externalId);
   if (fetched.status === "not-configured") {
     throw new Error(`${melee ? "melee.gg" : "Challonge"} credentials are not set`);
   }
   if (fetched.status === "failed") throw new Error(fetched.error);
 
   try {
-    await ingestEvent(createServiceRoleClient(), {
+    await ingestEvent(service, {
       source: completion.source,
       externalId: completion.externalId,
       adapter: melee ? meleeApi : challongeApi,

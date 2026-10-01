@@ -114,8 +114,9 @@ function parse(input: RawInput): ParsedEvent {
 
 /**
  * Participant id → who they are here. A participant with no Challonge account has
- * no username, so they get a stable stand-in an admin can merge later, never
- * their free-text name.
+ * no username: they go in under `knownAs`, the handle the site already knew their
+ * typed name as (E12.15), or else a stable stand-in an admin can merge later —
+ * never their free-text name.
  */
 function readParticipants(raw: readonly unknown[], issues: ParseIssue[]): Map<string, Participant> {
   const byId = new Map<string, Participant>();
@@ -124,7 +125,7 @@ function readParticipants(raw: readonly unknown[], issues: ParseIssue[]): Map<st
     const id = asText(record?.["id"]);
     if (record === null || id === undefined) continue;
 
-    const username = asText(record["username"]);
+    const username = asText(record["username"]) ?? asText(record["knownAs"]);
     if (username === undefined) {
       issues.push({
         code: "missing-username",
