@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 45/56 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 46/57 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1384,6 +1384,14 @@ still unknown are listed; matching works on every deck, private ones included.
 _Note:_ added outside the plan. An admin step rather than one run at deploy, because the card data
 changes by pull request and a deploy has no database write of its own.
 
+✅ **E20.57 — `admin`: confirm a suggested card for a misspelled line** · S · Deps: E20.56 — a name
+the card data doesn't know shows the closest card beside it on Data processing (`Day of Judgement →
+Day of Judgment?`), and an admin's Match puts every line with that name on that card.
+_AC:_ nothing is matched without the admin's click; the name stays as the list wrote it and the deck
+page shows the card's own; a name with no close card says so; a card id the card data doesn't hold is
+refused.
+_Note:_ added outside the plan.
+
 ---
 
 ## E21 — Season II backfill
@@ -1792,11 +1800,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 56      | 45   |
+| E9   | 9       | 9    | E20  | 57      | 46   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
 
-**231 of 302 stories done across 25 epics.**
+**232 of 303 stories done across 25 epics.**

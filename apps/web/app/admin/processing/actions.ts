@@ -1,6 +1,6 @@
 "use server";
 
-import type { FormatVersionId, TournamentId } from "@ps/contracts";
+import type { FormatVersionId, OracleId, TournamentId } from "@ps/contracts";
 import { parseRatingWindow } from "@ps/core";
 import {
   applyEloInclusion,
@@ -16,6 +16,7 @@ import { redirect } from "next/navigation";
 
 import type { RatingWindowState } from "@/components/processing/rating-window-form";
 import { requireRole } from "@/lib/auth/guard";
+import { cardIndex } from "@/lib/cards/card-index";
 import { findCardMatches } from "@/lib/decks/match-deck-cards.server";
 import { recomputeRatings } from "@/lib/ratings/recompute-ratings.server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
@@ -62,6 +63,22 @@ export async function matchCards(): Promise<never> {
   const matched = await matchDeckCards(service, (await findCardMatches(service)).matches);
 
   revalidatePath("/", "layout");
+  redirect(`/admin/processing?done=matched&lines=${matched}`);
+}
+
+/**
+ * Match the lines naming a card the card data can't read to the card an admin
+ * chose (E20.57) — a misspelling in the source list. The name stays as written.
+ */
+export async function confirmCardMatch(form: FormData): Promise<never> {
+  await requireRole("admin");
+  const name = form.get("name")?.toString() ?? "";
+  const oracleId = (form.get("oracle_id")?.toString() ?? "") as OracleId;
+  let matched = 0;
+  if (name !== "" && cardIndex().byOracleId.has(oracleId)) {
+    matched = await matchDeckCards(createServiceRoleClient(), [{ name, oracleId }]);
+    revalidatePath("/", "layout");
+  }
   redirect(`/admin/processing?done=matched&lines=${matched}`);
 }
 

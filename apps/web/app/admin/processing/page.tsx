@@ -18,7 +18,14 @@ import { formatDate, formatDateTime } from "@/lib/format-date";
 import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
 import { createSessionClient } from "@/lib/supabase/session";
 
-import { include, matchCards, recomputeNow, saveRatingWindow, setEventFormat } from "./actions";
+import {
+  confirmCardMatch,
+  include,
+  matchCards,
+  recomputeNow,
+  saveRatingWindow,
+  setEventFormat,
+} from "./actions";
 
 export const dynamic = "force-dynamic";
 
@@ -38,7 +45,7 @@ const BUTTON =
  * `/admin/fetching`. Elo choices are staged and applied together, so several
  * changes cost one full replay (ADR 004). The dates Elo replays sit above
  * them (E25.6), and decklist lines the card data has learned to read since
- * they were saved below those (E20.56).
+ * they were saved below those (E20.56), or that an admin matches by hand (E20.57).
  */
 export default async function AdminProcessingPage({
   searchParams,
@@ -143,9 +150,40 @@ export default async function AdminProcessingPage({
               <details className="mt-2 text-xs text-ink-600 dark:text-ink-400">
                 <summary className="cursor-pointer">
                   {cards.unmatched.length} {cards.unmatched.length === 1 ? "name" : "names"} the
-                  card data doesn&rsquo;t know
+                  card data doesn&rsquo;t know — confirm a suggestion to match a misspelling
                 </summary>
-                <p className="mt-1">{cards.unmatched.join(" · ")}</p>
+                <ul className="mt-2 divide-y divide-ink-100 dark:divide-ink-800">
+                  {cards.unmatched.map(({ name, suggestion }) => (
+                    <li key={name} className="flex flex-wrap items-center gap-x-3 gap-y-1 py-1.5">
+                      <span className="min-w-0 flex-1">
+                        {name}
+                        {suggestion !== null && (
+                          <>
+                            {" "}
+                            <span aria-hidden="true">→</span>{" "}
+                            <span className="text-ink-900 dark:text-ink-100">
+                              {suggestion.name}?
+                            </span>
+                          </>
+                        )}
+                      </span>
+                      {suggestion === null ? (
+                        <span className="text-ink-500">No close card</span>
+                      ) : (
+                        <form action={confirmCardMatch}>
+                          <input type="hidden" name="name" value={name} />
+                          <input type="hidden" name="oracle_id" value={suggestion.oracleId} />
+                          <button
+                            type="submit"
+                            className="rounded-md border border-ink-300 px-2 py-0.5 font-medium text-ink-800 hover:bg-ink-100 dark:border-ink-700 dark:text-ink-200 dark:hover:bg-ink-800"
+                          >
+                            Match
+                          </button>
+                        </form>
+                      )}
+                    </li>
+                  ))}
+                </ul>
               </details>
             )}
           </div>
