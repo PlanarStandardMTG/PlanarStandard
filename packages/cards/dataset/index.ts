@@ -20,7 +20,7 @@ import { buildCardIndex } from "@ps/core";
  * argument and stays pure.
  *
  * Reads are synchronous and deliberately so. It happens once, the files are
- * about 2.4 MB, and an async loader would make every caller async to save a few
+ * a few megabytes, and an async loader would make every caller async to save a few
  * milliseconds on one call in the life of the process.
  */
 
@@ -55,7 +55,7 @@ function read<T>(dir: URL, file: string): T {
 /**
  * The three files under `data/cards/`, parsed.
  *
- * Memoized per directory: the default call is the same 2.4 MB every time, and
+ * Memoized per directory: the default call is the same few megabytes every time, and
  * parsing it per request is the kind of cost that never shows up in one trace
  * and shows up in all of them.
  *
@@ -81,8 +81,8 @@ export function loadCardDataset(dir: URL = defaultDir()): CardDataset {
 /**
  * The dataset, turned into the lookup maps, once per process.
  *
- * Building the index is the expensive half — three maps over 1,826 cards and
- * 2,916 printings — so memoizing the dataset without memoizing this would leave
+ * Building the index is the expensive half — three maps over every card and
+ * printing — so memoizing the dataset without memoizing this would leave
  * most of the cost in place.
  */
 export function loadCardIndex(dir: URL = defaultDir()): CardIndex {
