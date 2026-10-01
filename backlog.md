@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 41/52 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 42/53 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1348,6 +1348,15 @@ _AC:_ hybrid and two-brid symbols render; a card with two halves shows its front
 none; the symbols carry the cost as text for a screen reader.
 _Note:_ added outside the plan. Adds `mana-font`, which ADR 014 already allows.
 
+✅ **E20.53 — `decks`: filter the browser by the format a deck is legal in** · S · Deps: E20.40, E20.33 —
+the deck browser's filter gains a "Legal in" choice listing every format version an admin has made,
+and shows only the decks whose cards pass that version's rules.
+_AC:_ `?legal=<version id>` narrows the list and combines with colour, cards, sort and paging; the
+version's sets, bans, exceptions and deck shape all count; an id that names no version filters nothing.
+_Note:_ added outside the plan. Checked on every request against the version's rules as they stand,
+whatever format the deck was saved for; a stored `deck_legality` table is the step to take if loading
+every deck per request ever gets slow.
+
 ---
 
 ## E21 — Season II backfill
@@ -1745,11 +1754,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 52      | 41   |
+| E9   | 9       | 9    | E20  | 53      | 42   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 7       | 5    |
 
-**226 of 297 stories done across 25 epics.**
+**227 of 298 stories done across 25 epics.**
