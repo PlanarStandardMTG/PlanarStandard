@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 40/51 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 41/52 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1341,6 +1341,12 @@ browser like the layout; corners are `4.75% / 3.5%` on the grid, the hover previ
 _Note:_ added outside the plan. The order is `core/decklist/deck-sections`; which section a card goes
 in (land first, then creature) is unchanged.
 
+✅ **E20.52 — `decks`: mana costs in the text list** · XS · Deps: E20.51 — each line of a deck's
+text view, on `/decks/[id]` and in a post, ends with the card's mana cost in `mana-font` symbols.
+_AC:_ hybrid and two-brid symbols render; a card with two halves shows its front cost; a land shows
+none; the symbols carry the cost as text for a screen reader.
+_Note:_ added outside the plan. Adds `mana-font`, which ADR 014 already allows.
+
 ---
 
 ## E21 — Season II backfill
@@ -1738,11 +1744,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 51      | 40   |
+| E9   | 9       | 9    | E20  | 52      | 41   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 7       | 5    |
 
-**225 of 296 stories done across 25 epics.**
+**226 of 297 stories done across 25 epics.**

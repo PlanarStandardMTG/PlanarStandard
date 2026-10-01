@@ -1,13 +1,14 @@
 import type { DeckSection } from "@ps/core";
 
 import { CardHoverLink } from "@/components/decks/card-hover-link";
+import { ManaCost } from "@/components/decks/mana-cost";
 import { SECTION_LABELS } from "@/components/decks/section-labels";
 import type { DeckViewCard } from "@/lib/decks/deck-view";
 
 /**
  * A deck as a text list, section by section, flowed into as many columns as
- * the screen fits, each section's cards in the order given. Hovering a name
- * shows its card.
+ * the screen fits, each section's cards in the order given, each with its
+ * mana cost. Hovering a name shows its card.
  */
 export function DeckSectionsList({
   sections,
@@ -44,6 +45,7 @@ export function DeckSectionsList({
                 >
                   {card.name}
                 </CardHoverLink>
+                <ManaCost cost={card.manaCost} className="ml-auto shrink-0 self-center text-xs" />
               </li>
             ))}
           </ul>
