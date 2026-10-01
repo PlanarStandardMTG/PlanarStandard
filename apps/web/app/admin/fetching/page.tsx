@@ -1,5 +1,5 @@
-import type { EventCompletion } from "@ps/contracts";
-import { completionStatus, type CompletionStatus } from "@ps/core";
+import type { EventCompletion, EventSyncState } from "@ps/contracts";
+import { completionStatus, EVENT_SYNC_INTERVAL_MS, type CompletionStatus } from "@ps/core";
 import {
   listCompletions,
   listNamedEntries,
@@ -17,13 +17,15 @@ import type { BadgeVariant } from "@/components/ui/badge";
 import { Placement } from "@/components/ui/marks";
 import { requireRole } from "@/lib/auth/guard";
 import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";
-import { formatDate } from "@/lib/format-date";
+import { listCalendarSyncs, type CalendarSync } from "@/lib/events/sync-events.server";
+import { formatDate, formatTimeAgo } from "@/lib/format-date";
 import { createSessionClient } from "@/lib/supabase/session";
 
 import {
   fetchNow,
   refetchEvent,
   refetchEverything,
+  refreshCalendar,
   uploadDecklists,
   type EventKey,
 } from "./actions";
@@ -55,6 +57,10 @@ const BUTTON =
   "rounded-lg bg-ink-900 px-4 py-2 text-sm font-medium text-white hover:bg-ink-700 " +
   "dark:bg-ink-100 dark:text-ink-900 dark:hover:bg-paper";
 
+const OUTLINE_BUTTON =
+  "rounded-lg border border-ink-300 px-4 py-2 text-sm text-ink-700 hover:border-ink-500 " +
+  "disabled:opacity-50 dark:border-ink-700 dark:text-ink-300 dark:hover:border-ink-500";
+
 /**
  * Where finished events come in from their platforms (E25.2): the fetch queue
  * (E23.13), and what each fetch did not bring back. The only admin page that
@@ -72,9 +78,10 @@ export default async function AdminFetchingPage({
   const now = new Date();
 
   const client = await createSessionClient();
-  const [completions, coverage] = await Promise.all([
+  const [completions, coverage, calendars] = await Promise.all([
     listCompletions(client, SHOWN),
     listTournamentCoverage(client),
+    listCalendarSyncs(),
   ]);
   const stored = new Map(
     coverage.flatMap((row) =>
@@ -124,6 +131,8 @@ export default async function AdminFetchingPage({
       </header>
 
       <Outcome params={params} />
+
+      <Calendars calendars={calendars} now={now} />
 
       <dl className="mb-6 grid grid-cols-3 gap-3">
         {(
@@ -322,6 +331,68 @@ async function MissingDecklists({
   );
 }
 
+/**
+ * Each platform's calendar is what queues a finished event, and it refreshes
+ * itself on a page view once its last attempt is two hours old
+ * (`core/events/sync-window`). These buttons skip the wait (E25.7).
+ */
+function Calendars({ calendars, now }: { calendars: readonly CalendarSync[]; now: Date }) {
+  return (
+    <section className="mt-6 mb-8 rounded-xl border border-ink-200 p-5 dark:border-ink-800">
+      <h2 className="font-semibold">Calendars</h2>
+      <p className="mt-1 max-w-prose text-sm text-ink-600 dark:text-ink-400">
+        A finished event joins the queue when its platform&rsquo;s calendar is next refreshed, which
+        happens by itself every two hours. Refresh one now if an event has just finished. Each press
+        spends a request, and Challonge allows 500 a month.
+      </p>
+      <ul className="mt-4 divide-y divide-ink-200 dark:divide-ink-800">
+        {calendars.map(({ source, configured, sync }) => (
+          <li key={source} className="flex flex-wrap items-center justify-between gap-3 py-3">
+            <div className="text-sm">
+              <p className="font-medium">{EVENT_SOURCE_LABELS[source]}</p>
+              <p className="text-ink-600 dark:text-ink-400">
+                {configured ? lastFetched(sync, now) : "Not configured on this deployment."}
+              </p>
+              {configured && sync !== null && sync.lastError !== null && (
+                <p className="text-red-700 dark:text-red-400">
+                  The last attempt
+                  {sync.lastAttemptedAt === null
+                    ? ""
+                    : `, ${formatTimeAgo(sync.lastAttemptedAt, now)},`}{" "}
+                  failed: {sync.lastError}
+                </p>
+              )}
+            </div>
+            <form action={refreshCalendar}>
+              <input type="hidden" name="source" value={source} />
+              <button type="submit" disabled={!configured} className={OUTLINE_BUTTON}>
+                Refresh {EVENT_SOURCE_LABELS[source]}
+              </button>
+            </form>
+          </li>
+        ))}
+      </ul>
+    </section>
+  );
+}
+
+function lastFetched(sync: EventSyncState | null, now: Date): string {
+  if (sync === null || sync.lastSucceededAt === null) return "Never fetched.";
+  const fetched = `Fetched ${formatTimeAgo(sync.lastSucceededAt, now)}, ${sync.eventCount} ${sync.eventCount === 1 ? "event" : "events"}.`;
+  if (sync.lastAttemptedAt === null) return fetched;
+  const dueInMs = Date.parse(sync.lastAttemptedAt) + EVENT_SYNC_INTERVAL_MS - now.getTime();
+  return dueInMs <= 0
+    ? `${fetched} Due again on the next page view.`
+    : `${fetched} Due again ${formatTimeUntil(dueInMs)}.`;
+}
+
+function formatTimeUntil(ms: number): string {
+  const minutes = Math.ceil(ms / 60_000);
+  if (minutes < 60) return `in ${minutes} minute${minutes === 1 ? "" : "s"}`;
+  const hours = Math.round(minutes / 60);
+  return `in about ${hours} hour${hours === 1 ? "" : "s"}`;
+}
+
 function Outcome({ params }: { params: Record<string, string | string[] | undefined> }) {
   const value = (key: string) => (typeof params[key] === "string" ? params[key] : undefined);
 
@@ -338,6 +409,32 @@ function Outcome({ params }: { params: Record<string, string | string[] | undefi
         {failed > 0 ? `; ${failed} failed and will be retried` : ""}.
       </Notice>
     );
+  }
+  if (value("done") === "calendar") {
+    const source = value("source") === "melee" ? "melee" : "challonge";
+    const label = EVENT_SOURCE_LABELS[source];
+    const queued = Number(value("queued") ?? 0);
+    switch (value("outcome")) {
+      case "refreshed":
+        return (
+          <Notice tone="good">
+            Refreshed {label}: {value("events") ?? 0} events
+            {queued > 0
+              ? `, and ${queued} newly finished ${queued === 1 ? "one" : "ones"} queued. Press "Fetch now" to fetch ${queued === 1 ? "it" : "them"}.`
+              : ", and nothing new has finished."}
+          </Notice>
+        );
+      case "busy":
+        return <Notice tone="warn">{label} was being refreshed already. Try again shortly.</Notice>;
+      case "not-configured":
+        return <Notice tone="warn">{label} is not configured on this deployment.</Notice>;
+      default:
+        return (
+          <Notice tone="warn">
+            {label} could not be refreshed: {value("reason") ?? "unknown error"}.
+          </Notice>
+        );
+    }
   }
   if (value("done") === "requeued") {
     return (

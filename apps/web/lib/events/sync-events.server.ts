@@ -139,19 +139,64 @@ async function readSyncStates(calendars: readonly Calendar[]): Promise<readonly 
  * the page, and not the other platform's refresh either.
  */
 async function refreshIfDue(calendar: Calendar, now: Date): Promise<void> {
+  const outcome = await refresh(calendar, syncCutoff(now), now);
+  if (outcome.status === "failed") {
+    console.error(`${calendar.source} event refresh failed:`, outcome.error);
+  }
+}
+
+export type CalendarRefresh =
+  | { readonly status: "refreshed"; readonly events: number; readonly queued: number }
+  | { readonly status: "busy" }
+  | { readonly status: "not-configured" }
+  | { readonly status: "failed"; readonly error: string };
+
+/**
+ * An admin's refresh of one calendar, whatever its window says (E25.7). It
+ * still claims, with a cutoff of now, so the attempt restarts the window as a
+ * page view's would.
+ */
+export async function refreshCalendarNow(
+  source: EventSource,
+  now: Date = new Date(),
+): Promise<CalendarRefresh> {
+  const calendar = CALENDARS.find((candidate) => candidate.source === source);
+  if (calendar === undefined || !calendar.isConfigured()) return { status: "not-configured" };
+  return refresh(calendar, now.toISOString(), now);
+}
+
+export interface CalendarSync {
+  readonly source: EventSource;
+  readonly configured: boolean;
+  readonly sync: EventSyncState | null;
+}
+
+/** Every calendar's ledger row, configured or not, for the admin's fetching page. */
+export async function listCalendarSyncs(): Promise<readonly CalendarSync[]> {
+  const service = createServiceRoleClient();
+  return Promise.all(
+    CALENDARS.map(async (calendar) => ({
+      source: calendar.source,
+      configured: calendar.isConfigured(),
+      sync: await getSyncState(service, calendar.source),
+    })),
+  );
+}
+
+async function refresh(calendar: Calendar, cutoff: string, now: Date): Promise<CalendarRefresh> {
   const { source } = calendar;
 
   try {
     const service = createServiceRoleClient();
-    const claimed = await claimSyncWindow(service, source, syncCutoff(now), now.toISOString());
-    if (!claimed) return;
+    const claimed = await claimSyncWindow(service, source, cutoff, now.toISOString());
+    if (!claimed) return { status: "busy" };
 
     const result = await calendar.fetchEvents();
 
     if (result.status !== "ok") {
       const error = result.status === "failed" ? result.error : `${source} is not configured`;
       await recordSyncResult(service, source, { error });
-      return;
+      return { status: "failed", error };
     }
 
     const events = calendar.parse(result.payload);
@@ -161,19 +206,18 @@ async function refreshIfDue(calendar: Calendar, now: Date): Promise<void> {
     // Queued first so a failed replace costs a retry next window, while a
     // replace that landed without its queue row would lose the event for good.
     const previous = await listCachedEvents(service, source);
-    await recordCompletions(service, source, newlyCompleted(previous, events), fetchedAt);
+    const finished = newlyCompleted(previous, events);
+    await recordCompletions(service, source, finished, fetchedAt);
 
     await replaceEvents(service, source, events, fetchedAt);
     await recordSyncResult(service, source, {
       succeededAt: fetchedAt,
       eventCount: events.length,
     });
+    return { status: "refreshed", events: events.length, queued: finished.length };
   } catch (cause) {
     // The window has already been claimed at this point, so a failure here costs
     // one interval of staleness and not a retry storm.
-    console.error(
-      `${source} event refresh failed:`,
-      cause instanceof Error ? cause.message : String(cause),
-    );
+    return { status: "failed", error: cause instanceof Error ? cause.message : String(cause) };
   }
 }

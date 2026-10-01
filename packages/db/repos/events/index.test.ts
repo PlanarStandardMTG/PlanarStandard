@@ -223,6 +223,14 @@ describe.skipIf(!reachable)("repos/events", () => {
     ).toBe(true);
   });
 
+  it("lets an admin's refresh, with a cutoff of now, claim inside the window", async () => {
+    await claimSyncWindow(service, TEST_SOURCE, "2026-09-15T10:00:00.000Z", FETCHED_AT);
+    const later = new Date(Date.parse(FETCHED_AT) + 60_000).toISOString();
+
+    expect(await claimSyncWindow(service, TEST_SOURCE, later, later)).toBe(true);
+    expect(await claimSyncWindow(service, TEST_SOURCE, later, later)).toBe(false);
+  });
+
   it("spends the window on a failed refresh, and remembers why", async () => {
     await claimSyncWindow(service, TEST_SOURCE, "2026-09-15T10:00:00.000Z", FETCHED_AT);
     await recordSyncResult(service, TEST_SOURCE, { error: "challonge responded 429" });

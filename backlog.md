@@ -44,7 +44,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
-| E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 4/6   |
+| E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 5/7   |
 
 ---
 
@@ -1621,6 +1621,15 @@ _Note:_ the migration starts the window where the current season does, so the fi
 after it rates what the last one did. The leaderboard's two-event threshold still counts rated
 events from before the start date, as it counted past seasons.
 
+✅ **E25.7 — Refresh a calendar now** · S · Deps: E25.2, E23.12 — a refresh button for Challonge and
+one for melee.gg on `/admin/fetching`, for when an event has just finished and the two-hour window
+(`core/events/sync-window`) has not yet opened.
+_AC:_ each button fetches that platform's calendar whatever its window says, through the same claim
+and ledger row as a page view's refresh, and queues what it finds finished; beside each is how long
+ago it was last fetched, how many events it holds, and when it is due again by itself; a failed
+last attempt shows its error; an unconfigured platform's button is disabled; the outcome says how
+many events were newly queued.
+
 ---
 
 ## What's ready now
@@ -1724,6 +1733,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
-|      |         |      | E25  | 6       | 4    |
+|      |         |      | E25  | 7       | 5    |
 
-**223 of 294 stories done across 25 epics.**
+**224 of 295 stories done across 25 epics.**

@@ -16,6 +16,7 @@ import type { UploadState } from "@/components/fetching/decklist-upload-form";
 import { requireRole } from "@/lib/auth/guard";
 import { attachEventDecks } from "@/lib/decks/attach-event-decks.server";
 import { processCompletedEvents } from "@/lib/events/process-completions.server";
+import { refreshCalendarNow } from "@/lib/events/sync-events.server";
 import { REFETCH_CONFIRMATION } from "@/lib/jobs/refetch-confirmation";
 import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
 import { createSessionClient } from "@/lib/supabase/session";
@@ -34,6 +35,27 @@ export async function fetchNow(): Promise<never> {
   redirect(
     `/admin/fetching?done=fetched&fetched=${report.processed}&failed=${report.failed.length}`,
   );
+}
+
+/**
+ * One platform's calendar, now, rather than when its two-hour window next
+ * opens (E25.7). What it finds finished joins the queue for "Fetch now".
+ */
+export async function refreshCalendar(form: FormData): Promise<never> {
+  await requireRole("admin");
+  const source = form.get("source");
+  if (source !== "challonge" && source !== "melee") redirect("/admin/fetching");
+
+  const outcome = await refreshCalendarNow(source);
+
+  revalidatePath("/", "layout");
+  const query = new URLSearchParams({ done: "calendar", source, outcome: outcome.status });
+  if (outcome.status === "refreshed") {
+    query.set("events", String(outcome.events));
+    query.set("queued", String(outcome.queued));
+  }
+  if (outcome.status === "failed") query.set("reason", outcome.error);
+  redirect(`/admin/fetching?${query.toString()}`);
 }
 
 export async function refetchEverything(form: FormData): Promise<never> {

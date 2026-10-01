@@ -95,6 +95,12 @@ visitors each decide independently that a refresh was due.
 schedule two hours stale is worth far more to a visitor than an error page, and
 the "refreshed N hours ago" line at the foot of the page is how they find out.
 
+**An admin can skip the wait.** `/admin/fetching` shows when each calendar was
+last fetched and has a refresh button per platform (E25.7). It claims with a
+cutoff of now rather than two hours ago, so it goes through the same ledger row,
+restarts that calendar's window, and queues what it finds finished. Each press
+is one request against the month's budget.
+
 ## Where the credentials live
 
 `CHALLONGE_API_KEY` and `CHALLONGE_COMMUNITY` are production secrets held in
