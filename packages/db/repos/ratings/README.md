@@ -1,7 +1,7 @@
 # `repos/ratings`
 
 **Purpose.** Read and write the rating tables (E13.20): the config every K comes
-from, the dates Elo replays (E25.6), the leaderboard, one player's standing and history, and the single write a
+from, the dates Elo replays (E25.6), the leaderboard and who is unranked, one player's standing and history, and the single write a
 recompute makes.
 
 **Inputs.** A `SupabaseClient`. The reads take the public client and are covered
@@ -32,6 +32,9 @@ by policies that follow the player's visibility. `replaceRatings`,
 - A player under the event threshold has a rating and is not on the
   leaderboard. `getPlayerRating` still returns it: they are off the board, not
   unrated.
+- `listUnrankedPlayers` reads `unranked_players`, which is defined against the
+  `leaderboard` view: everyone public with an entry in a published event who is
+  not on it. A player is in exactly one of the two lists.
 - A hidden player is absent from the read entirely, not merely from the view.
   Their matches still moved everyone else's numbers.
 - **Every `numeric` goes through `Number`.** PostgREST returns them as JSON

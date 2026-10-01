@@ -7,6 +7,7 @@ import type {
   RatingEvent,
   RatingRun,
   RatingWindow,
+  UnrankedPlayerRow,
 } from "@ps/contracts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -16,16 +17,19 @@ import {
   LEADERBOARD_COLUMNS,
   RATING_COLUMNS,
   RUN_COLUMNS,
+  UNRANKED_COLUMNS,
   toLeaderboardRow,
   toPlayerRating,
   toRatingConfig,
   toRatingEvent,
   toRatingRun,
+  toUnrankedPlayerRow,
   type LeaderboardViewRow,
   type PlayerRatingRow,
   type RatingConfigRow,
   type RatingEventRow,
   type RatingRunRow,
+  type UnrankedPlayerViewRow,
 } from "./rows";
 
 /**
@@ -99,6 +103,26 @@ export async function getLeaderboard(
 
   if (error !== null) throw new Error(`getLeaderboard failed: ${error.message}`);
   return (data as unknown as LeaderboardViewRow[]).map(toLeaderboardRow);
+}
+
+/**
+ * Everyone who has played in an event and is not on the leaderboard, by name (E20.50).
+ *
+ * The view is defined against `leaderboard`, so a player is in exactly one of the two.
+ */
+export async function listUnrankedPlayers(
+  client: SupabaseClient,
+  limit: number,
+): Promise<readonly UnrankedPlayerRow[]> {
+  const { data, error } = await client
+    .from("unranked_players")
+    .select(UNRANKED_COLUMNS)
+    .order("display_name", { ascending: true })
+    .order("slug", { ascending: true })
+    .limit(limit);
+
+  if (error !== null) throw new Error(`listUnrankedPlayers failed: ${error.message}`);
+  return (data as unknown as UnrankedPlayerViewRow[]).map(toUnrankedPlayerRow);
 }
 
 /**

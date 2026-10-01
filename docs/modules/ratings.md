@@ -47,10 +47,10 @@ one player merges their ratings without changing any results.
 ## Leaderboard
 
 The leaderboard covers the rated events between two dates an admin sets, both
-included; with no end date it runs to the newest event. A player appears on it
-once they have played in 2 or more rated events, counting ones before the start
-date, so a returning player is ranked from their first event in it. A bye is not playing. Before that they
-have a rating but no place.
+included; with no end date it runs to the newest event. A player is ranked once
+they have played in a rated event between those dates. A bye is not playing.
+Everyone else who has played in an event is listed after the ranked players as
+unranked, so the whole community is on the page.
 
 ## Anomalies
 

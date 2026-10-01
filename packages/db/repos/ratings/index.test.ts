@@ -9,6 +9,7 @@ import {
   getRatingWindow,
   listRatingHistory,
   listRatingRuns,
+  listUnrankedPlayers,
   recordRatingRun,
   replaceRatings,
   setRatingWindow,
@@ -172,7 +173,10 @@ describe.skipIf(!reachable)("repos/ratings", () => {
       await service.from("matches").delete().in("source_import_id", imports);
       await service.from("result_imports").delete().in("id", imports);
     }
-    if (created.length > 0) await service.from("players").delete().in("id", created);
+    if (created.length > 0) {
+      await service.from("tournament_entries").delete().in("player_id", created);
+      await service.from("players").delete().in("id", created);
+    }
     imports.length = 0;
     created.length = 0;
   });
@@ -187,7 +191,7 @@ describe.skipIf(!reachable)("repos/ratings", () => {
       kStandard: 32,
       kElite: 32,
       provisionalMatches: 0,
-      minEventsForLeaderboard: 2,
+      minEventsForLeaderboard: 1,
       countByes: false,
     });
   });
@@ -280,12 +284,11 @@ describe.skipIf(!reachable)("repos/ratings", () => {
       [top, second, hidden, once, byed].map(identityOf),
     );
 
-    // Two rated events each, in different seasons, for all but `once` and
-    // `byed`: one event, and a bye in the other, which is not playing.
+    // One rated event is enough, in any season; `byed` has only a bye, which
+    // is not playing.
     await aMatchIn(LEDGER_TOURNAMENT, topId, secondId);
     await aMatchIn(OTHER_RATED_TOURNAMENT, topId, secondId);
     await aMatchIn(LEDGER_TOURNAMENT, hiddenId, onceId);
-    await aMatchIn(OTHER_RATED_TOURNAMENT, hiddenId, byedId);
     await aMatchIn(LEDGER_TOURNAMENT, byedId, null);
 
     await replaceRatings(
@@ -302,7 +305,39 @@ describe.skipIf(!reachable)("repos/ratings", () => {
 
     const board = await getLeaderboard(client, 10);
     // Each excluded player would otherwise have been at the top.
-    expect(board.map((row) => row.rating)).toEqual([1900, 1800]);
+    expect(board.map((row) => row.rating)).toEqual([1950, 1900, 1800]);
+  });
+
+  it("lists everyone who has played and is not ranked, by name", async () => {
+    const ranked = await makePlayer("ranked");
+    const opponent = await makePlayer("opponent");
+    const unrated = await makePlayer("unrated");
+    const hidden = await makePlayer("hidden", "hidden");
+    await makePlayer("never-played");
+    const [rankedId, opponentId] = await Promise.all([ranked, opponent].map(identityOf));
+    await aMatchIn(LEDGER_TOURNAMENT, rankedId, opponentId);
+    await replaceRatings(service, [rating(ranked), rating(opponent)], []);
+
+    const ledger = await tournamentId(LEDGER_TOURNAMENT);
+    const other = await tournamentId(OTHER_RATED_TOURNAMENT);
+    const { error } = await service.from("tournament_entries").insert([
+      { tournament_id: ledger, player_id: ranked },
+      { tournament_id: ledger, player_id: opponent },
+      // Two events, so the newer date is the one shown.
+      { tournament_id: other, player_id: unrated },
+      { tournament_id: ledger, player_id: unrated },
+      { tournament_id: ledger, player_id: hidden },
+    ]);
+    if (error !== null) throw new Error(`could not create entries: ${error.message}`);
+
+    const ours = (await listUnrankedPlayers(client, 500)).filter((row) => created.includes(row.id));
+    // Not the ranked pair, the hidden player, or someone with no event at all.
+    expect(ours).toEqual([
+      expect.objectContaining({ id: unrated, displayName: "unrated", lastPlayed: "2026-08-08" }),
+    ]);
+    expect((await getLeaderboard(client, 10)).map((row) => row.id).sort()).toEqual(
+      [ranked, opponent].sort(),
+    );
   });
 
   it("still gives a player under the event threshold their own rating", async () => {

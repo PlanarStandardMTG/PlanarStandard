@@ -186,6 +186,17 @@ export interface LeaderboardRow {
 }
 
 /**
+ * One row of the `unranked_players` view: a public player who has played in an
+ * event and is not on the leaderboard (E20.50). Listed after the ladder, by name.
+ */
+export interface UnrankedPlayerRow {
+  readonly id: PlayerId;
+  readonly slug: string;
+  readonly displayName: string;
+  readonly lastPlayed: IsoDate;
+}
+
+/**
  * One `rating_runs` row — the log that answers "why did the leaderboard change".
  *
  * `anomalies` is what replay found and did not throw over (E8.5): a recompute

@@ -9,6 +9,7 @@ import type {
   RatingRunId,
   PlayerRating,
   TournamentId,
+  UnrankedPlayerRow,
 } from "@ps/contracts";
 
 /**
@@ -75,6 +76,13 @@ export interface LeaderboardViewRow {
   readonly last_played: string | null;
 }
 
+export interface UnrankedPlayerViewRow {
+  readonly id: string;
+  readonly slug: string;
+  readonly display_name: string;
+  readonly last_played: string;
+}
+
 export interface RatingRunRow {
   readonly id: string;
   readonly trigger: string;
@@ -100,6 +108,8 @@ export const EVENT_COLUMNS =
 export const LEADERBOARD_COLUMNS =
   "id, slug, display_name, rating, peak_rating, matches_played, wins, losses, draws, " +
   "tournaments_played, last_played";
+
+export const UNRANKED_COLUMNS = "id, slug, display_name, last_played";
 
 export const RUN_COLUMNS =
   "id, trigger, match_count, player_count, duration_ms, anomalies, created_at";
@@ -161,6 +171,15 @@ export function toLeaderboardRow(row: LeaderboardViewRow): LeaderboardRow {
     losses: row.losses,
     draws: row.draws,
     tournamentsPlayed: row.tournaments_played,
+    lastPlayed: row.last_played,
+  };
+}
+
+export function toUnrankedPlayerRow(row: UnrankedPlayerViewRow): UnrankedPlayerRow {
+  return {
+    id: row.id as PlayerId,
+    slug: row.slug,
+    displayName: row.display_name,
     lastPlayed: row.last_played,
   };
 }

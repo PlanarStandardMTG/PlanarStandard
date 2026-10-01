@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 38/49 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 39/50 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1310,6 +1310,15 @@ given becomes a thumbs up; the database refuses a colour.
 _Note:_ added outside the plan. Migration 0043 converts and then checks rather than dropping the enum's
 values, which Postgres cannot do without rebuilding the type.
 
+✅ **E20.50 — `leaderboard`: one rated event to rank, and everyone else listed as unranked** · S ·
+Deps: E20.44 — a player ranks after playing in a single rated event rather than 2, and everyone who has
+played in an event and is not ranked appears after the ranked players with a rank of "Unranked".
+_AC:_ unranked players follow the ladder by name, with dashes where a rating would be; search and
+paging cover both; the line under the table says what it takes to rank.
+_Note:_ added outside the plan. `0044_unranked_players.sql` sets `min_events_for_leaderboard` to 1 and
+adds the `unranked_players` view, defined against `leaderboard` so a player is in exactly one of the
+two. New `UnrankedPlayerRow` in contracts and `listUnrankedPlayers` in `repos/ratings`.
+
 ---
 
 ## E21 — Season II backfill
@@ -1698,11 +1707,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 49      | 38   |
+| E9   | 9       | 9    | E20  | 50      | 39   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 6       | 4    |
 
-**221 of 292 stories done across 25 epics.**
+**222 of 293 stories done across 25 epics.**

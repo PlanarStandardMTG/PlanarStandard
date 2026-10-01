@@ -1,10 +1,10 @@
-import type { LeaderboardRow, RatingWindow } from "@ps/contracts";
-import { getLeaderboard, getRatingConfig, getRatingWindow } from "@ps/db";
+import type { LeaderboardRow, RatingWindow, UnrankedPlayerRow } from "@ps/contracts";
+import { getLeaderboard, getRatingConfig, getRatingWindow, listUnrankedPlayers } from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SeasonBadge } from "@/components/layout/season-badge";
-import { RatingsTable } from "@/components/leaderboard/ratings-table";
+import { RatingsTable, type LadderRow } from "@/components/leaderboard/ratings-table";
 import { Container } from "@/components/ui/container";
 import { PageHeader } from "@/components/ui/page-header";
 import { Pager } from "@/components/ui/pager";
@@ -28,8 +28,8 @@ const PAGE_SIZE = 10;
 
 /**
  * The ladder over the dates an admin chose (E20.12, E20.44, E25.6), ten to a page and filtered by
- * name. Who qualifies is the `leaderboard` view's question; a player under the
- * event threshold is rated but absent, and the line under the table says why.
+ * name. Who qualifies is the `leaderboard` view's question; everyone else who has played follows
+ * the ranked players as unranked, by name (E20.50).
  */
 export default async function LeaderboardPage({
   searchParams,
@@ -40,12 +40,13 @@ export default async function LeaderboardPage({
   const query = typeof params["q"] === "string" ? params["q"].trim() : "";
   const client = createPublicClient();
   const data = await load(async () => {
-    const [window, config, ranked] = await Promise.all([
+    const [window, config, ranked, unranked] = await Promise.all([
       getRatingWindow(client),
       getRatingConfig(client),
       getLeaderboard(client, LIMIT),
+      listUnrankedPlayers(client, LIMIT),
     ]);
-    return { window, config, ranked };
+    return { window, config, ranked, unranked };
   });
 
   return (
@@ -65,17 +66,22 @@ export default async function LeaderboardPage({
           <ErrorState title="Could not load the leaderboard" detail={data.error} />
         ) : (
           <>
-            {data.value.ranked.length === 0 ? (
+            {data.value.ranked.length + data.value.unranked.length === 0 ? (
               <EmptyState title="Nobody is ranked yet">
-                The leaderboard fills in after the second rated event.
+                The leaderboard fills in after the first rated event.
               </EmptyState>
             ) : (
-              <Ladder rows={data.value.ranked} query={query} page={params["page"]} />
+              <Ladder
+                ranked={data.value.ranked}
+                unranked={data.value.unranked}
+                query={query}
+                page={params["page"]}
+              />
             )}
             <p className="mt-8 text-sm text-ink-500 dark:text-ink-400">
-              Can&rsquo;t find your name? Players need to play in{" "}
-              {data.value.config.minEventsForLeaderboard} or more events to appear on the
-              leaderboard.
+              Players are ranked once they have played in{" "}
+              {describeThreshold(data.value.config.minEventsForLeaderboard)}. Everyone else who has
+              played in an event is listed after them as unranked.
             </p>
           </>
         )}
@@ -90,21 +96,28 @@ function describeWindow(window: RatingWindow): string {
     : `from ${formatDate(window.from)} to ${formatDate(window.until)}`;
 }
 
+function describeThreshold(events: number): string {
+  return events === 1 ? "a rated event" : `${events} or more rated events`;
+}
+
 function Ladder({
-  rows,
+  ranked,
+  unranked,
   query,
   page,
 }: {
-  rows: readonly LeaderboardRow[];
+  ranked: readonly LeaderboardRow[];
+  unranked: readonly UnrankedPlayerRow[];
   query: string;
   page: string | string[] | undefined;
 }) {
   const needle = query.toLowerCase();
-  const ranked = rows.map((row, i) => ({ rank: i + 1, row }));
+  const rows: LadderRow[] = [
+    ...ranked.map((row, i) => ({ rank: i + 1, row })),
+    ...unranked.map((row) => ({ rank: null, row })),
+  ];
   const matching =
-    needle === ""
-      ? ranked
-      : ranked.filter(({ row }) => row.displayName.toLowerCase().includes(needle));
+    needle === "" ? rows : rows.filter(({ row }) => row.displayName.toLowerCase().includes(needle));
   const shown = pageOf(matching, page, PAGE_SIZE);
   const href = (n: number) => {
     const search = new URLSearchParams();
@@ -151,10 +164,10 @@ function Ladder({
 
       {matching.length === 0 ? (
         <p className="text-ink-500 dark:text-ink-400">
-          No ranked player has &ldquo;{query}&rdquo; in their name.
+          No player has &ldquo;{query}&rdquo; in their name.
         </p>
       ) : (
-        <RatingsTable rows={shown.items} caption="Ranked players" />
+        <RatingsTable rows={shown.items} caption="Players, ranked then unranked" />
       )}
       <Pager page={shown.page} pages={shown.pages} href={href} />
     </>
