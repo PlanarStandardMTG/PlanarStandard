@@ -263,7 +263,7 @@ export const EMBED_RENDERERS: { readonly [N in EmbedName]: EmbedRenderer } = {
                 width={244}
                 height={340}
                 loading="lazy"
-                className="h-auto w-[244px] max-w-full rounded-[4.75%/3.5%] shadow-md"
+                className="h-auto w-[244px] max-w-full rounded-card shadow-md"
               />
             )}
           </a>

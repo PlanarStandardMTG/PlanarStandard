@@ -27,7 +27,7 @@ export function DeckSectionsGrid({ sections }: { sections: readonly DeckSection<
               <li key={`${card.board}-${card.name}`}>
                 <a href={card.scryfallUrl} target="_blank" rel="noreferrer" className="group block">
                   {card.image === null ? (
-                    <span className="flex aspect-[488/680] items-center justify-center rounded-lg border border-dashed border-ink-300 p-3 text-center text-sm text-ink-500 dark:border-ink-700 dark:text-ink-400">
+                    <span className="flex aspect-[488/680] items-center justify-center rounded-card border border-dashed border-ink-300 p-3 text-center text-sm text-ink-500 dark:border-ink-700 dark:text-ink-400">
                       {card.name}
                     </span>
                   ) : (
@@ -37,7 +37,7 @@ export function DeckSectionsGrid({ sections }: { sections: readonly DeckSection<
                       width={488}
                       height={680}
                       loading="lazy"
-                      className="h-auto w-full"
+                      className="h-auto w-full rounded-card"
                     />
                   )}
                   <span className="mt-1.5 block truncate text-sm group-hover:underline">

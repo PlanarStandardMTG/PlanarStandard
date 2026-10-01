@@ -15,11 +15,10 @@ import { cache } from "react";
 import { ColorPips } from "@/components/decks/color-pips";
 import { DeckLegality } from "@/components/decks/deck-legality";
 import { DeleteDeckButton } from "@/components/decks/delete-deck-button";
-import { DeckLayoutToggle } from "@/components/decks/deck-layout-toggle";
-import { DeckSectionsGrid } from "@/components/decks/deck-sections-grid";
-import { DeckSectionsList } from "@/components/decks/deck-sections-list";
+import { DeckDisplay } from "@/components/decks/deck-display";
 import { PlayedEvents } from "@/components/ui/played-events";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
 import { currentViewer } from "@/lib/auth/viewer";
 import { buildDeckView, type DeckView } from "@/lib/decks/deck-view";
@@ -162,11 +161,9 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
         </p>
       )}
 
-      <DeckLayoutToggle
-        list={<DeckSectionsList sections={view.sections} />}
-        grid={<DeckSectionsGrid sections={view.sections} />}
-        buttonClassName={OUTLINE_BUTTON}
-      />
+      <Card className="p-4 sm:p-5">
+        <DeckDisplay sections={view.sections} buttonClassName={OUTLINE_BUTTON} />
+      </Card>
 
       {played.length > 0 && (
         <section aria-labelledby="played" className="mt-12">

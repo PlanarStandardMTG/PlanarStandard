@@ -5,7 +5,9 @@
 **Inputs.** Cards carrying `qty` and `board`, and a function giving each one's type line (null when
 the name never resolved).
 
-**Outputs.** Non-empty sections in reading order, each with its cards and its copy count.
+**Outputs.** Non-empty sections in reading order — command zone, battles, planeswalkers, creatures,
+sorceries, instants, artifacts, enchantments, other, lands, unknown, then the sideboard — each with its
+cards and its copy count.
 
 **Gotchas.** One section per card, by the front face and a fixed precedence: land before creature
 before everything else. An unresolved card goes in `unknown`, never a guessed section.

@@ -4,12 +4,10 @@ import { CardHoverLink } from "@/components/decks/card-hover-link";
 import { SECTION_LABELS } from "@/components/decks/section-labels";
 import type { DeckViewCard } from "@/lib/decks/deck-view";
 
-const byCopiesThenName = (a: DeckViewCard, b: DeckViewCard) =>
-  b.qty - a.qty || a.name.localeCompare(b.name);
-
 /**
  * A deck as a text list, section by section, flowed into as many columns as
- * the screen fits. Hovering a name shows its card.
+ * the screen fits, each section's cards in the order given. Hovering a name
+ * shows its card.
  */
 export function DeckSectionsList({
   sections,
@@ -34,7 +32,7 @@ export function DeckSectionsList({
             {SECTION_LABELS[section.key]} ({section.count})
           </h2>
           <ul>
-            {[...section.cards].sort(byCopiesThenName).map((card) => (
+            {section.cards.map((card) => (
               <li key={`${card.board}-${card.name}`} className="flex gap-3 py-1">
                 <span className="w-4 shrink-0 text-right text-sm font-semibold tabular-nums">
                   {card.qty}

@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 39/50 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 40/51 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1331,6 +1331,16 @@ _Note:_ added outside the plan. `0044_unranked_players.sql` sets `min_events_for
 adds the `unranked_players` view, defined against `leaderboard` so a player is in exactly one of the
 two. New `UnrankedPlayerRow` in contracts and `listUnrankedPlayers` in `repos/ratings`.
 
+✅ **E20.51 — `decks`: section order, a mana value sort, card corners and the deck panel** · S ·
+Deps: E20.6 — a deck reads command zone, battles, planeswalkers, creatures, sorceries, instants,
+artifacts, enchantments, lands, then the sideboard; cards are by name, with a button beside "Show as
+images" to sort by mana value instead; every card image has a card's rounded corners; the deck on
+`/decks/[id]` sits on the same panel as a decklist in a post.
+_AC:_ the order holds in the list, the grid and a post's decklist; the sort choice is remembered per
+browser like the layout; corners are `4.75% / 3.5%` on the grid, the hover preview and a card in a post.
+_Note:_ added outside the plan. The order is `core/decklist/deck-sections`; which section a card goes
+in (land first, then creature) is unchanged.
+
 ---
 
 ## E21 — Season II backfill
@@ -1728,11 +1738,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 50      | 39   |
+| E9   | 9       | 9    | E20  | 51      | 40   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 7       | 5    |
 
-**224 of 295 stories done across 25 epics.**
+**225 of 296 stories done across 25 epics.**

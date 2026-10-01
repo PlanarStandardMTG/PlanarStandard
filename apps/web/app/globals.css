@@ -69,6 +69,11 @@
   color-scheme: dark;
 }
 
+/* Each corner 4.75% of the card's width across and 3.5% of its height down: a printed card's corner, at any size. */
+@utility rounded-card {
+  border-radius: 4.75% / 3.5%;
+}
+
 body {
   @apply bg-ink-50 text-ink-900 antialiased dark:bg-ink-950 dark:text-ink-100;
 }

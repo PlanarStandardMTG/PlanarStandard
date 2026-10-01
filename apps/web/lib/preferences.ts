@@ -21,6 +21,12 @@ export const DECK_LAYOUT: Preference<"text" | "images"> = {
   fallback: "text",
 };
 
+export const DECK_ORDER: Preference<"name" | "mana-value"> = {
+  key: "ps:deck-order",
+  values: ["name", "mana-value"],
+  fallback: "name",
+};
+
 export function readPreference<T extends string>(preference: Preference<T>): T {
   try {
     const stored = localStorage.getItem(preference.key);

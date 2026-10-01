@@ -5,18 +5,19 @@ import type { Board } from "@ps/contracts";
  * type, then the sideboard whole.
  *
  * A card goes in exactly one section, decided by its front face's type line
- * and the order below: a land that is also something else is a land (it is
- * played as one), an artifact creature is a creature. A card with no type line
+ * and the precedence below: a land that is also something else is a land (it
+ * is played as one), an artifact creature is a creature. Sections are then read
+ * in `ORDER`, which is not that precedence. A card with no type line
  * — its name never resolved — goes in `unknown` rather than being guessed into
  * a section.
  */
 export type DeckSectionKey =
   | "command"
-  | "creature"
-  | "planeswalker"
   | "battle"
-  | "instant"
+  | "planeswalker"
+  | "creature"
   | "sorcery"
+  | "instant"
   | "artifact"
   | "enchantment"
   | "other"
@@ -37,11 +38,11 @@ const MAINDECK_TYPES: ReadonlyArray<readonly [RegExp, DeckSectionKey]> = [
 
 const ORDER: readonly DeckSectionKey[] = [
   "command",
-  "creature",
-  "planeswalker",
   "battle",
-  "instant",
+  "planeswalker",
+  "creature",
   "sorcery",
+  "instant",
   "artifact",
   "enchantment",
   "other",

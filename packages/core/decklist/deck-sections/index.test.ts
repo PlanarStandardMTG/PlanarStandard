@@ -22,12 +22,23 @@ describe("core/decklist/deck-sections", () => {
     const types: Record<string, string> = {
       Swamp: "Basic Land — Swamp",
       Negate: "Instant",
+      Duress: "Sorcery",
       Bear: "Creature — Bear",
+      Invasion: "Battle — Siege",
+      Ugin: "Legendary Planeswalker — Ugin",
+      Ring: "Artifact",
+      Saga: "Enchantment — Saga",
     };
     const cards = [
       { name: "Swamp", qty: 20, board: "main" as const },
+      { name: "Saga", qty: 1, board: "main" as const },
       { name: "Negate", qty: 2, board: "main" as const },
+      { name: "Ring", qty: 1, board: "main" as const },
+      { name: "Duress", qty: 3, board: "main" as const },
       { name: "Bear", qty: 4, board: "main" as const },
+      { name: "Ugin", qty: 1, board: "main" as const },
+      { name: "Invasion", qty: 2, board: "main" as const },
+      { name: "Commander", qty: 1, board: "command" as const },
       { name: "Bear", qty: 1, board: "side" as const },
       { name: "Nonsense", qty: 1, board: "main" as const },
     ];
@@ -35,8 +46,14 @@ describe("core/decklist/deck-sections", () => {
     const sections = deckSections(cards, (card) => types[card.name] ?? null);
 
     expect(sections.map((s) => [s.key, s.count])).toEqual([
+      ["command", 1],
+      ["battle", 2],
+      ["planeswalker", 1],
       ["creature", 4],
+      ["sorcery", 3],
       ["instant", 2],
+      ["artifact", 1],
+      ["enchantment", 1],
       ["land", 20],
       ["unknown", 1],
       ["sideboard", 1],

@@ -59,7 +59,7 @@ export function CardHoverLink({
           width={PREVIEW_WIDTH}
           height={PREVIEW_HEIGHT}
           style={{ left: at.x, top: at.y }}
-          className="pointer-events-none fixed z-50 hidden rounded-[4.75%/3.5%] shadow-xl [@media(hover:hover)]:block"
+          className="pointer-events-none fixed z-50 hidden rounded-card shadow-xl [@media(hover:hover)]:block"
         />
       )}
     </>

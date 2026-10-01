@@ -103,7 +103,7 @@ export function buildDeckView(
             : `https://scryfall.com/card/${printing.setCode}/${encodeURIComponent(printing.collectorNumber)}`,
       };
     })
-    .sort((a, b) => a.manaValue - b.manaValue || a.name.localeCompare(b.name));
+    .sort((a, b) => a.name.localeCompare(b.name));
 
   const resolved = toResolvedDeck(deck);
   const count = (board: string) =>
