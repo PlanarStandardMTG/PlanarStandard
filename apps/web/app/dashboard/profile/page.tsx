@@ -82,8 +82,7 @@ export default async function ProfilePage({
             {profile.displayName}
           </h1>
           <p className="text-sm text-ink-500 dark:text-ink-400">
-            {profile.handle === null ? "No handle yet" : `@${profile.handle}`} · joined{" "}
-            {formatTimeAgo(profile.createdAt, new Date())}
+            Joined {formatTimeAgo(profile.createdAt, new Date())}
           </p>
         </div>
       </header>
@@ -165,23 +164,8 @@ export default async function ProfilePage({
             </p>
           </div>
 
-          <div>
-            <label htmlFor="handle" className="text-sm font-medium">
-              Handle
-            </label>
-            <input
-              id="handle"
-              name="handle"
-              defaultValue={profile.handle ?? ""}
-              maxLength={HANDLE_MAX_LENGTH}
-              className={FIELD}
-              placeholder="optional"
-            />
-            <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">
-              Letters, numbers, hyphens, and underscores. Leave it blank if you would rather not
-              claim one.
-            </p>
-          </div>
+          {/* Hidden until handles have a clearer use; posted so saving keeps it. */}
+          <input type="hidden" name="handle" value={profile.handle ?? ""} />
 
           <div>
             <label htmlFor="bio" className="text-sm font-medium">
