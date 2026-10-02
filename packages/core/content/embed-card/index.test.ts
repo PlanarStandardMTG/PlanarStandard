@@ -37,6 +37,14 @@ describe("cardEmbed exports", () => {
     );
   });
 
+  it("exports an inline card as the same link", () => {
+    const raw = { name: "llanowar elves", inline: "true" };
+    expect(cardEmbed.check(raw)).toBeNull();
+    expect(cardEmbed.exportAs("reddit", raw, elves, context)).toBe(
+      "[Llanowar Elves](https://scryfall.com/card/fdn/227)",
+    );
+  });
+
   it("may be placed in any post", () => {
     expect(cardEmbed.kinds).toStrictEqual(["official", "community"]);
   });

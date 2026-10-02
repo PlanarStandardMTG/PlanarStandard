@@ -8,6 +8,7 @@ describe("parseEmbedLine", () => {
       name: "decklist",
       attributes: { id: "abc", title: "Rakdos Midrange" },
       source: ':::decklist{id="abc" title="Rakdos Midrange"}',
+      inline: false,
     });
   });
 
@@ -52,6 +53,53 @@ describe("replaceEmbeds", () => {
       "Before\n[deck a]\nAfter",
     );
     expect(replaceEmbeds(markdown, () => null)).toBe(markdown);
+  });
+});
+
+describe("inline calls", () => {
+  const sentence =
+    'Cast :::card{name="Opt" inline="true"} before :::card{name="Shock" inline="true"}.';
+
+  it("finds each call marked inline within a sentence", () => {
+    expect(findEmbeds(sentence)).toStrictEqual([
+      {
+        name: "card",
+        attributes: { name: "Opt", inline: "true" },
+        source: ':::card{name="Opt" inline="true"}',
+        inline: true,
+      },
+      {
+        name: "card",
+        attributes: { name: "Shock", inline: "true" },
+        source: ':::card{name="Shock" inline="true"}',
+        inline: true,
+      },
+    ]);
+  });
+
+  it("rewrites them in place", () => {
+    expect(replaceEmbeds(sentence, (call) => `[${call.attributes["name"]}]`)).toBe(
+      "Cast [Opt] before [Shock].",
+    );
+  });
+
+  it("treats an inline call alone on its line as inline", () => {
+    expect(findEmbeds(':::card{name="Opt" inline="true"}').map((c) => c.inline)).toStrictEqual([
+      true,
+    ]);
+  });
+
+  it.each([
+    'Cast :::card{name="Opt"} first.',
+    'Cast :::card{name="Opt" inline="yes"} first.',
+    'Write `:::card{name="Opt" inline="true"}` to place one.',
+    'Write ``a ` and :::card{name="Opt" inline="true"}`` to place one.',
+  ])("leaves %s as text", (line) => {
+    expect(findEmbeds(line)).toHaveLength(0);
+  });
+
+  it("skips fenced code", () => {
+    expect(findEmbeds('```\nCast :::card{name="Opt" inline="true"}\n```')).toHaveLength(0);
   });
 });
 

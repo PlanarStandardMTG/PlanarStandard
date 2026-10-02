@@ -42,6 +42,8 @@ export interface EmbedDefinition<N extends string, A, D> {
   readonly attributes: readonly EmbedAttribute[];
   /** The kinds of post it may be placed in. */
   readonly kinds: readonly PostKind[];
+  /** Whether it may sit inside a sentence, marked `inline="true"` (E20.58). */
+  readonly inline?: boolean;
   parse(raw: Readonly<Record<string, string>>): EmbedParse<A>;
   readonly export: Readonly<
     Record<ExportTarget, (attributes: A, data: D | null, context: EmbedExportContext) => string>
@@ -55,6 +57,7 @@ export interface RegisteredEmbed<N extends string = string> {
   readonly description: string;
   readonly attributes: readonly EmbedAttribute[];
   readonly kinds: readonly PostKind[];
+  readonly inline: boolean;
   /** Null when the attributes are acceptable, else what is wrong with them. */
   check(raw: Readonly<Record<string, string>>): string | null;
   /** Null when the attributes do not parse — the line is then left as written. */
@@ -69,18 +72,25 @@ export interface RegisteredEmbed<N extends string = string> {
 export function defineEmbed<N extends string, A, D>(
   definition: EmbedDefinition<N, A, D>,
 ): RegisteredEmbed<N> {
+  const inline = definition.inline ?? false;
+  const parse = (raw: Readonly<Record<string, string>>): EmbedParse<A> =>
+    raw["inline"] === "true" && !inline
+      ? { ok: false, problem: "cannot be placed inside a sentence" }
+      : definition.parse(raw);
+
   return {
     name: definition.name,
     label: definition.label,
     description: definition.description,
     attributes: definition.attributes,
     kinds: definition.kinds,
+    inline,
     check(raw) {
-      const parsed = definition.parse(raw);
+      const parsed = parse(raw);
       return parsed.ok ? null : parsed.problem;
     },
     exportAs(target, raw, data, context) {
-      const parsed = definition.parse(raw);
+      const parsed = parse(raw);
       if (!parsed.ok) return null;
       // The one cast: `data` arrives keyed by the call's source line, from the
       // loader the site registers under this same name.

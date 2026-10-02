@@ -9,6 +9,12 @@ describe("prepareEmbeds", () => {
     );
   });
 
+  it("carries an inline component in a code span, within its sentence", () => {
+    expect(prepareEmbeds('Cast :::card{name="Opt" inline="true"} first.')).toBe(
+      'Cast `` ps-embed::::card{name="Opt" inline="true"} `` first.',
+    );
+  });
+
   it("does not touch a line that is already code", () => {
     const shown = '```\n:::decklist{id="a"}\n```';
     expect(prepareEmbeds(shown)).toBe(shown);

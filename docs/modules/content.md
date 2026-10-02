@@ -51,12 +51,12 @@ Submitting a community post with one is refused; one already in a community
 post renders as a note saying so, and its exports leave the line as written.
 The image upload action refuses anyone who cannot write news.
 
-| Component                              | Site                                                                                  | Reddit                                                                     | Discord                                     |
-| -------------------------------------- | ------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------- |
-| `:::image{src alt caption}`            | the picture, with its caption                                                         | a link named by the alt text, the caption under it                         | the bare address, which Discord unfurls     |
-| `:::decklist{id title}`                | the list by section, with card previews                                               | a link and counts, then the list as an indented block                      | name, counts and link                       |
-| `:::tournament{slug show deck player}` | one card: winner, top 2 or top 4 (`show`), and the deck under `player` or beside them | the event and its finishers, then the deck exactly as `decklist` writes it | the event, finishers, its link and the deck |
-| `:::card{name}`                        | Scryfall's image of the card, linked to its Scryfall page                             | the name linked to its Scryfall page                                       | the same, as a masked link                  |
+| Component                              | Site                                                                                                                               | Reddit                                                                     | Discord                                     |
+| -------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- | ------------------------------------------- |
+| `:::image{src alt caption}`            | the picture, with its caption                                                                                                      | a link named by the alt text, the caption under it                         | the bare address, which Discord unfurls     |
+| `:::decklist{id title}`                | the list by section, with card previews                                                                                            | a link and counts, then the list as an indented block                      | name, counts and link                       |
+| `:::tournament{slug show deck player}` | one card: winner, top 2 or top 4 (`show`), and the deck under `player` or beside them                                              | the event and its finishers, then the deck exactly as `decklist` writes it | the event, finishers, its link and the deck |
+| `:::card{name inline}`                 | Scryfall's image of the card, linked to its Scryfall page; `inline="true"`: the name as a link in the sentence, the image on hover | the name linked to its Scryfall page                                       | the same, as a masked link                  |
 
 A tournament's finishers come from `tournament_entries`, which every ingest
 writes (E18.21). The deck picker lists the author's own decks; any deck can be
@@ -71,6 +71,13 @@ WebP or GIF; or linked from anywhere by address.
 A card's name is resolved against the card index when the site loads it, and
 shown at its default printing (`pickPrinting`). A name that does not resolve
 shows as a missing card and exports as a Scryfall exact-name search.
+
+A component is placed alone on its line unless its definition offers
+`inline` and the call is marked `inline="true"`; then it may sit anywhere in
+a sentence (E20.58). Only the card offers it. The site carries an inline call
+through the Markdown parser in a code span, as it carries a block one in a
+fence, so its attributes are never read as emphasis. Calls inside code are
+skipped either way, so the syntax can still be shown.
 
 ### Adding one
 

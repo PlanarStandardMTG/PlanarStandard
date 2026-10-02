@@ -1,6 +1,7 @@
 # embed-card
 
-**Purpose.** The `:::card{name}` component: one card in a post.
+**Purpose.** The `:::card{name inline}` component: one card in a post, as its
+image or, with `inline="true"`, as its name within a sentence.
 
 **Inputs.** The call's attributes, and the card the site resolved (its name,
 Scryfall page and image). **Outputs.** `cardEmbed`, `parseCardEmbed`, and

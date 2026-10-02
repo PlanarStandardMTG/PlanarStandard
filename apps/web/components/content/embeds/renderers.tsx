@@ -22,6 +22,7 @@ import type { ReactNode } from "react";
 import { cardIndex } from "@/lib/cards/card-index";
 import { createSessionClient } from "@/lib/supabase/session";
 
+import { CardHoverLink } from "@/components/decks/card-hover-link";
 import { PersonName } from "@/components/ui/person-name";
 import { DotLeader, Placement } from "@/components/ui/marks";
 
@@ -44,14 +45,19 @@ import { loadDeck, type LoadedDeck } from "./load-deck";
  * export to fall back to a link.
  *
  * Every `Render` wears `not-prose`, so the post's typography leaves its
- * headings, lists and links alone.
+ * headings, lists and links alone. `RenderInline` is for a component core marks
+ * `inline` (E20.58): it sits inside a paragraph, so it renders phrasing content
+ * only, and keeps the post's link style.
  */
+interface RenderProps {
+  readonly attributes: Readonly<Record<string, string>>;
+  readonly data: unknown;
+}
+
 export interface EmbedRenderer {
   load?(attributes: Readonly<Record<string, string>>): Promise<unknown>;
-  Render(props: {
-    readonly attributes: Readonly<Record<string, string>>;
-    readonly data: unknown;
-  }): ReactNode | Promise<ReactNode>;
+  Render(props: RenderProps): ReactNode | Promise<ReactNode>;
+  RenderInline?(props: RenderProps): ReactNode | Promise<ReactNode>;
 }
 
 type LoadedTournament = TournamentEmbedData & { readonly deck: LoadedDeck | null };
@@ -268,6 +274,26 @@ export const EMBED_RENDERERS: { readonly [N in EmbedName]: EmbedRenderer } = {
             )}
           </a>
         </figure>
+      );
+    },
+    RenderInline({ attributes, data }) {
+      const call = parseCardEmbed(attributes);
+      const card = data as CardEmbedData | null;
+      const written = call.ok ? call.value.name : "";
+      if (card === null) {
+        return (
+          <span
+            title={`No card called “${written}”`}
+            className="underline decoration-ink-400 decoration-dashed underline-offset-2"
+          >
+            {written}
+          </span>
+        );
+      }
+      return (
+        <CardHoverLink href={card.scryfallUrl} image={card.image}>
+          {card.name}
+        </CardHoverLink>
       );
     },
   },

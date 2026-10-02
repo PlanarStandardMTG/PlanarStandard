@@ -219,8 +219,12 @@ export function PostEditor(props: PostEditorProps) {
             components={props.components}
             decks={props.decks}
             tournaments={props.tournaments}
-            insert={(line) =>
-              edit((text, start) => {
+            insert={(line, inline) =>
+              edit((text, start, end) => {
+                if (inline === true) {
+                  const caret = start + line.length;
+                  return [`${text.slice(0, start)}${line}${text.slice(end)}`, caret, caret];
+                }
                 const before = text.slice(0, start).replace(/\n*$/, "");
                 const after = text.slice(start).replace(/^\n*/, "");
                 const head = before === "" ? "" : `${before}\n\n`;
@@ -346,7 +350,7 @@ function ComponentsPanel({
   components: readonly string[];
   decks: readonly DeckOption[];
   tournaments: readonly TournamentOption[];
-  insert: (line: string) => void;
+  insert: (line: string, inline?: boolean) => void;
 }) {
   const offers = (name: string) => components.includes(name);
   return (
@@ -363,7 +367,12 @@ function ComponentsPanel({
           <code className="rounded bg-ink-100 px-1 text-xs dark:bg-ink-800">
             :::name{"{"}key=&quot;value&quot;{"}"}
           </code>
-          . The site shows it live; Reddit and Discord get a text version of it.
+          . A card marked{" "}
+          <code className="rounded bg-ink-100 px-1 text-xs dark:bg-ink-800">
+            inline=&quot;true&quot;
+          </code>{" "}
+          can go inside a sentence instead. The site shows it live; Reddit and Discord get a text
+          version of it.
         </p>
 
         <div className="grid gap-2">

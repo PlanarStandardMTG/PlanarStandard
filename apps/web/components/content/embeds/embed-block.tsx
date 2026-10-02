@@ -12,8 +12,18 @@ const RENDERERS: Readonly<Record<string, EmbedRenderer>> = EMBED_RENDERERS;
  *
  * Anything it cannot render says so in the page rather than vanishing — the
  * author sees it in preview, and submission refuses it (`core/post-draft`).
+ * An inline one (E20.58) says so inline, since it sits inside a paragraph.
  */
-export async function EmbedBlock({ source, kind }: { source: string; kind: PostKind }) {
+export async function EmbedBlock({
+  source,
+  kind,
+  inline = false,
+}: {
+  source: string;
+  kind: PostKind;
+  inline?: boolean;
+}) {
+  const Placeholder = inline ? InlinePlaceholder : BlockPlaceholder;
   const call = parseEmbedLine(source);
   if (call === null) return <Placeholder title="Unreadable component" detail={source} />;
 
@@ -30,11 +40,25 @@ export async function EmbedBlock({ source, kind }: { source: string; kind: PostK
   const problem = embed.check(call.attributes);
   if (problem !== null) return <Placeholder title={`${call.name}: ${problem}`} detail={source} />;
 
-  const { Render } = renderer;
+  const Render = inline ? renderer.RenderInline : renderer.Render;
+  if (Render === undefined) {
+    return <Placeholder title={`${call.name}: cannot be placed inside a sentence`} />;
+  }
   return <Render attributes={call.attributes} data={await loadEmbed(call.name, call.attributes)} />;
 }
 
-function Placeholder({ title, detail }: { title: string; detail?: string }) {
+function InlinePlaceholder({ title, detail }: { title: string; detail?: string }) {
+  return (
+    <span
+      title={detail}
+      className="rounded border border-dashed border-ink-300 px-1 text-sm text-ink-600 not-italic dark:border-ink-700 dark:text-ink-400"
+    >
+      {title}
+    </span>
+  );
+}
+
+function BlockPlaceholder({ title, detail }: { title: string; detail?: string }) {
   return (
     <div className="my-5 rounded-lg border border-dashed border-ink-300 px-4 py-3 text-sm not-italic dark:border-ink-700">
       <p className="font-medium text-ink-700 dark:text-ink-300">{title}</p>

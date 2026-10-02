@@ -27,7 +27,8 @@ export interface TournamentOption {
   readonly date: string;
 }
 
-type Insert = (line: string) => void;
+/** `inline` puts the call at the cursor, within the sentence, rather than on its own line. */
+type Insert = (line: string, inline?: boolean) => void;
 
 const INPUT =
   "w-full rounded-md border border-ink-300 bg-paper px-2.5 py-1.5 text-sm " +
@@ -38,6 +39,7 @@ const BUTTON =
 
 export function CardInserter({ insert }: { insert: Insert }) {
   const [name, setName] = useState("");
+  const [inline, setInline] = useState(false);
 
   return (
     <Inserter title="Card" note="Its image, linked to Scryfall. Reddit gets the name as a link.">
@@ -49,10 +51,20 @@ export function CardInserter({ insert }: { insert: Insert }) {
           className={INPUT}
         />
       </Field>
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" checked={inline} onChange={(e) => setInline(e.target.checked)} />
+        Within a sentence: just the name, its image on hover
+      </label>
       <InsertButton
         disabled={name.trim() === ""}
         onClick={() => {
-          insert(formatEmbed("card", { name: name.trim() }));
+          insert(
+            formatEmbed(
+              "card",
+              inline ? { name: name.trim(), inline: "true" } : { name: name.trim() },
+            ),
+            inline,
+          );
           setName("");
         }}
       />

@@ -9,4 +9,11 @@ describe("EMBED_RENDERERS", () => {
       EMBED_REGISTRY.map((embed) => embed.name).sort(),
     );
   });
+
+  it("renders inside a sentence exactly the components core lets sit there", () => {
+    for (const embed of EMBED_REGISTRY) {
+      const renderers: Readonly<Record<string, { RenderInline?: unknown }>> = EMBED_RENDERERS;
+      expect(renderers[embed.name]?.RenderInline !== undefined, embed.name).toBe(embed.inline);
+    }
+  });
 });

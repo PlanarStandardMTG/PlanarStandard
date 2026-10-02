@@ -27,6 +27,13 @@ describe("defineEmbed", () => {
     expect(deck.check({ id: "a" })).toBeNull();
     expect(deck.check({})).toBe("needs an id");
   });
+
+  it("refuses a sentence placement the component does not offer", () => {
+    expect(deck.inline).toBe(false);
+    expect(deck.check({ id: "a", inline: "true" })).toBe("cannot be placed inside a sentence");
+    expect(deck.exportAs("reddit", { id: "a", inline: "true" }, null, context)).toBeNull();
+    expect(deck.check({ id: "a", inline: "false" })).toBeNull();
+  });
 });
 
 describe("expandEmbeds", () => {
