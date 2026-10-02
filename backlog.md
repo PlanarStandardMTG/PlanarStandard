@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 47/58 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 48/59 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1400,6 +1400,15 @@ be placed inline, and submission refuses any other; a call inside code is left a
 card form can insert one at the cursor.
 _Note:_ added outside the plan.
 
+✅ **E20.59 — `decks`: check a deck without an account** · S · Deps: E20.30 — `/decks/new` opens to
+visitors as "Check a deck", linked from the site footer and the Decks page. The list is checked as they
+type; where a member has Save, a visitor is asked to sign in.
+_AC:_ a visitor can check but never save; signing in from the editor brings them back to it with the
+name, visibility, format and list they had written, by any sign-in route (a magic link opens a new
+tab, so the draft is kept in `localStorage` for an hour and taken once); a banned account can check
+but not save.
+_Note:_ added outside the plan.
+
 ---
 
 ## E21 — Season II backfill
@@ -1808,11 +1817,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 58      | 47   |
+| E9   | 9       | 9    | E20  | 59      | 48   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
 
-**233 of 304 stories done across 25 epics.**
+**234 of 305 stories done across 25 epics.**

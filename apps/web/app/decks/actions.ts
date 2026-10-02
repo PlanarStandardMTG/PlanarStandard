@@ -78,8 +78,8 @@ function verdictFor(deck: ResolvedDeck, chosen: ChosenFormat | null) {
 const needsConfirming = (check: Omit<DraftCheck, "problems">) =>
   check.unknownCards.length > 0 || check.verdict?.legal === false;
 
+/** Open to visitors: checking a list needs no account (E20.59). */
 export async function checkDraft(format: string, decklist: string): Promise<DraftCheck> {
-  await requireRole("reader");
   const reading = readDecklist(decklist, cardIndex());
   const { verdict } = verdictFor(reading.deck, await readFormatChoice(format));
   return { problems: reading.problems, unknownCards: reading.unknownCards, verdict };

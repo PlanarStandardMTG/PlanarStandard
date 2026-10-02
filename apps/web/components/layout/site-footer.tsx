@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { Container } from "@/components/ui/container";
 import { StarRule } from "@/components/ui/marks";
 import { PlanarMark } from "@/components/ui/planar-mark";
@@ -22,7 +24,15 @@ export function SiteFooter() {
           <StarRule />
           <ThemeToggle />
         </div>
-        <InfoNav />
+        <div className="flex flex-wrap items-start justify-between gap-4">
+          <InfoNav />
+          <Link
+            href="/decks/new"
+            className="text-ink-600 hover:text-ink-900 dark:text-ink-400 dark:hover:text-ink-100"
+          >
+            Check a deck <span aria-hidden="true">→</span>
+          </Link>
+        </div>
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
           <p className="text-ink-500 dark:text-ink-400">

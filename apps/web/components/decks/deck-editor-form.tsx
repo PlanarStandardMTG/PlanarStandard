@@ -10,14 +10,21 @@ import {
   type FormEvent,
 } from "react";
 
+import Link from "next/link";
+
 import { checkDraft, saveDeck, type DraftCheck, type SaveState } from "@/app/decks/actions";
 import type { FormatOption } from "@/components/decks/format-labels";
+import { loginHref } from "@/lib/auth/next-path";
+import { keepDraft, takeDraft } from "@/lib/decks/draft-handoff";
 
 /**
  * Write or edit a deck (E20.28, E20.30). The list is checked against the format
  * version chosen (E20.54) as the member types, and a deck that is not legal still saves once they say
  * so — a brew is still a deck. The server action decides both; this component
  * only keeps the list from being lost on the way back.
+ *
+ * A visitor can check a list but not save it (E20.59). Signing in from here
+ * keeps what they wrote, and the editor puts it back when they return.
  */
 const FIELD =
   "mt-1.5 w-full rounded-lg border border-ink-300 bg-paper px-3 py-2 text-sm " +
@@ -83,15 +90,22 @@ export interface DeckDraft {
   readonly decklist: string;
 }
 
+/** Who is at the editor: a member saves, a visitor is asked to sign in, a banned account can only check. */
+export type DeckSaver = "member" | "visitor" | "banned";
+
+const RETURN_TO = "/decks/new";
+
 export function DeckEditorForm({
   initial,
   formats,
   parentId = null,
+  saver = "member",
 }: {
   initial: DeckDraft;
   formats: readonly FormatOption[];
   /** The version being edited; the save becomes its successor. */
   parentId?: string | null;
+  saver?: DeckSaver;
 }) {
   const [state, action, pending] = useActionState<SaveState, FormData>(saveDeck, {
     problems: [],
@@ -130,6 +144,17 @@ export function DeckEditorForm({
     if (state.confirm !== null) dialogRef.current?.showModal();
   }, [state]);
 
+  // Read after hydration: the server has no storage to render it from.
+  useEffect(() => {
+    if (saver !== "member" || parentId !== null) return;
+    const draft = takeDraft();
+    if (draft === null) return;
+    setName(draft.name);
+    setVisibility(draft.visibility);
+    if (formats.some((option) => option.value === draft.format)) setFormat(draft.format);
+    setDecklist(draft.decklist);
+  }, [saver, parentId, formats]);
+
   // Submitted by hand rather than by `action` alone: React resets a form after
   // its action runs, which unchecks the controlled visibility radio on a
   // failed save. `action` stays for a submit without JavaScript.
@@ -141,7 +166,7 @@ export function DeckEditorForm({
   };
   const onSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    submit(false);
+    if (saver === "member") submit(false);
   };
 
   const about = (field: DeckImportProblem["field"]) =>
@@ -241,9 +266,26 @@ export function DeckEditorForm({
 
       {state.error !== null && <Problems messages={[state.error]} />}
 
-      <button type="submit" disabled={pending} className={BUTTON}>
-        {pending ? "Saving…" : parentId === null ? "Save deck" : "Save new version"}
-      </button>
+      {saver === "member" ? (
+        <button type="submit" disabled={pending} className={BUTTON}>
+          {pending ? "Saving…" : parentId === null ? "Save deck" : "Save new version"}
+        </button>
+      ) : saver === "visitor" ? (
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-ink-200 px-4 py-3 dark:border-ink-800">
+          <p className="text-sm text-ink-700 dark:text-ink-300">Sign in to save your deck.</p>
+          <Link
+            href={loginHref(RETURN_TO)}
+            onClick={() => keepDraft({ name, visibility, format, decklist })}
+            className={BUTTON}
+          >
+            Sign in
+          </Link>
+        </div>
+      ) : (
+        <p className="text-sm text-ink-600 dark:text-ink-400">
+          Your account can’t save decks, but you can still check one here.
+        </p>
+      )}
 
       <dialog
         ref={dialogRef}

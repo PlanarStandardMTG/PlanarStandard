@@ -3,7 +3,6 @@ import Link from "next/link";
 
 import { Container } from "@/components/ui/container";
 import { EmptyState } from "@/components/ui/states";
-import { loginHref } from "@/lib/auth/next-path";
 import { currentViewer } from "@/lib/auth/viewer";
 
 import { BrowseDecks, type DeckScope } from "./browse-decks";
@@ -67,8 +66,8 @@ export default async function DecksPage({
         </div>
         {view === "mine" &&
           (viewer === null ? (
-            <Link href={loginHref("/decks/new")} className={BUTTON}>
-              Sign in to import a deck
+            <Link href="/decks/new" className={BUTTON}>
+              Check a deck
             </Link>
           ) : viewer.profile.bannedAt === null ? (
             <Link href="/decks/new" className={BUTTON}>
