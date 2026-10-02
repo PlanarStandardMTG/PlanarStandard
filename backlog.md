@@ -1402,9 +1402,9 @@ _Note:_ added outside the plan.
 
 ✅ **E20.59 — `decks`: check a deck without an account** · S · Deps: E20.30 — `/decks/new` opens to
 visitors as "Check a deck", linked from the site footer and the Decks page. The list is checked as they
-type; where a member has Save, a visitor is asked to sign in.
+type; where a member has Save, a visitor is asked to sign in, and the visibility choice is hidden.
 _AC:_ a visitor can check but never save; signing in from the editor brings them back to it with the
-name, visibility, format and list they had written, by any sign-in route (a magic link opens a new
+name, format and list they had written, by any sign-in route (a magic link opens a new
 tab, so the draft is kept in `localStorage` for an hour and taken once); a banned account can check
 but not save.
 _Note:_ added outside the plan.

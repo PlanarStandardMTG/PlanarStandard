@@ -214,31 +214,35 @@ export function DeckEditorForm({
         </div>
       </div>
 
-      <fieldset>
-        <legend className="text-sm font-medium">Who can see it</legend>
-        <div className="mt-1.5 grid gap-2 sm:grid-cols-3">
-          {VISIBILITY.map((option) => (
-            <label
-              key={option.value}
-              className="flex cursor-pointer items-start gap-2 rounded-lg border border-ink-300 px-3 py-2 text-sm has-checked:border-eclipse-500 dark:border-ink-700"
-            >
-              <input
-                type="radio"
-                name="visibility"
-                value={option.value}
-                checked={visibility === option.value}
-                onChange={() => setVisibility(option.value)}
-                className="mt-1"
-              />
-              <span>
-                <span className="font-medium">{option.label}</span>
-                <span className="block text-xs text-ink-500 dark:text-ink-400">{option.hint}</span>
-              </span>
-            </label>
-          ))}
-        </div>
-        <Problems messages={about("visibility")} />
-      </fieldset>
+      {saver === "member" && (
+        <fieldset>
+          <legend className="text-sm font-medium">Who can see it</legend>
+          <div className="mt-1.5 grid gap-2 sm:grid-cols-3">
+            {VISIBILITY.map((option) => (
+              <label
+                key={option.value}
+                className="flex cursor-pointer items-start gap-2 rounded-lg border border-ink-300 px-3 py-2 text-sm has-checked:border-eclipse-500 dark:border-ink-700"
+              >
+                <input
+                  type="radio"
+                  name="visibility"
+                  value={option.value}
+                  checked={visibility === option.value}
+                  onChange={() => setVisibility(option.value)}
+                  className="mt-1"
+                />
+                <span>
+                  <span className="font-medium">{option.label}</span>
+                  <span className="block text-xs text-ink-500 dark:text-ink-400">
+                    {option.hint}
+                  </span>
+                </span>
+              </label>
+            ))}
+          </div>
+          <Problems messages={about("visibility")} />
+        </fieldset>
+      )}
 
       <div>
         <label htmlFor="decklist" className="text-sm font-medium">
