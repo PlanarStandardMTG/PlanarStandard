@@ -271,7 +271,7 @@ export function DeckEditorForm({
           {pending ? "Saving…" : parentId === null ? "Save deck" : "Save new version"}
         </button>
       ) : saver === "visitor" ? (
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-ink-200 px-4 py-3 dark:border-ink-800">
+        <div className="flex w-fit max-w-full flex-wrap items-center gap-x-4 gap-y-2 rounded-lg border border-ink-200 px-4 py-3 dark:border-ink-800">
           <p className="text-sm text-ink-700 dark:text-ink-300">Sign in to save your deck.</p>
           <Link
             href={loginHref(RETURN_TO)}
