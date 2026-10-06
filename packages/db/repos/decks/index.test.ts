@@ -272,7 +272,7 @@ describe.skipIf(!reachable)("repos/decks", () => {
     expect(browsable[0]?.cards.map((c) => c.name)).toEqual(pub.cards.map((c) => c.name));
   });
 
-  it("credits a browsed deck to its player, else its owner, with each event's record", async () => {
+  it("credits a browsed deck to its player, else its owner, with each event and its record", async () => {
     const { data: profile } = await service
       .from("profiles")
       .select("id, display_name")
@@ -285,7 +285,7 @@ describe.skipIf(!reachable)("repos/decks", () => {
       .single();
     const { data: tournament } = await service
       .from("tournaments")
-      .select("id")
+      .select("id, name, event_date")
       .neq("status", "draft")
       .limit(1)
       .single();
@@ -310,12 +310,18 @@ describe.skipIf(!reachable)("repos/decks", () => {
       const browsable = (await listBrowsableDecks(client)).filter((d) =>
         d.name.startsWith("Credit "),
       );
-      expect(browsable.map((d) => [d.name, d.author, d.records])).toEqual([
-        ["Credit imported", { kind: "member", id: profile?.id, name: profile?.display_name }, []],
+      expect(browsable.map((d) => [d.name, d.author, d.records, d.events])).toEqual([
+        [
+          "Credit imported",
+          { kind: "member", id: profile?.id, name: profile?.display_name },
+          [],
+          [],
+        ],
         [
           "Credit played",
           { kind: "player", id: player?.id, name: "Credited" },
           [{ wins: 3, losses: 1, draws: 0 }],
+          [{ id: tournament?.id, name: tournament?.name, eventDate: tournament?.event_date }],
         ],
       ]);
     } finally {

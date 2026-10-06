@@ -211,7 +211,7 @@ export async function listMemberDecks(
   return (data as unknown as DeckRow[]).map(toDeck);
 }
 
-export type { BrowsableDeck, DeckAuthor } from "./rows";
+export type { BrowsableDeck, DeckAuthor, DeckEvent } from "./rows";
 
 /**
  * Every public deck with its list, newest first — the deck browser (E20.40),

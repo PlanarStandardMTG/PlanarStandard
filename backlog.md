@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 49/60 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 50/61 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1416,6 +1416,15 @@ _AC:_ the current version stays out of the URL and doesn't count as an active fi
 it; an id that names no version falls back to it; with no version at all, nothing is filtered by format.
 _Note:_ added outside the plan. Replaces E20.53's "any format" default.
 
+✅ **E20.61 — `decks`: filter the Tournament tab by event** · S · Deps: E20.55, E20.60 — the Tournament
+tab's filter gains "Played at", listing the events whose decks are in the tab, latest first; choosing
+one shows only the decks played there.
+_AC:_ `?event=<id>` combines with colour, cards, format, sort and paging and counts as a filter; the
+list offers only events with a deck legal in the chosen format version, and an event outside it is
+ignored; a deck counts for an event any of its versions was played at; the other tabs neither offer
+nor read it.
+_Note:_ added outside the plan. The events come from the decks the tab loads, not a separate query.
+
 ---
 
 ## E21 — Season II backfill
@@ -1824,11 +1833,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 60      | 49   |
+| E9   | 9       | 9    | E20  | 61      | 50   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
 
-**235 of 306 stories done across 25 epics.**
+**236 of 307 stories done across 25 epics.**

@@ -12,6 +12,7 @@ import type {
   ProfileId,
   SeasonId,
   SetCode,
+  TournamentId,
   WinLossDraw,
 } from "@ps/contracts";
 
@@ -84,16 +85,26 @@ export type DeckAuthor =
   | { readonly kind: "player"; readonly id: PlayerId; readonly name: string }
   | { readonly kind: "member"; readonly id: ProfileId; readonly name: string };
 
+/** An event a browsed deck was played at (E20.61). */
+export interface DeckEvent {
+  readonly id: TournamentId;
+  readonly name: string;
+  readonly eventDate: string;
+}
+
 /** A deck as the browser lists it (E20.40, E20.45). */
 export interface BrowsableDeck extends DeckWithCards {
   readonly author: DeckAuthor | null;
   /** One per event entry that played this version; a draft event's are left out. */
   readonly records: readonly WinLossDraw[];
+  /** The events behind `records`. */
+  readonly events: readonly DeckEvent[];
 }
 
 export const BROWSABLE_DECK_COLUMNS =
   `${DECK_WITH_CARDS_COLUMNS}, player:players (id, display_name), ` +
-  "owner:profiles (id, display_name), entries:tournament_entries (match_wins, match_losses, match_draws)";
+  "owner:profiles (id, display_name), entries:tournament_entries (match_wins, match_losses, match_draws, " +
+  "tournament:tournaments (id, name, event_date))";
 
 export interface BrowsableDeckRow extends DeckWithCardsRow {
   readonly player: { readonly id: string; readonly display_name: string } | null;
@@ -103,6 +114,11 @@ export interface BrowsableDeckRow extends DeckWithCardsRow {
         readonly match_wins: number | null;
         readonly match_losses: number | null;
         readonly match_draws: number | null;
+        readonly tournament: {
+          readonly id: string;
+          readonly name: string;
+          readonly event_date: string;
+        } | null;
       }[]
     | null;
 }
@@ -178,6 +194,17 @@ export function toBrowsableDeck(row: BrowsableDeckRow): BrowsableDeck {
       losses: entry.match_losses ?? 0,
       draws: entry.match_draws ?? 0,
     })),
+    events: (row.entries ?? []).flatMap((entry) =>
+      entry.tournament === null
+        ? []
+        : [
+            {
+              id: entry.tournament.id as TournamentId,
+              name: entry.tournament.name,
+              eventDate: entry.tournament.event_date,
+            },
+          ],
+    ),
   };
 }
 
