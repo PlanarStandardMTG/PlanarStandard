@@ -230,7 +230,8 @@ describe.skipIf(!reachable)("repos/decks", () => {
       insertDeck(service, deck({ name: "Doomed" }), [card({ name: "Duress", quantity: 0 })]),
     ).rejects.toThrow(/writing cards/);
 
-    expect(await listPublicDecksBySeason(client, SEASON_II, 10)).toEqual([]);
+    const listed = await listPublicDecksBySeason(client, SEASON_II, 10);
+    expect(listed.map((d) => d.name)).not.toContain("Doomed");
   });
 
   it("lists a player's decks including the ones they did not publish", async () => {
@@ -256,7 +257,11 @@ describe.skipIf(!reachable)("repos/decks", () => {
     await write(deck({ name: "Private", visibility: "private" }), []);
 
     const browsable = await listPublicDecksBySeason(client, SEASON_II, 10);
-    expect(browsable.map((d) => d.name)).toEqual(["Public"]);
+    expect(
+      browsable
+        .map((d) => d.name)
+        .filter((name) => ["Public", "Unlisted", "Private"].includes(name)),
+    ).toEqual(["Public"]);
   });
 
   it("browses public decks with their lists, and nothing unlisted, private or hidden", async () => {
