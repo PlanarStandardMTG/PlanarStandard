@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 48/59 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 49/60 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1409,6 +1409,13 @@ tab, so the draft is kept in `localStorage` for an hour and taken once); a banne
 but not save.
 _Note:_ added outside the plan.
 
+✅ **E20.60 — `decks`: the deck browser opens on the format in force** · XS · Deps: E20.53 — the All,
+Community and Tournament tabs list only the decks legal in the current format version; the filter's
+"Legal in" switches to another version and no longer offers "Any format".
+_AC:_ the current version stays out of the URL and doesn't count as an active filter; Clear returns to
+it; an id that names no version falls back to it; with no version at all, nothing is filtered by format.
+_Note:_ added outside the plan. Replaces E20.53's "any format" default.
+
 ---
 
 ## E21 — Season II backfill
@@ -1817,11 +1824,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 59      | 48   |
+| E9   | 9       | 9    | E20  | 60      | 49   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
 
-**234 of 305 stories done across 25 epics.**
+**235 of 306 stories done across 25 epics.**

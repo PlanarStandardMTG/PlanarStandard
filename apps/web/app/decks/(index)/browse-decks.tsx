@@ -52,8 +52,10 @@ const NONE_YET: Record<DeckScope, [title: string, detail: string]> = {
 type Browse = DeckFilter & {
   readonly scope: DeckScope;
   readonly text: string;
-  /** A format version's id, or null for any. */
+  /** The format version decks must be legal in; null only when no version exists. */
   readonly legal: string | null;
+  /** The version in force, which the URL leaves out. */
+  readonly current: string | null;
   readonly sort: Sort;
 };
 
@@ -64,7 +66,7 @@ const all = (value: string | string[] | undefined) =>
  * The browser's state as the URL carries it:
  * `?view=community&color=W&cards=Shock;Opt&legal=<id>&sort=win-rate&page=2`.
  */
-function readFilter(scope: DeckScope, params: Params): Browse {
+function readFilter(scope: DeckScope, params: Params): Omit<Browse, "current"> {
   const text = all(params["cards"])[0] ?? "";
   return {
     scope,
@@ -84,16 +86,16 @@ function pageHref(filter: Browse, page: number, sort: Sort = filter.sort) {
   if (filter.scope !== "all") query.set("view", filter.scope);
   for (const color of filter.colors) query.append("color", color);
   if (filter.text.trim() !== "") query.set("cards", filter.text);
-  if (filter.legal !== null) query.set("legal", filter.legal);
+  if (filter.legal !== filter.current && filter.legal !== null) query.set("legal", filter.legal);
   if (sort !== "newest") query.set("sort", sort);
   if (page > 1) query.set("page", String(page));
   const search = query.toString();
   return search === "" ? "/decks" : `/decks?${search}`;
 }
 
-/** The filter cleared, the tab and the sort kept. */
+/** The filter cleared back to the version in force, the tab and the sort kept. */
 const clearedHref = (filter: Browse) =>
-  pageHref({ ...filter, colors: [], cards: [], text: "", legal: null }, 1);
+  pageHref({ ...filter, colors: [], cards: [], text: "", legal: filter.current }, 1);
 
 /**
  * A member's own import is a community deck; a deck an event made, or one
@@ -113,9 +115,9 @@ function inScope(
 
 /**
  * The All, Community and Tournament tabs (E20.40, E20.55): every public deck
- * in the tab at its newest version, narrowed
- * by colour, card name and the format version it is legal in (E20.53), ten to
- * a page. Cards are not in Postgres, so the filter runs here against the card
+ * in the tab at its newest version that is legal in the format version in
+ * force, or another one the filter picks (E20.53, E20.60), narrowed by colour
+ * and card name, ten to a page. Cards are not in Postgres, so the filter runs here against the card
  * index rather than in the query. Each deck shows who it is credited to and its
  * record over every version's events, and can be sorted by match win rate (E20.45).
  *
@@ -130,14 +132,19 @@ export async function BrowseDecks({ scope, params }: { scope: DeckScope; params:
       listBrowsableDecks(client),
       listFormatVersions(client),
     ]);
-    const chosen = versions.find((version) => version.id === asked.legal);
+    const current = versions.find((version) => version.isCurrent);
+    const chosen = versions.find((version) => version.id === asked.legal) ?? current;
     const legalIn = chosen === undefined ? null : await getFormatDetail(client, chosen.id);
     return [decks, versions, legalIn] as const;
   });
   if (!loaded.ok) return <ErrorState title="Decks could not be loaded" detail={loaded.error} />;
   const [decks, versions, legalIn] = loaded.value;
-  // A version deleted since the link was made filters nothing.
-  const filter: Browse = { ...asked, legal: legalIn?.version.id ?? null };
+  // A version deleted since the link was made falls back to the one in force.
+  const filter: Browse = {
+    ...asked,
+    legal: legalIn?.version.id ?? null,
+    current: versions.find((version) => version.isCurrent)?.id ?? null,
+  };
 
   const index = cardIndex();
   const rules = formatRules(legalIn);
@@ -160,7 +167,8 @@ export async function BrowseDecks({ scope, params }: { scope: DeckScope; params:
   const pages = Math.max(1, Math.ceil(matching.length / PAGE_SIZE));
   const page = Math.min(pages, Math.max(1, Number(all(params["page"])[0]) || 1));
   const shown = matching.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
-  const filtering = filter.colors.length > 0 || filter.cards.length > 0 || rules !== null;
+  const filtering =
+    filter.colors.length > 0 || filter.cards.length > 0 || filter.legal !== filter.current;
 
   return (
     <section aria-label="Browse decks">
@@ -187,7 +195,15 @@ export async function BrowseDecks({ scope, params }: { scope: DeckScope; params:
       </div>
 
       {shown.length === 0 ? (
-        <EmptyState title={filtering ? "No deck matches that filter" : NONE_YET[filter.scope][0]}>
+        <EmptyState
+          title={
+            filtering
+              ? "No deck matches that filter"
+              : legalIn === null
+                ? NONE_YET[filter.scope][0]
+                : `No deck here is legal in ${legalIn.version.name} yet`
+          }
+        >
           {filtering ? (
             <Link href={clearedHref(filter)} className="underline underline-offset-2">
               Clear the filter
@@ -278,7 +294,8 @@ function FilterMenu({
   versions: readonly FormatVersion[];
   active: boolean;
 }) {
-  const count = filter.colors.length + filter.cards.length + (filter.legal === null ? 0 : 1);
+  const count =
+    filter.colors.length + filter.cards.length + (filter.legal === filter.current ? 0 : 1);
   return (
     <details className="group relative inline-block">
       <summary className="cursor-pointer list-none rounded-lg border border-ink-300 px-3 py-1.5 text-sm font-medium select-none hover:bg-ink-50 dark:border-ink-700 dark:hover:bg-ink-900 [&::-webkit-details-marker]:hidden">
@@ -323,26 +340,29 @@ function FilterMenu({
           placeholder="Llanowar Elves; Shock"
           className="w-full rounded-lg border border-ink-300 bg-paper px-3 py-2 text-sm focus:border-eclipse-500 focus:outline-none dark:border-ink-700 dark:bg-ink-950"
         />
-        <label
-          htmlFor="legal"
-          className="mt-4 mb-1 block text-xs font-medium text-ink-500 dark:text-ink-400"
-        >
-          Legal in
-        </label>
-        <select
-          id="legal"
-          name="legal"
-          defaultValue={filter.legal ?? ""}
-          className="w-full rounded-lg border border-ink-300 bg-paper px-3 py-2 text-sm focus:border-eclipse-500 focus:outline-none dark:border-ink-700 dark:bg-ink-950"
-        >
-          <option value="">Any format</option>
-          {versions.map((version) => (
-            <option key={version.id} value={version.id}>
-              {version.name}
-              {version.isCurrent && " (current)"}
-            </option>
-          ))}
-        </select>
+        {versions.length > 0 && (
+          <>
+            <label
+              htmlFor="legal"
+              className="mt-4 mb-1 block text-xs font-medium text-ink-500 dark:text-ink-400"
+            >
+              Legal in
+            </label>
+            <select
+              id="legal"
+              name="legal"
+              defaultValue={filter.legal ?? ""}
+              className="w-full rounded-lg border border-ink-300 bg-paper px-3 py-2 text-sm focus:border-eclipse-500 focus:outline-none dark:border-ink-700 dark:bg-ink-950"
+            >
+              {versions.map((version) => (
+                <option key={version.id} value={version.id}>
+                  {version.name}
+                  {version.isCurrent && " (current)"}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
         <div className="mt-4 flex items-center justify-between">
           <Link
             href={clearedHref(filter)}
