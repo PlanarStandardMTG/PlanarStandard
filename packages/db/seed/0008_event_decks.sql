@@ -1,9 +1,13 @@
 -- Seed: decks played at events.
 --
 -- The deck browser's Tournament tab and its event filter (E20.55, E20.61) list
--- nothing without these. Every list is 60 cards legal in the current version,
--- so all of them show on the browser's default view. The players are invented,
--- like the seed's authors.
+-- nothing without these. Every list is legal in the current version, so all of
+-- them show on the browser's default view. The players are invented, like the
+-- seed's authors.
+--
+-- Gauntlet Dimir Singleton is 60 Foundations spells, one of each, and 40 basics
+-- for the Foundations Gauntlet: the one event on its own format version, so the
+-- Tournament tab's Format filter has two to choose between.
 --
 -- Orzhov Lifegain is a member's own import taken to an event: pellwater's
 -- player played it, so it is listed on both the Community and Tournament tabs.
@@ -29,7 +33,9 @@ insert into decks
   ('66666666-6666-4666-8666-000000000004', 'Mono-Red Goblins', '55555555-5555-4555-8555-000000000004', null,
    '44444444-4444-4444-8444-000000000002', 'planar_standard', '22222222-2222-4222-8222-000000000001', 'public', 'registration'),
   ('66666666-6666-4666-8666-000000000005', 'Orzhov Lifegain', null, '11111111-1111-4111-8111-000000000006',
-   '44444444-4444-4444-8444-000000000002', 'planar_standard', '22222222-2222-4222-8222-000000000001', 'public', 'import');
+   '44444444-4444-4444-8444-000000000002', 'planar_standard', '22222222-2222-4222-8222-000000000001', 'public', 'import'),
+  ('66666666-6666-4666-8666-000000000006', 'Gauntlet Dimir Singleton', '55555555-5555-4555-8555-000000000003', null,
+   '44444444-4444-4444-8444-000000000002', 'planar_standard', '22222222-2222-4222-8222-000000000002', 'public', 'registration');
 
 insert into deck_cards (deck_id, oracle_id, card_name, quantity, board) values
   ('66666666-6666-4666-8666-000000000001', '68954295-54e3-4303-a6bc-fc4547a4e3a3', 'Llanowar Elves', 4, 'main'),
@@ -86,7 +92,69 @@ insert into deck_cards (deck_id, oracle_id, card_name, quantity, board) values
   ('66666666-6666-4666-8666-000000000005', '8164b1e8-3350-465e-8a17-75f57d326344', 'Exsanguinate', 4, 'main'),
   ('66666666-6666-4666-8666-000000000005', 'd37f858e-03c8-4594-9b92-cd03699a1591', 'Scoured Barrens', 4, 'main'),
   ('66666666-6666-4666-8666-000000000005', 'bc71ebf6-2056-41f7-be35-b2e5c34afa99', 'Plains', 12, 'main'),
-  ('66666666-6666-4666-8666-000000000005', '56719f6a-1a6c-4c0a-8d21-18f7d7350b68', 'Swamp', 12, 'main');
+  ('66666666-6666-4666-8666-000000000005', '56719f6a-1a6c-4c0a-8d21-18f7d7350b68', 'Swamp', 12, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '68cc5065-0514-4adf-885f-da554e1db00a', 'Abyssal Harvester', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'f84c30e7-2ea8-43ff-9356-1f907558cfd9', 'Aegis Turtle', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '7c779721-cd1b-4696-9ae9-68ccc284ed2a', 'Aetherize', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '234a734b-ba28-4f1b-9d01-3c3e7d516590', 'An Offer You Can''t Refuse', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '540693f3-985c-4a4a-945c-c957c5aad395', 'Arbiter of Woe', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'fe1556cc-32d0-4e51-bb15-f3fce669a5e1', 'Arcane Epiphany', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '8a7183cc-161c-444d-a889-a17519c8061b', 'Arcanis the Omnipotent', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '28045b32-4c1a-40e5-a15d-524d0f8fe6ec', 'Archmage of Runes', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '1b9ec782-0ba1-41f1-bc39-d3302494ecb3', 'Bake into a Pie', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '4e473298-0b67-42b8-90a8-3bcdd73da473', 'Bigfin Bouncer', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'ce45d6bd-74e3-401b-983d-028d3fb942da', 'Billowing Shriekmass', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '6cf50e21-0f60-4e9a-b910-ebe1bad2a29e', 'Blasphemous Edict', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'fd505c02-c59e-476d-8e88-35da862ddc23', 'Bloodthirsty Conqueror', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '93088b0c-d158-473a-9c06-aa2f344a9868', 'Bloodtithe Collector', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '916cb70f-3b06-48ed-972d-75f805aa0892', 'Brineborn Cutthroat', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '2f807301-37df-4724-871a-08e3512b07b3', 'Burglar Rat', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '73b60c2c-7c74-4554-8861-daa0d6fc22b4', 'Burrog Befuddler', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '7d00fb28-ea6c-49a9-b4af-ffb38860a9a7', 'Cancel', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '07792d72-d5db-41b9-871c-e720e12ce659', 'Cemetery Recruitment', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '8d979a0b-ba04-4abb-8f78-c707ce15351a', 'Cephalid Inkmage', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '05878e49-93ad-4144-9c50-a0bb86126c2e', 'Chart a Course', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'd9a3207a-a330-4517-967e-f37c9a9f1355', 'Clinquant Skymage', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'd599a38c-7719-443e-bb59-55bd43a8fee6', 'Confiscate', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '9b55fb72-237d-4935-b645-8ebc6eb4140e', 'Consuming Aberration', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'a7ec13c6-7ade-433a-b5a2-047854eef486', 'Corsair Captain', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '1a362e4d-6c02-4b67-ab63-c6622e505195', 'Crossway Troublemakers', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'a4ffe297-5e82-43f9-91a4-7aa3d8dd3b4a', 'Crow of Dark Tidings', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '4c22257e-8a00-40b7-a29b-55fcec7ddbd4', 'Crypt Feaster', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '9938d178-0ce6-45c0-b317-fd5c54231579', 'Curator of Destinies', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '6178715c-870d-4710-b758-66e080804ee3', 'Deadly Plot', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '99024aa8-5687-4d38-8a4b-feef42d6c1ff', 'Death Baron', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'cf09b0af-3cf1-4486-8f65-8cfd2410314a', 'Deathmark', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '19a2f0a0-9e68-4982-a5f5-b77d805befd7', 'Demonic Pact', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'ef75be00-1a88-47a1-a1ae-fe2c9881a798', 'Desecration Demon', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'be74a4c1-d569-4203-b28a-3e2ac6a82990', 'Dictate of Kruphix', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '6048fc70-0dcc-4b54-977d-16e240225f82', 'Diregraf Ghoul', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '2f990b54-fbf3-4949-85bb-9ba39710e72a', 'Dive Down', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '4de0ccab-bb5d-4c7c-827e-36aa1d00b182', 'Drake Hatcher', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '642fa01d-025e-44dd-8360-5325e5a28282', 'Dread Summons', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'bbfd0de0-3558-4833-bae4-8efae44b7fff', 'Dreadwing Scavenger', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '7c179e54-3beb-4761-bddf-41fa98b082db', 'Driver of the Dead', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '33d405ea-7a9a-4970-b70f-9c05d90dd6f0', 'Duress', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'd437ecc2-2fd3-4ad3-b23e-217f55e58dae', 'Eaten Alive', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'c37eae65-1afe-4242-b677-24dd40e6f401', 'Eaten by Piranhas', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'cf402270-ebc6-481b-b478-0e3acab7002a', 'Elementalist Adept', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '7d4b6613-9000-4f53-9737-fe0338f3f629', 'Erudite Wizard', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '46665089-aa3d-44c3-964d-6638dfbb5782', 'Essence Scatter', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'fd28fe55-36cd-4242-8dd4-edb58fbb9895', 'Exclusion Mage', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '8164b1e8-3350-465e-8a17-75f57d326344', 'Exsanguinate', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '3a646245-b8b7-4f91-a312-d5eea9a9e49a', 'Extravagant Replication', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '903d114b-1899-4e67-bee3-af0673850388', 'Faebloom Trick', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'ad01df89-29fe-44c7-a133-91425f8ff09c', 'Fake Your Own Death', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '5825997b-10d7-4a36-972c-a80ddd90b8ed', 'Feed the Swarm', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '755bd5d8-67f1-4f24-a4e8-d98edf2f2e03', 'Finale of Revelation', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'eaf98e03-729b-4145-b2af-c910c415c15d', 'Flashfreeze', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'b36271cb-cda2-434a-a580-6050dc460409', 'Fleeting Distraction', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '3a2bb47d-228d-499e-a34b-9e10d99e9b2c', 'Fog Bank', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '6781f8ae-2a86-4e3d-bc43-48809c9d6c26', 'Gatekeeper of Malakir', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '66c227f2-0e74-43e2-ab24-3866d15c5eef', 'Gateway Sneak', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '1ba99ade-df8d-4654-882a-a5f4256ada3d', 'Grappling Kraken', 1, 'main'),
+  ('66666666-6666-4666-8666-000000000006', 'b2c6aa39-2d2a-459c-a555-fb48ba993373', 'Island', 20, 'main'),
+  ('66666666-6666-4666-8666-000000000006', '56719f6a-1a6c-4c0a-8d21-18f7d7350b68', 'Swamp', 20, 'main');
 
 insert into tournament_entries (tournament_id, player_id, deck_id, placement, match_wins, match_losses)
 select tournaments.id, entry.player_id, entry.deck_id, entry.placement, entry.wins, entry.losses
@@ -97,6 +165,7 @@ from (values
   ('lorwyn-eclipsed-finale', '55555555-5555-4555-8555-000000000002'::uuid, '66666666-6666-4666-8666-000000000002'::uuid, 2, 5, 1),
   ('lorwyn-eclipsed-finale', '55555555-5555-4555-8555-000000000003'::uuid, '66666666-6666-4666-8666-000000000003'::uuid, 1, 6, 0),
   ('planar-standard-weekly-38', '55555555-5555-4555-8555-000000000004'::uuid, '66666666-6666-4666-8666-000000000004'::uuid, 2, 3, 1),
-  ('planar-standard-weekly-38', '55555555-5555-4555-8555-000000000005'::uuid, '66666666-6666-4666-8666-000000000005'::uuid, 1, 4, 0)
+  ('planar-standard-weekly-38', '55555555-5555-4555-8555-000000000005'::uuid, '66666666-6666-4666-8666-000000000005'::uuid, 1, 4, 0),
+  ('foundations-gauntlet', '55555555-5555-4555-8555-000000000003'::uuid, '66666666-6666-4666-8666-000000000006'::uuid, 2, 4, 1)
 ) as entry (slug, player_id, deck_id, placement, wins, losses)
 join tournaments on tournaments.slug = entry.slug;

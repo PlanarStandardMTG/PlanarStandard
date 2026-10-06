@@ -52,11 +52,16 @@ const NONE_YET: Record<DeckScope, [title: string, detail: string]> = {
 type Browse = DeckFilter & {
   readonly scope: DeckScope;
   readonly text: string;
-  /** The format version decks must be legal in; null only when no version exists. */
+  /**
+   * The format version decks must be legal in; null when no version exists, and
+   * on the Tournament tab, which goes by its events instead.
+   */
   readonly legal: string | null;
   /** The version in force, which the URL leaves out. */
   readonly current: string | null;
-  /** On the Tournament tab only, an event the decks were played at (E20.61). */
+  /** On the Tournament tab only: the format version its event was played under (E20.62)… */
+  readonly eventFormat: string | null;
+  /** …and the event itself (E20.61). */
   readonly event: string | null;
   readonly sort: Sort;
 };
@@ -66,7 +71,8 @@ const all = (value: string | string[] | undefined) =>
 
 /**
  * The browser's state as the URL carries it:
- * `?view=tournament&color=W&cards=Shock;Opt&legal=<id>&event=<id>&sort=win-rate&page=2`.
+ * `?color=W&cards=Shock;Opt&legal=<id>&sort=win-rate&page=2`, and on the
+ * Tournament tab `?view=tournament&format=<id>&event=<id>` in place of `legal`.
  */
 function readFilter(scope: DeckScope, params: Params): Omit<Browse, "current"> {
   const text = all(params["cards"])[0] ?? "";
@@ -78,7 +84,8 @@ function readFilter(scope: DeckScope, params: Params): Omit<Browse, "current"> {
       .map((name) => name.trim())
       .filter(Boolean),
     text,
-    legal: all(params["legal"])[0] || null,
+    legal: scope === "tournament" ? null : all(params["legal"])[0] || null,
+    eventFormat: scope === "tournament" ? all(params["format"])[0] || null : null,
     event: scope === "tournament" ? all(params["event"])[0] || null : null,
     sort: all(params["sort"])[0] === "win-rate" ? "win-rate" : "newest",
   };
@@ -90,6 +97,7 @@ function pageHref(filter: Browse, page: number, sort: Sort = filter.sort) {
   for (const color of filter.colors) query.append("color", color);
   if (filter.text.trim() !== "") query.set("cards", filter.text);
   if (filter.legal !== filter.current && filter.legal !== null) query.set("legal", filter.legal);
+  if (filter.eventFormat !== null) query.set("format", filter.eventFormat);
   if (filter.event !== null) query.set("event", filter.event);
   if (sort !== "newest") query.set("sort", sort);
   if (page > 1) query.set("page", String(page));
@@ -99,7 +107,18 @@ function pageHref(filter: Browse, page: number, sort: Sort = filter.sort) {
 
 /** The filter cleared back to the version in force, the tab and the sort kept. */
 const clearedHref = (filter: Browse) =>
-  pageHref({ ...filter, colors: [], cards: [], text: "", legal: filter.current, event: null }, 1);
+  pageHref(
+    {
+      ...filter,
+      colors: [],
+      cards: [],
+      text: "",
+      legal: filter.current,
+      eventFormat: null,
+      event: null,
+    },
+    1,
+  );
 
 /**
  * A member's own import is a community deck; a deck an event made, or one
@@ -119,10 +138,11 @@ function inScope(
 
 /**
  * The All, Community and Tournament tabs (E20.40, E20.55): every public deck
- * in the tab at its newest version that is legal in the format version in
- * force, or another one the filter picks (E20.53, E20.60), narrowed by colour,
- * card name and, on the Tournament tab, the event it was played at (E20.61),
- * ten to a page. Cards are not in Postgres, so the filter runs here against the card
+ * in the tab at its newest version, narrowed by colour and card name, ten to a
+ * page. All and Community list the decks legal in the format version in force,
+ * or another one the filter picks (E20.53, E20.60). Tournament goes by its
+ * events instead: every format by default, narrowed by the format an event was
+ * played under (E20.62) and the event itself (E20.61). Cards are not in Postgres, so the filter runs here against the card
  * index rather than in the query. Each deck shows who it is credited to and its
  * record over every version's events, and can be sorted by match win rate (E20.45).
  *
@@ -139,35 +159,54 @@ export async function BrowseDecks({ scope, params }: { scope: DeckScope; params:
     ]);
     const current = versions.find((version) => version.isCurrent);
     const chosen = versions.find((version) => version.id === asked.legal) ?? current;
-    const legalIn = chosen === undefined ? null : await getFormatDetail(client, chosen.id);
+    const legalIn =
+      scope === "tournament" || chosen === undefined
+        ? null
+        : await getFormatDetail(client, chosen.id);
     return [decks, versions, legalIn] as const;
   });
   if (!loaded.ok) return <ErrorState title="Decks could not be loaded" detail={loaded.error} />;
   const [decks, versions, legalIn] = loaded.value;
-  // A version deleted since the link was made falls back to the one in force.
-  const legalId = legalIn?.version.id ?? null;
 
   const index = cardIndex();
   const rules = formatRules(legalIn);
-  const legal = latestVersions(decks).flatMap(({ deck, lineage }) => {
+  const candidates = latestVersions(decks).flatMap(({ deck, lineage }) => {
     const resolved = toResolvedDeck(deck);
     return inScope(scope, deck, lineage) &&
       (rules === null || checkDeck(resolved, rules, index).legal)
       ? [{ deck, resolved, events: lineage.flatMap((version) => version.events), lineage }]
       : [];
   });
-  // The event menu offers the tab's events with a deck legal in the version
-  // chosen, so a pick never empties the list by itself; any other is ignored.
-  const events = scope === "tournament" ? eventsOf(legal) : [];
+  // The menus offer only the formats the tab's events were played under, and
+  // the events in the format chosen, so a pick never empties the list by
+  // itself; anything else in the URL is ignored.
+  const tabEvents = scope === "tournament" ? eventsOf(candidates) : [];
+  const eventFormats = versions.filter((version) =>
+    tabEvents.some((event) => event.formatVersionId === version.id),
+  );
+  const eventFormat = eventFormats.some((version) => version.id === asked.eventFormat)
+    ? asked.eventFormat
+    : null;
+  const events = tabEvents.filter(
+    (event) => eventFormat === null || event.formatVersionId === eventFormat,
+  );
   const filter: Browse = {
     ...asked,
-    legal: legalId,
-    current: versions.find((version) => version.isCurrent)?.id ?? null,
+    // A version deleted since the link was made falls back to the one in force.
+    legal: legalIn?.version.id ?? null,
+    current: scope === "tournament" ? null : (versions.find((v) => v.isCurrent)?.id ?? null),
+    eventFormat,
     event: events.some((event) => event.id === asked.event) ? asked.event : null,
   };
-  const matching = legal.flatMap(({ deck, resolved, events: played, lineage }) =>
-    matchesDeckFilter(resolved, index, filter) &&
-    (filter.event === null || played.some((event) => event.id === filter.event))
+  const playedAsAsked = (played: readonly DeckEvent[]) =>
+    (filter.eventFormat === null && filter.event === null) ||
+    played.some(
+      (event) =>
+        (filter.eventFormat === null || event.formatVersionId === filter.eventFormat) &&
+        (filter.event === null || event.id === filter.event),
+    );
+  const matching = candidates.flatMap(({ deck, resolved, events: played, lineage }) =>
+    matchesDeckFilter(resolved, index, filter) && playedAsAsked(played)
       ? [
           {
             deck,
@@ -186,12 +225,18 @@ export async function BrowseDecks({ scope, params }: { scope: DeckScope; params:
     filter.colors.length > 0 ||
     filter.cards.length > 0 ||
     filter.legal !== filter.current ||
+    filter.eventFormat !== null ||
     filter.event !== null;
 
   return (
     <section aria-label="Browse decks">
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <FilterMenu filter={filter} versions={versions} events={events} active={filtering} />
+        <FilterMenu
+          filter={filter}
+          versions={filter.scope === "tournament" ? eventFormats : versions}
+          events={events}
+          active={filtering}
+        />
         <nav aria-label="Sort" className="flex items-center gap-1 text-sm">
           <span className="mr-1 text-ink-500 dark:text-ink-400">Sort by</span>
           {(
@@ -326,6 +371,7 @@ function FilterMenu({
     filter.colors.length +
     filter.cards.length +
     (filter.legal === filter.current ? 0 : 1) +
+    (filter.eventFormat === null ? 0 : 1) +
     (filter.event === null ? 0 : 1);
   return (
     <details className="group relative inline-block">
@@ -374,17 +420,22 @@ function FilterMenu({
         {versions.length > 0 && (
           <>
             <label
-              htmlFor="legal"
+              htmlFor="format"
               className="mt-4 mb-1 block text-xs font-medium text-ink-500 dark:text-ink-400"
             >
-              Legal in
+              Format
             </label>
+            {/* Tournament filters by the format its events were played under,
+                the other tabs by the format a deck is legal in. */}
             <select
-              id="legal"
-              name="legal"
-              defaultValue={filter.legal ?? ""}
+              id="format"
+              name={filter.scope === "tournament" ? "format" : "legal"}
+              defaultValue={
+                (filter.scope === "tournament" ? filter.eventFormat : filter.legal) ?? ""
+              }
               className="w-full rounded-lg border border-ink-300 bg-paper px-3 py-2 text-sm focus:border-eclipse-500 focus:outline-none dark:border-ink-700 dark:bg-ink-950"
             >
+              {filter.scope === "tournament" && <option value="">Any format</option>}
               {versions.map((version) => (
                 <option key={version.id} value={version.id}>
                   {version.name}

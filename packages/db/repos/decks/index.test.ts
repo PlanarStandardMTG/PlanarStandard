@@ -290,7 +290,7 @@ describe.skipIf(!reachable)("repos/decks", () => {
       .single();
     const { data: tournament } = await service
       .from("tournaments")
-      .select("id, name, event_date")
+      .select("id, name, event_date, format_version_id")
       .neq("status", "draft")
       .limit(1)
       .single();
@@ -326,7 +326,14 @@ describe.skipIf(!reachable)("repos/decks", () => {
           "Credit played",
           { kind: "player", id: player?.id, name: "Credited" },
           [{ wins: 3, losses: 1, draws: 0 }],
-          [{ id: tournament?.id, name: tournament?.name, eventDate: tournament?.event_date }],
+          [
+            {
+              id: tournament?.id,
+              name: tournament?.name,
+              eventDate: tournament?.event_date,
+              formatVersionId: tournament?.format_version_id,
+            },
+          ],
         ],
       ]);
     } finally {
