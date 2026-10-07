@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 53/64 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 54/65 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1452,6 +1452,12 @@ when sorting by name; the active heading carries `aria-sort` and an arrow; anyth
 the ladder's own order.
 _Note:_ added outside the plan.
 
+✅ **E20.65 — `leaderboard`: every column at every width** · XS · Deps: E20.12 — a narrow screen keeps
+Matches, Events and Peak and scrolls the table sideways instead of dropping them.
+_AC:_ all seven columns render at phone width; the table scrolls within its own box, never the page;
+cells don't wrap.
+_Note:_ added outside the plan.
+
 ---
 
 ## E21 — Season II backfill
@@ -1860,11 +1866,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 64      | 53   |
+| E9   | 9       | 9    | E20  | 65      | 54   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
 
-**239 of 310 stories done across 25 epics.**
+**240 of 311 stories done across 25 epics.**

@@ -28,7 +28,7 @@ export function RatingsTable({
 }) {
   return (
     <div className="overflow-x-auto">
-      <table className="w-full text-left text-sm">
+      <table className="w-full text-left text-sm whitespace-nowrap">
         <caption className="sr-only">{caption}</caption>
         <thead className="font-mono text-xs tracking-[0.12em] text-ink-500 uppercase dark:text-ink-400">
           <tr>
@@ -79,9 +79,9 @@ const HEADINGS: readonly { column: LadderColumn; label: string; className: strin
   { column: "player", label: "Player", className: "" },
   { column: "rating", label: "Rating", className: "text-right" },
   { column: "record", label: "Record", className: "text-right" },
-  { column: "matches", label: "Matches", className: "hidden text-right sm:table-cell" },
-  { column: "events", label: "Events", className: "hidden text-right sm:table-cell" },
-  { column: "peak", label: "Peak", className: "hidden text-right md:table-cell" },
+  { column: "matches", label: "Matches", className: "text-right" },
+  { column: "events", label: "Events", className: "text-right" },
+  { column: "peak", label: "Peak", className: "text-right" },
 ];
 
 function SortHeading({
@@ -136,13 +136,9 @@ function RatedCells({ rank, row }: { rank: number; row: LeaderboardRow }) {
         {row.wins}–{row.losses}
         {row.draws > 0 && `–${row.draws}`}
       </td>
-      <td className="hidden px-4 py-3 text-right font-mono sm:table-cell">{row.matchesPlayed}</td>
-      <td className="hidden px-4 py-3 text-right font-mono sm:table-cell">
-        {row.tournamentsPlayed}
-      </td>
-      <td className="hidden px-4 py-3 text-right font-mono text-ink-500 md:table-cell">
-        {Math.round(row.peakRating)}
-      </td>
+      <td className="px-4 py-3 text-right font-mono">{row.matchesPlayed}</td>
+      <td className="px-4 py-3 text-right font-mono">{row.tournamentsPlayed}</td>
+      <td className="px-4 py-3 text-right font-mono text-ink-500">{Math.round(row.peakRating)}</td>
     </>
   );
 }
@@ -154,9 +150,9 @@ function UnratedCells() {
     <>
       <td className={cell}>—</td>
       <td className={cell}>—</td>
-      <td className={cn(cell, "hidden sm:table-cell")}>—</td>
-      <td className={cn(cell, "hidden sm:table-cell")}>—</td>
-      <td className={cn(cell, "hidden md:table-cell")}>—</td>
+      <td className={cell}>—</td>
+      <td className={cell}>—</td>
+      <td className={cell}>—</td>
     </>
   );
 }
