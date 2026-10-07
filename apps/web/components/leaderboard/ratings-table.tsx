@@ -3,7 +3,6 @@ import type { LeaderboardRow, UnrankedPlayerRow } from "@ps/contracts";
 import { Placement } from "@/components/ui/marks";
 import { cn } from "@/lib/cn";
 import { PersonName } from "@/components/ui/person-name";
-import { formatDate } from "@/lib/format-date";
 
 /** `rank` is the place on the whole ladder, so a filtered page keeps it. */
 export type LadderRow =
@@ -65,11 +64,6 @@ export function RatingsTable({ rows, caption }: { rows: readonly LadderRow[]; ca
                 <PersonName person={{ player: entry.row.slug }} className="text-base font-semibold">
                   {entry.row.displayName}
                 </PersonName>
-                {entry.row.lastPlayed !== null && (
-                  <span className="block text-xs text-ink-500 dark:text-ink-400">
-                    last played {formatDate(entry.row.lastPlayed)}
-                  </span>
-                )}
               </td>
               {entry.rank === null ? <UnratedCells /> : <RatedCells {...entry} />}
             </tr>
