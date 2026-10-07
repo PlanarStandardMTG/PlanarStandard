@@ -59,8 +59,24 @@ export async function setEventFormats(id: string, formatVersionIds: readonly str
 
   const formats = chosen as FormatVersionId[];
   await setTournamentFormats(service, id as TournamentId, formats);
-  await placeEventDecks(service, id as TournamentId, formats);
+  await placeEventDecks(service, [{ id: id as TournamentId, formatVersionIds: formats }]);
   revalidatePath("/", "layout");
+}
+
+/**
+ * Check every event's decks against its versions again (E20.67) — after cards
+ * are matched or a version's rules change, nothing else re-runs the choice.
+ */
+export async function recheckDeckFormats(): Promise<never> {
+  await requireRole("admin");
+  const service = createServiceRoleClient();
+  const events = (await listTournamentCoverage(service)).flatMap((row) =>
+    row.decks === 0 ? [] : [row.tournament],
+  );
+  const { moved, legalInNone } = await placeEventDecks(service, events);
+
+  revalidatePath("/", "layout");
+  redirect(`/admin/processing?done=rechecked&moved=${moved}&none=${legalInNone}`);
 }
 
 /** Match the decklist lines that name a card the card data has gained since (E20.56). */

@@ -473,8 +473,9 @@ describe("core/legality/best-format", () => {
   });
 
   it("takes the first of the event's versions the deck is legal in", () => {
-    expect(bestFormat(deck, [narrow, format()], INDEX)).toBe("season-ii");
-    expect(bestFormat(deck, [format(), narrow], INDEX)).toBe("season-ii");
+    const seasonII = { formatVersionId: "season-ii", legal: true };
+    expect(bestFormat(deck, [narrow, format()], INDEX)).toEqual(seasonII);
+    expect(bestFormat(deck, [format(), narrow], INDEX)).toEqual(seasonII);
   });
 
   it("falls back to the event's first version when the deck is legal in none", () => {
@@ -483,7 +484,10 @@ describe("core/legality/best-format", () => {
       legalSets: ["dft"],
       cardRules: [],
     });
-    expect(bestFormat(deck, [other, narrow], INDEX)).toBe("other");
+    expect(bestFormat(deck, [other, narrow], INDEX)).toEqual({
+      formatVersionId: "other",
+      legal: false,
+    });
   });
 
   it("has nothing to pick for an event with no version", () => {

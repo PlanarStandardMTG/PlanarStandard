@@ -136,7 +136,7 @@ export async function attachEventDecks(
 
   await setEntryDecks(service, tournament.id, links);
   await deleteUnusedEventDecks(service, replaced);
-  await placeEventDecks(service, tournament.id, tournament.formatVersionIds);
+  await placeEventDecks(service, [tournament]);
   return { attached: links.length, unchanged, problems };
 }
 

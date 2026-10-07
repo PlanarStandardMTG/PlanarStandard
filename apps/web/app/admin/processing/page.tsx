@@ -22,6 +22,7 @@ import {
   confirmCardMatch,
   include,
   matchCards,
+  recheckDeckFormats,
   recomputeNow,
   saveRatingWindow,
   setEventFormats,
@@ -108,6 +109,15 @@ export default async function AdminProcessingPage({
         </Notice>
       )}
 
+      {params["done"] === "rechecked" && (
+        <Notice tone="good">
+          Deck formats rechecked:{" "}
+          {params["moved"] === "1" ? "1 deck" : `${String(params["moved"])} decks`} moved.
+          {params["none"] !== "0" &&
+            ` ${params["none"] === "1" ? "1 deck is" : `${String(params["none"])} decks are`} legal in none of their event’s formats and stay in its first — usually a card that isn’t matched yet.`}
+        </Notice>
+      )}
+
       <RatingWindowForm
         key={`${window.from}:${window.until ?? ""}`}
         initial={window}
@@ -130,6 +140,22 @@ export default async function AdminProcessingPage({
         <form action={recomputeNow}>
           <button type="submit" className={BUTTON}>
             Recompute ratings
+          </button>
+        </form>
+      </div>
+
+      <div className="mb-8 flex flex-wrap items-center gap-4 rounded-xl border border-ink-200 px-5 py-4 dark:border-ink-800">
+        <div className="min-w-0 flex-1">
+          <p className="font-semibold">Deck formats</p>
+          <p className="text-xs text-ink-500 dark:text-ink-400">
+            Each deck an event made counts in the first of the event&rsquo;s formats it is legal in.
+            That is decided when the event&rsquo;s formats or decklists change; recheck after
+            matching cards or editing a format&rsquo;s rules.
+          </p>
+        </div>
+        <form action={recheckDeckFormats}>
+          <button type="submit" className={BUTTON}>
+            Recheck deck formats
           </button>
         </form>
       </div>
