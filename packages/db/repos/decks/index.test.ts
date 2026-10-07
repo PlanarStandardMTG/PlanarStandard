@@ -331,7 +331,7 @@ describe.skipIf(!reachable)("repos/decks", () => {
               id: tournament?.id,
               name: tournament?.name,
               eventDate: tournament?.event_date,
-              formatVersionId: tournament?.format_version_id,
+              formatVersionIds: [tournament?.format_version_id],
             },
           ],
         ],

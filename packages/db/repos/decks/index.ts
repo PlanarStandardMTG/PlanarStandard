@@ -3,6 +3,7 @@ import type {
   DeckCard,
   DeckId,
   DeckWithCards,
+  FormatVersionId,
   OracleId,
   PlayerId,
   ProfileId,
@@ -356,6 +357,33 @@ export async function listDecksWithCards(
   const { data, error } = await query.order("created_at", { ascending: false });
   if (error !== null) throw new Error(`listDecksWithCards failed: ${error.message}`);
   return (data as unknown as DeckWithCardsRow[]).map(toDeckWithCards);
+}
+
+/**
+ * Check these decks against these format versions — an event's decks once it
+ * has chosen each one's (E20.66). A member's own saved deck keeps its owner's
+ * choice. Returns how many were written.
+ */
+export async function setEventDeckFormats(
+  serviceClient: SupabaseClient,
+  placed: readonly { readonly deckId: DeckId; readonly formatVersionId: FormatVersionId }[],
+): Promise<number> {
+  const byFormat = new Map<FormatVersionId, DeckId[]>();
+  for (const { deckId, formatVersionId } of placed) {
+    byFormat.set(formatVersionId, [...(byFormat.get(formatVersionId) ?? []), deckId]);
+  }
+  let moved = 0;
+  for (const [formatVersionId, deckIds] of byFormat) {
+    const { data, error } = await serviceClient
+      .from("decks")
+      .update({ format_version_id: formatVersionId })
+      .in("id", deckIds)
+      .or("submitted_via.is.null,submitted_via.neq.import")
+      .select("id");
+    if (error !== null) throw new Error(`setEventDeckFormats failed: ${error.message}`);
+    moved += data.length;
+  }
+  return moved;
 }
 
 /**

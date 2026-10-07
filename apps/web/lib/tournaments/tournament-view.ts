@@ -54,8 +54,8 @@ export interface TournamentView {
   readonly standings: readonly Standing[];
   readonly rounds: readonly EventRound<Pairing>[];
   readonly decks: number;
-  /** The format version it was played in (E25.8); null when it names none. */
-  readonly format: string | null;
+  /** The format versions it allowed (E20.66), in the order chosen. */
+  readonly formats: readonly string[];
 }
 
 const HIDDEN = "Hidden player";
@@ -129,6 +129,8 @@ export async function loadTournamentView(
     standings,
     rounds: eventRounds(pairings),
     decks: standings.filter((standing) => standing.deck !== null).length,
-    format: versions.find((version) => version.id === tournament.formatVersionId)?.name ?? null,
+    formats: tournament.formatVersionIds.flatMap(
+      (id) => versions.find((version) => version.id === id)?.name ?? [],
+    ),
   };
 }

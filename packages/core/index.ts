@@ -115,6 +115,7 @@ export { checkCard, copyLimit, isInPool } from "./legality/check-card/index";
 export type { CardUnderTest } from "./legality/check-card/index";
 export { checkDeck } from "./legality/check-deck/index";
 export { checkDeckInFormat } from "./legality/check-deck-in-format/index";
+export { bestFormat } from "./legality/best-format/index";
 export {
   CARD_RULINGS,
   FORMAT_NAME_MAX,

@@ -8,7 +8,7 @@ import {
   listTournamentCoverage,
   matchDeckCards,
   setRatingWindow,
-  setTournamentFormat,
+  setTournamentFormats,
   setTournamentInclusion,
 } from "@ps/db";
 import { revalidatePath } from "next/cache";
@@ -18,6 +18,7 @@ import type { RatingWindowState } from "@/components/processing/rating-window-fo
 import { requireRole } from "@/lib/auth/guard";
 import { cardIndex } from "@/lib/cards/card-index";
 import { findCardMatches } from "@/lib/decks/match-deck-cards.server";
+import { placeEventDecks } from "@/lib/decks/place-event-decks.server";
 import { recomputeRatings } from "@/lib/ratings/recompute-ratings.server";
 import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
 
@@ -45,14 +46,20 @@ export async function include(id: string, what: "elo" | "cardStats", on: boolean
   revalidatePath("/admin", "layout");
 }
 
-/** Put an event, and every deck it made, in another format version (E25.8). */
-export async function setEventFormat(id: string, formatVersionId: string) {
+/**
+ * Put an event in these format versions, first one first (E20.66), and each
+ * deck it made in the first of them the deck is legal in.
+ */
+export async function setEventFormats(id: string, formatVersionIds: readonly string[]) {
   await requireRole("admin");
   const service = createServiceRoleClient();
-  const versions = await listFormatVersions(service);
-  if (!versions.some((version) => version.id === formatVersionId)) return;
+  const known = new Set((await listFormatVersions(service)).map((version) => version.id));
+  const chosen = [...new Set(formatVersionIds)].filter((formatId) => known.has(formatId));
+  if (chosen.length === 0) return;
 
-  await setTournamentFormat(service, id as TournamentId, formatVersionId as FormatVersionId);
+  const formats = chosen as FormatVersionId[];
+  await setTournamentFormats(service, id as TournamentId, formats);
+  await placeEventDecks(service, id as TournamentId, formats);
   revalidatePath("/", "layout");
 }
 

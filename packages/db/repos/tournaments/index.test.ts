@@ -26,12 +26,13 @@ import {
   replaceTournamentEntries,
   saveSourcedTournament,
   setEntryDecks,
-  setTournamentFormat,
+  setTournamentFormats,
   setTournamentInclusion,
   applyEloInclusion,
   listTournamentCoverage,
   type SourcedTournament,
 } from "./index";
+import { setEventDeckFormats } from "../decks/index";
 
 /**
  * Runs against a local Supabase with the seed loaded (`pnpm db:reset`).
@@ -292,13 +293,14 @@ describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () =>
     expect(row).toMatchObject({ includeInElo: false, inCardStats: false });
   });
 
-  it("starts an event in the version in force, and moves the decks it made with it", async () => {
+  it("starts an event in the version in force, keeps the versions chosen in order, and moves its own decks", async () => {
     const event = await saveSourcedTournament(
       service,
       sourced({ externalId: `format-${run}`, slug: `vitest-format-${run}` }),
     );
     made.push(event.id);
     expect(event.formatVersionId).toBe(PLANAR_STANDARD);
+    expect(event.formatVersionIds).toEqual([PLANAR_STANDARD]);
 
     const [made1, made2] = [await makePlayer("event-deck"), await makePlayer("own-deck")];
     const entry = { matchWins: 0, matchLosses: 0, matchDraws: 0, gameWins: 0, gameLosses: 0 };
@@ -330,11 +332,17 @@ describe.skipIf(!reachable)("repos/tournaments — saveSourcedTournament", () =>
       { playerId: made2, deckId: ownDeck ?? null },
     ]);
 
-    expect(await setTournamentFormat(service, event.id, GAUNTLET)).toBe(1);
-    expect(await setTournamentFormat(service, event.id, GAUNTLET)).toBe(0);
-
+    await setTournamentFormats(service, event.id, [GAUNTLET, PLANAR_STANDARD]);
     const [moved] = await listTournamentsByIds(service, [event.id]);
     expect(moved?.formatVersionId).toBe(GAUNTLET);
+    expect(moved?.formatVersionIds).toEqual([GAUNTLET, PLANAR_STANDARD]);
+    await expect(setTournamentFormats(service, event.id, [])).rejects.toThrow();
+
+    const both = [eventDeck, ownDeck].map((id) => ({
+      deckId: id as DeckId,
+      formatVersionId: GAUNTLET,
+    }));
+    expect(await setEventDeckFormats(service, both)).toBe(1);
     const { data: decks } = await service
       .from("decks")
       .select("id, format_version_id")

@@ -23,6 +23,7 @@ export interface TournamentRow {
   readonly event_date: string;
   readonly season_id: string | null;
   readonly format_version_id: string | null;
+  readonly formats?: readonly TournamentFormatRow[] | null;
   readonly platform: string | null;
   readonly external_url: string | null;
   readonly structure: string | null;
@@ -32,6 +33,11 @@ export interface TournamentRow {
   readonly is_rated: boolean;
   readonly status: TournamentStatus;
   readonly created_at: string;
+}
+
+export interface TournamentFormatRow {
+  readonly format_version_id: string;
+  readonly position: number;
 }
 
 export interface TournamentEntryRow {
@@ -52,7 +58,8 @@ export interface TournamentEntryRow {
 
 export const TOURNAMENT_COLUMNS =
   "id, name, slug, event_date, season_id, format_version_id, platform, external_url, " +
-  "structure, rounds, player_count, weight, is_rated, status, created_at";
+  "structure, rounds, player_count, weight, is_rated, status, created_at, " +
+  "formats:tournament_formats (format_version_id, position)";
 
 export const ENTRY_COLUMNS =
   "id, tournament_id, player_id, deck_id, archetype_id, placement, match_wins, match_losses, " +
@@ -76,6 +83,7 @@ export function toTournament(row: TournamentRow): Tournament {
     eventDate: row.event_date,
     seasonId: row.season_id as SeasonId | null,
     formatVersionId: row.format_version_id as FormatVersionId | null,
+    formatVersionIds: toFormatVersionIds(row.format_version_id, row.formats),
     platform: row.platform,
     externalUrl: row.external_url,
     structure: row.structure,
@@ -89,6 +97,23 @@ export function toTournament(row: TournamentRow): Tournament {
     status: row.status,
     createdAt: row.created_at,
   };
+}
+
+/**
+ * An event's versions in the order chosen. A row just inserted comes back
+ * without its list — the trigger's insert is invisible to the statement that
+ * fired it — so the event's one version stands in.
+ */
+export function toFormatVersionIds(
+  first: string | null,
+  formats: readonly TournamentFormatRow[] | null | undefined,
+): FormatVersionId[] {
+  if (formats === null || formats === undefined || formats.length === 0) {
+    return first === null ? [] : [first as FormatVersionId];
+  }
+  return [...formats]
+    .sort((a, b) => a.position - b.position)
+    .map((format) => format.format_version_id as FormatVersionId);
 }
 
 export function toTournamentEntry(row: TournamentEntryRow): TournamentEntry {

@@ -11,6 +11,7 @@ import type {
 import { describe, expect, it } from "vitest";
 
 import { parseDecklist } from "../decklist/parse-decklist/index";
+import { bestFormat } from "./best-format/index";
 import { buildCardIndex, normalizeSetCode } from "./build-card-index/index";
 import { checkCard, copyLimit, isInPool } from "./check-card/index";
 import { checkDeck } from "./check-deck/index";
@@ -460,6 +461,33 @@ describe("core/legality/check-deck-in-format", () => {
       cardIssues: [],
       deckIssues: [],
     });
+  });
+});
+
+describe("core/legality/best-format", () => {
+  const deck = resolvedDeck(fixture("decklists/real-deck-azorius-control.txt"));
+  const narrow = resolveFormat({
+    formatVersionId: "narrow" as FormatVersionId,
+    legalSets: ["eoe"],
+    cardRules: [],
+  });
+
+  it("takes the first of the event's versions the deck is legal in", () => {
+    expect(bestFormat(deck, [narrow, format()], INDEX)).toBe("season-ii");
+    expect(bestFormat(deck, [format(), narrow], INDEX)).toBe("season-ii");
+  });
+
+  it("falls back to the event's first version when the deck is legal in none", () => {
+    const other = resolveFormat({
+      formatVersionId: "other" as FormatVersionId,
+      legalSets: ["dft"],
+      cardRules: [],
+    });
+    expect(bestFormat(deck, [other, narrow], INDEX)).toBe("other");
+  });
+
+  it("has nothing to pick for an event with no version", () => {
+    expect(bestFormat(deck, [], INDEX)).toBeNull();
   });
 });
 

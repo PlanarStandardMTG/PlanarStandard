@@ -258,7 +258,10 @@ export interface Tournament {
   readonly slug: string;
   readonly eventDate: IsoDate;
   readonly seasonId: SeasonId | null;
+  /** The first of `formatVersionIds`: the version a deck legal in none of them is checked against. */
   readonly formatVersionId: FormatVersionId | null;
+  /** Every format version the event allowed, in the order an admin chose them (E20.66). */
+  readonly formatVersionIds: readonly FormatVersionId[];
   readonly platform: string | null;
   readonly externalUrl: string | null;
   readonly structure: string | null;

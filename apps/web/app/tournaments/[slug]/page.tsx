@@ -43,7 +43,7 @@ export async function generateMetadata({
 export default async function TournamentPage({ params }: { params: Promise<{ slug: string }> }) {
   const view = await findTournament((await params).slug);
   if (view === null) notFound();
-  const { tournament, standings, rounds, decks, format } = view;
+  const { tournament, standings, rounds, decks, formats } = view;
   const platform = platformLabel(tournament.platform);
   const players = standings.length > 0 ? standings.length : tournament.playerCount;
 
@@ -87,7 +87,11 @@ export default async function TournamentPage({ params }: { params: Promise<{ slu
           <Badge variant={tournament.isRated ? "accent" : "outline"}>
             {tournament.isRated ? "Rated" : "Unrated"}
           </Badge>
-          {format !== null && <Badge variant="outline">{format}</Badge>}
+          {formats.map((format) => (
+            <Badge key={format} variant="outline">
+              {format}
+            </Badge>
+          ))}
           {tournament.structure !== null && (
             <span className="text-xs text-ink-500 capitalize dark:text-ink-400">
               {tournament.structure}

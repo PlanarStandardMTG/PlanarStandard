@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 54/65 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 55/66 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1458,6 +1458,15 @@ _AC:_ all seven columns render at phone width; the table scrolls within its own 
 cells don't wrap.
 _Note:_ added outside the plan.
 
+✅ **E20.66 — `processing`: an event allows more than one format** · S · Deps: E20.62 — the format
+menu on `/admin/processing` ticks several versions, kept in the order chosen
+(`tournament_formats`, migration 0047). Each deck the event made is checked against the first of them
+it is legal in (`core/legality/best-format`), or the first when it is legal in none; a member's own
+deck keeps its owner's choice.
+_AC:_ an event saves two or more versions and can never be left with none; its page shows each; the
+Tournament tab lists it under every one of them; re-attaching decks re-places them.
+_Note:_ added outside the plan.
+
 ---
 
 ## E21 — Season II backfill
@@ -1866,11 +1875,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 65      | 54   |
+| E9   | 9       | 9    | E20  | 66      | 55   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
 
-**240 of 311 stories done across 25 epics.**
+**241 of 312 stories done across 25 epics.**

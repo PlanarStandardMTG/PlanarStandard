@@ -16,6 +16,8 @@ import type {
   WinLossDraw,
 } from "@ps/contracts";
 
+import { toFormatVersionIds, type TournamentFormatRow } from "../tournaments/rows";
+
 /**
  * The `decks` and `deck_cards` rows as PostgREST returns them. Kept next to the
  * mappers: outside this module a deck is a `Deck`, and the snake_case shape of
@@ -90,8 +92,8 @@ export interface DeckEvent {
   readonly id: TournamentId;
   readonly name: string;
   readonly eventDate: string;
-  /** The format version the event was played under, whatever its decks are legal in. */
-  readonly formatVersionId: FormatVersionId | null;
+  /** The format versions the event allowed, whatever its decks are legal in (E20.66). */
+  readonly formatVersionIds: readonly FormatVersionId[];
 }
 
 /** A deck as the browser lists it (E20.40, E20.45). */
@@ -106,7 +108,8 @@ export interface BrowsableDeck extends DeckWithCards {
 export const BROWSABLE_DECK_COLUMNS =
   `${DECK_WITH_CARDS_COLUMNS}, player:players (id, display_name), ` +
   "owner:profiles (id, display_name), entries:tournament_entries (match_wins, match_losses, match_draws, " +
-  "tournament:tournaments (id, name, event_date, format_version_id))";
+  "tournament:tournaments (id, name, event_date, format_version_id, " +
+  "formats:tournament_formats (format_version_id, position)))";
 
 export interface BrowsableDeckRow extends DeckWithCardsRow {
   readonly player: { readonly id: string; readonly display_name: string } | null;
@@ -121,6 +124,7 @@ export interface BrowsableDeckRow extends DeckWithCardsRow {
           readonly name: string;
           readonly event_date: string;
           readonly format_version_id: string | null;
+          readonly formats: readonly TournamentFormatRow[] | null;
         } | null;
       }[]
     | null;
@@ -205,7 +209,10 @@ export function toBrowsableDeck(row: BrowsableDeckRow): BrowsableDeck {
               id: entry.tournament.id as TournamentId,
               name: entry.tournament.name,
               eventDate: entry.tournament.event_date,
-              formatVersionId: entry.tournament.format_version_id as FormatVersionId | null,
+              formatVersionIds: toFormatVersionIds(
+                entry.tournament.format_version_id,
+                entry.tournament.formats,
+              ),
             },
           ],
     ),

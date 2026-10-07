@@ -178,6 +178,7 @@ suite("RLS — the allow-deny matrix", () => {
       "seasons",
       "external_events",
       "tournament_entries",
+      "tournament_formats",
       "match_corrections",
     ] as const;
 

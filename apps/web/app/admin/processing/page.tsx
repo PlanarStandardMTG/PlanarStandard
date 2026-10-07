@@ -24,7 +24,7 @@ import {
   matchCards,
   recomputeNow,
   saveRatingWindow,
-  setEventFormat,
+  setEventFormats,
 } from "./actions";
 
 export const dynamic = "force-dynamic";
@@ -81,8 +81,9 @@ export default async function AdminProcessingPage({
           </Link>
           . A Monthly starts in both. Elo needs an event&rsquo;s matches, and card statistics its
           decklists. Elo changes wait until you recompute; card statistics are saved as you tick
-          them. An event starts in the format version in force; changing it moves the decks the
-          event made with it, while a member&rsquo;s own deck keeps theirs.
+          them. An event starts in the format version in force and can allow more than one; each
+          deck the event made counts in the first of them it is legal in, while a member&rsquo;s own
+          deck keeps theirs.
         </p>
       </header>
 
@@ -218,11 +219,11 @@ export default async function AdminProcessingPage({
             outsideWindow: !inRatingWindow(row.tournament.eventDate, window),
             hasDecks: row.decks > 0,
             cardStats: row.inCardStats,
-            formatVersionId: row.tournament.formatVersionId,
+            formatVersionIds: row.tournament.formatVersionIds,
           }))}
           formats={versions.map((version) => ({ id: version.id, name: version.name }))}
           include={include}
-          setFormat={setEventFormat}
+          setFormat={setEventFormats}
         />
       )}
     </>

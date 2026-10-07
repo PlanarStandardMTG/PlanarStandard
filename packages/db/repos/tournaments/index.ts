@@ -501,21 +501,19 @@ export async function setTournamentInclusion(
 }
 
 /**
- * Put an event in a format version, and every deck the event made with it
- * (E25.8). A member's own saved deck that an entry names keeps its owner's
- * choice. Returns how many decks moved.
+ * Put an event in these format versions, in this order (E20.66). Its decks are
+ * not moved here: which version each is checked against needs the card data.
  */
-export async function setTournamentFormat(
+export async function setTournamentFormats(
   serviceClient: SupabaseClient,
   tournamentId: TournamentId,
-  formatVersionId: FormatVersionId,
-): Promise<number> {
-  const { data, error } = await serviceClient.rpc("set_tournament_format", {
+  formatVersionIds: readonly FormatVersionId[],
+): Promise<void> {
+  const { error } = await serviceClient.rpc("set_tournament_formats", {
     p_tournament_id: tournamentId,
-    p_format_version_id: formatVersionId,
+    p_format_version_ids: formatVersionIds,
   });
-  if (error !== null) throw new Error(`setTournamentFormat failed: ${error.message}`);
-  return data as number;
+  if (error !== null) throw new Error(`setTournamentFormats failed: ${error.message}`);
 }
 
 /**

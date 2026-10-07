@@ -182,13 +182,13 @@ export async function BrowseDecks({ scope, params }: { scope: DeckScope; params:
   // itself; anything else in the URL is ignored.
   const tabEvents = scope === "tournament" ? eventsOf(candidates) : [];
   const eventFormats = versions.filter((version) =>
-    tabEvents.some((event) => event.formatVersionId === version.id),
+    tabEvents.some((event) => event.formatVersionIds.includes(version.id)),
   );
   const eventFormat = eventFormats.some((version) => version.id === asked.eventFormat)
     ? asked.eventFormat
     : null;
   const events = tabEvents.filter(
-    (event) => eventFormat === null || event.formatVersionId === eventFormat,
+    (event) => eventFormat === null || event.formatVersionIds.includes(eventFormat),
   );
   const filter: Browse = {
     ...asked,
@@ -202,7 +202,7 @@ export async function BrowseDecks({ scope, params }: { scope: DeckScope; params:
     (filter.eventFormat === null && filter.event === null) ||
     played.some(
       (event) =>
-        (filter.eventFormat === null || event.formatVersionId === filter.eventFormat) &&
+        (filter.eventFormat === null || event.formatVersionIds.includes(filter.eventFormat)) &&
         (filter.event === null || event.id === filter.event),
     );
   const matching = candidates.flatMap(({ deck, resolved, events: played, lineage }) =>
