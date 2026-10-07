@@ -10,7 +10,7 @@ export interface Placement {
   /** Decks now checked against a different version than before. */
   readonly moved: number;
   /** Decks legal in none of their event's versions, left in its first. */
-  readonly legalInNone: number;
+  readonly legalInNone: readonly DeckId[];
 }
 
 /**
@@ -30,7 +30,7 @@ export async function placeEventDecks(
 
   const index = cardIndex();
   const placed: { deckId: DeckId; formatVersionId: FormatVersionId }[] = [];
-  let legalInNone = 0;
+  const legalInNone = new Set<DeckId>();
   for (const tournament of tournaments) {
     if (tournament.formatVersionIds.length === 0) continue;
     const entries = await listNamedEntries(service, [tournament.id]);
@@ -44,11 +44,11 @@ export async function placeEventDecks(
       if (deck.submittedVia === "import") continue;
       const best = bestFormat(toResolvedDeck(deck), formats, index);
       if (best === null) continue;
-      if (!best.legal) legalInNone += 1;
+      if (!best.legal) legalInNone.add(deck.id);
       if (best.formatVersionId !== deck.formatVersionId) {
         placed.push({ deckId: deck.id, formatVersionId: best.formatVersionId });
       }
     }
   }
-  return { moved: await setEventDeckFormats(service, placed), legalInNone };
+  return { moved: await setEventDeckFormats(service, placed), legalInNone: [...legalInNone] };
 }

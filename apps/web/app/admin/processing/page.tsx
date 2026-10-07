@@ -1,6 +1,8 @@
+import type { DeckId } from "@ps/contracts";
 import { inRatingWindow } from "@ps/core";
 import {
   getRatingWindow,
+  listDecksWithCards,
   listFormatVersions,
   listRatingRuns,
   listTournamentCoverage,
@@ -14,6 +16,7 @@ import { RatingWindowForm } from "@/components/processing/rating-window-form";
 import { requireRole } from "@/lib/auth/guard";
 import { findCardMatches } from "@/lib/decks/match-deck-cards.server";
 import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";
+import { isUuid } from "@/lib/people/member-href";
 import { formatDate, formatDateTime } from "@/lib/format-date";
 import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
 import { createSessionClient } from "@/lib/supabase/session";
@@ -65,6 +68,13 @@ export default async function AdminProcessingPage({
     listFormatVersions(session),
     findCardMatches(service),
   ]);
+  const illegalIds = (typeof params["decks"] === "string" ? params["decks"].split(",") : []).filter(
+    isUuid,
+  );
+  const illegal =
+    params["done"] === "rechecked" && illegalIds.length > 0
+      ? await listDecksWithCards(service, { ids: illegalIds as DeckId[] })
+      : [];
   const waiting = coverage.filter((row) => row.includeInElo !== row.tournament.isRated).length;
 
   return (
@@ -114,8 +124,29 @@ export default async function AdminProcessingPage({
           Deck formats rechecked:{" "}
           {params["moved"] === "1" ? "1 deck" : `${String(params["moved"])} decks`} moved.
           {params["none"] !== "0" &&
-            ` ${params["none"] === "1" ? "1 deck is" : `${String(params["none"])} decks are`} legal in none of their event’s formats and stay in its first — usually a card that isn’t matched yet.`}
+            (params["none"] === "1"
+              ? " 1 deck is legal in none of its event’s formats and stays in the first — usually a card that isn’t matched yet:"
+              : ` ${String(params["none"])} decks are legal in none of their event’s formats and stay in its first — usually a card that isn’t matched yet:`)}
         </Notice>
+      )}
+      {illegal.length > 0 && (
+        <ul className="mt-2 mb-6 space-y-1 rounded-lg border border-ink-200 px-4 py-3 text-sm dark:border-ink-800">
+          {illegal.map((deck) => (
+            <li key={deck.id}>
+              <Link
+                href={`/decks/${deck.id}`}
+                className="text-eclipse-700 hover:underline dark:text-eclipse-400"
+              >
+                {deck.name}
+              </Link>
+            </li>
+          ))}
+          {Number(params["none"]) > illegal.length && (
+            <li className="text-ink-500 dark:text-ink-400">
+              and {Number(params["none"]) - illegal.length} more
+            </li>
+          )}
+        </ul>
       )}
 
       <RatingWindowForm

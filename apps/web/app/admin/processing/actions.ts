@@ -63,6 +63,8 @@ export async function setEventFormats(id: string, formatVersionIds: readonly str
   revalidatePath("/", "layout");
 }
 
+const LISTED_DECKS = 50;
+
 /**
  * Check every event's decks against its versions again (E20.67) — after cards
  * are matched or a version's rules change, nothing else re-runs the choice.
@@ -76,7 +78,11 @@ export async function recheckDeckFormats(): Promise<never> {
   const { moved, legalInNone } = await placeEventDecks(service, events);
 
   revalidatePath("/", "layout");
-  redirect(`/admin/processing?done=rechecked&moved=${moved}&none=${legalInNone}`);
+  // The first few ride along to be listed; the count is all of them.
+  const listed = legalInNone.slice(0, LISTED_DECKS).join(",");
+  redirect(
+    `/admin/processing?done=rechecked&moved=${moved}&none=${legalInNone.length}&decks=${listed}`,
+  );
 }
 
 /** Match the decklist lines that name a card the card data has gained since (E20.56). */
