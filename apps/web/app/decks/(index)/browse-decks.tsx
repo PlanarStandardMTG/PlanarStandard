@@ -59,9 +59,9 @@ type Browse = DeckFilter & {
   readonly legal: string | null;
   /** The version in force, which the URL leaves out. */
   readonly current: string | null;
-  /** On the Tournament tab only: the format version its event was played under (E20.62)… */
+  /** On the Tournament tab only: the format version its event was played under (E20.62). */
   readonly eventFormat: string | null;
-  /** …and the event itself (E20.61). */
+  /** The event a deck was played at (E20.61), on the All and Tournament tabs (E20.69). */
   readonly event: string | null;
   readonly sort: Sort;
 };
@@ -71,8 +71,8 @@ const all = (value: string | string[] | undefined) =>
 
 /**
  * The browser's state as the URL carries it:
- * `?color=W&cards=Shock;Opt&legal=<id>&sort=win-rate&page=2`, and on the
- * Tournament tab `?view=tournament&format=<id>&event=<id>` in place of `legal`.
+ * `?color=W&cards=Shock;Opt&legal=<id>&event=<id>&sort=win-rate&page=2`, and on
+ * the Tournament tab `?view=tournament&format=<id>&event=<id>` in place of `legal`.
  */
 function readFilter(scope: DeckScope, params: Params): Omit<Browse, "current"> {
   const text = all(params["cards"])[0] ?? "";
@@ -86,7 +86,7 @@ function readFilter(scope: DeckScope, params: Params): Omit<Browse, "current"> {
     text,
     legal: scope === "tournament" ? null : all(params["legal"])[0] || null,
     eventFormat: scope === "tournament" ? all(params["format"])[0] || null : null,
-    event: scope === "tournament" ? all(params["event"])[0] || null : null,
+    event: scope === "community" ? null : all(params["event"])[0] || null,
     sort: all(params["sort"])[0] === "win-rate" ? "win-rate" : "newest",
   };
 }
@@ -140,9 +140,10 @@ function inScope(
  * The All, Community and Tournament tabs (E20.40, E20.55): every public deck
  * in the tab at its newest version, narrowed by colour and card name, ten to a
  * page. All and Community list the decks legal in the format version in force,
- * or another one the filter picks (E20.53, E20.60). Tournament goes by its
- * events instead: every format by default, narrowed by the format an event was
- * played under (E20.62) and the event itself (E20.61). Cards are not in Postgres, so the filter runs here against the card
+ * or another one the filter picks (E20.53, E20.60), and All by an event as well
+ * (E20.69). Tournament goes by its events instead: every format by default,
+ * narrowed by the format an event was played under (E20.62) and the event
+ * itself (E20.61). Cards are not in Postgres, so the filter runs here against the card
  * index rather than in the query. Each deck shows who it is credited to and its
  * record over every version's events, and can be sorted by match win rate (E20.45).
  *
@@ -180,10 +181,13 @@ export async function BrowseDecks({ scope, params }: { scope: DeckScope; params:
   // The menus offer only the formats the tab's events were played under, and
   // the events in the format chosen, so a pick never empties the list by
   // itself; anything else in the URL is ignored.
-  const tabEvents = scope === "tournament" ? eventsOf(candidates) : [];
-  const eventFormats = versions.filter((version) =>
-    tabEvents.some((event) => event.formatVersionIds.includes(version.id)),
-  );
+  const tabEvents = scope === "community" ? [] : eventsOf(candidates);
+  const eventFormats =
+    scope === "tournament"
+      ? versions.filter((version) =>
+          tabEvents.some((event) => event.formatVersionIds.includes(version.id)),
+        )
+      : [];
   const eventFormat = eventFormats.some((version) => version.id === asked.eventFormat)
     ? asked.eventFormat
     : null;
@@ -439,13 +443,12 @@ function FilterMenu({
               {versions.map((version) => (
                 <option key={version.id} value={version.id}>
                   {version.name}
-                  {version.isCurrent && " (current)"}
                 </option>
               ))}
             </select>
           </>
         )}
-        {filter.scope === "tournament" && events.length > 0 && (
+        {filter.scope !== "community" && events.length > 0 && (
           <>
             <label
               htmlFor="event"
