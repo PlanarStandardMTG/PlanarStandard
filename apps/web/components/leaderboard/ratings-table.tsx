@@ -1,48 +1,48 @@
-import type { LeaderboardRow, UnrankedPlayerRow } from "@ps/contracts";
+import type { LeaderboardRow } from "@ps/contracts";
+import Link from "next/link";
+import type { ReactNode } from "react";
 
 import { Placement } from "@/components/ui/marks";
 import { cn } from "@/lib/cn";
 import { PersonName } from "@/components/ui/person-name";
 
-/** `rank` is the place on the whole ladder, so a filtered page keeps it. */
-export type LadderRow =
-  | { readonly rank: number; readonly row: LeaderboardRow }
-  | { readonly rank: null; readonly row: UnrankedPlayerRow };
+import { nextSort, type LadderColumn, type LadderRow, type LadderSort } from "./sort-ladder";
 
 /**
  * The leaderboard's table (E20.12), one page of it at a time, with unranked
  * players after the ranked ones (E20.50). A record, never a percentage — a rate
  * on this page would need `suppress-small-n`, and the record already says
- * everything a rate would.
+ * everything a rate would. Every heading sorts the table (E20.64), and a rank
+ * stays the player's place on the ladder whatever it is sorted by.
  */
-export function RatingsTable({ rows, caption }: { rows: readonly LadderRow[]; caption: string }) {
+export function RatingsTable({
+  rows,
+  caption,
+  sort,
+  href,
+}: {
+  rows: readonly LadderRow[];
+  caption: string;
+  sort: LadderSort;
+  href: (sort: LadderSort) => string;
+}) {
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-left text-sm">
         <caption className="sr-only">{caption}</caption>
         <thead className="font-mono text-xs tracking-[0.12em] text-ink-500 uppercase dark:text-ink-400">
           <tr>
-            <th scope="col" className="w-20 px-4 py-2 font-medium">
-              Rank
-            </th>
-            <th scope="col" className="px-4 py-2 font-medium">
-              Player
-            </th>
-            <th scope="col" className="px-4 py-2 text-right font-medium">
-              Rating
-            </th>
-            <th scope="col" className="px-4 py-2 text-right font-medium">
-              Record
-            </th>
-            <th scope="col" className="hidden px-4 py-2 text-right font-medium sm:table-cell">
-              Matches
-            </th>
-            <th scope="col" className="hidden px-4 py-2 text-right font-medium sm:table-cell">
-              Events
-            </th>
-            <th scope="col" className="hidden px-4 py-2 text-right font-medium md:table-cell">
-              Peak
-            </th>
+            {HEADINGS.map(({ column, label, className }) => (
+              <SortHeading
+                key={column}
+                column={column}
+                sort={sort}
+                href={href}
+                className={className}
+              >
+                {label}
+              </SortHeading>
+            ))}
           </tr>
         </thead>
         <tbody className="divide-y divide-ink-200 border-t border-ink-200 dark:divide-ink-800 dark:border-ink-800">
@@ -71,6 +71,53 @@ export function RatingsTable({ rows, caption }: { rows: readonly LadderRow[]; ca
         </tbody>
       </table>
     </div>
+  );
+}
+
+const HEADINGS: readonly { column: LadderColumn; label: string; className: string }[] = [
+  { column: "rank", label: "Rank", className: "w-20" },
+  { column: "player", label: "Player", className: "" },
+  { column: "rating", label: "Rating", className: "text-right" },
+  { column: "record", label: "Record", className: "text-right" },
+  { column: "matches", label: "Matches", className: "hidden text-right sm:table-cell" },
+  { column: "events", label: "Events", className: "hidden text-right sm:table-cell" },
+  { column: "peak", label: "Peak", className: "hidden text-right md:table-cell" },
+];
+
+function SortHeading({
+  column,
+  sort,
+  href,
+  className,
+  children,
+}: {
+  column: LadderColumn;
+  sort: LadderSort;
+  href: (sort: LadderSort) => string;
+  className: string;
+  children: ReactNode;
+}) {
+  const active = sort.column === column;
+  return (
+    <th
+      scope="col"
+      aria-sort={active ? (sort.direction === "asc" ? "ascending" : "descending") : undefined}
+      className={cn("px-4 py-2 font-medium", className)}
+    >
+      <Link
+        href={href(nextSort(sort, column))}
+        scroll={false}
+        className={cn(
+          "inline-flex items-center gap-1 hover:text-eclipse-700 dark:hover:text-eclipse-400",
+          active && "text-ink-900 dark:text-ink-100",
+        )}
+      >
+        {children}
+        <span aria-hidden="true" className={cn(!active && "invisible")}>
+          {sort.direction === "asc" ? "↑" : "↓"}
+        </span>
+      </Link>
+    </th>
   );
 }
 

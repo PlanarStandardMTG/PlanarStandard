@@ -4,7 +4,14 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { SeasonBadge } from "@/components/layout/season-badge";
-import { RatingsTable, type LadderRow } from "@/components/leaderboard/ratings-table";
+import { RatingsTable } from "@/components/leaderboard/ratings-table";
+import {
+  isLadderOrder,
+  readLadderSort,
+  type LadderRow,
+  sortLadder,
+  type LadderSort,
+} from "@/components/leaderboard/sort-ladder";
 import { Container } from "@/components/ui/container";
 import { PageHeader } from "@/components/ui/page-header";
 import { Pager } from "@/components/ui/pager";
@@ -76,6 +83,7 @@ export default async function LeaderboardPage({
                 unranked={data.value.unranked}
                 query={query}
                 page={params["page"]}
+                sort={readLadderSort(params["sort"], params["dir"])}
               />
             )}
             <p className="mt-8 text-sm text-ink-500 dark:text-ink-400">
@@ -105,11 +113,13 @@ function Ladder({
   unranked,
   query,
   page,
+  sort,
 }: {
   ranked: readonly LeaderboardRow[];
   unranked: readonly UnrankedPlayerRow[];
   query: string;
   page: string | string[] | undefined;
+  sort: LadderSort;
 }) {
   const needle = query.toLowerCase();
   const rows: LadderRow[] = [
@@ -118,10 +128,14 @@ function Ladder({
   ];
   const matching =
     needle === "" ? rows : rows.filter(({ row }) => row.displayName.toLowerCase().includes(needle));
-  const shown = pageOf(matching, page, PAGE_SIZE);
-  const href = (n: number) => {
+  const shown = pageOf(sortLadder(matching, sort), page, PAGE_SIZE);
+  const href = (n: number, by: LadderSort = sort) => {
     const search = new URLSearchParams();
     if (query !== "") search.set("q", query);
+    if (!isLadderOrder(by)) {
+      search.set("sort", by.column);
+      search.set("dir", by.direction);
+    }
     if (n > 1) search.set("page", String(n));
     const text = search.toString();
     return `/leaderboard${text === "" ? "" : `?${text}`}`;
@@ -141,6 +155,12 @@ function Ladder({
           placeholder="Find a player"
           className="w-full max-w-xs rounded-full border border-ink-300 bg-transparent px-4 py-1.5 placeholder:text-ink-500 dark:border-ink-800 dark:placeholder:text-ink-600 focus:border-eclipse-500 focus:outline-none sm:w-72"
         />
+        {!isLadderOrder(sort) && (
+          <>
+            <input type="hidden" name="sort" value={sort.column} />
+            <input type="hidden" name="dir" value={sort.direction} />
+          </>
+        )}
         <button
           type="submit"
           className="rounded-full border border-ink-300 px-4 py-1.5 hover:border-eclipse-500/60 dark:border-ink-800"
@@ -167,9 +187,14 @@ function Ladder({
           No player has &ldquo;{query}&rdquo; in their name.
         </p>
       ) : (
-        <RatingsTable rows={shown.items} caption="Players, ranked then unranked" />
+        <RatingsTable
+          rows={shown.items}
+          caption="Players, ranked then unranked"
+          sort={sort}
+          href={(by) => href(1, by)}
+        />
       )}
-      <Pager page={shown.page} pages={shown.pages} href={href} />
+      <Pager page={shown.page} pages={shown.pages} href={(n) => href(n)} />
     </>
   );
 }

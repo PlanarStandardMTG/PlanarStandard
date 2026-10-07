@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 52/63 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 53/64 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1442,6 +1442,16 @@ _AC:_ no row on `/leaderboard`, ranked or unranked, shows a last-played date.
 _Note:_ added outside the plan. The date is still computed by the replay and stored on `ratings`;
 only the leaderboard stops displaying it.
 
+✅ **E20.64 — `leaderboard`: sort by any column** · S · Deps: E20.12 — every heading in the table
+links to the ladder sorted by that column, and clicking it again reverses it. Sorting only reorders
+the table: each ranked player keeps their place on the ladder, so the top row can read 4th.
+_AC:_ `?sort=<rank|player|rating|record|matches|events|peak>&dir=<asc|desc>` sorts the whole ladder
+before paging and combines with the name search and paging; numbers start highest first and names
+A–Z; a record sorts by wins, then fewer losses; unranked players stay after the ranked ones except
+when sorting by name; the active heading carries `aria-sort` and an arrow; anything unrecognised is
+the ladder's own order.
+_Note:_ added outside the plan.
+
 ---
 
 ## E21 — Season II backfill
@@ -1850,11 +1860,11 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 63      | 52   |
+| E9   | 9       | 9    | E20  | 64      | 53   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
 
-**238 of 309 stories done across 25 epics.**
+**239 of 310 stories done across 25 epics.**
