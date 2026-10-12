@@ -65,16 +65,17 @@ export function SeasonRing({
   );
 }
 
-/** The section divider: a hairline through a few stars. */
+/**
+ * The section divider: a hairline led off by a few stars. Not centred, where
+ * they read as a carousel's pager.
+ */
 export function StarRule({ className }: { className?: string }) {
   return (
-    <span aria-hidden="true" className={cn("flex min-w-8 flex-1 items-center gap-1.5", className)}>
-      <span className="h-px flex-1 bg-ink-200 dark:bg-ink-800" />
-      <span className="size-1 rounded-full bg-ink-300 dark:bg-ink-600" />
-      <span className="size-1.5 rounded-full bg-ink-400 dark:bg-ink-500" />
-      <span className="size-2 rounded-full bg-gold-700 dark:bg-gold-400" />
-      <span className="size-1.5 rounded-full bg-ink-400 dark:bg-ink-500" />
-      <span className="h-px flex-1 bg-ink-200 dark:bg-ink-800" />
+    <span aria-hidden="true" className={cn("flex min-w-8 flex-1 items-center gap-1", className)}>
+      <span className="size-1.5 rounded-full bg-gold-700 dark:bg-gold-400" />
+      <span className="size-1 rounded-full bg-ink-400 dark:bg-ink-500" />
+      <span className="size-0.5 rounded-full bg-ink-300 dark:bg-ink-600" />
+      <span className="ml-0.5 h-px flex-1 bg-ink-200 dark:bg-ink-800" />
     </span>
   );
 }
