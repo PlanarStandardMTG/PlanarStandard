@@ -13,6 +13,7 @@ assign-bye      the lowest-ranked entrant without a bye     common practice
 top-cut         single elimination, seeded and with drops  MTR §2.4, §2.10, §10.4
 suggest-rounds  Swiss rounds and a top cut to prefill       MTR Appendix E
 run-state       which state a run may move to, and why not
+to-parsed-event a finished run, ready for ingest-event       ADR 006, ADR 015
 seeded-random   the only randomness, from the run's seed
 ```
 

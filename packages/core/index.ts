@@ -318,3 +318,5 @@ export { bracketOrder, cutSeeds, nextCutRound } from "./runs/top-cut/index";
 export type { CutRound, CutRoundInput } from "./runs/top-cut/index";
 export { canMoveRun, runMoves } from "./runs/run-state/index";
 export type { RunMove, RunMoveRefusal, RunProgress } from "./runs/run-state/index";
+export { runEntrantHandle, toParsedEvent } from "./runs/to-parsed-event/index";
+export type { FinishedRun } from "./runs/to-parsed-event/index";

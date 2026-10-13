@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 9/29  |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 10/29 |
 
 ---
 
@@ -1864,7 +1864,7 @@ finished, or cancelled from anywhere, with what each move needs (two checked-in 
 every pairing reported to finish). A run with no Swiss rounds goes straight to the top cut, and one
 with no cut finishes after its last Swiss round. _AC:_ a refusal names its reason.
 
-⬜ **E26.10 — `core/runs/to-parsed-event`** · M · Deps: E26.4, E26.8 — a finished run as a `ParsedEvent`
+✅ **E26.10 — `core/runs/to-parsed-event`** · M · Deps: E26.4, E26.8 — a finished run as a `ParsedEvent`
 with matches, standings, roster and decklists. _AC:_ the result passes the capability gating test
 (E12.8), and a guest's handle is never their typed name alone.
 
@@ -2066,6 +2066,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 9    |
+|      |         |      | E26  | 29      | 10   |
 
-**254 of 345 stories done across 26 epics.**
+**255 of 345 stories done across 26 epics.**
