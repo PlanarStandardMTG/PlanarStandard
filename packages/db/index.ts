@@ -17,3 +17,4 @@ export * from "./repos/ratings/index";
 export * from "./repos/identity/index";
 export * from "./repos/stats/index";
 export * from "./repos/runs/index";
+export * from "./repos/push/index";

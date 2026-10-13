@@ -16,6 +16,7 @@ export function MyMatch({
   opponentArena,
   standing,
   controls,
+  notifications,
 }: {
   me: RunEntrant;
   pairing: PostedRunPairing | null;
@@ -24,6 +25,8 @@ export function MyMatch({
   opponentArena: string | null;
   standing: RunStanding | null;
   controls: ReactNode;
+  /** The "Allow notifications" button, when the site can send them. */
+  notifications: ReactNode;
 }) {
   const record =
     standing === null
@@ -65,6 +68,7 @@ export function MyMatch({
           {controls}
         </>
       )}
+      {notifications !== null && <div className="mt-3">{notifications}</div>}
     </section>
   );
 }

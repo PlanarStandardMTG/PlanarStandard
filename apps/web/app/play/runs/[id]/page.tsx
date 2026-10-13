@@ -15,6 +15,7 @@ import { PRIMARY, QUIET, SECONDARY } from "@/components/play/button";
 import { EntrantList } from "@/components/play/entrant-list";
 import { LiveRefresh } from "@/components/play/live-refresh";
 import { MyMatch } from "@/components/play/my-match";
+import { NotificationsButton } from "@/components/play/notifications-button";
 import { PlayNotice } from "@/components/play/notice";
 import { RegistrationPanel } from "@/components/play/registration-panel";
 import { ResultControls } from "@/components/play/result-controls";
@@ -114,6 +115,7 @@ export default async function RunPage({
     />
   );
   const playing = run.state === "running" || run.state === "top_cut";
+  const vapidKey = process.env["NEXT_PUBLIC_VAPID_PUBLIC_KEY"] || undefined;
   const myPairing =
     mine === null || latest === undefined
       ? null
@@ -265,6 +267,9 @@ export default async function RunPage({
           opponentArena={opponentArena}
           standing={view.standings.find((s) => s.entrantId === mine.id) ?? null}
           controls={myPairing === null ? null : controlsFor(myPairing)}
+          notifications={
+            vapidKey === undefined ? null : <NotificationsButton publicKey={vapidKey} />
+          }
         />
       )}
 

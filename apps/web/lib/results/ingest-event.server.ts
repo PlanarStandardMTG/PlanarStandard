@@ -45,7 +45,6 @@ import { resolveEventHandles } from "@/lib/results/resolve-handles.server";
  * supersedes the earlier import and replaces the matches wholesale (§26).
  */
 
-
 export interface IngestSource {
   /** Also the identity platform the event's handles resolve on; `site` for a run (E26.21). */
   readonly source: EventSource;

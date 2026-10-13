@@ -4,6 +4,7 @@ import Link from "next/link";
 
 import { PRIMARY } from "@/components/play/button";
 import { InstallPrompt } from "@/components/play/install-prompt";
+import { NotificationsButton } from "@/components/play/notifications-button";
 import { STATE_LABEL } from "@/components/play/run-messages";
 import { LocalTime } from "@/components/ui/local-time";
 import { currentViewer } from "@/lib/auth/viewer";
@@ -17,6 +18,7 @@ export const metadata: Metadata = { title: "Play" };
 export default async function PlayHome() {
   const client = await createSessionClient();
   const viewer = await currentViewer();
+  const vapidKey = process.env["NEXT_PUBLIC_VAPID_PUBLIC_KEY"] || undefined;
   const organizes =
     viewer !== null &&
     ["organizer", "admin"].includes(viewer.profile.role) &&
@@ -33,6 +35,11 @@ export default async function PlayHome() {
       {entered.length > 0 && (
         <section>
           <h2 className="font-display text-xl">You are playing</h2>
+          {vapidKey !== undefined && (
+            <div className="mt-2">
+              <NotificationsButton publicKey={vapidKey} />
+            </div>
+          )}
           <ul className="mt-3 space-y-2">
             {entered.map((run) => (
               <li key={run.id}>

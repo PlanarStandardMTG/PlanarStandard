@@ -35,6 +35,7 @@ import { requireRole } from "@/lib/auth/guard";
 import { loadRun } from "@/lib/runs/load-run";
 import { importFinishedRun } from "@/lib/runs/finish-run.server";
 import { checkRunDeck } from "@/lib/runs/run-deck";
+import { notifyResultReported, notifyRoundPaired } from "@/lib/runs/run-notices.server";
 import { ensureSiteIdentity } from "@/lib/runs/site-identity.server";
 import { createSessionClient } from "@/lib/supabase/session";
 
@@ -367,6 +368,7 @@ export async function pairRoundAction(form: FormData): Promise<never> {
     if (String(cause).includes("cannot be re-paired")) redirect(`${back}?error=round-has-results`);
     throw cause;
   }
+  await notifyRoundPaired(runId, number);
   revalidatePath(back);
   redirect(`${back}?done=${repair ? "repaired" : "paired"}`);
 }
@@ -407,7 +409,10 @@ function refusedOr(cause: unknown, back: string): never {
 /** A player reports their match. It counts once the other player confirms it. */
 export async function reportResultAction(form: FormData): Promise<never> {
   const viewer = await requireRole("reader");
-  const { client, pairing, side, elimination, back } = await pairingFor(form, viewer.profile.id);
+  const { client, runId, pairing, side, elimination, back } = await pairingFor(
+    form,
+    viewer.profile.id,
+  );
   if (side === null) redirect(`${back}?error=result-refused`);
   const games = gamesFromChoice(form.get("result")?.toString() ?? "", side, elimination);
   if (games === null) redirect(`${back}?error=result-invalid`);
@@ -416,6 +421,7 @@ export async function reportResultAction(form: FormData): Promise<never> {
   } catch (cause) {
     refusedOr(cause, back);
   }
+  await notifyResultReported(runId, pairing.id, viewer.profile.id);
   revalidatePath(back);
   redirect(`${back}?done=reported`);
 }
@@ -495,6 +501,7 @@ export async function pairCutRoundAction(form: FormData): Promise<never> {
     { number: position.nextRound, kind: "elimination" },
     next.pairings,
   );
+  await notifyRoundPaired(runId, position.nextRound);
   revalidatePath(back);
   redirect(`${back}?done=paired`);
 }

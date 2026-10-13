@@ -183,3 +183,14 @@ export interface RunStanding extends RunRecord {
   readonly opponentGameWinPct: number;
   readonly dropped: boolean;
 }
+
+/**
+ * One device a member allowed notifications on (E26.28): what the push service needs
+ * to deliver there. The member's own; only the server reads anyone else's.
+ */
+export interface PushSubscriptionRecord {
+  readonly profileId: ProfileId;
+  readonly endpoint: string;
+  readonly p256dh: string;
+  readonly auth: string;
+}

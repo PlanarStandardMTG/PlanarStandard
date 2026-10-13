@@ -148,55 +148,56 @@ query is on a page rather than in an export.
 
 ## Every index, and what it is for
 
-| Table                    | Index                                                 | Serves                                             |
-| ------------------------ | ----------------------------------------------------- | -------------------------------------------------- |
-| `posts`                  | `posts_published_idx` (partial)                       | the feed — published only, newest first            |
-| `posts`                  | `posts_kind_published_idx` (partial)                  | `/news` and `/community` separately                |
-| `post_revisions`         | `post_revisions_post_idx`                             | one post's history                                 |
-| `external_events`        | `external_events_source_starts_idx`                   | the calendar, per source                           |
-| `event_completions`      | `event_completions_pending_idx` (partial)             | the queue of finished events still to handle       |
-| `format_versions`        | `format_versions_one_current` (unique, partial)       | one current version, enforced not asserted         |
-| `archetype_aliases`      | `archetype_aliases_archetype_idx`                     | an archetype's aliases                             |
-| `archetypes`             | `archetypes_parent_idx` (partial)                     | the supertype tree                                 |
-| `seasons`                | `seasons_one_current` (unique, partial)               | one current season, enforced not asserted          |
-| `tournaments`            | `tournaments_season_date_idx`                         | a season's events, newest first                    |
-| `tournaments`            | `tournaments_date_idx`                                | the home page and the calendar                     |
-| `tournaments`            | `tournaments_source_external_id` (unique, partial)    | finding a platform event again on re-ingest        |
-| `players`                | `players_merged_into_idx` (partial)                   | finding what merged into a player                  |
-| `player_identities`      | `player_identities_player_idx`                        | a player's handles                                 |
-| `player_identities`      | `(platform, normalized)` (unique)                     | resolving a handle on import — the hot import path |
-| `decks`                  | `decks_season_idx`, `decks_player_idx` (partial)      | a season's decks; a player's decks                 |
-| `decks`                  | `decks_one_successor` (unique, partial)               | one next version per member deck; walks a history  |
-| `deck_cards`             | `deck_cards_deck_idx`, `deck_cards_oracle_idx`        | a decklist; every deck running a card              |
-| `result_imports`         | `result_imports_tournament_status_idx`                | the import queue for an event                      |
-| `staged_matches`         | `staged_matches_import_idx`                           | the review screen                                  |
-| `matches`                | `matches_tournament_idx`                              | one event's ledger, by round                       |
-| `matches`                | `matches_p1_idx`, `matches_p2_idx` (partial)          | the replay, which walks by identity                |
-| `match_corrections`      | `match_corrections_match_idx`                         | a match's correction trail                         |
-| `tournament_entries`     | `tournament_entries_placement_idx`                    | the podium                                         |
-| `tournament_entries`     | `tournament_entries_player_idx`                       | a player's events                                  |
-| `tournament_entries`     | `tournament_entries_deck_idx` (partial)               | whether an event names a hidden deck (read policy) |
-| `tournament_formats`     | `tournament_formats_format_version_idx`               | refusing to delete a version an event allowed      |
-| `identity_exclusions`    | `identity_exclusions_b_idx`                           | the second half of an ordered pair                 |
-| `merge_suggestions`      | `merge_suggestions_pending_idx` (partial)             | the review queue, most confident first             |
-| `player_merges`          | `player_merges_winner_idx`, `player_merges_loser_idx` | undoing a merge from either end                    |
-| `rating_events`          | `rating_events_player_date_idx`                       | one player's history                               |
-| `rating_events`          | `rating_events_match_idx`                             | explaining one match's effect                      |
-| `player_ratings`         | `player_ratings_rating_idx`                           | the leaderboard's order                            |
-| `rating_runs`            | `rating_runs_created_idx`                             | recompute health, newest first                     |
-| `card_stats`             | `card_stats_season_inclusion_idx`                     | most-played, per season and board                  |
-| `deck_similarity`        | `deck_similarity_b_idx`                               | every edge touching a deck — the other half        |
-| `matchup_stats`          | `matchup_stats_b_idx`                                 | one matchup cell from B's side                     |
-| `tournament_runs`        | `tournament_runs_organizer_idx`                       | an organizer's runs                                |
-| `tournament_runs`        | `tournament_runs_state_starts_idx`                    | runs on the schedule, by state and date            |
-| `tournament_run_formats` | `tournament_run_formats_format_version_idx`           | refusing to delete a version a run allowed         |
-| `run_entrants`           | `run_entrants_profile_idx` (partial)                  | a member's runs                                    |
-| `run_pairings`           | `run_pairings_round_idx`                              | a round's pairings                                 |
-| `run_pairings`           | `run_pairings_run_idx`                                | a run's pairings, for standings and Realtime       |
-| `run_pairings`           | `run_pairings_p1_idx`                                 | an entrant's pairings, and the foreign key         |
-| `run_pairings`           | `run_pairings_p2_idx` (partial)                       | the same from the second seat; byes have none      |
-| `run_result_changes`     | `run_result_changes_pairing_idx`                      | one result's history, in order                     |
-| `run_entrant_decks`      | `run_entrant_decks_deck_idx` (partial)                | clearing the link when a saved deck is deleted     |
+| Table                    | Index                                                 | Serves                                               |
+| ------------------------ | ----------------------------------------------------- | ---------------------------------------------------- |
+| `posts`                  | `posts_published_idx` (partial)                       | the feed — published only, newest first              |
+| `posts`                  | `posts_kind_published_idx` (partial)                  | `/news` and `/community` separately                  |
+| `post_revisions`         | `post_revisions_post_idx`                             | one post's history                                   |
+| `external_events`        | `external_events_source_starts_idx`                   | the calendar, per source                             |
+| `event_completions`      | `event_completions_pending_idx` (partial)             | the queue of finished events still to handle         |
+| `format_versions`        | `format_versions_one_current` (unique, partial)       | one current version, enforced not asserted           |
+| `archetype_aliases`      | `archetype_aliases_archetype_idx`                     | an archetype's aliases                               |
+| `archetypes`             | `archetypes_parent_idx` (partial)                     | the supertype tree                                   |
+| `seasons`                | `seasons_one_current` (unique, partial)               | one current season, enforced not asserted            |
+| `tournaments`            | `tournaments_season_date_idx`                         | a season's events, newest first                      |
+| `tournaments`            | `tournaments_date_idx`                                | the home page and the calendar                       |
+| `tournaments`            | `tournaments_source_external_id` (unique, partial)    | finding a platform event again on re-ingest          |
+| `players`                | `players_merged_into_idx` (partial)                   | finding what merged into a player                    |
+| `player_identities`      | `player_identities_player_idx`                        | a player's handles                                   |
+| `player_identities`      | `(platform, normalized)` (unique)                     | resolving a handle on import — the hot import path   |
+| `decks`                  | `decks_season_idx`, `decks_player_idx` (partial)      | a season's decks; a player's decks                   |
+| `decks`                  | `decks_one_successor` (unique, partial)               | one next version per member deck; walks a history    |
+| `deck_cards`             | `deck_cards_deck_idx`, `deck_cards_oracle_idx`        | a decklist; every deck running a card                |
+| `result_imports`         | `result_imports_tournament_status_idx`                | the import queue for an event                        |
+| `staged_matches`         | `staged_matches_import_idx`                           | the review screen                                    |
+| `matches`                | `matches_tournament_idx`                              | one event's ledger, by round                         |
+| `matches`                | `matches_p1_idx`, `matches_p2_idx` (partial)          | the replay, which walks by identity                  |
+| `match_corrections`      | `match_corrections_match_idx`                         | a match's correction trail                           |
+| `tournament_entries`     | `tournament_entries_placement_idx`                    | the podium                                           |
+| `tournament_entries`     | `tournament_entries_player_idx`                       | a player's events                                    |
+| `tournament_entries`     | `tournament_entries_deck_idx` (partial)               | whether an event names a hidden deck (read policy)   |
+| `tournament_formats`     | `tournament_formats_format_version_idx`               | refusing to delete a version an event allowed        |
+| `identity_exclusions`    | `identity_exclusions_b_idx`                           | the second half of an ordered pair                   |
+| `merge_suggestions`      | `merge_suggestions_pending_idx` (partial)             | the review queue, most confident first               |
+| `player_merges`          | `player_merges_winner_idx`, `player_merges_loser_idx` | undoing a merge from either end                      |
+| `rating_events`          | `rating_events_player_date_idx`                       | one player's history                                 |
+| `rating_events`          | `rating_events_match_idx`                             | explaining one match's effect                        |
+| `player_ratings`         | `player_ratings_rating_idx`                           | the leaderboard's order                              |
+| `rating_runs`            | `rating_runs_created_idx`                             | recompute health, newest first                       |
+| `card_stats`             | `card_stats_season_inclusion_idx`                     | most-played, per season and board                    |
+| `deck_similarity`        | `deck_similarity_b_idx`                               | every edge touching a deck — the other half          |
+| `matchup_stats`          | `matchup_stats_b_idx`                                 | one matchup cell from B's side                       |
+| `tournament_runs`        | `tournament_runs_organizer_idx`                       | an organizer's runs                                  |
+| `tournament_runs`        | `tournament_runs_state_starts_idx`                    | runs on the schedule, by state and date              |
+| `tournament_run_formats` | `tournament_run_formats_format_version_idx`           | refusing to delete a version a run allowed           |
+| `run_entrants`           | `run_entrants_profile_idx` (partial)                  | a member's runs                                      |
+| `run_pairings`           | `run_pairings_round_idx`                              | a round's pairings                                   |
+| `run_pairings`           | `run_pairings_run_idx`                                | a run's pairings, for standings and Realtime         |
+| `run_pairings`           | `run_pairings_p1_idx`                                 | an entrant's pairings, and the foreign key           |
+| `run_pairings`           | `run_pairings_p2_idx` (partial)                       | the same from the second seat; byes have none        |
+| `run_result_changes`     | `run_result_changes_pairing_idx`                      | one result's history, in order                       |
+| `run_entrant_decks`      | `run_entrant_decks_deck_idx` (partial)                | clearing the link when a saved deck is deleted       |
+| `push_subscriptions`     | `push_subscriptions_profile_idx`                      | a member's devices, when sending them a notification |
 
 Primary keys and unique constraints index themselves and are not repeated here,
 except where the index is doing work the constraint is incidental to.

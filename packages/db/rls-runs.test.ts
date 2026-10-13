@@ -151,6 +151,7 @@ describe.skipIf(!online)("RLS — running events on the site", () => {
       "run_result_changes",
       "profile_contacts",
       "run_entrant_decks",
+      "push_subscriptions",
     ] as const;
 
     /** Whether a *policy or grant* stopped an empty insert, as `rls.test.ts` probes it. */
@@ -181,6 +182,34 @@ describe.skipIf(!online)("RLS — running events on the site", () => {
       expect(await contactsSeenBy(as("writer"))).toEqual([]);
       expect(await contactsSeenBy(as("organizer"))).toEqual([]);
       expect(await contactsSeenBy(as("admin"))).toEqual(["alice", "bob", "carol"]);
+    });
+
+    it("keeps each member's notification devices to themself (E26.28)", async () => {
+      const device = {
+        profile_id: profiles.get("alice"),
+        endpoint: `https://push.example.test/${stamp}`,
+        p256dh: "key",
+        auth: "secret",
+      };
+      expect((await as("alice").from("push_subscriptions").insert(device)).error).toBeNull();
+      const forged = await as("bob")
+        .from("push_subscriptions")
+        .insert({
+          ...device,
+          endpoint: `${device.endpoint}/bob`,
+          profile_id: profiles.get("alice"),
+        });
+      expect(forged.error?.code).toBe(REFUSED);
+
+      const seen = async (client: SupabaseClient) =>
+        (await client.from("push_subscriptions").select("endpoint")).data?.length ?? 0;
+      expect(await seen(as("alice"))).toBe(1);
+      expect(await seen(as("bob"))).toBe(0);
+      expect(await seen(as("admin"))).toBe(0);
+      expect(await seen(anon)).toBe(0);
+
+      await as("alice").from("push_subscriptions").delete().eq("endpoint", device.endpoint);
+      expect(await seen(as("alice"))).toBe(0);
     });
 
     it("lets nobody write another member's contact names", async () => {

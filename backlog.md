@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 26/29 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 27/29 |
 
 ---
 
@@ -1979,10 +1979,16 @@ which holds the public key only.
 result is in, chase a missing result, and overrule one, from a phone at the venue. Rounds have no
 timer.
 
-⬜ **E26.28 — Web push** · L · Deps: E26.23 — `push_subscriptions` with RLS, an "Allow notifications"
+✅ **E26.28 — Web push** · L · Deps: E26.23 — `push_subscriptions` with RLS, an "Allow notifications"
 button, and sending from a `.server.ts` module that `guard:server-only` covers. Sends a new pairing,
 a result waiting for you to confirm, and the organizer chasing a missing result. _AC:_ a push arrives
 on an Android phone and on an iPhone with the app installed, with the app closed.
+_Outstanding:_ a push arriving on an Android phone and on an iPhone with the app installed and
+closed, which needs the devices; and production's VAPID keys — `NEXT_PUBLIC_VAPID_PUBLIC_KEY`,
+`VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` — set in Vercel. Until they are, nothing is sent and the button
+is not shown. Locally the button subscribes through the worker and the server signs with a dev pair.
+_Note:_ sends with `web-push` (a new dependency): VAPID signing and the RFC 8291 payload encryption
+are what it does, and getting either wrong fails silently on one browser.
 
 ⬜ **E26.31 — Email limits for an event day** · S · Deps: E26.24 — set the auth email rate limit in the
 Supabase dashboard to suit Resend's 100 a day, and write down how long a session lasts, so an event
@@ -2101,6 +2107,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 26   |
+|      |         |      | E26  | 29      | 27   |
 
-**271 of 345 stories done across 26 epics.**
+**272 of 345 stories done across 26 epics.**
