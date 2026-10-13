@@ -1,13 +1,14 @@
 "use server";
 
 import type { RunState } from "@ps/contracts";
-import { canMoveRun, checkContactNames, checkRunDetails } from "@ps/core";
+import { canMoveRun, checkContactNames, checkRunDetails, pairSwiss } from "@ps/core";
 import {
   addRunGuest,
   createRun,
   deleteDraftRun,
   dropRunEntrant,
   getDeckWithCards,
+  postRunRound,
   registerForRun,
   removeRunEntrant,
   saveRunEntrantDeck,
@@ -293,4 +294,67 @@ export async function dropAction(form: FormData): Promise<never> {
   await dropRunEntrant(client, entrantId, view.position.nextRound - 1);
   revalidatePath(back);
   redirect(`${back}?done=dropped`);
+}
+
+// ---------------------------------------------------------------------------
+// Starting and pairing (E26.19)
+// ---------------------------------------------------------------------------
+
+/**
+ * Starts the run: Swiss when it has Swiss rounds, straight to the cut when it has
+ * none. Entries and decks lock with the state (0048, 0052).
+ */
+export async function startRunAction(form: FormData): Promise<never> {
+  await requireRole("organizer");
+  const runId = form.get("runId")?.toString() ?? "";
+  const back = `/play/runs/${runId}`;
+  const client = await createSessionClient();
+  const view = await loadRun(client, runId);
+  if (view === null) redirect("/play");
+
+  const to = view.run.swissRounds > 0 ? "running" : "top_cut";
+  const move = canMoveRun(view.run, to, view.position);
+  if (!move.ok) redirect(`${back}?error=${move.reason}`);
+  await setRunState(client, runId, to);
+  revalidatePath(back);
+  revalidatePath("/play");
+  redirect(`${back}?done=started`);
+}
+
+/**
+ * Pairs the next Swiss round, or re-pairs the latest one while nothing in it has a
+ * result — which replaces it whole (§28). The same seed and the same field give the
+ * same pairings, so a re-pair changes only what a drop or a check-in changed.
+ */
+export async function pairRoundAction(form: FormData): Promise<never> {
+  await requireRole("organizer");
+  const runId = form.get("runId")?.toString() ?? "";
+  const repair = form.get("repair") === "1";
+  const back = `/play/runs/${runId}`;
+  const client = await createSessionClient();
+  const view = await loadRun(client, runId);
+  if (view === null) redirect("/play");
+  const { run, entrants, rounds, position } = view;
+  if (run.state !== "running") redirect(`${back}?error=not-running`);
+
+  const latest = rounds.at(-1);
+  const number = repair ? (latest?.number ?? 1) : position.nextRound;
+  if (repair && latest?.kind !== "swiss") redirect(`${back}?error=not-a-move`);
+  if (!repair) {
+    if (position.swissRoundsPaired >= run.swissRounds) redirect(`${back}?error=swiss-rounds-done`);
+    if (position.unconfirmedPairings > 0) redirect(`${back}?error=results-missing`);
+  }
+
+  const earlier = position.swissPairings.filter((p) => p.round < number);
+  const result = pairSwiss({ entrants, pairings: earlier, seed: run.seed, round: number });
+  if (!result.ok) redirect(`${back}?error=${result.reason}`);
+
+  try {
+    await postRunRound(client, runId, { number, kind: "swiss" }, result.pairings);
+  } catch (cause) {
+    if (String(cause).includes("cannot be re-paired")) redirect(`${back}?error=round-has-results`);
+    throw cause;
+  }
+  revalidatePath(back);
+  redirect(`${back}?done=${repair ? "repaired" : "paired"}`);
 }

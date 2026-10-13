@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 19/29 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 20/29 |
 
 ---
 
@@ -1922,7 +1922,7 @@ adds a guest by name and Arena username and checks entrants in; during it, drops
 from the next round not yet paired (MTR §2.10). A dropped entrant is never paired again and cannot
 re-enter.
 
-⬜ **E26.19 — Pair a round** · M · Deps: E26.5, E26.6, E26.18 — pairs and posts the next round; a
+✅ **E26.19 — Pair a round** · M · Deps: E26.5, E26.6, E26.18 — pairs and posts the next round; a
 re-pair replaces an unplayed round whole.
 
 ⬜ **E26.20 — Report and confirm a result** · M · Deps: E26.19 — either player reports, including an
@@ -2086,6 +2086,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 19   |
+|      |         |      | E26  | 29      | 20   |
 
-**264 of 345 stories done across 26 epics.**
+**265 of 345 stories done across 26 epics.**

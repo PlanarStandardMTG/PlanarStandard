@@ -14,7 +14,10 @@ type RunPageProblem =
   | "guest-name"
   | "arena-tag"
   | "arena-too-long"
-  | "not-running";
+  | "not-running"
+  | "swiss-rounds-done"
+  | "round-has-results"
+  | "no-pairing-without-rematch";
 
 /** What a refused run form or move means, in the site's voice. Codes come from `core/runs`. */
 export const RUN_ERRORS: Readonly<
@@ -34,7 +37,11 @@ export const RUN_ERRORS: Readonly<
   "guest-name": "A guest needs a name of up to 60 characters.",
   "arena-tag": "An Arena username needs its tag, like Brayzon#12345.",
   "arena-too-long": "That Arena username is too long.",
-  "not-running": "Entrants are dropped while the run is being played.",
+  "not-running": "That is done while the run is being played.",
+  "swiss-rounds-done": "Every Swiss round has been paired.",
+  "round-has-results": "A result is in, so this round can no longer be re-paired.",
+  "no-pairing-without-rematch":
+    "No pairing avoids a rematch. Reduce the Swiss rounds, or move on to the cut or finish.",
   "name-empty": "A run needs a name.",
   "name-long": "That name is too long.",
   "no-format": "Tick at least one format version.",
@@ -59,6 +66,9 @@ export const RUN_DONE: Readonly<Record<string, string>> = {
   withdrawn: "Withdrawn.",
   guest: "Guest added.",
   dropped: "Dropped. They will not be paired again.",
+  started: "The run has started. Entries and decks are locked.",
+  paired: "The round is paired.",
+  repaired: "The round is re-paired.",
   registration: "Registration is open.",
   cancelled: "The run is cancelled.",
 };

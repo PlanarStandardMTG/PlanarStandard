@@ -7,13 +7,14 @@ import { PRIMARY, QUIET, SECONDARY } from "@/components/play/button";
 import { EntrantList } from "@/components/play/entrant-list";
 import { PlayNotice } from "@/components/play/notice";
 import { RegistrationPanel } from "@/components/play/registration-panel";
+import { RoundList } from "@/components/play/round-list";
 import { messageFor, RUN_DONE, RUN_ERRORS, STATE_LABEL } from "@/components/play/run-messages";
 import { LocalTime } from "@/components/ui/local-time";
 import { currentViewer } from "@/lib/auth/viewer";
 import { loadRun } from "@/lib/runs/load-run";
 import { createSessionClient } from "@/lib/supabase/session";
 
-import { deleteDraftRunAction, moveRunAction } from "../actions";
+import { deleteDraftRunAction, moveRunAction, pairRoundAction, startRunAction } from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -45,7 +46,7 @@ export default async function RunPage({
     listFormatVersions(client),
   ]);
   if (view === null) notFound();
-  const { run, entrants } = view;
+  const { run, entrants, rounds, pairings, position } = view;
 
   const query = await searchParams;
   const error = messageFor(RUN_ERRORS, query["error"]);
@@ -62,6 +63,13 @@ export default async function RunPage({
     viewer === null ? Promise.resolve([]) : listMemberDecks(client, viewer.profile.id),
   ]);
   const deckOf = new Map(decks.map((d) => [d.entrantId, d]));
+  const latest = rounds.at(-1);
+  // A round nobody has reported in yet can still be re-paired whole.
+  const unplayed =
+    latest?.kind === "swiss" &&
+    pairings.every(
+      (p) => p.roundId !== latest.id || p.p2EntrantId === null || p.status === "pending",
+    );
 
   return (
     <div className="space-y-6">
@@ -107,6 +115,27 @@ export default async function RunPage({
                 </button>
               </form>
             )}
+            {run.state === "registration" && (
+              <form action={startRunAction}>
+                <input type="hidden" name="runId" value={run.id} />
+                <button className={PRIMARY}>Start ({position.checkedInEntrants} checked in)</button>
+              </form>
+            )}
+            {run.state === "running" &&
+              position.swissRoundsPaired < run.swissRounds &&
+              position.unconfirmedPairings === 0 && (
+                <form action={pairRoundAction}>
+                  <input type="hidden" name="runId" value={run.id} />
+                  <button className={PRIMARY}>Pair round {position.nextRound}</button>
+                </form>
+              )}
+            {run.state === "running" && unplayed && (
+              <form action={pairRoundAction}>
+                <input type="hidden" name="runId" value={run.id} />
+                <input type="hidden" name="repair" value="1" />
+                <button className={SECONDARY}>Re-pair round {latest?.number}</button>
+              </form>
+            )}
             {!["finished", "cancelled"].includes(run.state) && (
               <Link href={`/play/runs/${run.id}/edit`} className={SECONDARY}>
                 Edit
@@ -138,6 +167,8 @@ export default async function RunPage({
         deck={mine === null ? null : (deckOf.get(mine.id) ?? null)}
         decks={memberDecks}
       />
+
+      <RoundList rounds={rounds} pairings={pairings} entrants={entrants} />
 
       <EntrantList run={run} entrants={entrants} decks={deckOf} manages={manages} />
     </div>
