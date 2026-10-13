@@ -35,7 +35,11 @@ import { requireRole } from "@/lib/auth/guard";
 import { loadRun } from "@/lib/runs/load-run";
 import { importFinishedRun } from "@/lib/runs/finish-run.server";
 import { checkRunDeck } from "@/lib/runs/run-deck";
-import { notifyResultReported, notifyRoundPaired } from "@/lib/runs/run-notices.server";
+import {
+  notifyResultChased,
+  notifyResultReported,
+  notifyRoundPaired,
+} from "@/lib/runs/run-notices.server";
 import { ensureSiteIdentity } from "@/lib/runs/site-identity.server";
 import { createSessionClient } from "@/lib/supabase/session";
 
@@ -531,4 +535,20 @@ export async function finishRunAction(form: FormData): Promise<never> {
   revalidatePath("/play");
   revalidatePath(`/tournaments/${report.tournament.slug}`);
   redirect(`${back}?done=${report.written ? "finished" : "unchanged"}`);
+}
+
+// ---------------------------------------------------------------------------
+// Running the room (E26.27)
+// ---------------------------------------------------------------------------
+
+/** Nudges both players of a pairing whose result is still missing, by push. */
+export async function chaseResultAction(form: FormData): Promise<never> {
+  await requireRole("organizer");
+  const runId = form.get("runId")?.toString() ?? "";
+  const pairingId = form.get("pairingId")?.toString() ?? "";
+  const back = `/play/runs/${runId}`;
+  const view = await loadRun(await createSessionClient(), runId);
+  if (view === null) redirect("/play");
+  const sent = await notifyResultChased(runId, pairingId);
+  redirect(`${back}?done=${sent > 0 ? "chased" : "chase-unsent"}`);
 }

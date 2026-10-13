@@ -21,6 +21,7 @@ import { RegistrationPanel } from "@/components/play/registration-panel";
 import { ResultControls } from "@/components/play/result-controls";
 import { RoundList } from "@/components/play/round-list";
 import { StandingsTable } from "@/components/play/standings-table";
+import { WaitingOn } from "@/components/play/waiting-on";
 import { messageFor, RUN_DONE, RUN_ERRORS, STATE_LABEL } from "@/components/play/run-messages";
 import { LocalTime } from "@/components/ui/local-time";
 import { currentViewer } from "@/lib/auth/viewer";
@@ -255,6 +256,14 @@ export default async function RunPage({
               )
             )}
           </div>
+          {playing && latest !== undefined && (
+            <WaitingOn
+              runId={run.id}
+              pairings={pairings.filter((p) => p.roundId === latest.id)}
+              entrants={entrants}
+              canChase={vapidKey !== undefined}
+            />
+          )}
         </section>
       )}
 

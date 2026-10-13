@@ -80,6 +80,9 @@ export const RUN_DONE: Readonly<Record<string, string>> = {
   "cut-finished": "The top cut has a champion. Finish the run to import it.",
   finished: "Finished and imported. It is on the tournaments page now.",
   unchanged: "Nothing has changed since the last import.",
+  chased: "Both players have been nudged.",
+  "chase-unsent":
+    "Nobody could be nudged: neither player has notifications on. Find them at the table.",
   registration: "Registration is open.",
   cancelled: "The run is cancelled.",
 };

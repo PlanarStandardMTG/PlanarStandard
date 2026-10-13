@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 27/29 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 28/29 |
 
 ---
 
@@ -1975,7 +1975,7 @@ the server-rendered page rather than patching it in the browser, through an anon
 (0053 adds the run tables to the publication) — the first Supabase client in a browser bundle,
 which holds the public key only.
 
-⬜ **E26.27 — Organizer controls in `/play`** · M · Deps: E26.26 — pair the next round once every
+✅ **E26.27 — Organizer controls in `/play`** · M · Deps: E26.26 — pair the next round once every
 result is in, chase a missing result, and overrule one, from a phone at the venue. Rounds have no
 timer.
 
@@ -2107,6 +2107,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 27   |
+|      |         |      | E26  | 29      | 28   |
 
-**272 of 345 stories done across 26 epics.**
+**273 of 345 stories done across 26 epics.**

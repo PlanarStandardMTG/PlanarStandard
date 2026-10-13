@@ -38,7 +38,10 @@ export default async function PlayLayout({ children }: { children: ReactNode }) 
           >
             <PlanarMark className="size-7 text-gold-700 dark:text-gold-400" />
             <span>
-              Play <span className="text-ink-500 dark:text-ink-400">· Planar Standard</span>
+              Play{" "}
+              <span className="hidden text-ink-500 sm:inline dark:text-ink-400">
+                · Planar Standard
+              </span>
             </span>
           </Link>
           <div className="flex items-center gap-3 text-sm">
