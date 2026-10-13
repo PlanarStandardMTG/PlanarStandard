@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 16/29 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 17/29 |
 
 ---
 
@@ -1901,7 +1901,7 @@ on `/admin/users`.
 
 **Running a run**
 
-⬜ **E26.16 — Create and edit a run** · M · Deps: E26.9, E26.14 — organizers and admins: name, date,
+✅ **E26.16 — Create and edit a run** · M · Deps: E26.9, E26.14 — organizers and admins: name, date,
 format versions, and Swiss rounds and top cut, prefilled by E26.7 and free to change, including to no
 Swiss rounds. _AC:_ a draft is visible only to its organizer and admins, and does not appear on
 `/tournaments`.
@@ -2081,6 +2081,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 16   |
+|      |         |      | E26  | 29      | 17   |
 
-**261 of 345 stories done across 26 epics.**
+**262 of 345 stories done across 26 epics.**

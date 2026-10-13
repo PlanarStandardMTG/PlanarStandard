@@ -322,3 +322,12 @@ export { canMoveRun, runMoves } from "./runs/run-state/index";
 export type { RunMove, RunMoveRefusal, RunProgress } from "./runs/run-state/index";
 export { runEntrantHandle, toParsedEvent } from "./runs/to-parsed-event/index";
 export type { FinishedRun } from "./runs/to-parsed-event/index";
+export {
+  checkRunDetails,
+  MAX_SWISS_ROUNDS,
+  MAX_TOP_CUT,
+  RUN_NAME_MAX_LENGTH,
+} from "./runs/run-details/index";
+export type { RunDetailsInput, RunDetailsProblem } from "./runs/run-details/index";
+export { runProgress } from "./runs/run-progress/index";
+export type { RunPosition, RunProgressInput } from "./runs/run-progress/index";
