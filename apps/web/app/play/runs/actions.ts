@@ -2,12 +2,24 @@
 
 import type { RunState } from "@ps/contracts";
 import { canMoveRun, checkRunDetails } from "@ps/core";
-import { createRun, deleteDraftRun, setRunFormats, setRunState, updateRun } from "@ps/db";
+import {
+  createRun,
+  deleteDraftRun,
+  getDeckWithCards,
+  registerForRun,
+  removeRunEntrant,
+  saveRunEntrantDeck,
+  setRunFormats,
+  setRunState,
+  updateRun,
+} from "@ps/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireRole } from "@/lib/auth/guard";
 import { loadRun } from "@/lib/runs/load-run";
+import { checkRunDeck } from "@/lib/runs/run-deck";
+import { ensureSiteIdentity } from "@/lib/runs/site-identity.server";
 import { createSessionClient } from "@/lib/supabase/session";
 
 /**
@@ -97,4 +109,111 @@ export async function deleteDraftRunAction(form: FormData): Promise<never> {
   const runId = form.get("runId")?.toString() ?? "";
   await deleteDraftRun(await createSessionClient(), runId);
   redirect("/play?done=deleted");
+}
+
+// ---------------------------------------------------------------------------
+// Registration (E26.17)
+// ---------------------------------------------------------------------------
+
+/** The list an entrant chose: a saved deck of theirs, or text they pasted. */
+async function chosenList(
+  client: Awaited<ReturnType<typeof createSessionClient>>,
+  ownerId: string,
+  form: FormData,
+): Promise<{ deckId: string | null; text: string } | null> {
+  const deckId = form.get("deckId")?.toString() ?? "";
+  if (deckId !== "") {
+    const deck = await getDeckWithCards(client, deckId);
+    if (deck === null || deck.ownerId !== ownerId || deck.rawImport === null) return null;
+    return { deckId, text: deck.rawImport };
+  }
+  const text = form.get("decklist")?.toString() ?? "";
+  return text.trim() === "" ? null : { deckId: null, text };
+}
+
+export async function registerAction(form: FormData): Promise<never> {
+  const viewer = await requireRole("reader");
+  const runId = form.get("runId")?.toString() ?? "";
+  const back = `/play/runs/${runId}`;
+  const { handle } = viewer.profile;
+  if (handle === null) redirect(`${back}?error=no-handle`);
+
+  const client = await createSessionClient();
+  const view = await loadRun(client, runId);
+  if (view === null) redirect("/play");
+  if (view.run.state !== "registration") redirect(`${back}?error=registration-closed`);
+
+  const list = await chosenList(client, viewer.profile.id, form);
+  if (list === null) redirect(`${back}?error=deck-empty`);
+  const check = await checkRunDeck(list.text, view.run.formatVersionIds);
+  if (!check.ok) redirect(`${back}?error=${check.problem}`);
+
+  const identified = await ensureSiteIdentity({ ...viewer.profile, handle });
+  if (!identified) redirect(`${back}?error=handle-clash`);
+
+  let entrantId: string;
+  try {
+    const entrant = await registerForRun(client, runId, {
+      profileId: viewer.profile.id,
+      displayName: viewer.profile.displayName,
+      handle,
+    });
+    entrantId = entrant.id;
+  } catch (cause) {
+    if (String(cause).includes("23505")) redirect(`${back}?error=already-registered`);
+    throw cause;
+  }
+  await saveRunEntrantDeck(client, {
+    entrantId,
+    deckId: list.deckId,
+    decklistText: list.text,
+    isLegal: check.isLegal,
+  });
+  revalidatePath(back);
+  redirect(`${back}?done=registered`);
+}
+
+/** A new list for an entry already made, while registration is open. */
+export async function changeDeckAction(form: FormData): Promise<never> {
+  const viewer = await requireRole("reader");
+  const runId = form.get("runId")?.toString() ?? "";
+  const entrantId = form.get("entrantId")?.toString() ?? "";
+  const back = `/play/runs/${runId}`;
+
+  const client = await createSessionClient();
+  const view = await loadRun(client, runId);
+  if (view === null) redirect("/play");
+  const list = await chosenList(client, viewer.profile.id, form);
+  if (list === null) redirect(`${back}?error=deck-empty`);
+  const check = await checkRunDeck(list.text, view.run.formatVersionIds);
+  if (!check.ok) redirect(`${back}?error=${check.problem}`);
+
+  try {
+    await saveRunEntrantDeck(client, {
+      entrantId,
+      deckId: list.deckId,
+      decklistText: list.text,
+      isLegal: check.isLegal,
+    });
+  } catch (cause) {
+    if (String(cause).includes("42501")) redirect(`${back}?error=deck-locked`);
+    throw cause;
+  }
+  revalidatePath(back);
+  redirect(`${back}?done=deck`);
+}
+
+/** A member withdraws, or the organizer removes someone, before the run starts. */
+export async function withdrawAction(form: FormData): Promise<never> {
+  await requireRole("reader");
+  const runId = form.get("runId")?.toString() ?? "";
+  const entrantId = form.get("entrantId")?.toString() ?? "";
+  const back = `/play/runs/${runId}`;
+  try {
+    await removeRunEntrant(await createSessionClient(), entrantId);
+  } catch {
+    redirect(`${back}?error=not-withdrawable`);
+  }
+  revalidatePath(back);
+  redirect(`${back}?done=withdrawn`);
 }

@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 17/29 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 18/29 |
 
 ---
 
@@ -1906,11 +1906,16 @@ format versions, and Swiss rounds and top cut, prefilled by E26.7 and free to ch
 Swiss rounds. _AC:_ a draft is visible only to its organizer and admins, and does not appear on
 `/tournaments`.
 
-⬜ **E26.17 — Register with a deck** · M · Deps: E26.16, E18.11 — a member with a profile handle
+✅ **E26.17 — Register with a deck** · M · Deps: E26.16, E18.11 — a member with a profile handle
 registers, picks a saved deck or pastes one, and withdraws while registration is open. Registering
 gives their player a `site` identity under that handle. The deck locks when the run starts, and so
 does the entrant list. _AC:_ editing the saved deck afterwards changes nothing in the run (ADR 013);
 nobody can register once the run has started.
+_Note:_ E18.11's lock on saved decks is not what this uses: the run copies the list into
+`run_entrant_decks` when it is picked or pasted, and the policies refuse any change once the run
+leaves registration (0052). A list the parser cannot read is refused; an illegal one is registered
+and flagged for the organizer. The handle field on `/profile`, hidden until now, is shown again,
+since registering needs one.
 
 ⬜ **E26.18 — Guests, check-in and drops** · S · Deps: E26.17 — before the run starts, the organizer
 adds a guest by name and Arena username and checks entrants in; during it, drops one. A drop counts
@@ -2081,6 +2086,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 17   |
+|      |         |      | E26  | 29      | 18   |
 
-**262 of 345 stories done across 26 epics.**
+**263 of 345 stories done across 26 epics.**

@@ -1,7 +1,32 @@
 import type { RunDetailsProblem, RunMoveRefusal } from "@ps/core";
 
+/** Refusals the run page's own actions raise, beside core's. */
+type RunPageProblem =
+  | "no-handle"
+  | "registration-closed"
+  | "deck-empty"
+  | "deck-long"
+  | "deck-unreadable"
+  | "deck-locked"
+  | "handle-clash"
+  | "already-registered"
+  | "not-withdrawable";
+
 /** What a refused run form or move means, in the site's voice. Codes come from `core/runs`. */
-export const RUN_ERRORS: Readonly<Record<RunDetailsProblem | RunMoveRefusal, string>> = {
+export const RUN_ERRORS: Readonly<
+  Record<RunDetailsProblem | RunMoveRefusal | RunPageProblem, string>
+> = {
+  "no-handle": "Set a handle on your profile first: your matches are recorded under it.",
+  "registration-closed": "Registration is not open.",
+  "deck-empty": "Choose one of your decks or paste a list.",
+  "deck-long": "That list is too long.",
+  "deck-unreadable":
+    "Some lines of that list could not be read. Check it in the deck editor first.",
+  "deck-locked": "Decks are locked once the run starts.",
+  "handle-clash":
+    "Another player already plays under a handle like yours. Ask an admin, or change your handle.",
+  "already-registered": "You are already registered.",
+  "not-withdrawable": "Entries are fixed once the run starts.",
   "name-empty": "A run needs a name.",
   "name-long": "That name is too long.",
   "no-format": "Tick at least one format version.",
@@ -21,6 +46,9 @@ export const RUN_ERRORS: Readonly<Record<RunDetailsProblem | RunMoveRefusal, str
 
 export const RUN_DONE: Readonly<Record<string, string>> = {
   saved: "Saved.",
+  registered: "You are registered. Your deck can change until the run starts.",
+  deck: "Your deck is updated.",
+  withdrawn: "Withdrawn.",
   registration: "Registration is open.",
   cancelled: "The run is cancelled.",
 };

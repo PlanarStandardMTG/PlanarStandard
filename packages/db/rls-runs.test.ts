@@ -150,6 +150,7 @@ describe.skipIf(!online)("RLS — running events on the site", () => {
       "run_pairings",
       "run_result_changes",
       "profile_contacts",
+      "run_entrant_decks",
     ] as const;
 
     /** Whether a *policy or grant* stopped an empty insert, as `rls.test.ts` probes it. */
@@ -302,6 +303,28 @@ describe.skipIf(!online)("RLS — running events on the site", () => {
       expect(await contactsSeenBy(as("alice"))).toEqual(["alice"]);
     });
 
+    it("keeps a member's deck to them and the organizer, and lets them change it (E26.17)", async () => {
+      const save = (who: "alice" | "bob", list: string) =>
+        as(who)
+          .from("run_entrant_decks")
+          .upsert({ entrant_id: entrant.get(who), decklist_text: list, is_legal: true });
+
+      expect((await save("alice", "4 Llanowar Elves\n36 Forest")).error).toBeNull();
+      expect((await save("alice", "4 Llanowar Elves\n36 Forest\n20 Mountain")).error).toBeNull();
+      const forged = await as("bob")
+        .from("run_entrant_decks")
+        .insert({ entrant_id: entrant.get("alice"), decklist_text: "1 Island" });
+      expect(forged.error?.code).toBe(REFUSED);
+
+      const seen = async (client: SupabaseClient) =>
+        (await client.from("run_entrant_decks").select("entrant_id")).data?.length ?? 0;
+      expect(await seen(as("alice"))).toBe(1);
+      expect(await seen(as("bob"))).toBe(0);
+      expect(await seen(anon)).toBe(0);
+      expect(await seen(as("rival"))).toBe(0);
+      expect(await seen(as("organizer"))).toBe(1);
+    });
+
     it("does not let a member check themself in", async () => {
       const { error } = await as("alice")
         .from("run_entrants")
@@ -402,6 +425,23 @@ describe.skipIf(!online)("RLS — running events on the site", () => {
         .eq("id", entrant.get("alice") ?? "");
       const { data } = await service.from("run_entrants").select("id").eq("run_id", runId);
       expect(data).toHaveLength(4);
+    });
+
+    it("locks every deck once the run has started (ADR 013)", async () => {
+      await as("alice")
+        .from("run_entrant_decks")
+        .update({ decklist_text: "1 Island" })
+        .eq("entrant_id", entrant.get("alice") ?? "");
+      await as("organizer")
+        .from("run_entrant_decks")
+        .update({ decklist_text: "1 Island" })
+        .eq("entrant_id", entrant.get("alice") ?? "");
+      const { data } = await service
+        .from("run_entrant_decks")
+        .select("decklist_text")
+        .eq("entrant_id", entrant.get("alice") ?? "")
+        .single();
+      expect(data).toEqual({ decklist_text: "4 Llanowar Elves\n36 Forest\n20 Mountain" });
     });
 
     it("lets only the organizer pair a round, and nobody twice in it", async () => {

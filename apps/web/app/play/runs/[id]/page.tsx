@@ -1,10 +1,11 @@
-import { listFormatVersions } from "@ps/db";
+import { listFormatVersions, listMemberDecks, listRunEntrantDecks } from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { PRIMARY, QUIET, SECONDARY } from "@/components/play/button";
 import { PlayNotice } from "@/components/play/notice";
+import { RegistrationPanel } from "@/components/play/registration-panel";
 import { messageFor, RUN_DONE, RUN_ERRORS, STATE_LABEL } from "@/components/play/run-messages";
 import { LocalTime } from "@/components/ui/local-time";
 import { currentViewer } from "@/lib/auth/viewer";
@@ -53,6 +54,13 @@ export default async function RunPage({
     (viewer.profile.role === "admin" ||
       (viewer.profile.role === "organizer" && run.organizerId === viewer.profile.id));
   const versionName = new Map(versions.map((v) => [v.id, v.name]));
+  const mine =
+    viewer === null ? null : (entrants.find((e) => e.profileId === viewer.profile.id) ?? null);
+  const [decks, memberDecks] = await Promise.all([
+    viewer === null ? Promise.resolve([]) : listRunEntrantDecks(client, run.id),
+    viewer === null ? Promise.resolve([]) : listMemberDecks(client, viewer.profile.id),
+  ]);
+  const deckOf = new Map(decks.map((d) => [d.entrantId, d]));
 
   return (
     <div className="space-y-6">
@@ -122,6 +130,14 @@ export default async function RunPage({
         </section>
       )}
 
+      <RegistrationPanel
+        run={run}
+        viewer={viewer}
+        entrant={mine}
+        deck={mine === null ? null : (deckOf.get(mine.id) ?? null)}
+        decks={memberDecks}
+      />
+
       <section>
         <h2 className="font-display text-xl">Entrants</h2>
         {entrants.length === 0 ? (
@@ -129,8 +145,17 @@ export default async function RunPage({
         ) : (
           <ul className="mt-2 divide-y divide-ink-200 text-sm dark:divide-ink-800">
             {entrants.map((entrant) => (
-              <li key={entrant.id} className="py-2">
-                {entrant.displayName}
+              <li key={entrant.id} className="flex justify-between gap-3 py-2">
+                <span>{entrant.displayName}</span>
+                {manages && (
+                  <span className="text-xs text-ink-500 dark:text-ink-400">
+                    {deckOf.get(entrant.id) === undefined
+                      ? "no deck"
+                      : deckOf.get(entrant.id)?.isLegal === false
+                        ? "deck not legal"
+                        : "deck in"}
+                  </span>
+                )}
               </li>
             ))}
           </ul>

@@ -171,8 +171,24 @@ export default async function ProfilePage({
             </p>
           </div>
 
-          {/* Hidden until handles have a clearer use; posted so saving keeps it. */}
-          <input type="hidden" name="handle" value={profile.handle ?? ""} />
+          <div>
+            <label htmlFor="handle" className="text-sm font-medium">
+              Handle
+            </label>
+            <input
+              id="handle"
+              name="handle"
+              defaultValue={profile.handle ?? ""}
+              minLength={HANDLE_MIN_LENGTH}
+              maxLength={HANDLE_MAX_LENGTH}
+              autoComplete="off"
+              className={FIELD}
+            />
+            <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">
+              Your name in events run on the site: your matches there are recorded under it, so you
+              need one to register. Letters, numbers, hyphens and underscores.
+            </p>
+          </div>
 
           <div>
             <label htmlFor="bio" className="text-sm font-medium">

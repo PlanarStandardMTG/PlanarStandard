@@ -1,9 +1,11 @@
 import type {
+  DeckId,
   FormatVersionId,
   PostedRunPairing,
   ProfileId,
   Run,
   RunEntrant,
+  RunEntrantDeck,
   RunGames,
   RunResultChange,
   RunResultSnapshot,
@@ -172,5 +174,23 @@ export function toRunResultChange(row: ResultChangeRow): RunResultChange {
     before: toSnapshot(row.before),
     after: toSnapshot(row.after),
     createdAt: row.created_at,
+  };
+}
+
+export interface EntrantDeckRow {
+  readonly entrant_id: string;
+  readonly deck_id: string | null;
+  readonly decklist_text: string;
+  readonly is_legal: boolean | null;
+}
+
+export const ENTRANT_DECK_COLUMNS = "entrant_id, deck_id, decklist_text, is_legal";
+
+export function toRunEntrantDeck(row: EntrantDeckRow): RunEntrantDeck {
+  return {
+    entrantId: row.entrant_id,
+    deckId: row.deck_id as DeckId | null,
+    decklistText: row.decklist_text,
+    isLegal: row.is_legal,
   };
 }

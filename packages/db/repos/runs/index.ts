@@ -5,6 +5,7 @@ import type {
   ProposedRunPairing,
   Run,
   RunEntrant,
+  RunEntrantDeck,
   RunEntrantId,
   RunGames,
   RunId,
@@ -20,6 +21,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import {
   ENTRANT_COLUMNS,
+  ENTRANT_DECK_COLUMNS,
   PAIRING_COLUMNS,
   RESULT_CHANGE_COLUMNS,
   ROUND_COLUMNS,
@@ -27,8 +29,10 @@ import {
   toPostedRunPairing,
   toRun,
   toRunEntrant,
+  toRunEntrantDeck,
   toRunResultChange,
   toRunRound,
+  type EntrantDeckRow,
   type EntrantRow,
   type PairingRow,
   type ResultChangeRow,
@@ -318,6 +322,36 @@ export async function getEntrantArenaUsername(
           .maybeSingle();
   if (error !== null) fail("getEntrantArenaUsername", error);
   return (data as { arena_username: string | null } | null)?.arena_username ?? null;
+}
+
+/**
+ * Sets an entrant's deck: the entrant while registration is open, the organizer until
+ * the run starts. Locked after that for everyone (0052, ADR 013).
+ */
+export async function saveRunEntrantDeck(
+  client: SupabaseClient,
+  deck: RunEntrantDeck,
+): Promise<void> {
+  const { error } = await client.from("run_entrant_decks").upsert({
+    entrant_id: deck.entrantId,
+    deck_id: deck.deckId,
+    decklist_text: deck.decklistText,
+    is_legal: deck.isLegal,
+  });
+  if (error !== null) fail("saveRunEntrantDeck", error);
+}
+
+/** The run's decks the caller may read: their own, or every one for its organizer. */
+export async function listRunEntrantDecks(
+  client: SupabaseClient,
+  runId: RunId,
+): Promise<readonly RunEntrantDeck[]> {
+  const { data, error } = await client
+    .from("run_entrant_decks")
+    .select(`${ENTRANT_DECK_COLUMNS}, run_entrants!inner(run_id)`)
+    .eq("run_entrants.run_id", runId);
+  if (error !== null) fail("listRunEntrantDecks", error);
+  return (data as unknown as EntrantDeckRow[]).map(toRunEntrantDeck);
 }
 
 // ---------------------------------------------------------------------------

@@ -3,6 +3,7 @@
 // audit fields stay out, because nothing in `core` needs them.
 
 import type {
+  DeckId,
   FormatVersionId,
   IsoDateTime,
   ProfileId,
@@ -68,6 +69,16 @@ export interface RunEntrant {
    * after that (MTR §2.10). `0` dropped before round 1; null has not dropped.
    */
   readonly droppedAfterRound: number | null;
+}
+
+/** An entrant's deck as the run holds it: a copy, so the saved deck can change freely (ADR 013). */
+export interface RunEntrantDeck {
+  readonly entrantId: RunEntrantId;
+  /** The saved deck it was copied from, while that deck exists. */
+  readonly deckId: DeckId | null;
+  readonly decklistText: string;
+  /** Legal in at least one of the run's format versions when saved; null when unchecked. */
+  readonly isLegal: boolean | null;
 }
 
 export type RunRoundKind = "swiss" | "elimination";

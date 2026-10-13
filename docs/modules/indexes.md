@@ -196,6 +196,7 @@ query is on a page rather than in an export.
 | `run_pairings`           | `run_pairings_p1_idx`                                 | an entrant's pairings, and the foreign key         |
 | `run_pairings`           | `run_pairings_p2_idx` (partial)                       | the same from the second seat; byes have none      |
 | `run_result_changes`     | `run_result_changes_pairing_idx`                      | one result's history, in order                     |
+| `run_entrant_decks`      | `run_entrant_decks_deck_idx` (partial)                | clearing the link when a saved deck is deleted     |
 
 Primary keys and unique constraints index themselves and are not repeated here,
 except where the index is doing work the constraint is incidental to.
