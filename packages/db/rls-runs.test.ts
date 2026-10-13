@@ -571,6 +571,18 @@ describe.skipIf(!online)("RLS — running events on the site", () => {
       ].sort((a, b) => a.table_number - b.table_number);
       expect(bye?.status).toBe("confirmed");
 
+      // Games sent without a status are a report, from the organizer too.
+      await organizer
+        .from("run_pairings")
+        .update({ p1_wins: 2, p2_wins: 0, draws: 0 })
+        .eq("id", match?.id ?? "");
+      const { data: reported } = await service
+        .from("run_pairings")
+        .select("status")
+        .eq("id", match?.id ?? "")
+        .single();
+      expect(reported).toEqual({ status: "reported" });
+
       const draw = await organizer
         .from("run_pairings")
         .update({ p1_wins: 1, p2_wins: 1, draws: 1 })

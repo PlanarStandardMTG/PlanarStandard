@@ -331,3 +331,5 @@ export {
 export type { RunDetailsInput, RunDetailsProblem } from "./runs/run-details/index";
 export { runProgress } from "./runs/run-progress/index";
 export type { RunPosition, RunProgressInput } from "./runs/run-progress/index";
+export { gamesFromChoice, resultChoices } from "./runs/result-choice/index";
+export type { ResultChoice } from "./runs/result-choice/index";

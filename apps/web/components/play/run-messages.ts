@@ -17,7 +17,9 @@ type RunPageProblem =
   | "not-running"
   | "swiss-rounds-done"
   | "round-has-results"
-  | "no-pairing-without-rematch";
+  | "no-pairing-without-rematch"
+  | "result-refused"
+  | "result-invalid";
 
 /** What a refused run form or move means, in the site's voice. Codes come from `core/runs`. */
 export const RUN_ERRORS: Readonly<
@@ -40,6 +42,9 @@ export const RUN_ERRORS: Readonly<
   "not-running": "That is done while the run is being played.",
   "swiss-rounds-done": "Every Swiss round has been paired.",
   "round-has-results": "A result is in, so this round can no longer be re-paired.",
+  "result-refused":
+    "That result cannot be changed by you now: a confirmed result is the organizer's to change.",
+  "result-invalid": "That result is not possible here. The top cut has no draws.",
   "no-pairing-without-rematch":
     "No pairing avoids a rematch. Reduce the Swiss rounds, or move on to the cut or finish.",
   "name-empty": "A run needs a name.",
@@ -69,6 +74,9 @@ export const RUN_DONE: Readonly<Record<string, string>> = {
   started: "The run has started. Entries and decks are locked.",
   paired: "The round is paired.",
   repaired: "The round is re-paired.",
+  reported: "Reported. It counts once your opponent confirms it.",
+  confirmed: "Confirmed.",
+  "result-set": "Result saved.",
   registration: "Registration is open.",
   cancelled: "The run is cancelled.",
 };

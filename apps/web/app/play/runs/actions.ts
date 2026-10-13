@@ -1,9 +1,16 @@
 "use server";
 
 import type { RunState } from "@ps/contracts";
-import { canMoveRun, checkContactNames, checkRunDetails, pairSwiss } from "@ps/core";
+import {
+  canMoveRun,
+  checkContactNames,
+  checkRunDetails,
+  gamesFromChoice,
+  pairSwiss,
+} from "@ps/core";
 import {
   addRunGuest,
+  confirmRunResult,
   createRun,
   deleteDraftRun,
   dropRunEntrant,
@@ -11,9 +18,11 @@ import {
   postRunRound,
   registerForRun,
   removeRunEntrant,
+  reportRunResult,
   saveRunEntrantDeck,
   setEntrantCheckedIn,
   setRunFormats,
+  setRunResult,
   setRunState,
   updateRun,
 } from "@ps/db";
@@ -357,4 +366,87 @@ export async function pairRoundAction(form: FormData): Promise<never> {
   }
   revalidatePath(back);
   redirect(`${back}?done=${repair ? "repaired" : "paired"}`);
+}
+
+// ---------------------------------------------------------------------------
+// Results (E26.20)
+// ---------------------------------------------------------------------------
+
+/** The pairing a result form names, its round's kind, and which side the caller plays. */
+async function pairingFor(form: FormData, profileId: string) {
+  const runId = form.get("runId")?.toString() ?? "";
+  const pairingId = form.get("pairingId")?.toString() ?? "";
+  const client = await createSessionClient();
+  const view = await loadRun(client, runId);
+  if (view === null) redirect("/play");
+  const pairing = view.pairings.find((p) => p.id === pairingId);
+  if (pairing === undefined) redirect(`/play/runs/${runId}?error=not-a-move`);
+  const mine = view.entrants.find((e) => e.profileId === profileId);
+  const side =
+    mine === undefined
+      ? null
+      : mine.id === pairing.p1EntrantId
+        ? ("p1" as const)
+        : mine.id === pairing.p2EntrantId
+          ? ("p2" as const)
+          : null;
+  const elimination = view.rounds.find((r) => r.id === pairing.roundId)?.kind === "elimination";
+  return { client, runId, pairing, side, elimination, back: `/play/runs/${runId}` };
+}
+
+/** Rethrows anything but the database refusing the change, which becomes a code. */
+function refusedOr(cause: unknown, back: string): never {
+  if (String(cause).includes("42501")) redirect(`${back}?error=result-refused`);
+  if (String(cause).includes("23514")) redirect(`${back}?error=result-invalid`);
+  throw cause;
+}
+
+/** A player reports their match. It counts once the other player confirms it. */
+export async function reportResultAction(form: FormData): Promise<never> {
+  const viewer = await requireRole("reader");
+  const { client, pairing, side, elimination, back } = await pairingFor(form, viewer.profile.id);
+  if (side === null) redirect(`${back}?error=result-refused`);
+  const games = gamesFromChoice(form.get("result")?.toString() ?? "", side, elimination);
+  if (games === null) redirect(`${back}?error=result-invalid`);
+  try {
+    await reportRunResult(client, pairing.id, games);
+  } catch (cause) {
+    refusedOr(cause, back);
+  }
+  revalidatePath(back);
+  redirect(`${back}?done=reported`);
+}
+
+/** The other player agrees with what was reported. */
+export async function confirmResultAction(form: FormData): Promise<never> {
+  const viewer = await requireRole("reader");
+  const { client, pairing, back } = await pairingFor(form, viewer.profile.id);
+  try {
+    await confirmRunResult(client, pairing.id);
+  } catch (cause) {
+    refusedOr(cause, back);
+  }
+  revalidatePath(back);
+  redirect(`${back}?done=confirmed`);
+}
+
+/**
+ * The organizer enters a result, overrules one, or accepts one nobody confirmed. It
+ * counts at once; the trigger logs it under their name.
+ */
+export async function setResultAction(form: FormData): Promise<never> {
+  const viewer = await requireRole("organizer");
+  const { client, pairing, elimination, back } = await pairingFor(form, viewer.profile.id);
+  const accept = form.get("accept") === "1";
+  const games = accept
+    ? pairing.games
+    : gamesFromChoice(form.get("result")?.toString() ?? "", "p1", elimination);
+  if (games === null) redirect(`${back}?error=result-invalid`);
+  try {
+    await setRunResult(client, pairing.id, games);
+  } catch (cause) {
+    refusedOr(cause, back);
+  }
+  revalidatePath(back);
+  redirect(`${back}?done=result-set`);
 }

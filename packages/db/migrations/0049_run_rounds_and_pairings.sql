@@ -129,6 +129,10 @@ begin
   if old.p2_entrant_id is null and (games_changed or new.status <> old.status) then
     raise exception 'a bye has no result to change' using errcode = '42501';
   end if;
+  -- Games without a status are a report, whoever sends them.
+  if games_changed and new.p1_wins is not null and new.status = 'pending' then
+    new.status := 'reported';
+  end if;
 
   -- The server, acting as itself.
   if me is null and auth.uid() is null then

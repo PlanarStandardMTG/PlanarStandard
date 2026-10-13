@@ -7,6 +7,7 @@ import { PRIMARY, QUIET, SECONDARY } from "@/components/play/button";
 import { EntrantList } from "@/components/play/entrant-list";
 import { PlayNotice } from "@/components/play/notice";
 import { RegistrationPanel } from "@/components/play/registration-panel";
+import { ResultControls } from "@/components/play/result-controls";
 import { RoundList } from "@/components/play/round-list";
 import { messageFor, RUN_DONE, RUN_ERRORS, STATE_LABEL } from "@/components/play/run-messages";
 import { LocalTime } from "@/components/ui/local-time";
@@ -168,7 +169,31 @@ export default async function RunPage({
         decks={memberDecks}
       />
 
-      <RoundList rounds={rounds} pairings={pairings} entrants={entrants} />
+      <RoundList
+        rounds={rounds}
+        pairings={pairings}
+        entrants={entrants}
+        controls={(pairing) => (
+          <ResultControls
+            runId={run.id}
+            pairing={pairing}
+            side={
+              mine === null
+                ? null
+                : mine.id === pairing.p1EntrantId
+                  ? "p1"
+                  : mine.id === pairing.p2EntrantId
+                    ? "p2"
+                    : null
+            }
+            viewerProfileId={viewer?.profile.id ?? null}
+            manages={manages}
+            elimination={rounds.find((r) => r.id === pairing.roundId)?.kind === "elimination"}
+            playing={run.state === "running" || run.state === "top_cut"}
+            p1Name={entrants.find((e) => e.id === pairing.p1EntrantId)?.displayName ?? "Player 1"}
+          />
+        )}
+      />
 
       <EntrantList run={run} entrants={entrants} decks={deckOf} manages={manages} />
     </div>
