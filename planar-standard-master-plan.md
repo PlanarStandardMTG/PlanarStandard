@@ -975,22 +975,23 @@ Good first issues are structurally abundant here, which is not an accident:
 
 `docs/adr/` — one short file per decision, so nobody relitigates settled questions every three months. Seed it with these:
 
-| ADR | Decision                                                              |
-| --- | --------------------------------------------------------------------- |
-| 001 | Markdown in Postgres, not a headless CMS _(Reddit is Markdown)_       |
-| 002 | Card data is a pruned repo artifact, not a database table or live API |
-| 003 | The ledger records handles, not people                                |
-| 004 | Full recompute, never incremental updates                             |
-| 005 | Adapter-based ingestion; no platform is special                       |
-| 006 | Elo requires pairings; standings-only events are unrated              |
-| 007 | Legality = oracle card in a legal set; any printing playable          |
-| 008 | Derived statistics are never uploaded                                 |
-| 009 | Identities auto-create; curation is merging, not claiming             |
-| 010 | MDX in repo for info pages; database for articles                     |
-| 011 | Decks are decoupled from ratings                                      |
-| 012 | Sample-size guardrails enforced in shared components                  |
-| 013 | Deck snapshots are immutable once an event starts                     |
-| 014 | Only `mana-font` and `keyrune` from the MTG npm ecosystem             |
+| ADR | Decision                                                                 |
+| --- | ------------------------------------------------------------------------ |
+| 001 | Markdown in Postgres, not a headless CMS _(Reddit is Markdown)_          |
+| 002 | Card data is a pruned repo artifact, not a database table or live API    |
+| 003 | The ledger records handles, not people                                   |
+| 004 | Full recompute, never incremental updates                                |
+| 005 | Adapter-based ingestion; no platform is special                          |
+| 006 | Elo requires pairings; standings-only events are unrated                 |
+| 007 | Legality = oracle card in a legal set; any printing playable             |
+| 008 | Derived statistics are never uploaded                                    |
+| 009 | Identities auto-create; curation is merging, not claiming                |
+| 010 | MDX in repo for info pages; database for articles                        |
+| 011 | Decks are decoupled from ratings                                         |
+| 012 | Sample-size guardrails enforced in shared components                     |
+| 013 | Deck snapshots are immutable once an event starts                        |
+| 014 | Only `mana-font` and `keyrune` from the MTG npm ecosystem                |
+| 015 | Events run on the site live in this database; finishing one is an import |
 
 ### 22. Testing strategy
 
@@ -1062,6 +1063,82 @@ Condensed. Detail per module lives in `docs/modules/`.
 5. Run the suggestion engine; work the remaining queue once.
 6. Ratings stay empty until the first event with real pairings.
 
+### 28. Running events on the site
+
+An organizer runs a Planar Standard event here from registration to final standings, and players follow
+it in the **play app** at `/play`, an installable PWA, on a phone or beside Arena on a desktop. It is
+built for this format only; a generic event manager can come later, out of what this one teaches. That
+replaced a plan for a separate events service on its own database (2026-10-13): one database means a
+foreign key where that plan needed an export, a token, an adapter and a fetch job (ADR 015).
+
+**Where it lives.**
+
+- `core/runs` — pure: points and records, tiebreakers, standings, Swiss pairing, byes, the top cut,
+  which state a run may move to, and a finished run as a `ParsedEvent`. Randomness arrives as a seed.
+- `db` — `tournament_runs`, one per `tournaments` row in `draft`, holding the live state, the seed, the
+  Swiss rounds and the top cut; `run_entrants`, `run_rounds`, `run_pairings` and `run_result_changes`;
+  then `game_requests` and `push_subscriptions`. Nothing in the ledger changes while a run is live.
+- `web` — `/play` for players and for an organizer running the room from a phone, under the same
+  sign-in and guards as the rest of the site.
+
+**Finishing is an import.** `core/runs/to-parsed-event` turns a finished run into a `ParsedEvent` with
+matches, standings, roster and decklists, and `ingest-event` commits it like a melee.gg event (§26).
+Correcting a result afterwards finishes it again, which supersedes wholesale. Whether it counts for Elo
+and card statistics is the admin's tick at `/admin/processing`, as for any event.
+
+**Identity.** A member registers themself; the handle their matches carry is their Arena username, a
+`player_identities` row on platform `arena` attached to their player. A guest the organizer types in
+is `organizer_entered`. The ledger still records handles, not people (ADR 003). Who may see an Arena
+username is open question 9.
+
+**Pairings and standings** follow the Magic Tournament Rules, and `core` cites the section for each:
+
+- Win 3, draw 1, loss 0; a bye is a 2–0 win.
+- Tiebreakers are opponents' match-win %, game-win % and opponents' game-win %, each floored at 33%;
+  a bye is not an opponent.
+- Round 1 is random from the run's stored seed, so re-pairing it gives the same result.
+- Later rounds pair within point groups, top down, pairing down when a group is odd and never
+  repeating a pairing. When no such pairing exists, the code says so and the organizer decides.
+- The bye goes to the lowest-ranked entrant who has not had one.
+- The top cut is single elimination, seeded from the final Swiss standings.
+- Standings are derived on every read (ADR 004).
+- Posted pairings are facts: a re-pair replaces an unplayed round whole and never edits a pairing.
+
+**Decks.** An entrant picks a saved deck or pastes one, and it locks when the run starts (ADR 013,
+E18.11). Legality is checked against the run's format versions (E20.66).
+
+**Live, and when the app is closed.**
+
+- **While the app is open:** Supabase Realtime on the run tables, filtered by the same RLS as a read.
+- **While it is closed:** Web Push sent from the server. The key it signs with lives in a
+  `.server.ts` module, out of every client bundle (E1.7). Pushes go out for:
+  - your pairing, with the opponent's Arena name
+  - a round starting, and a round ending
+  - a result that is still due
+  - a challenge you posted being accepted
+- **iOS:** push reaches a PWA only once it is installed to the Home Screen (iOS 16.4+), and only
+  after the member taps a button to allow it. The onboarding says so.
+
+**Sign-in in the app.** The PWA signs in with an emailed **code** rather than a link. A link opens the
+browser, not the installed app, and on iOS the installed app keeps a separate session. OAuth stays off
+until a provider is configured (`lib/auth/enabled-providers.ts`).
+
+**Looking for a game.** An open-challenge board, not a queue, because a niche format's queue is
+usually empty. A member posts a format version, Bo1 or Bo3, and a note, and the post expires.
+Another member accepts, both see each other's Arena names, and they play by Direct Challenge. The site
+never touches Arena. Presence shows who is around. What, if anything, a game found here records is
+open question 11.
+
+**Free plans.** Everything runs on free tiers. These limits were checked at the time of writing;
+check them again before relying on them.
+
+| Limit                          | Roughly                                       | So                                                                                                                           |
+| ------------------------------ | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| Vercel Hobby cron              | once a day                                    | Scheduled jobs run from Supabase `pg_cron` plus `pg_net`, calling a route with `CRON_SECRET`. That is E23.14's scheduler too |
+| Supabase Realtime              | 200 concurrent connections, 2M messages/month | Plenty for an event; subscribe per run, not to everything                                                                    |
+| Supabase auth email rate limit | set in the dashboard when custom SMTP is on   | Raise it before an event day; sessions last weeks, so codes are rare                                                         |
+| Resend                         | 100 emails a day, 3,000 a month               | The real ceiling on sign-in codes                                                                                            |
+
 ---
 
 ## Part VII — Roadmap
@@ -1079,6 +1156,7 @@ Condensed. Detail per module lives in `docs/modules/`.
 | **8**  | Analytics: stats builders, similarity, layout, the full chart suite                                | B, H    |
 | **9**  | Articles + Reddit                                                                                  | F, L    |
 | **10** | Payoff: matchup matrix, merge-suggestion queue, chart embeds, search                               | —       |
+| **11** | Running events on the site and the `/play` app (§28)                                               | —       |
 
 Identity and ratings precede decks: the leaderboard is what makes the site matter week to week, and it needs the smallest surface to ship.
 
@@ -1137,3 +1215,20 @@ Identity and ratings precede decks: the leaderboard is what makes the site matte
 8. Who owns archetype naming, and is there an existing convention document?
 
 - don't worry about archetype naming for now. Let's focus on data aggregation, then archetype naming can be a set of conditions
+
+9. Who may see a member's Arena username? It is the handle their matches carry, so it shows on an
+   event's page like a melee.gg username does, but it is also how to send them a friend request.
+
+- _open_ — proposed: shown like any handle, since the community already shares them for Direct Challenge
+
+10. Who reports a result in a run: both players, or only the organizer?
+
+- _open_ — proposed: either player reports, the other confirms, and the organizer can enter or overrule
+
+11. Does a game found through the looking-for-game board record anything?
+
+- _open_ — proposed: no. Not rated, not stored once the post expires; a rated ladder can come later
+
+12. Late registration, intentional draws, and a shared round timer: wanted at first, or later?
+
+- _open_

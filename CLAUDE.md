@@ -185,7 +185,7 @@ split it. Every module ships `index.ts` (usually under 60 lines), `index.test.ts
   a branch.
 - **Changing a metric definition also changes `docs/modules/metrics.md`** — definitions are
   recorded in prose next to the code.
-- **Decisions are listed in §21 of the plan** (ADRs 001–014). `docs/adr/` is meant to hold one file
+- **Decisions are listed in §21 of the plan** (ADRs 001–015). `docs/adr/` is meant to hold one file
   each but holds only its README until E22.6; until then §21 and the plan sections it points to are the
   record. Check there before reopening a settled question.
 - TypeScript is strict with `noUncheckedIndexedAccess` and `exactOptionalPropertyTypes`; project

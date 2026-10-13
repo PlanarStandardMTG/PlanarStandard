@@ -45,6 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
+| E26  | Running events on the site            | 11    | E2, E18.11   | ⬜ 0/31  |
 
 ---
 
@@ -1515,7 +1516,7 @@ _Blocked:_ needs a contact address for the enforcement section.
 _Blocked:_ needs the GitHub org/team handle for each `area:` label.
 ⬜ **E22.4 — Issue labels and templates** · M — the nine `area:` labels plus `good first issue` templates for: new adapter, new identity signal, new Reddit transform, new decklist edge case, new chart, new MDX page.
 ✅ **E22.5 — PR template encoding the Definition of Done** · S — the §19 checklist verbatim.
-⬜ **E22.6 — ADRs 001–014** · L — one short file each. _Split into three PRs of four or five if review drags._
+⬜ **E22.6 — ADRs 001–015** · L — one short file each. _Split into three PRs of four or five if review drags._
 ⬜ **E22.7 — `docs/modules/` index** · S — one page per module, linked from each module README.
 The index exists (`docs/modules/README.md`), with one page per area rather than per module; 23 of the
 102 module READMEs link to it.
@@ -1540,6 +1541,8 @@ New. A read-through cache of the community's calendars — Challonge and melee.g
 schedule with a link out to each event's own page. The site advertises events; the platforms still run
 them, so there is no join, no leave, and no account linking — that whole flow from the previous site
 is deliberately not carried over.
+_Note:_ E26 adds events run on the site itself, which do have a join. This epic's rule still holds
+for every event on Challonge and melee.gg.
 
 Two constraints shape every story below.
 
@@ -1801,6 +1804,146 @@ _Note:_ added outside the plan. `0045_tournament_format.sql` adds the insert tri
 `set_tournament_format`, and the backfill. A deck an event reused from an earlier one (E20.46)
 follows whichever event last set it.
 
+## E26 — Running events on the site
+
+New, and added outside the original plan (§28). An organizer runs a Planar Standard event here, from
+registration to final standings, and players follow it in the play app at `/play`: an installable PWA
+for pairings, results, notifications, and finding a game. Built for this format only, in this
+database; finishing a run is an import (ADR 015).
+
+Three rules shape every story below.
+
+- **`core/runs` is pure.** No clock, no `Math.random`; the seed is stored on the run. It is the part a
+  generic event manager would reuse one day, so it does not know about Supabase or Next.
+- **The ledger is untouched while a run is live.** Matches reach `matches` only when the run
+  finishes, through `ingest-event`, and a later correction supersedes wholesale.
+- **Free plans.** Vercel Hobby runs cron once a day, so scheduled work runs from Supabase `pg_cron`.
+  Resend allows 100 emails a day, and every sign-in code is one of them.
+
+**Core**
+
+⬜ **E26.1 — `contracts/runs`** · S · Deps: E2.4 — `RunState`, `RunEntrant`, `RunRound`, `RunPairing`,
+`RunStanding`, `GameRequest`. _AC:_ nothing in it names Supabase or a table.
+
+⬜ **E26.2 — `core/runs/record`** · S · Deps: E26.1 — match points and a win–loss–draw record from
+pairings; a bye is a 2–0 win.
+
+⬜ **E26.3 — `core/runs/tiebreakers`** · M · Deps: E26.2 — opponents' match-win %, game-win % and
+opponents' game-win %, each floored at 33%, byes not counted as opponents. _AC:_ checked against a
+worked example from the Magic Tournament Rules, cited in the test.
+
+⬜ **E26.4 — `core/runs/standings`** · S · Deps: E26.3 — ordered standings; a dropped entrant keeps
+their place; an exact tie is broken by the seed.
+
+⬜ **E26.5 — `core/runs/pair-swiss`** · L · Deps: E26.4 — round 1 random from the seed; later rounds by
+point group, top down, pairing down and never repeating a pairing. When no pairing exists, it says so
+rather than returning a bad one. _AC:_ a property test over random runs: no rematch, nobody paired
+twice, and the same seed gives the same pairings.
+
+⬜ **E26.6 — `core/runs/assign-bye`** · S · Deps: E26.4 — the lowest-ranked entrant without a bye.
+
+⬜ **E26.7 — `core/runs/suggest-rounds`** · S · Deps: E26.1 — the Swiss round count for an entrant count;
+the organizer can override it.
+
+⬜ **E26.8 — `core/runs/top-cut`** · M · Deps: E26.4 — single elimination seeded 1 v 8, 4 v 5 and so on,
+and who advances.
+
+⬜ **E26.9 — `core/runs/run-state`** · S · Deps: E26.1 — draft → registration → running → top cut →
+finished, or cancelled from anywhere, with what each move needs (two checked-in entrants to start,
+every pairing reported to finish). _AC:_ a refusal names its reason.
+
+⬜ **E26.10 — `core/runs/to-parsed-event`** · M · Deps: E26.4, E26.8 — a finished run as a `ParsedEvent`
+with matches, standings, roster and decklists. _AC:_ the result passes the capability gating test
+(E12.8), and a guest's handle is never their typed name alone.
+
+**Schema**
+
+⬜ **E26.11 — `tournament_runs` and `run_entrants`** · M · Deps: E26.1 — a run is one `tournaments` row in
+`draft` plus its live state, seed, Swiss rounds and top cut. An entrant is a profile or a guest, with
+the Arena identity their matches will carry. _AC:_ policies: anyone reads a run past draft; its
+organizer and admins write it; a member registers and withdraws only themself.
+
+⬜ **E26.12 — `run_rounds`, `run_pairings`, `run_result_changes`** · M · Deps: E26.11 — a bye is a
+pairing with no second entrant; no entrant is paired twice in a round; every change to a reported
+result writes a `run_result_changes` row.
+
+⬜ **E26.13 — `rls.test.ts` covers every run table** · M · Deps: E26.12 — the full matrix for anon,
+reader, writer, organizer and admin, plus the two the run adds: an entrant, and the other player in
+their pairing. _Release blocker when red._
+
+⬜ **E26.14 — `repos/runs`** · M · Deps: E26.12 — narrow functions (`listRunPairings`,
+`reportRunResult`…) and their tests against local Supabase.
+
+⬜ **E26.15 — A member's Arena username** · M · Deps: E26.11 — entered on `/profile`, stored as a
+`player_identities` row on platform `arena` for the member's player, with a new `member_entered`
+source. _AC:_ visibility as decided in §IX question 9; a name another player already holds is
+refused, not merged.
+
+**Running a run**
+
+⬜ **E26.16 — Create and edit a run** · M · Deps: E26.9, E26.14 — organizers and admins: name, date,
+format versions, Swiss rounds (suggested by E26.7), top cut. _AC:_ a draft is visible only to its
+organizer and admins, and does not appear on `/tournaments`.
+
+⬜ **E26.17 — Register with a deck** · M · Deps: E26.16, E18.11 — a member registers, picks a saved deck
+or pastes one, and withdraws while registration is open. The deck locks when the run starts. _AC:_
+editing the saved deck afterwards changes nothing in the run (ADR 013).
+
+⬜ **E26.18 — Guests, check-in and drops** · S · Deps: E26.17 — the organizer adds a guest by name and
+Arena username, checks entrants in, and drops one. A dropped entrant is never paired again.
+
+⬜ **E26.19 — Pair a round** · M · Deps: E26.5, E26.6, E26.18 — pairs and posts the next round; a
+re-pair replaces an unplayed round whole.
+
+⬜ **E26.20 — Report and confirm a result** · M · Deps: E26.19 — as decided in §IX question 10; the
+organizer can enter or overrule any result. _AC:_ every change has a `run_result_changes` row naming
+who made it.
+
+⬜ **E26.21 — Top cut and finish** · M · Deps: E26.20, E26.8, E26.10 — runs the bracket, then finishes:
+the run's `ParsedEvent` goes through `ingest-event` into its own tournament. _AC:_ finishing again
+after a correction supersedes; the run appears on `/tournaments/[slug]` like any event.
+
+⬜ **E26.22 — Runs on the schedule** · S · Deps: E26.16 — a run past draft is listed on `/events` beside
+the Challonge and melee.gg ones, linking to its page in `/play`.
+
+**The play app**
+
+⬜ **E26.23 — `/play`: an installable shell** · M · Deps: E16.5 — a manifest scoped to `/play`, a
+service worker, an app layout without the site's chrome, and an install prompt, including the iOS
+"Add to Home Screen" steps. _AC:_ installs on Android, iOS and desktop Chrome, and opens at `/play`.
+
+⬜ **E26.24 — Sign in with an emailed code** · M · Deps: E26.23 — `{{ .Token }}` in the magic link
+template and a form to type it, so signing in never leaves the installed app. _AC:_ works in an iOS
+Home Screen app; the link still works in a browser.
+
+⬜ **E26.25 — My run** · M · Deps: E26.20, E26.23 — your current pairing, your opponent's Arena name
+with a copy button, your record, and reporting your result.
+
+⬜ **E26.26 — Pairings and standings, live** · M · Deps: E26.25 — a run's pairings and standings, kept
+current by Supabase Realtime while the page is open. _AC:_ a result reported on one phone shows on
+another without a reload.
+
+⬜ **E26.27 — Organizer controls in `/play`** · M · Deps: E26.26 — start a round, pair, chase a missing
+result and overrule one, from a phone at the venue.
+
+⬜ **E26.28 — Web push** · L · Deps: E26.23 — `push_subscriptions` with RLS, an "Allow notifications"
+button, and sending from a `.server.ts` module that `guard:server-only` covers. Sends a pairing, a
+round starting and ending, a result due, and a challenge accepted. _AC:_ a push arrives on an Android
+phone and on an iPhone with the app installed, with the app closed.
+
+⬜ **E26.29 — Scheduled jobs from `pg_cron`** · M · Deps: E26.28 — `pg_cron` plus `pg_net` call a job
+route every minute with `CRON_SECRET`: rounds ending, results due, registration closing. _AC:_ the
+same mechanism schedules E23.14's completed-events job, so there is one scheduler.
+
+⬜ **E26.30 — Looking for a game** · L · Deps: E26.15, E26.28 — post an open challenge (format version,
+Bo1 or Bo3, a note) that expires; another member accepts; both see each other's Arena names; the
+poster gets a push. Presence shows who is online. _AC:_ recorded and rated as decided in §IX
+question 11.
+
+⬜ **E26.31 — Email limits for an event day** · S · Deps: E26.24 — set the auth email rate limit in the
+Supabase dashboard to suit Resend's 100 a day, and write down how long a session lasts, so an event
+does not run out of sign-in codes. Done in the dashboard; the numbers go in §28.
+
 ---
 
 ## What's ready now
@@ -1840,8 +1983,11 @@ can start today, in rough order of how much it unblocks.
 - E21.1 — the Season II decklist backfill. `archetype-map-html` reads the map, so what is left is
   running it over the real `frontend/public/InteractiveArchetypeMap*.html` in the parent repo —
   417 decklists, against the 3 in `fixtures/archetype-map/`.
-- E22.4, E22.6, E22.7, E15.4 — issue templates, the fourteen ADRs (`docs/adr/` holds only its README),
+- E22.4, E22.6, E22.7, E15.4 — issue templates, the fifteen ADRs (`docs/adr/` holds only its README),
   linking the module-doc index, and finishing `CONTRIBUTING.md`.
+- **E26.1–E26.10 — `core/runs`,** the pairing and standings logic for running events on the site
+  (§28). Pure and fixture-driven, so it needs no schema, no UI and no credentials. E26.5, Swiss
+  pairing, is the hard one.
 
 **Waiting on a person, not on code**
 
@@ -1905,5 +2051,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
+|      |         |      | E26  | 31      | 0    |
 
-**245 of 316 stories done across 25 epics.**
+**245 of 347 stories done across 26 epics.**
