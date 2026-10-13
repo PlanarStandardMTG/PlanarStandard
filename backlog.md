@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 4/29  |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 5/29  |
 
 ---
 
@@ -1846,7 +1846,7 @@ define the algorithm: round 1 random from the seed; later rounds by point group,
 down and never repeating a pairing. When no pairing exists, it says so rather than returning a bad one. _AC:_ a property test over random runs: no rematch, nobody paired
 twice, and the same seed gives the same pairings.
 
-⬜ **E26.6 — `core/runs/assign-bye`** · S · Deps: E26.4 — the lowest-ranked entrant without a bye.
+✅ **E26.6 — `core/runs/assign-bye`** · S · Deps: E26.4 — the lowest-ranked entrant without a bye.
 
 ⬜ **E26.7 — `core/runs/suggest-rounds`** · S · Deps: E26.1 — Swiss rounds and a top cut to prefill for an
 entrant count, from MTR Appendix E's constructed column; 3 rounds and no cut for 5–8 entrants. Only
@@ -2065,6 +2065,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 4    |
+|      |         |      | E26  | 29      | 5    |
 
-**249 of 345 stories done across 26 epics.**
+**250 of 345 stories done across 26 epics.**
