@@ -1075,9 +1075,12 @@ foreign key where that plan needed an export, a token, an adapter and a fetch jo
 
 - `core/runs` — pure: points and records, tiebreakers, standings, Swiss pairing, byes, the top cut,
   which state a run may move to, and a finished run as a `ParsedEvent`. Randomness arrives as a seed.
-- `db` — `tournament_runs`, one per `tournaments` row in `draft`, holding the live state, the seed, the
-  Swiss rounds and the top cut; `run_entrants`, `run_rounds`, `run_pairings` and `run_result_changes`;
-  `profile_contacts` and `push_subscriptions`. Nothing in the ledger changes while a run is live.
+- `db` — `tournament_runs`, holding a run's name, date, live state, seed, Swiss rounds and top cut,
+  with its format versions in `tournament_run_formats`; `run_entrants`, `run_guest_contacts`,
+  `run_rounds`, `run_pairings` and `run_result_changes`; `profile_contacts` and
+  `push_subscriptions`. Nothing in the ledger changes while a run is live: the run's `tournaments`
+  row is created when it finishes, by the import, and `tournament_runs.tournament_id` points at it.
+  The tournament reads rely on a draft event being hidden, so a live run never appears among them.
 - `web` — `/play` for players and for an organizer running the room from a phone, under the same
   sign-in and guards as the rest of the site.
 
@@ -1101,7 +1104,7 @@ and the leaderboard, decks and tournament pages never show them. Only these peop
 - the organizer of a run the member is entered in
 - the member's opponent, while they are paired, so they can send a Direct Challenge
 
-A guest's Arena username sits on their entrant row under the same rules.
+A guest's Arena username sits in `run_guest_contacts`, beside their entrant row, under the same rules.
 
 **Scoring and standings** follow the Magic Tournament Rules (April 2025), and `core` cites the
 section for each rule:

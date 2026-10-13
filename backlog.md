@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 10/29 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 11/29 |
 
 ---
 
@@ -1870,11 +1870,16 @@ with matches, standings, roster and decklists. _AC:_ the result passes the capab
 
 **Schema**
 
-⬜ **E26.11 — `tournament_runs` and `run_entrants`** · M · Deps: E26.1 — a run is one `tournaments` row in
+✅ **E26.11 — `tournament_runs` and `run_entrants`** · M · Deps: E26.1 — a run is one `tournaments` row in
 `draft` plus its live state, seed, Swiss rounds and top cut. An entrant is a member or a guest; a
 guest's Arena username sits on their row. Adds the `site` value to `identity_platform` (§28). _AC:_
 policies: anyone reads a run past draft; its organizer and admins write it; a member registers and
 withdraws only themself; a guest's Arena username is read as §28 says.
+_Note:_ a run holds its own name, date and format versions (`tournament_run_formats`) and gets
+its `tournaments` row when it finishes, by the import, rather than owning a draft one from the
+start: every tournament read relies on a draft being hidden, and a live run must be public. A
+guest's Arena username is in `run_guest_contacts`, since an entrant row is public. Clients write
+only the columns granted to them; the seed and the tournament link are the server's (0048).
 
 ⬜ **E26.12 — `run_rounds`, `run_pairings`, `run_result_changes`** · M · Deps: E26.11 — a bye is a
 pairing with no second entrant; no entrant is paired twice in a round; every change to a reported
@@ -2069,6 +2074,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 10   |
+|      |         |      | E26  | 29      | 11   |
 
-**255 of 345 stories done across 26 epics.**
+**256 of 345 stories done across 26 epics.**

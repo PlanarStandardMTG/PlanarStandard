@@ -37,7 +37,9 @@ export interface Player {
   readonly createdAt: IsoDateTime;
 }
 
-export type IdentityPlatform = "discord" | "challonge" | "melee" | "mtgo" | "arena" | "manual";
+/** `site` is a member's profile handle, for events run on the site itself (E26.11). */
+export type IdentityPlatform =
+  "discord" | "challonge" | "melee" | "mtgo" | "arena" | "manual" | "site";
 
 export type IdentitySource =
   "import_inferred" | "admin_assigned" | "discord_oauth" | "organizer_entered";

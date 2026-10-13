@@ -3,6 +3,7 @@
 // audit fields stay out, because nothing in `core` needs them.
 
 import type {
+  FormatVersionId,
   IsoDateTime,
   ProfileId,
   RunEntrantId,
@@ -30,8 +31,17 @@ export interface RunStructure {
 
 export interface Run extends RunStructure {
   readonly id: RunId;
-  /** The tournament the run finishes into (ADR 015). */
-  readonly tournamentId: TournamentId;
+  readonly name: string;
+  /** Null until the organizer sets a date. */
+  readonly startsAt: IsoDateTime | null;
+  readonly description: string | null;
+  /** The versions decks are checked against, in the organizer's order; the first is the default. */
+  readonly formatVersionIds: readonly FormatVersionId[];
+  /**
+   * The tournament the run became when it finished and was imported (ADR 015). Null
+   * while it is live: a run is not on `/tournaments` until then.
+   */
+  readonly tournamentId: TournamentId | null;
   readonly organizerId: ProfileId;
   readonly state: RunState;
   /**

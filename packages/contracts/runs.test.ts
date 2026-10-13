@@ -22,7 +22,11 @@ describe("runs contracts", () => {
     const knockout = { swissRounds: 0, topCut: 8 } satisfies RunStructure;
     const run = {
       id: "6b0e4c1a-2d3f-4a5b-8c9d-0e1f2a3b4c5d",
-      tournamentId: "0c1d2e3f-4a5b-4c6d-8e7f-9a0b1c2d3e4f",
+      name: "Planar Standard Weekly #42",
+      startsAt: "2026-10-17T19:00:00.000Z",
+      description: null,
+      formatVersionIds: ["b7c1d2e3-4f5a-4b6c-8d7e-9f0a1b2c3d4e"],
+      tournamentId: null,
       organizerId: "9f8e7d6c-5b4a-4392-8170-6f5e4d3c2b1a",
       state: "registration",
       seed: "3c9a7f21",
