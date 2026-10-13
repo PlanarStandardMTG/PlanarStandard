@@ -1196,12 +1196,12 @@ game found this way records nothing and is not rated.
 **Free plans.** Everything runs on free tiers. These limits were checked at the time of writing;
 check them again before relying on them.
 
-| Limit                          | Roughly                                       | So                                                                                                                  |
-| ------------------------------ | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Vercel Hobby cron              | once a day                                    | Nothing in a run is timed. Anything that needs a schedule later runs from Supabase `pg_cron` plus `pg_net` (E23.14) |
-| Supabase Realtime              | 200 concurrent connections, 2M messages/month | Plenty for an event; subscribe per run, not to everything                                                           |
-| Supabase auth email rate limit | set in the dashboard when custom SMTP is on   | Raise it before an event day; sessions last weeks, so codes are rare                                                |
-| Resend                         | 100 emails a day, 3,000 a month               | The real ceiling on sign-in codes                                                                                   |
+| Limit                          | Roughly                                       | So                                                                                                                                                                            |
+| ------------------------------ | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Vercel Hobby cron              | once a day                                    | Nothing in a run is timed. Anything that needs a schedule later runs from Supabase `pg_cron` plus `pg_net` (E23.14)                                                           |
+| Supabase Realtime              | 200 concurrent connections, 2M messages/month | Plenty for an event; subscribe per run, not to everything                                                                                                                     |
+| Supabase auth email rate limit | set in the dashboard when custom SMTP is on   | Suggested 30 an hour on an event day, within Resend's 100 a day. A session refreshes its hourly token silently and has no fixed end, so a member types a code once per device |
+| Resend                         | 100 emails a day, 3,000 a month               | The real ceiling on sign-in codes                                                                                                                                             |
 
 ---
 

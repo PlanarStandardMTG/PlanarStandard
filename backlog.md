@@ -1990,9 +1990,12 @@ is not shown. Locally the button subscribes through the worker and the server si
 _Note:_ sends with `web-push` (a new dependency): VAPID signing and the RFC 8291 payload encryption
 are what it does, and getting either wrong fails silently on one browser.
 
-⬜ **E26.31 — Email limits for an event day** · S · Deps: E26.24 — set the auth email rate limit in the
+⛔ **E26.31 — Email limits for an event day** · S · Deps: E26.24 — set the auth email rate limit in the
 Supabase dashboard to suit Resend's 100 a day, and write down how long a session lasts, so an event
 does not run out of sign-in codes. Done in the dashboard; the numbers go in §28.
+_Blocked:_ access to the production Supabase dashboard, to set Authentication → Rate Limits →
+emails sent per hour (§28 suggests 30) and paste `packages/db/templates/magic_link.html` into the
+Magic Link template so the code is sent (E26.24). The session numbers are in §28.
 
 _Removed (2026-10-13):_ E26.29, scheduled jobs, because nothing in a run is timed; and E26.30, looking
 for a game, tabled until running events ships (§28). Their IDs are not reused.
@@ -2038,12 +2041,11 @@ can start today, in rough order of how much it unblocks.
   417 decklists, against the 3 in `fixtures/archetype-map/`.
 - E22.4, E22.6, E22.7, E15.4 — issue templates, the fifteen ADRs (`docs/adr/` holds only its README),
   linking the module-doc index, and finishing `CONTRIBUTING.md`.
-- **E26.11 — the run tables,** now that `core/runs` is in (E26.1–E26.10): `tournament_runs` and
-  `run_entrants`, then E26.12's rounds and pairings, E26.13's RLS matrix and E26.14's repos. Every
-  "running a run" story waits on these. E26.15, private contact names, can follow E26.11 directly.
-  On the `E26` branch, which merges to main as a whole.
-- **E26.23 — the `/play` shell,** in parallel with the schema: a manifest, a service worker and an
-  app layout need no run tables.
+- **E26 — running events on the site** is built on the `E26` branch, 28 of 29 stories, and
+  merges to main as a whole. What is left needs a person or a device rather than code: E26.31 in
+  the Supabase dashboard; the _Outstanding:_ checks on E26.23, E26.24 and E26.28 on an Android
+  phone and an iPhone; production's VAPID keys in Vercel; and migrations 0048–0054, pushed to
+  production when the branch merges.
 
 **Waiting on a person, not on code**
 
