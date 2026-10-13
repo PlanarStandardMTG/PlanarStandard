@@ -9,7 +9,7 @@ import {
   savePost,
   type Preview,
   type SaveState,
-} from "@/app/dashboard/community/actions";
+} from "@/app/(site)/dashboard/community/actions";
 import { cn } from "@/lib/cn";
 
 import {

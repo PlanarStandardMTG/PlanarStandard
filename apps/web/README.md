@@ -13,7 +13,7 @@ To sign in, use the **Dev** dropdown in the header — one click per seeded
 account, reader through admin. It exists only under `next dev`; see
 [`docs/modules/auth.md`](../../docs/modules/auth.md#working-on-this-locally).
 
-**Layout.** `app/` is routes only. `components/ui/` holds primitives that know
+**Layout.** `app/` is routes only. Every site page sits in the `(site)` route group, whose layout adds the header and footer; `app/play` is the play app (E26.23), with its own chrome, manifest and service worker (`public/play-sw.js`), and the root layout holds only what both share. `components/ui/` holds primitives that know
 nothing about the domain; `components/content/` holds the post components that
 every feed and article page shares; `components/home/` holds the three tiles the
 home page is made of (E24); `lib/` holds helpers, the two Supabase clients,

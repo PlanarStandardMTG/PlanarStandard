@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 15/29 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 16/29 |
 
 ---
 
@@ -1934,9 +1934,15 @@ the Challonge and melee.gg ones, linking to its page in `/play`.
 
 **The play app**
 
-⬜ **E26.23 — `/play`: an installable shell** · M · Deps: E16.5 — a manifest scoped to `/play`, a
+✅ **E26.23 — `/play`: an installable shell** · M · Deps: E16.5 — a manifest scoped to `/play`, a
 service worker, an app layout without the site's chrome, and an install prompt, including the iOS
 "Add to Home Screen" steps. _AC:_ installs on Android, iOS and desktop Chrome, and opens at `/play`.
+_Note:_ the site's pages moved into a `(site)` route group so `/play` could drop the header and
+footer; no URL changed. The manifest is a route under `/play` rather than `app/manifest.ts`, which
+would make the whole site installable, and the worker sits at `/play-sw.js` so its scope can be
+`/play` itself.
+_Outstanding:_ installing on an Android phone and on an iPhone, which needs the devices. Desktop
+Chrome offers the install and registers the worker with scope `/play`.
 
 ⬜ **E26.24 — Sign in with an emailed code** · M · Deps: E26.23 — `{{ .Token }}` in the magic link
 template and a form to type it, so signing in never leaves the installed app. _AC:_ works in an iOS
@@ -2075,6 +2081,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 15   |
+|      |         |      | E26  | 29      | 16   |
 
-**260 of 345 stories done across 26 epics.**
+**261 of 345 stories done across 26 epics.**

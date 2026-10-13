@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { saveSeason } from "@/app/admin/seasons/actions";
+import { saveSeason } from "@/app/(site)/admin/seasons/actions";
 import { SeasonForm } from "@/components/seasons/season-form";
 import { requireRole } from "@/lib/auth/guard";
 

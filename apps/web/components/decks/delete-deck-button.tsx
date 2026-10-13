@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 
-import { deleteDeckVersions } from "@/app/decks/actions";
+import { deleteDeckVersions } from "@/app/(site)/decks/actions";
 
 const OUTLINE_BUTTON =
   "rounded-lg border border-ink-300 px-3 py-1.5 text-sm text-ink-700 dark:border-ink-700 dark:text-ink-300";
