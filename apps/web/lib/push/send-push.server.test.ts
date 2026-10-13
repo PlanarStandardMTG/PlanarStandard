@@ -21,7 +21,6 @@ describe("lib/push/send-push", () => {
   it("sends nothing, and touches no database, when it is off", async () => {
     vi.stubEnv("NEXT_PUBLIC_VAPID_PUBLIC_KEY", "");
     vi.stubEnv("VAPID_PRIVATE_KEY", "");
-    vi.stubEnv("SUPABASE_SERVICE_ROLE_KEY", "");
     await expect(sendPush(["p1"], { title: "t", body: "b", url: "/play", tag: "x" })).resolves.toBe(
       0,
     );
