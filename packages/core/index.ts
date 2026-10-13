@@ -298,3 +298,12 @@ export type { DecklistSheet, SheetDeck, SheetEntry } from "./results/decklist-sh
 
 // runs — an event run on the site, from pairings to standings (§28, E26)
 export { countedGames, isCounted, runRecords } from "./runs/record/index";
+export {
+  gameWinPct,
+  matchWinPct,
+  opponentsAverage,
+  opponentsOf,
+  PERCENTAGE_FLOOR,
+  tiebreakers,
+} from "./runs/tiebreakers/index";
+export type { Tiebreakers } from "./runs/tiebreakers/index";
