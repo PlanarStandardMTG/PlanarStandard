@@ -183,6 +183,8 @@ export {
   checkProfileHandle,
 } from "./auth/profile-handle/index";
 export type { HandleCheck, HandleProblem } from "./auth/profile-handle/index";
+export { CONTACT_NAME_MAX_LENGTH, checkContactNames } from "./auth/contact-names/index";
+export type { ContactNameProblem, ContactNamesCheck } from "./auth/contact-names/index";
 export {
   PASSWORD_MAX_BYTES,
   PASSWORD_MIN_LENGTH,

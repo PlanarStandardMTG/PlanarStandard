@@ -1,10 +1,12 @@
-import { HANDLE_MAX_LENGTH, HANDLE_MIN_LENGTH } from "@ps/core";
+import { CONTACT_NAME_MAX_LENGTH, HANDLE_MAX_LENGTH, HANDLE_MIN_LENGTH } from "@ps/core";
+import { getProfileContacts } from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
 import { requireViewer } from "@/lib/auth/guard";
 import { formatTimeAgo } from "@/lib/format-date";
+import { createSessionClient } from "@/lib/supabase/session";
 
 import { saveProfile } from "./actions";
 
@@ -33,6 +35,10 @@ const ERRORS: Readonly<Record<string, string>> = {
     "A handle can use letters, numbers, hyphens, and underscores, and has to start and end with a letter or number.",
   "handle-reserved": "That handle is reserved.",
   "handle-taken": "Somebody already has that handle.",
+  "arena-tag":
+    "An Arena username needs its tag, like Brayzon#12345 — a Direct Challenge needs the whole thing.",
+  "arena-too-long": "That Arena username is too long.",
+  "discord-too-long": "That Discord name is too long.",
   banned: "A banned account cannot edit its profile.",
 };
 
@@ -55,6 +61,7 @@ export default async function ProfilePage({
   // Signed out, this redirects to /login and comes back here afterwards.
   const viewer = await requireViewer();
   const { profile, email } = viewer;
+  const contacts = await getProfileContacts(await createSessionClient(), profile.id);
 
   const params = await searchParams;
   const rawError = typeof params["error"] === "string" ? params["error"] : null;
@@ -180,6 +187,48 @@ export default async function ProfilePage({
               className={FIELD}
             />
           </div>
+
+          <fieldset className="space-y-5 border-t border-ink-200 pt-5 dark:border-ink-800">
+            <legend className="sr-only">How opponents reach you</legend>
+            <p className="text-sm text-ink-600 dark:text-ink-400">
+              For events run on the site. Only you, admins, the organizer of an event you are in,
+              and your opponent while you are paired can see these — never the leaderboard or a
+              public page.
+            </p>
+            <div>
+              <label htmlFor="arenaUsername" className="text-sm font-medium">
+                Arena username
+              </label>
+              <input
+                id="arenaUsername"
+                name="arenaUsername"
+                defaultValue={contacts?.arenaUsername ?? ""}
+                maxLength={CONTACT_NAME_MAX_LENGTH}
+                placeholder="Brayzon#12345"
+                autoComplete="off"
+                className={FIELD}
+              />
+              <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">
+                With the # tag, so your opponent can send you a Direct Challenge.
+              </p>
+            </div>
+            <div>
+              <label htmlFor="discordName" className="text-sm font-medium">
+                Discord name
+              </label>
+              <input
+                id="discordName"
+                name="discordName"
+                defaultValue={contacts?.discordName ?? ""}
+                maxLength={CONTACT_NAME_MAX_LENGTH}
+                autoComplete="off"
+                className={FIELD}
+              />
+              <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">
+                In case an organizer or admin needs to reach you.
+              </p>
+            </div>
+          </fieldset>
 
           <button
             type="submit"

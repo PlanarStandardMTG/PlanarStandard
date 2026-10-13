@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 12/29 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 13/29 |
 
 ---
 
@@ -1892,7 +1892,7 @@ their pairing. Includes `profile_contacts` (E26.15). _Release blocker when red._
 ⬜ **E26.14 — `repos/runs`** · M · Deps: E26.12 — narrow functions (`listRunPairings`,
 `reportRunResult`…) and their tests against local Supabase.
 
-⬜ **E26.15 — Arena and Discord names on `/profile`** · M · Deps: E26.11 — two optional fields, stored
+✅ **E26.15 — Arena and Discord names on `/profile`** · M · Deps: E26.11 — two optional fields, stored
 in a new `profile_contacts` table, since anyone can read `profiles`. Readable by the member, admins,
 the organizer of a run the member is in, and their opponent while paired (§28). _AC:_ no public
 page shows them, and the leaderboard, decks and tournament pages are unchanged; an admin sees them
@@ -2074,6 +2074,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 12   |
+|      |         |      | E26  | 29      | 13   |
 
-**257 of 345 stories done across 26 epics.**
+**258 of 345 stories done across 26 epics.**

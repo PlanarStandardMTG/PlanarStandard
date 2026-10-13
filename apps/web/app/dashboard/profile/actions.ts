@@ -1,7 +1,7 @@
 "use server";
 
-import { checkProfileHandle } from "@ps/core";
-import { updateProfile } from "@ps/db";
+import { checkContactNames, checkProfileHandle } from "@ps/core";
+import { saveProfileContacts, updateProfile } from "@ps/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
@@ -45,6 +45,12 @@ export async function saveProfile(form: FormData): Promise<never> {
     handle = checked.handle;
   }
 
+  const contacts = checkContactNames({
+    arenaUsername: form.get("arenaUsername")?.toString() ?? "",
+    discordName: form.get("discordName")?.toString() ?? "",
+  });
+  if (!contacts.ok) redirect(`/dashboard/profile?error=${contacts.problem}`);
+
   const supabase = await createSessionClient();
 
   try {
@@ -58,6 +64,13 @@ export async function saveProfile(form: FormData): Promise<never> {
     }
     throw cause;
   }
+
+  // Stored apart from the profile, which anyone can read (E26.15).
+  await saveProfileContacts(supabase, {
+    profileId: viewer.profile.id,
+    arenaUsername: contacts.arenaUsername,
+    discordName: contacts.discordName,
+  });
 
   // The header shows the display name, and it is rendered by the root layout.
   revalidatePath("/", "layout");

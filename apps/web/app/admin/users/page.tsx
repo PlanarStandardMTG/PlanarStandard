@@ -1,5 +1,6 @@
+import type { ProfileContacts } from "@ps/contracts";
 import { ROLE_LADDER } from "@ps/core";
-import { listMembers } from "@ps/db";
+import { listMembers, listProfileContacts } from "@ps/db";
 import type { Metadata } from "next";
 
 import { Notice } from "@/components/auth/form-parts";
@@ -44,7 +45,11 @@ export default async function AdminUsersPage({
   const viewer = await requireRole("admin");
   const { done, error } = await searchParams;
 
-  const members = await listMembers(await createSessionClient());
+  const supabase = await createSessionClient();
+  const [members, contacts] = await Promise.all([
+    listMembers(supabase),
+    listProfileContacts(supabase),
+  ]);
 
   return (
     <>
@@ -86,6 +91,7 @@ export default async function AdminUsersPage({
                       {member.handle === null ? "no handle" : `@${member.handle}`} · joined{" "}
                       {formatDate(member.createdAt)}
                     </p>
+                    <ContactLine contacts={contacts.get(member.id)} />
                   </td>
                   <td className="px-4 py-3">
                     {self ? (
@@ -146,4 +152,16 @@ export default async function AdminUsersPage({
       </div>
     </>
   );
+}
+
+/** A member's private contact names (E26.15), which only an admin sees on this page. */
+function ContactLine({ contacts }: { contacts: ProfileContacts | undefined }) {
+  const arena = contacts?.arenaUsername ?? null;
+  const discord = contacts?.discordName ?? null;
+  const parts = [
+    arena === null ? null : `Arena ${arena}`,
+    discord === null ? null : `Discord ${discord}`,
+  ].filter((part): part is string => part !== null);
+  if (parts.length === 0) return null;
+  return <p className="text-xs text-ink-500 dark:text-ink-400">{parts.join(" · ")}</p>;
 }

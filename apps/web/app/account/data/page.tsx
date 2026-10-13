@@ -54,6 +54,13 @@ export default async function AccountDataPage({
           </li>
           <li>
             <strong className="text-ink-800 dark:text-ink-200">
+              Your Arena username and Discord name
+            </strong>
+            , if you add them — private: only you, admins, the organizer of an event you enter, and
+            your opponent while you are paired can see them.
+          </li>
+          <li>
+            <strong className="text-ink-800 dark:text-ink-200">
               Anything you have written or submitted
             </strong>
             : posts, decks.
@@ -80,8 +87,8 @@ export default async function AccountDataPage({
       <Card className="mt-6 p-6">
         <h2 className="font-display text-lg font-semibold">Take a copy</h2>
         <p className="mt-2 text-sm text-ink-600 dark:text-ink-400">
-          A JSON file with your profile, your posts including unpublished drafts, and your decks. It
-          also lists what is held elsewhere and how to ask for it.
+          A JSON file with your profile, your contact names, your posts including unpublished
+          drafts, and your decks. It also lists what is held elsewhere and how to ask for it.
         </p>
         <a
           href="/account/data/export"
