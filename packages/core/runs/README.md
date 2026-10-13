@@ -8,12 +8,12 @@ as the run's stored seed, so every pairing and every tie reproduces.
 record          match and game points per entrant          MTR Appendix C
 tiebreakers     opponents' match-win %, game-win %, OGW%   MTR §3.1, Appendix C
 standings       the ordered Swiss standings                MTR §3.1
-pair-swiss      the next Swiss round, no rematches          common practice
-assign-bye      the lowest-ranked entrant without a bye     common practice
+pair-swiss      the next Swiss round, no rematches         common practice
+assign-bye      the lowest-ranked entrant without a bye    common practice
 top-cut         single elimination, seeded and with drops  MTR §2.4, §2.10, §10.4
-suggest-rounds  Swiss rounds and a top cut to prefill       MTR Appendix E
+suggest-rounds  Swiss rounds and a top cut to prefill      MTR Appendix E
 run-state       which state a run may move to, and why not
-to-parsed-event a finished run, ready for ingest-event       ADR 006, ADR 015
+to-parsed-event a finished run, ready for ingest-event     ADR 006, ADR 015
 seeded-random   the only randomness, from the run's seed
 ```
 

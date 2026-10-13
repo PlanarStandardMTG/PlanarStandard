@@ -2000,9 +2000,12 @@ can start today, in rough order of how much it unblocks.
   417 decklists, against the 3 in `fixtures/archetype-map/`.
 - E22.4, E22.6, E22.7, E15.4 — issue templates, the fifteen ADRs (`docs/adr/` holds only its README),
   linking the module-doc index, and finishing `CONTRIBUTING.md`.
-- **E26.1–E26.10 — `core/runs`,** the pairing and standings logic for running events on the site
-  (§28). Pure and fixture-driven, so it needs no schema, no UI and no credentials. E26.5, Swiss
-  pairing, is the hard one.
+- **E26.11 — the run tables,** now that `core/runs` is in (E26.1–E26.10): `tournament_runs` and
+  `run_entrants`, then E26.12's rounds and pairings, E26.13's RLS matrix and E26.14's repos. Every
+  "running a run" story waits on these. E26.15, private contact names, can follow E26.11 directly.
+  On the `E26` branch, which merges to main as a whole.
+- **E26.23 — the `/play` shell,** in parallel with the schema: a manifest, a service worker and an
+  app layout need no run tables.
 
 **Waiting on a person, not on code**
 
