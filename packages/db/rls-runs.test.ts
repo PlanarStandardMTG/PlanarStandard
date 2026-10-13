@@ -119,7 +119,76 @@ describe.skipIf(!online)("RLS — running events on the site", () => {
       });
       if (signIn !== null) throw new Error(`could not sign in as ${who}: ${signIn.message}`);
       clients.set(who, client);
+
+      const { error: contact } = await client.from("profile_contacts").insert({
+        profile_id: profiles.get(who),
+        arena_username: `${who}#${String(stamp).slice(-5)}`,
+        discord_name: who,
+      });
+      if (contact !== null) throw new Error(`could not save ${who}'s contacts: ${contact.message}`);
     }
+  });
+
+  /** Whose contact names `viewer` can read, out of the three players'. */
+  async function contactsSeenBy(viewer: SupabaseClient): Promise<string[]> {
+    const players = (["alice", "bob", "carol"] as const).map((who) => profiles.get(who) ?? "");
+    const { data, error } = await viewer
+      .from("profile_contacts")
+      .select("discord_name")
+      .in("profile_id", players);
+    expect(error).toBeNull();
+    return (data ?? []).map((row) => row.discord_name as string).sort();
+  }
+
+  describe("the tables, before any run exists", () => {
+    const RUN_TABLES = [
+      "tournament_runs",
+      "tournament_run_formats",
+      "run_entrants",
+      "run_guest_contacts",
+      "run_rounds",
+      "run_pairings",
+      "run_result_changes",
+      "profile_contacts",
+    ] as const;
+
+    /** Whether a *policy or grant* stopped an empty insert, as `rls.test.ts` probes it. */
+    async function writeRefused(client: SupabaseClient, table: string): Promise<boolean> {
+      const { error } = await client.from(table).insert({});
+      return error?.code === REFUSED;
+    }
+
+    it.each(RUN_TABLES)("refuses a signed-out visitor any write to %s", async (table) => {
+      expect(await writeRefused(anon, table)).toBe(true);
+    });
+
+    it.each(["tournament_runs", "run_rounds", "run_pairings", "run_result_changes"] as const)(
+      "refuses a reader and a writer any write to %s",
+      async (table) => {
+        expect(await writeRefused(as("alice"), table)).toBe(true);
+        expect(await writeRefused(as("writer"), table)).toBe(true);
+      },
+    );
+
+    it("refuses the result log to an admin: only the trigger writes it", async () => {
+      expect(await writeRefused(as("admin"), "run_result_changes")).toBe(true);
+    });
+
+    it("shows a member's contact names to themself and to admins only", async () => {
+      expect(await contactsSeenBy(anon)).toEqual([]);
+      expect(await contactsSeenBy(as("alice"))).toEqual(["alice"]);
+      expect(await contactsSeenBy(as("writer"))).toEqual([]);
+      expect(await contactsSeenBy(as("organizer"))).toEqual([]);
+      expect(await contactsSeenBy(as("admin"))).toEqual(["alice", "bob", "carol"]);
+    });
+
+    it("lets nobody write another member's contact names", async () => {
+      await as("admin")
+        .from("profile_contacts")
+        .update({ discord_name: "renamed" })
+        .eq("profile_id", profiles.get("alice") ?? "");
+      expect(await contactsSeenBy(as("alice"))).toEqual(["alice"]);
+    });
   });
 
   afterAll(async () => {
@@ -225,6 +294,12 @@ describe.skipIf(!online)("RLS — running events on the site", () => {
       }
       const { data } = await anon.from("run_entrants").select("id").eq("run_id", runId);
       expect(data).toHaveLength(3);
+    });
+
+    it("shows the organizer the contact names of entrants, and another organizer none", async () => {
+      expect(await contactsSeenBy(as("organizer"))).toEqual(["alice", "bob", "carol"]);
+      expect(await contactsSeenBy(as("rival"))).toEqual([]);
+      expect(await contactsSeenBy(as("alice"))).toEqual(["alice"]);
     });
 
     it("does not let a member check themself in", async () => {
@@ -352,6 +427,12 @@ describe.skipIf(!online)("RLS — running events on the site", () => {
       expect(carol).toEqual([{ arena_username: "WalkInSam#12345" }]);
       const { data: alice } = await as("alice").from("run_guest_contacts").select("arena_username");
       expect(alice).toEqual([]);
+    });
+
+    it("shows a member's contact names to their current opponent only", async () => {
+      expect(await contactsSeenBy(as("alice"))).toEqual(["alice", "bob"]);
+      expect(await contactsSeenBy(as("bob"))).toEqual(["alice", "bob"]);
+      expect(await contactsSeenBy(as("carol"))).toEqual(["carol"]);
     });
 
     it("takes a report from either player, and a confirmation only from the other", async () => {
