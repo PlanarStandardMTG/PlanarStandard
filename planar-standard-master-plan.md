@@ -1077,7 +1077,7 @@ foreign key where that plan needed an export, a token, an adapter and a fetch jo
   which state a run may move to, and a finished run as a `ParsedEvent`. Randomness arrives as a seed.
 - `db` — `tournament_runs`, one per `tournaments` row in `draft`, holding the live state, the seed, the
   Swiss rounds and the top cut; `run_entrants`, `run_rounds`, `run_pairings` and `run_result_changes`;
-  then `game_requests` and `push_subscriptions`. Nothing in the ledger changes while a run is live.
+  `profile_contacts` and `push_subscriptions`. Nothing in the ledger changes while a run is live.
 - `web` — `/play` for players and for an organizer running the room from a phone, under the same
   sign-in and guards as the rest of the site.
 
@@ -1086,14 +1086,27 @@ matches, standings, roster and decklists, and `ingest-event` commits it like a m
 Correcting a result afterwards finishes it again, which supersedes wholesale. Whether it counts for Elo
 and card statistics is the admin's tick at `/admin/processing`, as for any event.
 
-**Identity.** A member registers themself; the handle their matches carry is their Arena username, a
-`player_identities` row on platform `arena` attached to their player. A guest the organizer types in
-is `organizer_entered`. The ledger still records handles, not people (ADR 003). Who may see an Arena
-username is open question 9.
+**Identity.** A member registers themself, and the handle their matches carry is their profile handle,
+on a new `site` platform in `player_identities`, attached to the player their profile is linked to.
+Registering therefore needs a profile handle. A guest the organizer types in is `organizer_entered`,
+under `run-guest-<entrant id>` rather than their typed name, as Challonge's unlinked players are. The
+ledger still records handles, not people (ADR 003).
+
+**Contact names are private.** A member's Arena username and Discord name are fields on `/profile`,
+stored in `profile_contacts` rather than on `profiles`, which anyone can read. They are not handles,
+and the leaderboard, decks and tournament pages never show them. Only these people can read them:
+
+- the member
+- admins, who may need to contact someone
+- the organizer of a run the member is entered in
+- the member's opponent, while they are paired, so they can send a Direct Challenge
+
+A guest's Arena username sits on their entrant row under the same rules.
 
 **Pairings and standings** follow the Magic Tournament Rules, and `core` cites the section for each:
 
 - Win 3, draw 1, loss 0; a bye is a 2–0 win.
+- An intentional draw is a match draw, reported as 0–0–3 in games, and scores like any other draw.
 - Tiebreakers are opponents' match-win %, game-win % and opponents' game-win %, each floored at 33%;
   a bye is not an opponent.
 - Round 1 is random from the run's stored seed, so re-pairing it gives the same result.
@@ -1104,8 +1117,15 @@ username is open question 9.
 - Standings are derived on every read (ADR 004).
 - Posted pairings are facts: a re-pair replaces an unplayed round whole and never edits a pairing.
 
+**Registration and rounds.** Registration is open until the organizer starts the run, and nobody is
+added after that: there is no late-entry logic. Rounds have no timer. The organizer starts the next
+round when every result is in.
+
 **Decks.** An entrant picks a saved deck or pastes one, and it locks when the run starts (ADR 013,
 E18.11). Legality is checked against the run's format versions (E20.66).
+
+**Results.** Either player reports, and the other confirms. The organizer can enter or overrule any
+result, and every change is logged with who made it.
 
 **Live, and when the app is closed.**
 
@@ -1113,9 +1133,8 @@ E18.11). Legality is checked against the run's format versions (E20.66).
 - **While it is closed:** Web Push sent from the server. The key it signs with lives in a
   `.server.ts` module, out of every client bundle (E1.7). Pushes go out for:
   - your pairing, with the opponent's Arena name
-  - a round starting, and a round ending
-  - a result that is still due
-  - a challenge you posted being accepted
+  - a result your opponent reported, waiting for you to confirm
+  - the organizer chasing a result that is still missing
 - **iOS:** push reaches a PWA only once it is installed to the Home Screen (iOS 16.4+), and only
   after the member taps a button to allow it. The onboarding says so.
 
@@ -1123,21 +1142,21 @@ E18.11). Legality is checked against the run's format versions (E20.66).
 browser, not the installed app, and on iOS the installed app keeps a separate session. OAuth stays off
 until a provider is configured (`lib/auth/enabled-providers.ts`).
 
-**Looking for a game.** An open-challenge board, not a queue, because a niche format's queue is
-usually empty. A member posts a format version, Bo1 or Bo3, and a note, and the post expires.
-Another member accepts, both see each other's Arena names, and they play by Direct Challenge. The site
-never touches Arena. Presence shows who is around. What, if anything, a game found here records is
-open question 11.
+**Later: looking for a game.** Tabled on 2026-10-13 so the work stays on running events. When it
+comes back: an open-challenge board, not a queue, because a niche format's queue is usually empty. A
+member posts a format version, Bo1 or Bo3 and a note, and the post expires. Another member accepts,
+and both see each other's Arena names and play by Direct Challenge; the site never touches Arena. A
+game found this way records nothing and is not rated.
 
 **Free plans.** Everything runs on free tiers. These limits were checked at the time of writing;
 check them again before relying on them.
 
-| Limit                          | Roughly                                       | So                                                                                                                           |
-| ------------------------------ | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| Vercel Hobby cron              | once a day                                    | Scheduled jobs run from Supabase `pg_cron` plus `pg_net`, calling a route with `CRON_SECRET`. That is E23.14's scheduler too |
-| Supabase Realtime              | 200 concurrent connections, 2M messages/month | Plenty for an event; subscribe per run, not to everything                                                                    |
-| Supabase auth email rate limit | set in the dashboard when custom SMTP is on   | Raise it before an event day; sessions last weeks, so codes are rare                                                         |
-| Resend                         | 100 emails a day, 3,000 a month               | The real ceiling on sign-in codes                                                                                            |
+| Limit                          | Roughly                                       | So                                                                                                                  |
+| ------------------------------ | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| Vercel Hobby cron              | once a day                                    | Nothing in a run is timed. Anything that needs a schedule later runs from Supabase `pg_cron` plus `pg_net` (E23.14) |
+| Supabase Realtime              | 200 concurrent connections, 2M messages/month | Plenty for an event; subscribe per run, not to everything                                                           |
+| Supabase auth email rate limit | set in the dashboard when custom SMTP is on   | Raise it before an event day; sessions last weeks, so codes are rare                                                |
+| Resend                         | 100 emails a day, 3,000 a month               | The real ceiling on sign-in codes                                                                                   |
 
 ---
 
@@ -1216,19 +1235,19 @@ Identity and ratings precede decks: the leaderboard is what makes the site matte
 
 - don't worry about archetype naming for now. Let's focus on data aggregation, then archetype naming can be a set of conditions
 
-9. Who may see a member's Arena username? It is the handle their matches carry, so it shows on an
-   event's page like a melee.gg username does, but it is also how to send them a friend request.
+9. Who may see a member's Arena username?
 
-- _open_ — proposed: shown like any handle, since the community already shares them for Direct Challenge
+- Nobody but the member, admins, the organizer of a run they enter, and their opponent while paired. It
+  is a private field on `/profile` beside their Discord name, not a handle (§28)
 
 10. Who reports a result in a run: both players, or only the organizer?
 
-- _open_ — proposed: either player reports, the other confirms, and the organizer can enter or overrule
+- Either player reports, the other confirms, and the organizer can enter or overrule any result
 
 11. Does a game found through the looking-for-game board record anything?
 
-- _open_ — proposed: no. Not rated, not stored once the post expires; a rated ladder can come later
+- No. The board itself is tabled until running events ships
 
 12. Late registration, intentional draws, and a shared round timer: wanted at first, or later?
 
-- _open_
+- Intentional draws now, scored as a draw. No late registration and no round timer
