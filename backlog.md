@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 11/29 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 12/29 |
 
 ---
 
@@ -1881,7 +1881,7 @@ start: every tournament read relies on a draft being hidden, and a live run must
 guest's Arena username is in `run_guest_contacts`, since an entrant row is public. Clients write
 only the columns granted to them; the seed and the tournament link are the server's (0048).
 
-⬜ **E26.12 — `run_rounds`, `run_pairings`, `run_result_changes`** · M · Deps: E26.11 — a bye is a
+✅ **E26.12 — `run_rounds`, `run_pairings`, `run_result_changes`** · M · Deps: E26.11 — a bye is a
 pairing with no second entrant; no entrant is paired twice in a round; every change to a reported
 result writes a `run_result_changes` row.
 
@@ -2074,6 +2074,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 11   |
+|      |         |      | E26  | 29      | 12   |
 
-**256 of 345 stories done across 26 epics.**
+**257 of 345 stories done across 26 epics.**

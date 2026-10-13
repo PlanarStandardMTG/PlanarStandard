@@ -114,12 +114,17 @@ grant update (display_name, checked_in, dropped_after_round) on run_entrants to 
 -- tournament_runs
 -- ---------------------------------------------------------------------------
 
--- A draft is the organizer's scratch pad; past that, a run is public.
-create policy tournament_runs_read on tournament_runs for select using (
-  state <> 'draft'
-  or public.has_role('admin')
-  or (public.has_role('organizer') and organizer_id = public.current_profile_id())
-);
+-- A draft is the organizer's scratch pad; past that, a run is public. Two policies,
+-- because the role checks are not anon's to call. Columns, not `manages_run`, so a
+-- row being inserted can be returned to the organizer who wrote it.
+create policy tournament_runs_public_read on tournament_runs for select using (state <> 'draft');
+
+create policy tournament_runs_manager_read on tournament_runs
+  for select to authenticated
+  using (
+    public.has_role('admin')
+    or (public.has_role('organizer') and organizer_id = public.current_profile_id())
+  );
 
 create policy tournament_runs_organizer_insert on tournament_runs
   for insert to authenticated

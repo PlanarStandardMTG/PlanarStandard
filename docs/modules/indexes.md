@@ -191,6 +191,11 @@ query is on a page rather than in an export.
 | `tournament_runs`        | `tournament_runs_state_starts_idx`                    | runs on the schedule, by state and date            |
 | `tournament_run_formats` | `tournament_run_formats_format_version_idx`           | refusing to delete a version a run allowed         |
 | `run_entrants`           | `run_entrants_profile_idx` (partial)                  | a member's runs                                    |
+| `run_pairings`           | `run_pairings_round_idx`                              | a round's pairings                                 |
+| `run_pairings`           | `run_pairings_run_idx`                                | a run's pairings, for standings and Realtime       |
+| `run_pairings`           | `run_pairings_p1_idx`                                 | an entrant's pairings, and the foreign key         |
+| `run_pairings`           | `run_pairings_p2_idx` (partial)                       | the same from the second seat; byes have none      |
+| `run_result_changes`     | `run_result_changes_pairing_idx`                      | one result's history, in order                     |
 
 Primary keys and unique constraints index themselves and are not repeated here,
 except where the index is doing work the constraint is incidental to.
