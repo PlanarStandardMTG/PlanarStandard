@@ -5,7 +5,6 @@ import type { ReactNode } from "react";
 import { DevAccountSwitcher } from "@/components/layout/dev-account-switcher";
 import { RegisterServiceWorker } from "@/components/play/register-service-worker";
 import { PlanarMark } from "@/components/ui/planar-mark";
-import { loginHref } from "@/lib/auth/next-path";
 import { currentViewer } from "@/lib/auth/viewer";
 
 export const metadata: Metadata = {
@@ -46,7 +45,7 @@ export default async function PlayLayout({ children }: { children: ReactNode }) 
             <DevAccountSwitcher />
             {viewer === null ? (
               <Link
-                href={loginHref("/play")}
+                href="/play/sign-in"
                 className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
               >
                 Sign in

@@ -2,7 +2,6 @@ import type { Deck, Run, RunEntrant, RunEntrantDeck } from "@ps/contracts";
 import Link from "next/link";
 
 import { changeDeckAction, registerAction, withdrawAction } from "@/app/play/runs/actions";
-import { loginHref } from "@/lib/auth/next-path";
 import type { Viewer } from "@/lib/auth/viewer";
 
 import { PRIMARY, QUIET } from "./button";
@@ -76,7 +75,7 @@ export function RegistrationPanel({
     return (
       <section className="rounded-xl border border-ink-200 p-4 text-sm dark:border-ink-800">
         <Link
-          href={loginHref(`/play/runs/${run.id}`)}
+          href={`/play/sign-in?next=${encodeURIComponent(`/play/runs/${run.id}`)}`}
           className="font-medium text-eclipse-700 dark:text-eclipse-400"
         >
           Sign in to register
