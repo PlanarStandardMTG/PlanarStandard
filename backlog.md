@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 14/29 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 15/29 |
 
 ---
 
@@ -1890,7 +1890,7 @@ reader, writer, organizer and admin, plus the two the run adds: an entrant, and 
 their pairing. Includes `profile_contacts` (E26.15). _Release blocker when red._
 _Note:_ in its own file, `rls-runs.test.ts`, which plays one run from draft to a top cut match so each rule is checked where the run is when it applies.
 
-⬜ **E26.14 — `repos/runs`** · M · Deps: E26.12 — narrow functions (`listRunPairings`,
+✅ **E26.14 — `repos/runs`** · M · Deps: E26.12 — narrow functions (`listRunPairings`,
 `reportRunResult`…) and their tests against local Supabase.
 
 ✅ **E26.15 — Arena and Discord names on `/profile`** · M · Deps: E26.11 — two optional fields, stored
@@ -2075,6 +2075,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 14   |
+|      |         |      | E26  | 29      | 15   |
 
-**259 of 345 stories done across 26 epics.**
+**260 of 345 stories done across 26 epics.**

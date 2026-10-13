@@ -122,6 +122,28 @@ export interface ProposedRunPairing {
   readonly p2EntrantId: RunEntrantId | null;
 }
 
+/** A pairing as the run's pages show it: who reported the result, so the other player can confirm it. */
+export interface PostedRunPairing extends RunPairing {
+  readonly reportedBy: ProfileId | null;
+  readonly confirmedBy: ProfileId | null;
+}
+
+/** A result's state at one moment, as `RunResultChange` records it either side of a change. */
+export interface RunResultSnapshot {
+  readonly games: RunGames | null;
+  readonly status: RunResultStatus;
+}
+
+/** One change to a pairing's result, written by the database on every change (E26.12). */
+export interface RunResultChange {
+  readonly pairingId: RunPairingId;
+  /** Null only for a change the server made as itself. */
+  readonly changedBy: ProfileId | null;
+  readonly before: RunResultSnapshot;
+  readonly after: RunResultSnapshot;
+  readonly createdAt: IsoDateTime;
+}
+
 /** An entrant's counted results: confirmed pairings and byes, nothing pending. */
 export interface RunRecord {
   readonly entrantId: RunEntrantId;
