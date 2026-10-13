@@ -314,3 +314,5 @@ export { assignBye, byeCandidates } from "./runs/assign-bye/index";
 export { isPairable, pairSwiss } from "./runs/pair-swiss/index";
 export type { PairSwissInput, PairSwissResult } from "./runs/pair-swiss/index";
 export { suggestRounds } from "./runs/suggest-rounds/index";
+export { bracketOrder, cutSeeds, nextCutRound } from "./runs/top-cut/index";
+export type { CutRound, CutRoundInput } from "./runs/top-cut/index";

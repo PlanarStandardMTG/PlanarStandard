@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 7/29  |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 8/29  |
 
 ---
 
@@ -1853,7 +1853,7 @@ entrant count, from MTR Appendix E's constructed column; 3 rounds and no cut for
 a suggestion: the organizer may set any value. _AC:_ each row of Appendix E is a test case.
 _Note:_ also suggests 3 rounds for 3–4 entrants and 1 round for two, which Appendix E does not cover.
 
-⬜ **E26.8 — `core/runs/top-cut`** · M · Deps: E26.4 — single elimination with no draws, seeded per MTR
+✅ **E26.8 — `core/runs/top-cut`** · M · Deps: E26.4 — single elimination with no draws, seeded per MTR
 §10.4 (1 v 8, 4 v 5, 2 v 7, 3 v 6; 1 v 4, 2 v 3), and who advances. _AC:_ a cut of any size works,
 byes going to the top seeds when it is not a power of two or is larger than the field; a player who
 drops is not replaced, and the highest-ranked remaining player gets a bye (§2.10); with no Swiss
@@ -2066,6 +2066,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 7    |
+|      |         |      | E26  | 29      | 8    |
 
-**252 of 345 stories done across 26 epics.**
+**253 of 345 stories done across 26 epics.**
