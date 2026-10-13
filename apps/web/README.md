@@ -74,8 +74,10 @@ special case of the other; §25's split rule decides which a document is.
   request, and a page that relies on its parent is one route move from having no
   check. `proxy.ts` refreshes the session and decides nothing. See
   [`docs/modules/auth.md`](../../docs/modules/auth.md).
-- Signing in is a form POST to a route handler, so there is still **no browser
-  Supabase client** in the repo and the whole flow works with JavaScript off. The
+- Signing in is a form POST to a route handler, so the whole flow works with
+  JavaScript off. The one browser Supabase client is the play app's
+  `LiveRefresh` (E26.26): anonymous, the public key only, subscribed to one run's
+  tables so the page refreshes when a result comes in. The
   header renders the account state on the server, which is why it never flickers
   from signed-out to signed-in.
 - **Every route that can change a credential is under `app/auth/`** — password,

@@ -13,11 +13,13 @@ import { notFound } from "next/navigation";
 
 import { PRIMARY, QUIET, SECONDARY } from "@/components/play/button";
 import { EntrantList } from "@/components/play/entrant-list";
+import { LiveRefresh } from "@/components/play/live-refresh";
 import { MyMatch } from "@/components/play/my-match";
 import { PlayNotice } from "@/components/play/notice";
 import { RegistrationPanel } from "@/components/play/registration-panel";
 import { ResultControls } from "@/components/play/result-controls";
 import { RoundList } from "@/components/play/round-list";
+import { StandingsTable } from "@/components/play/standings-table";
 import { messageFor, RUN_DONE, RUN_ERRORS, STATE_LABEL } from "@/components/play/run-messages";
 import { LocalTime } from "@/components/ui/local-time";
 import { currentViewer } from "@/lib/auth/viewer";
@@ -138,6 +140,7 @@ export default async function RunPage({
 
   return (
     <div className="space-y-6">
+      {run.state !== "draft" && run.state !== "cancelled" && <LiveRefresh runId={run.id} />}
       {error !== null && <PlayNotice tone="warn">{error}</PlayNotice>}
       {done !== null && <PlayNotice tone="good">{done}</PlayNotice>}
 
@@ -282,6 +285,8 @@ export default async function RunPage({
           pairing.id === myPairing?.id && !manages ? null : controlsFor(pairing)
         }
       />
+
+      <StandingsTable standings={view.standings} entrants={entrants} />
 
       <EntrantList run={run} entrants={entrants} decks={deckOf} manages={manages} />
     </div>

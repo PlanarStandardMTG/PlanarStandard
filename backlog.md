@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 25/29 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 26/29 |
 
 ---
 
@@ -1965,9 +1965,15 @@ until `packages/db/templates/magic_link.html` is copied in. Locally the code arr
 ✅ **E26.25 — My run** · M · Deps: E26.20, E26.23 — your current pairing, your opponent's Arena name
 with a copy button, your record, and reporting your result.
 
-⬜ **E26.26 — Pairings and standings, live** · M · Deps: E26.25 — a run's pairings and standings, kept
+✅ **E26.26 — Pairings and standings, live** · M · Deps: E26.25 — a run's pairings and standings, kept
 current by Supabase Realtime while the page is open. Standings show the three tiebreakers to two
 decimals. _AC:_ a result reported on one phone shows on another without a reload.
+_Note:_ the tiebreakers do not go through `suppress-small-n`. They are the MTR's ordering rules,
+printed to two decimals as fractions as the MTR prints them, not statistics estimated from a
+sample: hiding them would hide why the standings are in the order they are. Realtime refreshes
+the server-rendered page rather than patching it in the browser, through an anonymous client
+(0053 adds the run tables to the publication) — the first Supabase client in a browser bundle,
+which holds the public key only.
 
 ⬜ **E26.27 — Organizer controls in `/play`** · M · Deps: E26.26 — pair the next round once every
 result is in, chase a missing result, and overrule one, from a phone at the venue. Rounds have no
@@ -2095,6 +2101,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 25   |
+|      |         |      | E26  | 29      | 26   |
 
-**270 of 345 stories done across 26 epics.**
+**271 of 345 stories done across 26 epics.**
