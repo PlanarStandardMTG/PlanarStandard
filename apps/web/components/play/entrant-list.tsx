@@ -1,6 +1,11 @@
 import type { Run, RunEntrant, RunEntrantDeck } from "@ps/contracts";
 
-import { addGuestAction, checkInAction, dropAction, withdrawAction } from "@/app/play/runs/actions";
+import {
+  addGuestAction,
+  checkInAction,
+  dropAction,
+  withdrawAction,
+} from "@/app/play/events/actions";
 
 import { PRIMARY, QUIET, SECONDARY } from "./button";
 

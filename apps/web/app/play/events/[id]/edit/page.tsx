@@ -12,7 +12,7 @@ import { createSessionClient } from "@/lib/supabase/session";
 import { updateRunAction } from "../../actions";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "Edit run" };
+export const metadata: Metadata = { title: "Edit event" };
 
 export default async function EditRunPage({
   params,

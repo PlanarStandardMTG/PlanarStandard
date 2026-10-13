@@ -44,7 +44,7 @@ export default async function PlayHome() {
             {entered.map((run) => (
               <li key={run.id}>
                 <Link
-                  href={`/play/runs/${run.id}`}
+                  href={`/play/events/${run.id}`}
                   className="block rounded-xl border-2 border-gold-500/50 px-4 py-3 hover:bg-ink-50 dark:hover:bg-ink-900"
                 >
                   <p className="font-medium">{run.name}</p>
@@ -62,15 +62,15 @@ export default async function PlayHome() {
         <h1 className="font-display text-3xl tracking-tight">Events</h1>
         {runs.length === 0 ? (
           <p className="mt-3 text-sm text-ink-600 dark:text-ink-400">
-            Nothing is open or being played right now. Events run on the site appear here once their
-            organizer opens registration.
+            Nothing is open or being played right now. Events appear here once their organizer opens
+            registration.
           </p>
         ) : (
           <ul className="mt-4 divide-y divide-ink-200 rounded-xl border border-ink-200 dark:divide-ink-800 dark:border-ink-800">
             {runs.map((run) => (
               <li key={run.id}>
                 <Link
-                  href={`/play/runs/${run.id}`}
+                  href={`/play/events/${run.id}`}
                   className="block px-4 py-3 hover:bg-ink-50 dark:hover:bg-ink-900"
                 >
                   <p className="font-medium">{run.name}</p>
@@ -93,21 +93,21 @@ export default async function PlayHome() {
       {organizes && (
         <section>
           <div className="flex items-center justify-between">
-            <h2 className="font-display text-xl">Your runs</h2>
-            <Link href="/play/runs/new" className={PRIMARY}>
-              New run
+            <h2 className="font-display text-xl">Your events</h2>
+            <Link href="/play/events/new" className={PRIMARY}>
+              New event
             </Link>
           </div>
           {mine.length === 0 ? (
             <p className="mt-2 text-sm text-ink-600 dark:text-ink-400">
-              None yet. A new run is a draft until you open registration.
+              None yet. A new event is a draft until you open registration.
             </p>
           ) : (
             <ul className="mt-3 divide-y divide-ink-200 rounded-xl border border-ink-200 dark:divide-ink-800 dark:border-ink-800">
               {mine.map((run) => (
                 <li key={run.id}>
                   <Link
-                    href={`/play/runs/${run.id}`}
+                    href={`/play/events/${run.id}`}
                     className="flex justify-between px-4 py-3 text-sm hover:bg-ink-50 dark:hover:bg-ink-900"
                   >
                     <span className="font-medium">{run.name}</span>

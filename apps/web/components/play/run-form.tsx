@@ -140,7 +140,9 @@ export function RunForm({
       <fieldset disabled={structureLocked} className="space-y-3">
         <legend className="text-sm font-medium">Structure</legend>
         {structureLocked ? (
-          <p className="text-xs text-ink-500 dark:text-ink-400">Fixed once the run has started.</p>
+          <p className="text-xs text-ink-500 dark:text-ink-400">
+            Fixed once the event has started.
+          </p>
         ) : (
           <div>
             <label htmlFor="expected" className="text-xs text-ink-600 dark:text-ink-400">

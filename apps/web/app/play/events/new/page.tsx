@@ -10,7 +10,7 @@ import { createSessionClient } from "@/lib/supabase/session";
 import { createRunAction } from "../actions";
 
 export const dynamic = "force-dynamic";
-export const metadata: Metadata = { title: "New run" };
+export const metadata: Metadata = { title: "New event" };
 
 /** An organizer sets up a run (E26.16). It starts as a draft only they and admins can see. */
 export default async function NewRunPage({
@@ -24,7 +24,7 @@ export default async function NewRunPage({
 
   return (
     <div>
-      <h1 className="font-display text-3xl tracking-tight">New run</h1>
+      <h1 className="font-display text-3xl tracking-tight">New event</h1>
       <p className="mt-1 text-sm text-ink-600 dark:text-ink-400">
         A draft until you open registration: only you and admins can see it.
       </p>

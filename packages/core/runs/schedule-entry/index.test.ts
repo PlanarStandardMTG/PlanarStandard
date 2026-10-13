@@ -18,7 +18,7 @@ describe("core/runs/schedule-entry", () => {
       source: "site",
       externalId: "r1",
       name: "Weekly #42",
-      url: "/play/runs/r1",
+      url: "/play/events/r1",
       state: "scheduled",
       startsAt: "2026-10-17T19:00:00.000Z",
       participantCount: 12,

@@ -66,7 +66,7 @@ export async function createRunAction(form: FormData): Promise<never> {
   const viewer = await requireRole("organizer");
   const details = readDetails(form);
   const problem = checkRunDetails(details);
-  if (problem !== null) redirect(`/play/runs/new?error=${problem}`);
+  if (problem !== null) redirect(`/play/events/new?error=${problem}`);
 
   const run = await createRun(
     await createSessionClient(),
@@ -74,7 +74,7 @@ export async function createRunAction(form: FormData): Promise<never> {
     details,
     details.formatVersionIds,
   );
-  redirect(`/play/runs/${run.id}`);
+  redirect(`/play/events/${run.id}`);
 }
 
 export async function updateRunAction(form: FormData): Promise<never> {
@@ -91,12 +91,12 @@ export async function updateRunAction(form: FormData): Promise<never> {
     ? { ...typed, swissRounds: view.run.swissRounds, topCut: view.run.topCut }
     : typed;
   const problem = checkRunDetails(details);
-  if (problem !== null) redirect(`/play/runs/${runId}/edit?error=${problem}`);
+  if (problem !== null) redirect(`/play/events/${runId}/edit?error=${problem}`);
 
   await updateRun(client, runId, details);
   await setRunFormats(client, runId, details.formatVersionIds);
-  revalidatePath(`/play/runs/${runId}`);
-  redirect(`/play/runs/${runId}?done=saved`);
+  revalidatePath(`/play/events/${runId}`);
+  redirect(`/play/events/${runId}?done=saved`);
 }
 
 /**
@@ -110,19 +110,19 @@ export async function moveRunAction(form: FormData): Promise<never> {
   await requireRole("organizer");
   const runId = form.get("runId")?.toString() ?? "";
   const to = form.get("to")?.toString() ?? "";
-  if (!MOVES.has(to)) redirect(`/play/runs/${runId}?error=not-a-move`);
+  if (!MOVES.has(to)) redirect(`/play/events/${runId}?error=not-a-move`);
 
   const client = await createSessionClient();
   const view = await loadRun(client, runId);
   if (view === null) redirect("/play");
 
   const move = canMoveRun(view.run, to as RunState, view.position);
-  if (!move.ok) redirect(`/play/runs/${runId}?error=${move.reason}`);
+  if (!move.ok) redirect(`/play/events/${runId}?error=${move.reason}`);
 
   await setRunState(client, runId, to as RunState);
-  revalidatePath(`/play/runs/${runId}`);
+  revalidatePath(`/play/events/${runId}`);
   revalidatePath("/play");
-  redirect(`/play/runs/${runId}?done=${to}`);
+  redirect(`/play/events/${runId}?done=${to}`);
 }
 
 export async function deleteDraftRunAction(form: FormData): Promise<never> {
@@ -155,7 +155,7 @@ async function chosenList(
 export async function registerAction(form: FormData): Promise<never> {
   const viewer = await requireRole("reader");
   const runId = form.get("runId")?.toString() ?? "";
-  const back = `/play/runs/${runId}`;
+  const back = `/play/events/${runId}`;
   const { handle } = viewer.profile;
   if (handle === null) redirect(`${back}?error=no-handle`);
 
@@ -199,7 +199,7 @@ export async function changeDeckAction(form: FormData): Promise<never> {
   const viewer = await requireRole("reader");
   const runId = form.get("runId")?.toString() ?? "";
   const entrantId = form.get("entrantId")?.toString() ?? "";
-  const back = `/play/runs/${runId}`;
+  const back = `/play/events/${runId}`;
 
   const client = await createSessionClient();
   const view = await loadRun(client, runId);
@@ -229,7 +229,7 @@ export async function withdrawAction(form: FormData): Promise<never> {
   await requireRole("reader");
   const runId = form.get("runId")?.toString() ?? "";
   const entrantId = form.get("entrantId")?.toString() ?? "";
-  const back = `/play/runs/${runId}`;
+  const back = `/play/events/${runId}`;
   try {
     await removeRunEntrant(await createSessionClient(), entrantId);
   } catch {
@@ -247,7 +247,7 @@ export async function withdrawAction(form: FormData): Promise<never> {
 export async function addGuestAction(form: FormData): Promise<never> {
   await requireRole("organizer");
   const runId = form.get("runId")?.toString() ?? "";
-  const back = `/play/runs/${runId}`;
+  const back = `/play/events/${runId}`;
   const displayName = (form.get("displayName")?.toString() ?? "").trim();
   const arena = checkContactNames({
     arenaUsername: form.get("arenaUsername")?.toString() ?? "",
@@ -285,7 +285,7 @@ export async function addGuestAction(form: FormData): Promise<never> {
 export async function checkInAction(form: FormData): Promise<never> {
   await requireRole("organizer");
   const runId = form.get("runId")?.toString() ?? "";
-  const back = `/play/runs/${runId}`;
+  const back = `/play/events/${runId}`;
   const client = await createSessionClient();
   const entrantIds = form.getAll("entrantId").map(String);
   const checkedIn = form.get("checkedIn") === "1";
@@ -302,7 +302,7 @@ export async function dropAction(form: FormData): Promise<never> {
   await requireRole("organizer");
   const runId = form.get("runId")?.toString() ?? "";
   const entrantId = form.get("entrantId")?.toString() ?? "";
-  const back = `/play/runs/${runId}`;
+  const back = `/play/events/${runId}`;
   const client = await createSessionClient();
   const view = await loadRun(client, runId);
   if (view === null) redirect("/play");
@@ -324,7 +324,7 @@ export async function dropAction(form: FormData): Promise<never> {
 export async function startRunAction(form: FormData): Promise<never> {
   await requireRole("organizer");
   const runId = form.get("runId")?.toString() ?? "";
-  const back = `/play/runs/${runId}`;
+  const back = `/play/events/${runId}`;
   const client = await createSessionClient();
   const view = await loadRun(client, runId);
   if (view === null) redirect("/play");
@@ -347,7 +347,7 @@ export async function pairRoundAction(form: FormData): Promise<never> {
   await requireRole("organizer");
   const runId = form.get("runId")?.toString() ?? "";
   const repair = form.get("repair") === "1";
-  const back = `/play/runs/${runId}`;
+  const back = `/play/events/${runId}`;
   const client = await createSessionClient();
   const view = await loadRun(client, runId);
   if (view === null) redirect("/play");
@@ -389,7 +389,7 @@ async function pairingFor(form: FormData, profileId: string) {
   const view = await loadRun(client, runId);
   if (view === null) redirect("/play");
   const pairing = view.pairings.find((p) => p.id === pairingId);
-  if (pairing === undefined) redirect(`/play/runs/${runId}?error=not-a-move`);
+  if (pairing === undefined) redirect(`/play/events/${runId}?error=not-a-move`);
   const mine = view.entrants.find((e) => e.profileId === profileId);
   const side =
     mine === undefined
@@ -400,7 +400,7 @@ async function pairingFor(form: FormData, profileId: string) {
           ? ("p2" as const)
           : null;
   const elimination = view.rounds.find((r) => r.id === pairing.roundId)?.kind === "elimination";
-  return { client, runId, pairing, side, elimination, back: `/play/runs/${runId}` };
+  return { client, runId, pairing, side, elimination, back: `/play/events/${runId}` };
 }
 
 /** Rethrows anything but the database refusing the change, which becomes a code. */
@@ -475,7 +475,7 @@ export async function setResultAction(form: FormData): Promise<never> {
 export async function pairCutRoundAction(form: FormData): Promise<never> {
   await requireRole("organizer");
   const runId = form.get("runId")?.toString() ?? "";
-  const back = `/play/runs/${runId}`;
+  const back = `/play/events/${runId}`;
   const client = await createSessionClient();
   const view = await loadRun(client, runId);
   if (view === null) redirect("/play");
@@ -517,7 +517,7 @@ export async function pairCutRoundAction(form: FormData): Promise<never> {
 export async function finishRunAction(form: FormData): Promise<never> {
   await requireRole("organizer");
   const runId = form.get("runId")?.toString() ?? "";
-  const back = `/play/runs/${runId}`;
+  const back = `/play/events/${runId}`;
   const client = await createSessionClient();
   const view = await loadRun(client, runId);
   if (view === null) redirect("/play");
@@ -546,7 +546,7 @@ export async function chaseResultAction(form: FormData): Promise<never> {
   await requireRole("organizer");
   const runId = form.get("runId")?.toString() ?? "";
   const pairingId = form.get("pairingId")?.toString() ?? "";
-  const back = `/play/runs/${runId}`;
+  const back = `/play/events/${runId}`;
   const view = await loadRun(await createSessionClient(), runId);
   if (view === null) redirect("/play");
   const sent = await notifyResultChased(runId, pairingId);

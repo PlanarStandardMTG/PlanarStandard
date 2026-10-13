@@ -1,7 +1,7 @@
 import type { Deck, Run, RunEntrant, RunEntrantDeck } from "@ps/contracts";
 import Link from "next/link";
 
-import { changeDeckAction, registerAction, withdrawAction } from "@/app/play/runs/actions";
+import { changeDeckAction, registerAction, withdrawAction } from "@/app/play/events/actions";
 import type { Viewer } from "@/lib/auth/viewer";
 
 import { PRIMARY, QUIET } from "./button";
@@ -75,7 +75,7 @@ export function RegistrationPanel({
     return (
       <section className="rounded-xl border border-ink-200 p-4 text-sm dark:border-ink-800">
         <Link
-          href={`/play/sign-in?next=${encodeURIComponent(`/play/runs/${run.id}`)}`}
+          href={`/play/sign-in?next=${encodeURIComponent(`/play/events/${run.id}`)}`}
           className="font-medium text-eclipse-700 dark:text-eclipse-400"
         >
           Sign in to register
@@ -93,10 +93,10 @@ export function RegistrationPanel({
           {deck === null
             ? "No deck yet."
             : deck.isLegal === false
-              ? "Your deck is not legal in this run's format versions. The organizer can see that."
+              ? "Your deck is not legal in this event's format versions. The organizer can see that."
               : open
-                ? "Your deck is in. You can change it until the run starts."
-                : "Your deck is locked for this run."}
+                ? "Your deck is in. You can change it until the event starts."
+                : "Your deck is locked for this event."}
         </p>
         {open && (
           <>

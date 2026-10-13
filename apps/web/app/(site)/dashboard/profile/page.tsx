@@ -185,8 +185,8 @@ export default async function ProfilePage({
               className={FIELD}
             />
             <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">
-              Your name in events run on the site: your matches there are recorded under it, so you
-              need one to register. Letters, numbers, hyphens and underscores.
+              Your name in events played on the site: your matches there are recorded under it, so
+              you need one to register. Letters, numbers, hyphens and underscores.
             </p>
           </div>
 
@@ -207,7 +207,7 @@ export default async function ProfilePage({
           <fieldset className="space-y-5 border-t border-ink-200 pt-5 dark:border-ink-800">
             <legend className="sr-only">How opponents reach you</legend>
             <p className="text-sm text-ink-600 dark:text-ink-400">
-              For events run on the site. Only you, admins, the organizer of an event you are in,
+              For events played on the site. Only you, admins, the organizer of an event you are in,
               and your opponent while you are paired can see these — never the leaderboard or a
               public page.
             </p>

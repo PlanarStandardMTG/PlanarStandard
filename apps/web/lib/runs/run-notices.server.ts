@@ -41,7 +41,7 @@ export async function notifyRoundPaired(runId: RunId, roundNumber: number): Prom
     const round = view.rounds.find((r) => r.number === roundNumber);
     const label =
       round?.kind === "elimination" ? `Top cut, round ${roundNumber}` : `Round ${roundNumber}`;
-    const url = `/play/runs/${runId}`;
+    const url = `/play/events/${runId}`;
 
     await Promise.all(
       view.pairings
@@ -89,7 +89,7 @@ export async function notifyResultReported(
       {
         title: `${view.run.name}: confirm your result`,
         body: `${reporterEntrant?.displayName ?? "Your opponent"} reported your match. Check it and confirm.`,
-        url: `/play/runs/${runId}`,
+        url: `/play/events/${runId}`,
         tag: `run-${runId}-result`,
       },
     );
@@ -115,7 +115,7 @@ export async function notifyResultChased(runId: RunId, pairingId: RunPairingId):
         pairing.status === "reported"
           ? `Table ${pairing.table}: a result is waiting to be confirmed.`
           : `Table ${pairing.table}: the organizer is waiting for your result.`,
-      url: `/play/runs/${runId}`,
+      url: `/play/events/${runId}`,
       tag: `run-${runId}-chase`,
     });
   });

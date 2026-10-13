@@ -31,15 +31,15 @@ export const RUN_ERRORS: Readonly<
   "deck-long": "That list is too long.",
   "deck-unreadable":
     "Some lines of that list could not be read. Check it in the deck editor first.",
-  "deck-locked": "Decks are locked once the run starts.",
+  "deck-locked": "Decks are locked once the event starts.",
   "handle-clash":
     "Another player already plays under a handle like yours. Ask an admin, or change your handle.",
   "already-registered": "You are already registered.",
-  "not-withdrawable": "Entries are fixed once the run starts.",
+  "not-withdrawable": "Entries are fixed once the event starts.",
   "guest-name": "A guest needs a name of up to 60 characters.",
   "arena-tag": "An Arena username needs its tag, like Brayzon#12345.",
   "arena-too-long": "That Arena username is too long.",
-  "not-running": "That is done while the run is being played.",
+  "not-running": "That is done while the event is being played.",
   "swiss-rounds-done": "Every Swiss round has been paired.",
   "round-has-results": "A result is in, so this round can no longer be re-paired.",
   "result-refused":
@@ -47,17 +47,17 @@ export const RUN_ERRORS: Readonly<
   "result-invalid": "That result is not possible here. The top cut has no draws.",
   "no-pairing-without-rematch":
     "No pairing avoids a rematch. Reduce the Swiss rounds, or move on to the cut or finish.",
-  "name-empty": "A run needs a name.",
+  "name-empty": "An event needs a name.",
   "name-long": "That name is too long.",
   "no-format": "Tick at least one format version.",
   "swiss-rounds": "Swiss rounds must be a whole number from 0 to 20.",
   "top-cut": "The top cut must be a whole number from 0 to 512.",
-  "nothing-to-play": "With no Swiss rounds, the run needs a top cut of at least 2.",
-  "not-a-move": "The run cannot move there from where it is.",
+  "nothing-to-play": "With no Swiss rounds, the event needs a top cut of at least 2.",
+  "not-a-move": "The event cannot move there from where it is.",
   "too-few-entrants": "At least two entrants must be checked in to start.",
   "has-swiss-rounds": "Play the Swiss rounds before the top cut.",
-  "no-swiss-rounds": "This run has no Swiss rounds: start the top cut.",
-  "no-top-cut": "This run has no top cut.",
+  "no-swiss-rounds": "This event has no Swiss rounds: start the top cut.",
+  "no-top-cut": "This event has no top cut.",
   "has-top-cut": "Play the top cut before finishing.",
   "swiss-rounds-left": "There are Swiss rounds still to play.",
   "results-missing": "Some results are still to be confirmed.",
@@ -66,12 +66,12 @@ export const RUN_ERRORS: Readonly<
 
 export const RUN_DONE: Readonly<Record<string, string>> = {
   saved: "Saved.",
-  registered: "You are registered. Your deck can change until the run starts.",
+  registered: "You are registered. Your deck can change until the event starts.",
   deck: "Your deck is updated.",
   withdrawn: "Withdrawn.",
   guest: "Guest added.",
   dropped: "Dropped. They will not be paired again.",
-  started: "The run has started. Entries and decks are locked.",
+  started: "The event has started. Entries and decks are locked.",
   paired: "The round is paired.",
   repaired: "The round is re-paired.",
   reported: "Reported. It counts once your opponent confirms it.",
@@ -84,7 +84,7 @@ export const RUN_DONE: Readonly<Record<string, string>> = {
   "chase-unsent":
     "Nobody could be nudged: neither player has notifications on. Find them at the table.",
   registration: "Registration is open.",
-  cancelled: "The run is cancelled.",
+  cancelled: "The event is cancelled.",
 };
 
 export const STATE_LABEL: Readonly<Record<string, string>> = {

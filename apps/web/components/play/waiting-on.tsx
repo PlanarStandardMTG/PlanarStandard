@@ -1,6 +1,6 @@
 import type { PostedRunPairing, RunEntrant } from "@ps/contracts";
 
-import { chaseResultAction } from "@/app/play/runs/actions";
+import { chaseResultAction } from "@/app/play/events/actions";
 
 import { QUIET } from "./button";
 

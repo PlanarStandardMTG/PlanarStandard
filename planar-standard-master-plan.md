@@ -1071,6 +1071,10 @@ built for this format only; a generic event manager can come later, out of what 
 replaced a plan for a separate events service on its own database (2026-10-13): one database means a
 foreign key where that plan needed an export, a token, an adapter and a fetch job (ADR 015).
 
+**Words.** In the code an event played here is a **run**, which keeps it apart from `tournaments`,
+the record it becomes, and from the calendar's `external_events`. Members never see the word: on
+every page, URL and notification it is an **event**, at `/play/events/<id>`.
+
 **Where it lives.**
 
 - `core/runs` — pure: points and records, tiebreakers, standings, Swiss pairing, byes, the top cut,

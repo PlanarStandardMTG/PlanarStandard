@@ -43,7 +43,7 @@ type Params = { params: Promise<{ id: string }> };
 
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const view = await loadRun(await createSessionClient(), (await params).id);
-  return { title: view?.run.name ?? "Run" };
+  return { title: view?.run.name ?? "Event" };
 }
 
 function structureOf(swissRounds: number, topCut: number): string {
@@ -236,7 +236,7 @@ export default async function RunPage({
               </form>
             )}
             {!["finished", "cancelled"].includes(run.state) && (
-              <Link href={`/play/runs/${run.id}/edit`} className={SECONDARY}>
+              <Link href={`/play/events/${run.id}/edit`} className={SECONDARY}>
                 Edit
               </Link>
             )}
@@ -250,7 +250,7 @@ export default async function RunPage({
                 <form action={moveRunAction}>
                   <input type="hidden" name="runId" value={run.id} />
                   <button name="to" value="cancelled" className={QUIET}>
-                    Cancel run
+                    Cancel event
                   </button>
                 </form>
               )

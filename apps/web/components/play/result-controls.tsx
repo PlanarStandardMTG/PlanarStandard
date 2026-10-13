@@ -1,7 +1,11 @@
 import type { PostedRunPairing, ProfileId } from "@ps/contracts";
 import { resultChoices, type ResultChoice } from "@ps/core";
 
-import { confirmResultAction, reportResultAction, setResultAction } from "@/app/play/runs/actions";
+import {
+  confirmResultAction,
+  reportResultAction,
+  setResultAction,
+} from "@/app/play/events/actions";
 
 import { PRIMARY, SECONDARY } from "./button";
 import { gamesText } from "./round-list";

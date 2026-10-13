@@ -29,7 +29,7 @@ export function runScheduleEntry(
     source: "site",
     externalId: run.id,
     name: run.name,
-    url: `/play/runs/${run.id}`,
+    url: `/play/events/${run.id}`,
     state,
     startsAt: run.startsAt,
     participantCount: entrantCount,
