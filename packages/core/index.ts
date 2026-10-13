@@ -316,3 +316,5 @@ export type { PairSwissInput, PairSwissResult } from "./runs/pair-swiss/index";
 export { suggestRounds } from "./runs/suggest-rounds/index";
 export { bracketOrder, cutSeeds, nextCutRound } from "./runs/top-cut/index";
 export type { CutRound, CutRoundInput } from "./runs/top-cut/index";
+export { canMoveRun, runMoves } from "./runs/run-state/index";
+export type { RunMove, RunMoveRefusal, RunProgress } from "./runs/run-state/index";

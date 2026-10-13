@@ -12,6 +12,7 @@ pair-swiss      the next Swiss round, no rematches          common practice
 assign-bye      the lowest-ranked entrant without a bye     common practice
 top-cut         single elimination, seeded and with drops  MTR §2.4, §2.10, §10.4
 suggest-rounds  Swiss rounds and a top cut to prefill       MTR Appendix E
+run-state       which state a run may move to, and why not
 seeded-random   the only randomness, from the run's seed
 ```
 

@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 8/29  |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 9/29  |
 
 ---
 
@@ -1859,7 +1859,7 @@ byes going to the top seeds when it is not a power of two or is larger than the 
 drops is not replaced, and the highest-ranked remaining player gets a bye (§2.10); with no Swiss
 rounds, seeding comes from the run's seed.
 
-⬜ **E26.9 — `core/runs/run-state`** · S · Deps: E26.1 — draft → registration → running → top cut →
+✅ **E26.9 — `core/runs/run-state`** · S · Deps: E26.1 — draft → registration → running → top cut →
 finished, or cancelled from anywhere, with what each move needs (two checked-in entrants to start,
 every pairing reported to finish). A run with no Swiss rounds goes straight to the top cut, and one
 with no cut finishes after its last Swiss round. _AC:_ a refusal names its reason.
@@ -2066,6 +2066,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 8    |
+|      |         |      | E26  | 29      | 9    |
 
-**253 of 345 stories done across 26 epics.**
+**254 of 345 stories done across 26 epics.**
