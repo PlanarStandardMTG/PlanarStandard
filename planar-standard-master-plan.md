@@ -1141,7 +1141,7 @@ prefilled with a suggestion from Appendix E, but any value is allowed, whatever 
 the flow then does the best the rules allow.
 
 - With 5–8 entrants, where Appendix E would run single elimination, the suggestion is 3 Swiss rounds
-  and no cut.
+  and no cut. Below Appendix E's table it is the same for 3–4 entrants, and 1 round for two.
 - Zero Swiss rounds means straight single elimination, seeded by the seed.
 - More Swiss rounds than the field can pair without rematches reaches the "no such pairing" case
   above.

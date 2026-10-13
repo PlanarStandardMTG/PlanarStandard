@@ -10,6 +10,7 @@ tiebreakers     opponents' match-win %, game-win %, OGW%   MTR §3.1, Appendix C
 standings       the ordered Swiss standings                MTR §3.1
 pair-swiss      the next Swiss round, no rematches          common practice
 assign-bye      the lowest-ranked entrant without a bye     common practice
+suggest-rounds  Swiss rounds and a top cut to prefill       MTR Appendix E
 seeded-random   the only randomness, from the run's seed
 ```
 
