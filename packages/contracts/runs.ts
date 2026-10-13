@@ -102,6 +102,16 @@ export interface RunPairing {
   readonly status: RunResultStatus;
 }
 
+/**
+ * A pairing `core` proposes for the next round, before it is posted and given an id. The
+ * higher-ranked player is `p1`; a bye is `p2EntrantId: null` on the last table.
+ */
+export interface ProposedRunPairing {
+  readonly table: number;
+  readonly p1EntrantId: RunEntrantId;
+  readonly p2EntrantId: RunEntrantId | null;
+}
+
 /** An entrant's counted results: confirmed pairings and byes, nothing pending. */
 export interface RunRecord {
   readonly entrantId: RunEntrantId;

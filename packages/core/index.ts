@@ -311,3 +311,5 @@ export { seededRandom, seededShuffle } from "./runs/seeded-random/index";
 export { runStandings } from "./runs/standings/index";
 export type { StandingsInput } from "./runs/standings/index";
 export { assignBye, byeCandidates } from "./runs/assign-bye/index";
+export { isPairable, pairSwiss } from "./runs/pair-swiss/index";
+export type { PairSwissInput, PairSwissResult } from "./runs/pair-swiss/index";

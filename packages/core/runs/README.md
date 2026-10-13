@@ -8,6 +8,7 @@ as the run's stored seed, so every pairing and every tie reproduces.
 record          match and game points per entrant          MTR Appendix C
 tiebreakers     opponents' match-win %, game-win %, OGW%   MTR §3.1, Appendix C
 standings       the ordered Swiss standings                MTR §3.1
+pair-swiss      the next Swiss round, no rematches          common practice
 assign-bye      the lowest-ranked entrant without a bye     common practice
 seeded-random   the only randomness, from the run's seed
 ```
