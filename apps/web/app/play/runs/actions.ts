@@ -1,14 +1,17 @@
 "use server";
 
 import type { RunState } from "@ps/contracts";
-import { canMoveRun, checkRunDetails } from "@ps/core";
+import { canMoveRun, checkContactNames, checkRunDetails } from "@ps/core";
 import {
+  addRunGuest,
   createRun,
   deleteDraftRun,
+  dropRunEntrant,
   getDeckWithCards,
   registerForRun,
   removeRunEntrant,
   saveRunEntrantDeck,
+  setEntrantCheckedIn,
   setRunFormats,
   setRunState,
   updateRun,
@@ -216,4 +219,78 @@ export async function withdrawAction(form: FormData): Promise<never> {
   }
   revalidatePath(back);
   redirect(`${back}?done=withdrawn`);
+}
+
+// ---------------------------------------------------------------------------
+// Guests, check-in and drops (E26.18)
+// ---------------------------------------------------------------------------
+
+/** A guest typed in by the organizer before the run starts, with an optional list. */
+export async function addGuestAction(form: FormData): Promise<never> {
+  await requireRole("organizer");
+  const runId = form.get("runId")?.toString() ?? "";
+  const back = `/play/runs/${runId}`;
+  const displayName = (form.get("displayName")?.toString() ?? "").trim();
+  const arena = checkContactNames({
+    arenaUsername: form.get("arenaUsername")?.toString() ?? "",
+    discordName: "",
+  });
+  if (displayName === "" || displayName.length > 60) redirect(`${back}?error=guest-name`);
+  if (!arena.ok) redirect(`${back}?error=${arena.problem}`);
+
+  const client = await createSessionClient();
+  const view = await loadRun(client, runId);
+  if (view === null) redirect("/play");
+  if (!["draft", "registration"].includes(view.run.state))
+    redirect(`${back}?error=registration-closed`);
+
+  const text = form.get("decklist")?.toString() ?? "";
+  const check = text.trim() === "" ? null : await checkRunDeck(text, view.run.formatVersionIds);
+  if (check !== null && !check.ok) redirect(`${back}?error=${check.problem}`);
+
+  const guest = await addRunGuest(client, runId, {
+    displayName,
+    arenaUsername: arena.arenaUsername,
+  });
+  if (check !== null) {
+    await saveRunEntrantDeck(client, {
+      entrantId: guest.id,
+      deckId: null,
+      decklistText: text,
+      isLegal: check.isLegal,
+    });
+  }
+  revalidatePath(back);
+  redirect(`${back}?done=guest`);
+}
+
+export async function checkInAction(form: FormData): Promise<never> {
+  await requireRole("organizer");
+  const runId = form.get("runId")?.toString() ?? "";
+  const back = `/play/runs/${runId}`;
+  const client = await createSessionClient();
+  const entrantIds = form.getAll("entrantId").map(String);
+  const checkedIn = form.get("checkedIn") === "1";
+  for (const entrantId of entrantIds) await setEntrantCheckedIn(client, entrantId, checkedIn);
+  revalidatePath(back);
+  redirect(back);
+}
+
+/**
+ * Drops an entrant during the run. The drop counts from the next round not yet paired
+ * (MTR §2.10); there is no undoing it, since nobody re-enters (§28).
+ */
+export async function dropAction(form: FormData): Promise<never> {
+  await requireRole("organizer");
+  const runId = form.get("runId")?.toString() ?? "";
+  const entrantId = form.get("entrantId")?.toString() ?? "";
+  const back = `/play/runs/${runId}`;
+  const client = await createSessionClient();
+  const view = await loadRun(client, runId);
+  if (view === null) redirect("/play");
+  if (!["running", "top_cut"].includes(view.run.state)) redirect(`${back}?error=not-running`);
+
+  await dropRunEntrant(client, entrantId, view.position.nextRound - 1);
+  revalidatePath(back);
+  redirect(`${back}?done=dropped`);
 }

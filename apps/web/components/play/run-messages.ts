@@ -10,7 +10,11 @@ type RunPageProblem =
   | "deck-locked"
   | "handle-clash"
   | "already-registered"
-  | "not-withdrawable";
+  | "not-withdrawable"
+  | "guest-name"
+  | "arena-tag"
+  | "arena-too-long"
+  | "not-running";
 
 /** What a refused run form or move means, in the site's voice. Codes come from `core/runs`. */
 export const RUN_ERRORS: Readonly<
@@ -27,6 +31,10 @@ export const RUN_ERRORS: Readonly<
     "Another player already plays under a handle like yours. Ask an admin, or change your handle.",
   "already-registered": "You are already registered.",
   "not-withdrawable": "Entries are fixed once the run starts.",
+  "guest-name": "A guest needs a name of up to 60 characters.",
+  "arena-tag": "An Arena username needs its tag, like Brayzon#12345.",
+  "arena-too-long": "That Arena username is too long.",
+  "not-running": "Entrants are dropped while the run is being played.",
   "name-empty": "A run needs a name.",
   "name-long": "That name is too long.",
   "no-format": "Tick at least one format version.",
@@ -49,6 +57,8 @@ export const RUN_DONE: Readonly<Record<string, string>> = {
   registered: "You are registered. Your deck can change until the run starts.",
   deck: "Your deck is updated.",
   withdrawn: "Withdrawn.",
+  guest: "Guest added.",
+  dropped: "Dropped. They will not be paired again.",
   registration: "Registration is open.",
   cancelled: "The run is cancelled.",
 };

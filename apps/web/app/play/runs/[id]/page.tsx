@@ -4,6 +4,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { PRIMARY, QUIET, SECONDARY } from "@/components/play/button";
+import { EntrantList } from "@/components/play/entrant-list";
 import { PlayNotice } from "@/components/play/notice";
 import { RegistrationPanel } from "@/components/play/registration-panel";
 import { messageFor, RUN_DONE, RUN_ERRORS, STATE_LABEL } from "@/components/play/run-messages";
@@ -138,29 +139,7 @@ export default async function RunPage({
         decks={memberDecks}
       />
 
-      <section>
-        <h2 className="font-display text-xl">Entrants</h2>
-        {entrants.length === 0 ? (
-          <p className="mt-2 text-sm text-ink-600 dark:text-ink-400">Nobody yet.</p>
-        ) : (
-          <ul className="mt-2 divide-y divide-ink-200 text-sm dark:divide-ink-800">
-            {entrants.map((entrant) => (
-              <li key={entrant.id} className="flex justify-between gap-3 py-2">
-                <span>{entrant.displayName}</span>
-                {manages && (
-                  <span className="text-xs text-ink-500 dark:text-ink-400">
-                    {deckOf.get(entrant.id) === undefined
-                      ? "no deck"
-                      : deckOf.get(entrant.id)?.isLegal === false
-                        ? "deck not legal"
-                        : "deck in"}
-                  </span>
-                )}
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+      <EntrantList run={run} entrants={entrants} decks={deckOf} manages={manages} />
     </div>
   );
 }
