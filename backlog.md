@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 24/29 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 25/29 |
 
 ---
 
@@ -1962,7 +1962,7 @@ and production's Magic Link template in the Supabase dashboard, which still send
 until `packages/db/templates/magic_link.html` is copied in. Locally the code arrives, is typed on
 `/play/sign-in` and signs in.
 
-⬜ **E26.25 — My run** · M · Deps: E26.20, E26.23 — your current pairing, your opponent's Arena name
+✅ **E26.25 — My run** · M · Deps: E26.20, E26.23 — your current pairing, your opponent's Arena name
 with a copy button, your record, and reporting your result.
 
 ⬜ **E26.26 — Pairings and standings, live** · M · Deps: E26.25 — a run's pairings and standings, kept
@@ -2095,6 +2095,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 24   |
+|      |         |      | E26  | 29      | 25   |
 
-**269 of 345 stories done across 26 epics.**
+**270 of 345 stories done across 26 epics.**

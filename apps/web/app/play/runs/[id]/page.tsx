@@ -1,5 +1,7 @@
 import { canMoveRun } from "@ps/core";
+import type { PostedRunPairing } from "@ps/contracts";
 import {
+  getEntrantArenaUsername,
   listFormatVersions,
   listMemberDecks,
   listRunEntrantDecks,
@@ -11,6 +13,7 @@ import { notFound } from "next/navigation";
 
 import { PRIMARY, QUIET, SECONDARY } from "@/components/play/button";
 import { EntrantList } from "@/components/play/entrant-list";
+import { MyMatch } from "@/components/play/my-match";
 import { PlayNotice } from "@/components/play/notice";
 import { RegistrationPanel } from "@/components/play/registration-panel";
 import { ResultControls } from "@/components/play/result-controls";
@@ -87,6 +90,45 @@ export default async function RunPage({
       ? position.unconfirmedPairings === 0
       : canMoveRun(run, "finished", position).ok;
   const latest = rounds.at(-1);
+  const controlsFor = (pairing: PostedRunPairing) => (
+    <ResultControls
+      runId={run.id}
+      pairing={pairing}
+      side={
+        mine === null
+          ? null
+          : mine.id === pairing.p1EntrantId
+            ? "p1"
+            : mine.id === pairing.p2EntrantId
+              ? "p2"
+              : null
+      }
+      viewerProfileId={viewer?.profile.id ?? null}
+      manages={manages}
+      elimination={rounds.find((r) => r.id === pairing.roundId)?.kind === "elimination"}
+      playing={run.state === "running" || run.state === "top_cut"}
+      correcting={run.state === "finished"}
+      p1Name={entrants.find((e) => e.id === pairing.p1EntrantId)?.displayName ?? "Player 1"}
+    />
+  );
+  const playing = run.state === "running" || run.state === "top_cut";
+  const myPairing =
+    mine === null || latest === undefined
+      ? null
+      : (pairings.find(
+          (p) =>
+            p.roundId === latest.id && (p.p1EntrantId === mine.id || p.p2EntrantId === mine.id),
+        ) ?? null);
+  const opponentId =
+    myPairing === null || mine === null
+      ? null
+      : myPairing.p1EntrantId === mine.id
+        ? myPairing.p2EntrantId
+        : myPairing.p1EntrantId;
+  const opponent = entrants.find((e) => e.id === opponentId) ?? null;
+  // Readable only while the two are paired (0049, 0050); null otherwise.
+  const opponentArena =
+    playing && opponent !== null ? await getEntrantArenaUsername(client, opponent) : null;
   // A round nobody has reported in yet can still be re-paired whole.
   const unplayed =
     latest?.kind === "swiss" &&
@@ -211,6 +253,18 @@ export default async function RunPage({
         </section>
       )}
 
+      {mine !== null && playing && (
+        <MyMatch
+          me={mine}
+          pairing={myPairing}
+          roundNumber={latest?.number ?? null}
+          opponent={opponent}
+          opponentArena={opponentArena}
+          standing={view.standings.find((s) => s.entrantId === mine.id) ?? null}
+          controls={myPairing === null ? null : controlsFor(myPairing)}
+        />
+      )}
+
       <RegistrationPanel
         run={run}
         viewer={viewer}
@@ -223,27 +277,10 @@ export default async function RunPage({
         rounds={rounds}
         pairings={pairings}
         entrants={entrants}
-        controls={(pairing) => (
-          <ResultControls
-            runId={run.id}
-            pairing={pairing}
-            side={
-              mine === null
-                ? null
-                : mine.id === pairing.p1EntrantId
-                  ? "p1"
-                  : mine.id === pairing.p2EntrantId
-                    ? "p2"
-                    : null
-            }
-            viewerProfileId={viewer?.profile.id ?? null}
-            manages={manages}
-            elimination={rounds.find((r) => r.id === pairing.roundId)?.kind === "elimination"}
-            playing={run.state === "running" || run.state === "top_cut"}
-            correcting={run.state === "finished"}
-            p1Name={entrants.find((e) => e.id === pairing.p1EntrantId)?.displayName ?? "Player 1"}
-          />
-        )}
+        controls={(pairing) =>
+          // A player's own match is reported from the card above.
+          pairing.id === myPairing?.id && !manages ? null : controlsFor(pairing)
+        }
       />
 
       <EntrantList run={run} entrants={entrants} decks={deckOf} manages={manages} />

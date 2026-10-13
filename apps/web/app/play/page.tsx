@@ -1,4 +1,4 @@
-import { listLiveRuns, listRunsByOrganizer } from "@ps/db";
+import { listLiveRuns, listRunsByOrganizer, listRunsEnteredBy } from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -21,14 +21,36 @@ export default async function PlayHome() {
     viewer !== null &&
     ["organizer", "admin"].includes(viewer.profile.role) &&
     viewer.profile.bannedAt === null;
-  const [runs, mine] = await Promise.all([
+  const [runs, mine, entered] = await Promise.all([
     listLiveRuns(client),
     organizes ? listRunsByOrganizer(client, viewer.profile.id) : Promise.resolve([]),
+    viewer === null ? Promise.resolve([]) : listRunsEnteredBy(client, viewer.profile.id),
   ]);
 
   return (
     <div className="space-y-6">
       <InstallPrompt />
+      {entered.length > 0 && (
+        <section>
+          <h2 className="font-display text-xl">You are playing</h2>
+          <ul className="mt-3 space-y-2">
+            {entered.map((run) => (
+              <li key={run.id}>
+                <Link
+                  href={`/play/runs/${run.id}`}
+                  className="block rounded-xl border-2 border-gold-500/50 px-4 py-3 hover:bg-ink-50 dark:hover:bg-ink-900"
+                >
+                  <p className="font-medium">{run.name}</p>
+                  <p className="text-xs text-ink-500 dark:text-ink-400">
+                    {STATE_LABEL[run.state]} — your pairing and result
+                  </p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
       <section>
         <h1 className="font-display text-3xl tracking-tight">Events</h1>
         {runs.length === 0 ? (

@@ -206,6 +206,21 @@ export async function listScheduledRuns(client: SupabaseClient): Promise<readonl
   );
 }
 
+/** Runs a member is entered in and that are not over yet, soonest first — their "my runs". */
+export async function listRunsEnteredBy(
+  client: SupabaseClient,
+  profileId: ProfileId,
+): Promise<readonly Run[]> {
+  const { data, error } = await client
+    .from("tournament_runs")
+    .select(`${RUN_COLUMNS}, run_entrants!inner(profile_id)`)
+    .eq("run_entrants.profile_id", profileId)
+    .in("state", ["registration", "running", "top_cut"])
+    .order("starts_at", { ascending: true, nullsFirst: false });
+  if (error !== null) fail("listRunsEnteredBy", error);
+  return (data as unknown as RunRow[]).map(toRun);
+}
+
 /** The tournament a finished run was imported into (E26.21). Service-role: a client may not set it. */
 export async function linkRunTournament(
   serviceClient: SupabaseClient,
