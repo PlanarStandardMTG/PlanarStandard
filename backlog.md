@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 1/29  |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 2/29  |
 
 ---
 
@@ -1825,7 +1825,7 @@ Three rules shape every story below.
 ✅ **E26.1 — `contracts/runs`** · S · Deps: E2.4 — `RunState`, `RunEntrant`, `RunRound`, `RunPairing`,
 `RunStanding`. _AC:_ nothing in it names Supabase or a table.
 
-⬜ **E26.2 — `core/runs/record`** · S · Deps: E26.1 — match and game points and a win–loss–draw record
+✅ **E26.2 — `core/runs/record`** · S · Deps: E26.1 — match and game points and a win–loss–draw record
 from pairings, per MTR Appendix C. A bye is a 2–0 win (3 match points, 6 game points); an unfinished
 game is a draw; an unplayed game is worth nothing. _AC:_ an intentional draw with no games played,
 reported 0–0–3, gives each player 1 match point and 3 game points of 9.
@@ -2065,6 +2065,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 1    |
+|      |         |      | E26  | 29      | 2    |
 
-**246 of 345 stories done across 26 epics.**
+**247 of 345 stories done across 26 epics.**

@@ -3,7 +3,7 @@
 // If a function needs data, it takes it as an argument.
 // Modules land under core/<area>/<name>/ per §8 of the master plan
 // (decklist, legality, metrics, similarity, elo, identity, stats, reddit,
-// results, content, events, auth).
+// results, content, events, auth, runs).
 
 // stats — presentation-safe aggregation (§8.7)
 export { wilson } from "./stats/wilson/index";
@@ -295,3 +295,6 @@ export { eventRounds } from "./results/event-rounds/index";
 export type { EventRound, RoundMatch } from "./results/event-rounds/index";
 export { readDecklistSheet } from "./results/decklist-sheet/index";
 export type { DecklistSheet, SheetDeck, SheetEntry } from "./results/decklist-sheet/index";
+
+// runs — an event run on the site, from pairings to standings (§28, E26)
+export { countedGames, isCounted, runRecords } from "./runs/record/index";
