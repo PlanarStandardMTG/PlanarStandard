@@ -1,4 +1,10 @@
-import { listFormatVersions, listMemberDecks, listRunEntrantDecks } from "@ps/db";
+import { canMoveRun } from "@ps/core";
+import {
+  listFormatVersions,
+  listMemberDecks,
+  listRunEntrantDecks,
+  listTournamentsByIds,
+} from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -15,7 +21,14 @@ import { currentViewer } from "@/lib/auth/viewer";
 import { loadRun } from "@/lib/runs/load-run";
 import { createSessionClient } from "@/lib/supabase/session";
 
-import { deleteDraftRunAction, moveRunAction, pairRoundAction, startRunAction } from "../actions";
+import {
+  deleteDraftRunAction,
+  finishRunAction,
+  moveRunAction,
+  pairCutRoundAction,
+  pairRoundAction,
+  startRunAction,
+} from "../actions";
 
 export const dynamic = "force-dynamic";
 
@@ -64,6 +77,15 @@ export default async function RunPage({
     viewer === null ? Promise.resolve([]) : listMemberDecks(client, viewer.profile.id),
   ]);
   const deckOf = new Map(decks.map((d) => [d.entrantId, d]));
+  const [tournament] =
+    run.tournamentId === null ? [] : await listTournamentsByIds(client, [run.tournamentId]);
+  const cutCanStart = run.state === "running" && canMoveRun(run, "top_cut", position).ok;
+  const cutCanPair =
+    run.state === "top_cut" && position.unconfirmedPairings === 0 && !position.cutFinished;
+  const canFinish =
+    run.state === "finished"
+      ? position.unconfirmedPairings === 0
+      : canMoveRun(run, "finished", position).ok;
   const latest = rounds.at(-1);
   // A round nobody has reported in yet can still be re-paired whole.
   const unplayed =
@@ -94,6 +116,16 @@ export default async function RunPage({
         {run.formatVersionIds.length > 0 && (
           <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">
             {run.formatVersionIds.map((v) => versionName.get(v) ?? "Unknown version").join(" · ")}
+          </p>
+        )}
+        {tournament !== undefined && (
+          <p className="mt-2 text-sm">
+            <Link
+              href={`/tournaments/${tournament.slug}`}
+              className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
+            >
+              Results on the site
+            </Link>
           </p>
         )}
         {run.description !== null && (
@@ -135,6 +167,24 @@ export default async function RunPage({
                 <input type="hidden" name="runId" value={run.id} />
                 <input type="hidden" name="repair" value="1" />
                 <button className={SECONDARY}>Re-pair round {latest?.number}</button>
+              </form>
+            )}
+            {(cutCanStart || cutCanPair) && (
+              <form action={pairCutRoundAction}>
+                <input type="hidden" name="runId" value={run.id} />
+                <button className={PRIMARY}>
+                  {cutCanStart
+                    ? `Start the top ${run.topCut}`
+                    : `Pair top cut round ${position.nextRound}`}
+                </button>
+              </form>
+            )}
+            {canFinish && (
+              <form action={finishRunAction}>
+                <input type="hidden" name="runId" value={run.id} />
+                <button className={run.state === "finished" ? SECONDARY : PRIMARY}>
+                  {run.state === "finished" ? "Import again" : "Finish and import"}
+                </button>
               </form>
             )}
             {!["finished", "cancelled"].includes(run.state) && (
@@ -190,6 +240,7 @@ export default async function RunPage({
             manages={manages}
             elimination={rounds.find((r) => r.id === pairing.roundId)?.kind === "elimination"}
             playing={run.state === "running" || run.state === "top_cut"}
+            correcting={run.state === "finished"}
             p1Name={entrants.find((e) => e.id === pairing.p1EntrantId)?.displayName ?? "Player 1"}
           />
         )}

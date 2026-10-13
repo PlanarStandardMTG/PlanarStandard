@@ -43,6 +43,7 @@ export function ResultControls({
   manages,
   elimination,
   playing,
+  correcting,
   p1Name,
 }: {
   runId: string;
@@ -51,11 +52,13 @@ export function ResultControls({
   viewerProfileId: ProfileId | null;
   manages: boolean;
   elimination: boolean;
-  /** Results change only while the run is being played. */
+  /** Players report only while the run is being played. */
   playing: boolean;
+  /** The organizer can also correct a finished run, then import it again (E26.21). */
+  correcting: boolean;
   p1Name: string;
 }) {
-  if (pairing.p2EntrantId === null || !playing) return null;
+  if (pairing.p2EntrantId === null || !(playing || (manages && correcting))) return null;
   const choices = resultChoices(elimination);
   const theirs = pairing.status === "reported" && pairing.reportedBy !== viewerProfileId;
   const reportedText = (() => {
@@ -68,7 +71,7 @@ export function ResultControls({
 
   return (
     <div className="mt-2 space-y-2 pl-9">
-      {side !== null && pairing.status !== "confirmed" && (
+      {playing && side !== null && pairing.status !== "confirmed" && (
         <div className="space-y-2">
           {theirs && (
             <form

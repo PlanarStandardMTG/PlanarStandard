@@ -2,7 +2,7 @@ import type { RunEntrant, RunPairing, RunRound, RunStructure } from "@ps/contrac
 
 import type { RunProgress } from "../run-state/index";
 import { runStandings } from "../standings/index";
-import { cutSeeds, nextCutRound } from "../top-cut/index";
+import { nextCutRound, runCutSeeds } from "../top-cut/index";
 
 export interface RunProgressInput {
   readonly run: RunStructure & { readonly seed: string };
@@ -30,9 +30,10 @@ export function runProgress({ run, entrants, rounds, pairings }: RunProgressInpu
 
   let cutFinished = false;
   if (cutPairings.length > 0) {
-    const seeds = cutSeeds(
+    const seeds = runCutSeeds(
       runStandings({ entrants, pairings: swissPairings, seed: run.seed }),
       run.topCut,
+      cutPairings,
     );
     cutFinished =
       nextCutRound({ seeds, entrants, pairings: cutPairings, round: lastRound + 1 }).kind ===

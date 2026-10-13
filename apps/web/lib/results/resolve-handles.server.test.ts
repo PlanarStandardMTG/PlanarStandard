@@ -81,6 +81,23 @@ describe.skipIf(!reachable)("lib/results/resolve-handles", () => {
     expect((created as { slug: string }).slug).toBe(`knight-${tag}-2`);
   });
 
+  it("names a new player after the name printed beside their handle (E26.21)", async () => {
+    const handle = `run-guest-${tag}`;
+    const result = await resolveEventHandles(
+      service,
+      "site",
+      [handle],
+      new Map([[handle, `Walk-in Sam ${tag}`]]),
+    );
+    const { data: created } = await service
+      .from("players")
+      .select("display_name, slug")
+      .eq("id", await playerOf(result.identities.get(handle)))
+      .single();
+
+    expect(created).toEqual({ display_name: `Walk-in Sam ${tag}`, slug: `walk-in-sam-${tag}` });
+  });
+
   it("commits nobody for two handles in one event that normalize alike", async () => {
     const result = await resolveEventHandles(service, "melee", [`Pawn ${tag}`, `pawn_${tag}`]);
 

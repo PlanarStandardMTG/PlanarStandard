@@ -77,6 +77,9 @@ export const RUN_DONE: Readonly<Record<string, string>> = {
   reported: "Reported. It counts once your opponent confirms it.",
   confirmed: "Confirmed.",
   "result-set": "Result saved.",
+  "cut-finished": "The top cut has a champion. Finish the run to import it.",
+  finished: "Finished and imported. It is on the tournaments page now.",
+  unchanged: "Nothing has changed since the last import.",
   registration: "Registration is open.",
   cancelled: "The run is cancelled.",
 };

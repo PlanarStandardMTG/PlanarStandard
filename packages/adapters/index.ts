@@ -12,6 +12,7 @@ export { challongeApi } from "./challonge-api/index";
 export { genericCsv } from "./generic-csv/index";
 export { manualEntry } from "./manual-entry/index";
 export { meleeApi } from "./melee-api/index";
+export { siteRun, siteRunInput } from "./site-run/index";
 
 // Shared by the delimited-text sources
 export { parseCsv } from "./parse-csv/index";

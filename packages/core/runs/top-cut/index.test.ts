@@ -2,7 +2,7 @@ import type { ProposedRunPairing, RunEntrant, RunPairing, RunStanding } from "@p
 import { describe, expect, it } from "vitest";
 
 import { runStandings } from "../standings/index";
-import { bracketOrder, cutSeeds, nextCutRound } from "./index";
+import { bracketOrder, cutSeeds, nextCutRound, runCutSeeds } from "./index";
 
 /** Seed `n` is entrant `sN`, so a failure reads as seeds. */
 const seeds = (n: number) => Array.from({ length: n }, (_, i) => `s${i + 1}`);
@@ -205,6 +205,20 @@ describe("core/runs/top-cut", () => {
       ["s2", "s3"],
       ["s1", null],
     ]);
+  });
+
+  it("keeps the seeds the first cut round was paired with, whoever drops later", () => {
+    const line = (entrantId: string, dropped = false) => ({ entrantId, dropped }) as RunStanding;
+    const standings = [line("s1"), line("s2", true), line("s3"), line("s4"), line("s5")];
+    const firstRound = favouritesWin(
+      [
+        { table: 1, p1EntrantId: "s1", p2EntrantId: "s4" },
+        { table: 2, p1EntrantId: "s2", p2EntrantId: "s3" },
+      ],
+      4,
+    );
+    expect(runCutSeeds(standings, 4, [])).toEqual(["s1", "s3", "s4", "s5"]);
+    expect(runCutSeeds(standings, 4, firstRound)).toEqual(["s1", "s2", "s3", "s4"]);
   });
 
   it("waits for every result, and treats a drawn cut match as not yet decided (MTR §2.4)", () => {

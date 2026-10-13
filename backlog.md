@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 21/29 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 22/29 |
 
 ---
 
@@ -1930,9 +1930,14 @@ intentional draw (0–0–3 when no games were played; none in the top cut), and
 change has a `run_result_changes` row naming who made it; a reported result nobody has confirmed
 does not count until the organizer accepts it.
 
-⬜ **E26.21 — Top cut and finish** · M · Deps: E26.20, E26.8, E26.10 — runs the bracket, then finishes:
+✅ **E26.21 — Top cut and finish** · M · Deps: E26.20, E26.8, E26.10 — runs the bracket, then finishes:
 the run's `ParsedEvent` goes through `ingest-event` into its own tournament. _AC:_ finishing again
 after a correction supersedes; the run appears on `/tournaments/[slug]` like any event.
+_Note:_ the run reaches `ingest-event` through a new adapter, `adapters/site-run`, which encodes
+the finished run as JSON and parses it back with `core/runs/to-parsed-event`, so the import path
+is the one every platform event takes. The organizer can still overrule a result once the run is
+finished, then import it again, which supersedes. A guest's new player is named with the name the
+organizer typed rather than their `run-guest-<id>` handle.
 
 ⬜ **E26.22 — Runs on the schedule** · S · Deps: E26.16 — a run past draft is listed on `/events` beside
 the Challonge and melee.gg ones, linking to its page in `/play`.
@@ -2086,6 +2091,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 21   |
+|      |         |      | E26  | 29      | 22   |
 
-**266 of 345 stories done across 26 epics.**
+**267 of 345 stories done across 26 epics.**

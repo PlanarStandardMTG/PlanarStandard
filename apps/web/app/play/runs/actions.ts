@@ -6,7 +6,9 @@ import {
   checkContactNames,
   checkRunDetails,
   gamesFromChoice,
+  nextCutRound,
   pairSwiss,
+  runCutSeeds,
 } from "@ps/core";
 import {
   addRunGuest,
@@ -31,6 +33,7 @@ import { redirect } from "next/navigation";
 
 import { requireRole } from "@/lib/auth/guard";
 import { loadRun } from "@/lib/runs/load-run";
+import { importFinishedRun } from "@/lib/runs/finish-run.server";
 import { checkRunDeck } from "@/lib/runs/run-deck";
 import { ensureSiteIdentity } from "@/lib/runs/site-identity.server";
 import { createSessionClient } from "@/lib/supabase/session";
@@ -449,4 +452,76 @@ export async function setResultAction(form: FormData): Promise<never> {
   }
   revalidatePath(back);
   redirect(`${back}?done=result-set`);
+}
+
+// ---------------------------------------------------------------------------
+// The top cut and finishing (E26.21)
+// ---------------------------------------------------------------------------
+
+/**
+ * Pairs the cut's next round, moving the run into the cut first when it is still in
+ * Swiss. Seeds come from the final Swiss standings and stay fixed once the cut starts.
+ */
+export async function pairCutRoundAction(form: FormData): Promise<never> {
+  await requireRole("organizer");
+  const runId = form.get("runId")?.toString() ?? "";
+  const back = `/play/runs/${runId}`;
+  const client = await createSessionClient();
+  const view = await loadRun(client, runId);
+  if (view === null) redirect("/play");
+  const { run, entrants, standings, position } = view;
+
+  if (run.state === "running") {
+    const move = canMoveRun(run, "top_cut", position);
+    if (!move.ok) redirect(`${back}?error=${move.reason}`);
+    await setRunState(client, runId, "top_cut");
+  } else if (run.state !== "top_cut") {
+    redirect(`${back}?error=not-a-move`);
+  }
+
+  const seeds = runCutSeeds(standings, run.topCut, position.cutPairings);
+  const next = nextCutRound({
+    seeds,
+    entrants,
+    pairings: position.cutPairings,
+    round: position.nextRound,
+  });
+  if (next.kind === "results-missing") redirect(`${back}?error=results-missing`);
+  if (next.kind === "finished") redirect(`${back}?done=cut-finished`);
+
+  await postRunRound(
+    client,
+    runId,
+    { number: position.nextRound, kind: "elimination" },
+    next.pairings,
+  );
+  revalidatePath(back);
+  redirect(`${back}?done=paired`);
+}
+
+/**
+ * Finishes the run and imports it: the first time it creates the run's tournament,
+ * and after a correction it supersedes the last import wholesale (§26).
+ */
+export async function finishRunAction(form: FormData): Promise<never> {
+  await requireRole("organizer");
+  const runId = form.get("runId")?.toString() ?? "";
+  const back = `/play/runs/${runId}`;
+  const client = await createSessionClient();
+  const view = await loadRun(client, runId);
+  if (view === null) redirect("/play");
+
+  if (view.run.state !== "finished") {
+    const move = canMoveRun(view.run, "finished", view.position);
+    if (!move.ok) redirect(`${back}?error=${move.reason}`);
+  } else if (view.position.unconfirmedPairings > 0) {
+    redirect(`${back}?error=results-missing`);
+  }
+
+  const report = await importFinishedRun(client, view);
+  if (view.run.state !== "finished") await setRunState(client, runId, "finished");
+  revalidatePath(back);
+  revalidatePath("/play");
+  revalidatePath(`/tournaments/${report.tournament.slug}`);
+  redirect(`${back}?done=${report.written ? "finished" : "unchanged"}`);
 }

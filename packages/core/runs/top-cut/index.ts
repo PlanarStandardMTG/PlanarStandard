@@ -21,6 +21,26 @@ export function cutSeeds(standings: readonly RunStanding[], topCut: number): Run
 }
 
 /**
+ * The cut's seeds for a run under way: fixed by its first round once it has one, so a
+ * player who drops during the cut keeps their bracket position and nobody moves up into
+ * it (MTR §2.10). Before that, `cutSeeds`.
+ */
+export function runCutSeeds(
+  standings: readonly RunStanding[],
+  topCut: number,
+  cutPairings: readonly RunPairing[],
+): RunEntrantId[] {
+  if (cutPairings.length === 0) return cutSeeds(standings, topCut);
+  const first = Math.min(...cutPairings.map((p) => p.round));
+  const inCut = new Set(
+    cutPairings
+      .filter((p) => p.round === first)
+      .flatMap((p) => (p.p2EntrantId === null ? [p.p1EntrantId] : [p.p1EntrantId, p.p2EntrantId])),
+  );
+  return standings.map((s) => s.entrantId).filter((id) => inCut.has(id));
+}
+
+/**
  * Seed numbers in bracket order for a power-of-two bracket: `[1, 8, 4, 5, 2, 7, 3, 6]`
  * for eight, so 1 v 8 and 4 v 5 feed one semifinal (MTR §10.4).
  */
