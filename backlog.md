@@ -1825,32 +1825,43 @@ Three rules shape every story below.
 ⬜ **E26.1 — `contracts/runs`** · S · Deps: E2.4 — `RunState`, `RunEntrant`, `RunRound`, `RunPairing`,
 `RunStanding`. _AC:_ nothing in it names Supabase or a table.
 
-⬜ **E26.2 — `core/runs/record`** · S · Deps: E26.1 — match points and a win–loss–draw record from
-pairings; a bye is a 2–0 win. _AC:_ an intentional draw, reported 0–0–3, scores as a draw.
+⬜ **E26.2 — `core/runs/record`** · S · Deps: E26.1 — match and game points and a win–loss–draw record
+from pairings, per MTR Appendix C. A bye is a 2–0 win (3 match points, 6 game points); an unfinished
+game is a draw; an unplayed game is worth nothing. _AC:_ an intentional draw with no games played,
+reported 0–0–3, gives each player 1 match point and 3 game points of 9.
 
 ⬜ **E26.3 — `core/runs/tiebreakers`** · M · Deps: E26.2 — opponents' match-win %, game-win % and
-opponents' game-win %, each floored at 33%, byes not counted as opponents. _AC:_ checked against a
-worked example from the Magic Tournament Rules, cited in the test.
+opponents' game-win %, at full precision (§28). Match-win % divides by the rounds the player played;
+each percentage is floored at 0.33, a player's own game-win % included; bye rounds are skipped in the
+opponents' averages. _AC:_ every worked example in MTR Appendix C passes. That includes its two
+opponents' match-win figures, ≈0.6164 and, with a first-round bye, ≈0.6330; the MTR prints them
+as 0.62 and 0.63.
 
-⬜ **E26.4 — `core/runs/standings`** · S · Deps: E26.3 — ordered standings; a dropped entrant keeps
-their place; an exact tie is broken by the seed.
+⬜ **E26.4 — `core/runs/standings`** · S · Deps: E26.3 — ordered by match points then the three
+tiebreakers (MTR §3.1); a dropped entrant keeps their place; one who dropped before round 1 is not
+listed; an exact tie is broken by the seed.
 
-⬜ **E26.5 — `core/runs/pair-swiss`** · L · Deps: E26.4 — round 1 random from the seed; later rounds by
-point group, top down, pairing down and never repeating a pairing. When no pairing exists, it says so
-rather than returning a bad one. _AC:_ a property test over random runs: no rematch, nobody paired
+⬜ **E26.5 — `core/runs/pair-swiss`** · L · Deps: E26.4 — common practice, since MTR §10.4 does not
+define the algorithm: round 1 random from the seed; later rounds by point group, top down, pairing
+down and never repeating a pairing. When no pairing exists, it says so rather than returning a bad one. _AC:_ a property test over random runs: no rematch, nobody paired
 twice, and the same seed gives the same pairings.
 
 ⬜ **E26.6 — `core/runs/assign-bye`** · S · Deps: E26.4 — the lowest-ranked entrant without a bye.
 
-⬜ **E26.7 — `core/runs/suggest-rounds`** · S · Deps: E26.1 — the Swiss round count for an entrant count;
-the organizer can override it.
+⬜ **E26.7 — `core/runs/suggest-rounds`** · S · Deps: E26.1 — Swiss rounds and a top cut to prefill for an
+entrant count, from MTR Appendix E's constructed column; 3 rounds and no cut for 5–8 entrants. Only
+a suggestion: the organizer may set any value. _AC:_ each row of Appendix E is a test case.
 
-⬜ **E26.8 — `core/runs/top-cut`** · M · Deps: E26.4 — single elimination seeded 1 v 8, 4 v 5 and so on,
-and who advances.
+⬜ **E26.8 — `core/runs/top-cut`** · M · Deps: E26.4 — single elimination with no draws, seeded per MTR
+§10.4 (1 v 8, 4 v 5, 2 v 7, 3 v 6; 1 v 4, 2 v 3), and who advances. _AC:_ a cut of any size works,
+byes going to the top seeds when it is not a power of two or is larger than the field; a player who
+drops is not replaced, and the highest-ranked remaining player gets a bye (§2.10); with no Swiss
+rounds, seeding comes from the run's seed.
 
 ⬜ **E26.9 — `core/runs/run-state`** · S · Deps: E26.1 — draft → registration → running → top cut →
 finished, or cancelled from anywhere, with what each move needs (two checked-in entrants to start,
-every pairing reported to finish). _AC:_ a refusal names its reason.
+every pairing reported to finish). A run with no Swiss rounds goes straight to the top cut, and one
+with no cut finishes after its last Swiss round. _AC:_ a refusal names its reason.
 
 ⬜ **E26.10 — `core/runs/to-parsed-event`** · M · Deps: E26.4, E26.8 — a finished run as a `ParsedEvent`
 with matches, standings, roster and decklists. _AC:_ the result passes the capability gating test
@@ -1884,8 +1895,9 @@ on `/admin/users`.
 **Running a run**
 
 ⬜ **E26.16 — Create and edit a run** · M · Deps: E26.9, E26.14 — organizers and admins: name, date,
-format versions, Swiss rounds (suggested by E26.7), top cut. _AC:_ a draft is visible only to its
-organizer and admins, and does not appear on `/tournaments`.
+format versions, and Swiss rounds and top cut, prefilled by E26.7 and free to change, including to no
+Swiss rounds. _AC:_ a draft is visible only to its organizer and admins, and does not appear on
+`/tournaments`.
 
 ⬜ **E26.17 — Register with a deck** · M · Deps: E26.16, E18.11 — a member with a profile handle
 registers, picks a saved deck or pastes one, and withdraws while registration is open. Registering
@@ -1894,14 +1906,15 @@ does the entrant list. _AC:_ editing the saved deck afterwards changes nothing i
 nobody can register once the run has started.
 
 ⬜ **E26.18 — Guests, check-in and drops** · S · Deps: E26.17 — before the run starts, the organizer
-adds a guest by name and Arena username and checks entrants in; during it, drops one. A dropped
-entrant is never paired again.
+adds a guest by name and Arena username and checks entrants in; during it, drops one. A drop counts
+from the next round not yet paired (MTR §2.10). A dropped entrant is never paired again and cannot
+re-enter.
 
 ⬜ **E26.19 — Pair a round** · M · Deps: E26.5, E26.6, E26.18 — pairs and posts the next round; a
 re-pair replaces an unplayed round whole.
 
 ⬜ **E26.20 — Report and confirm a result** · M · Deps: E26.19 — either player reports, including an
-intentional draw, and the other confirms; the organizer can enter or overrule any result. _AC:_ every
+intentional draw (0–0–3 when no games were played; none in the top cut), and the other confirms; the organizer can enter or overrule any result. _AC:_ every
 change has a `run_result_changes` row naming who made it; a reported result nobody has confirmed
 does not count until the organizer accepts it.
 
@@ -1926,8 +1939,8 @@ Home Screen app; the link still works in a browser.
 with a copy button, your record, and reporting your result.
 
 ⬜ **E26.26 — Pairings and standings, live** · M · Deps: E26.25 — a run's pairings and standings, kept
-current by Supabase Realtime while the page is open. _AC:_ a result reported on one phone shows on
-another without a reload.
+current by Supabase Realtime while the page is open. Standings show the three tiebreakers to two
+decimals. _AC:_ a result reported on one phone shows on another without a reload.
 
 ⬜ **E26.27 — Organizer controls in `/play`** · M · Deps: E26.26 — pair the next round once every
 result is in, chase a missing result, and overrule one, from a phone at the venue. Rounds have no

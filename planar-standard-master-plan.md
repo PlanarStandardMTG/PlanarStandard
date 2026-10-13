@@ -1103,19 +1103,61 @@ and the leaderboard, decks and tournament pages never show them. Only these peop
 
 A guest's Arena username sits on their entrant row under the same rules.
 
-**Pairings and standings** follow the Magic Tournament Rules, and `core` cites the section for each:
+**Scoring and standings** follow the Magic Tournament Rules (April 2025), and `core` cites the
+section for each rule:
 
-- Win 3, draw 1, loss 0; a bye is a 2–0 win.
-- An intentional draw is a match draw, reported as 0–0–3 in games, and scores like any other draw.
-- Tiebreakers are opponents' match-win %, game-win % and opponents' game-win %, each floored at 33%;
-  a bye is not an opponent.
+- **Match points:** win 3, draw 1, loss 0. A bye is a 2–0 win: 3 match points and 6 game points
+  (Appendix C).
+- **Game points:** win 3, draw 1, loss 0 per game. An unfinished game is a draw; an unplayed game is
+  worth nothing (Appendix C).
+- **Intentional draws:** with no games played, reported as 0–0–3, so 1 match point and 3 of 9 game
+  points each. After games were played, the games stand as played. A player who concedes having won
+  a game loses 2–1 (§2.5).
+- **Tiebreakers,** in order (§3.1, Appendix C):
+  1. match points
+  2. opponents' match-win %
+  3. game-win %
+  4. opponents' game-win %
+- **Match-win %** is match points over 3 × the rounds the player played, so a bye round counts and a
+  dropped player is measured over their own rounds. **Game-win %** is game points over 3 × games
+  played. Each is floored at 0.33, including a player's own game-win %. The opponents' averages
+  skip bye rounds.
+- **Precision:** percentages are compared at full precision, so fewer ties are exact. They are
+  displayed to two decimals, as the MTR prints them.
+- **Ties and derivation:** an exact tie is broken by the run's seed. Standings are derived on every
+  read (ADR 004).
+
+**Swiss pairing is common practice, not MTR.** §10.4 names the Swiss algorithm without defining it,
+so the pairing rules follow what tournament software usually does:
+
 - Round 1 is random from the run's stored seed, so re-pairing it gives the same result.
 - Later rounds pair within point groups, top down, pairing down when a group is odd and never
   repeating a pairing. When no such pairing exists, the code says so and the organizer decides.
 - The bye goes to the lowest-ranked entrant who has not had one.
-- The top cut is single elimination, seeded from the final Swiss standings.
-- Standings are derived on every read (ADR 004).
 - Posted pairings are facts: a re-pair replaces an unplayed round whole and never edits a pairing.
+
+**The structure is the organizer's.** Swiss rounds and the top cut are fields on the run. They are
+prefilled with a suggestion from Appendix E, but any value is allowed, whatever the event's size;
+the flow then does the best the rules allow.
+
+- With 5–8 entrants, where Appendix E would run single elimination, the suggestion is 3 Swiss rounds
+  and no cut.
+- Zero Swiss rounds means straight single elimination, seeded by the seed.
+- More Swiss rounds than the field can pair without rematches reaches the "no such pairing" case
+  above.
+
+**The top cut** is single elimination with no draws (§2.4):
+
+- **Seeding** comes from the final Swiss standings: 1 v 8, 4 v 5, 2 v 7, 3 v 6 in a top 8, with
+  the winners of 1/8 and 4/5 meeting; 1 v 4 and 2 v 3 in a top 4 (§10.4).
+- **Short brackets:** a cut of any other size, or one larger than the field, gives byes to the top
+  seeds.
+- **Drops in the cut:** no one replaces a player who drops; the highest-ranked remaining player gets
+  a bye instead (§2.10).
+
+**Drops.** A drop counts for the next round only if it comes in before that round is paired; after
+that, the player is paired anyway (§2.10). A player who drops before round 1 is not listed in the
+final standings. A dropped player cannot re-enter.
 
 **Registration and rounds.** Registration is open until the organizer starts the run, and nobody is
 added after that: there is no late-entry logic. Rounds have no timer. The organizer starts the next
@@ -1251,3 +1293,15 @@ Identity and ratings precede decks: the leaderboard is what makes the site matte
 12. Late registration, intentional draws, and a shared round timer: wanted at first, or later?
 
 - Intentional draws now, scored as a draw. No late registration and no round timer
+
+13. How does Swiss pairing work, given that the MTR (§10.4) names the algorithm without defining it?
+
+- Common practice, as §28 lays out
+
+14. How many Swiss rounds, and what top cut, for an event's size?
+
+- The organizer's choice, prefilled from MTR Appendix E; any value works, including no Swiss rounds
+
+15. May a player who dropped re-enter?
+
+- No
