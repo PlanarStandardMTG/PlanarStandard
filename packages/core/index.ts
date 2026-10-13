@@ -307,3 +307,6 @@ export {
   tiebreakers,
 } from "./runs/tiebreakers/index";
 export type { Tiebreakers } from "./runs/tiebreakers/index";
+export { seededRandom, seededShuffle } from "./runs/seeded-random/index";
+export { runStandings } from "./runs/standings/index";
+export type { StandingsInput } from "./runs/standings/index";

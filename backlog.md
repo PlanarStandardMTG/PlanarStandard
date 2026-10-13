@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 3/29  |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 4/29  |
 
 ---
 
@@ -1837,7 +1837,7 @@ opponents' averages. _AC:_ every worked example in MTR Appendix C passes. That i
 opponents' match-win figures, ≈0.6164 and, with a first-round bye, ≈0.6330; the MTR prints them
 as 0.62 and 0.63.
 
-⬜ **E26.4 — `core/runs/standings`** · S · Deps: E26.3 — ordered by match points then the three
+✅ **E26.4 — `core/runs/standings`** · S · Deps: E26.3 — ordered by match points then the three
 tiebreakers (MTR §3.1); a dropped entrant keeps their place; one who dropped before round 1 is not
 listed; an exact tie is broken by the seed.
 
@@ -2065,6 +2065,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 3    |
+|      |         |      | E26  | 29      | 4    |
 
-**248 of 345 stories done across 26 epics.**
+**249 of 345 stories done across 26 epics.**
