@@ -73,7 +73,7 @@ export function EventCard({
             >
               Results and decks <span aria-hidden="true">→</span>
             </Link>
-            {event.url !== null && (
+            {event.url !== null && event.source !== "site" && (
               <a
                 href={event.url}
                 target="_blank"
@@ -84,6 +84,15 @@ export function EventCard({
               </a>
             )}
           </div>
+        ) : event.source === "site" && event.url !== null ? (
+          // A run on the site: its page is ours, in the play app (E26.22).
+          <Link
+            href={event.url}
+            className="shrink-0 text-sm font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
+          >
+            {finished ? "Final standings" : "Pairings and standings"}{" "}
+            <span aria-hidden="true">→</span>
+          </Link>
         ) : event.url !== null ? (
           <a
             href={event.url}

@@ -16,6 +16,7 @@ run-state       which state a run may move to, and why not
 run-progress    the facts run-state judges a move by
 run-details     an organizer's name, formats and structure
 result-choice   the results a pairing can be given         MTR §2.4, §2.5
+schedule-entry  a run as an event on /events
 to-parsed-event a finished run, ready for ingest-event     ADR 006, ADR 015
 seeded-random   the only randomness, from the run's seed
 ```

@@ -45,14 +45,10 @@ import { resolveEventHandles } from "@/lib/results/resolve-handles.server";
  * supersedes the earlier import and replaces the matches wholesale (§26).
  */
 
-/**
- * Where an event came from: a calendar's platform, or `site` for a run played here
- * (E26.21). It is also the identity platform the event's handles resolve on.
- */
-export type IngestPlatform = EventSource | "site";
 
 export interface IngestSource {
-  readonly source: IngestPlatform;
+  /** Also the identity platform the event's handles resolve on; `site` for a run (E26.21). */
+  readonly source: EventSource;
   readonly externalId: string;
   readonly adapter: ResultsAdapter;
   readonly input: RawInput;

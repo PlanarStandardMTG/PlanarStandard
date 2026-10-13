@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 22/29 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 23/29 |
 
 ---
 
@@ -1939,7 +1939,7 @@ is the one every platform event takes. The organizer can still overrule a result
 finished, then import it again, which supersedes. A guest's new player is named with the name the
 organizer typed rather than their `run-guest-<id>` handle.
 
-⬜ **E26.22 — Runs on the schedule** · S · Deps: E26.16 — a run past draft is listed on `/events` beside
+✅ **E26.22 — Runs on the schedule** · S · Deps: E26.16 — a run past draft is listed on `/events` beside
 the Challonge and melee.gg ones, linking to its page in `/play`.
 
 **The play app**
@@ -2091,6 +2091,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 22   |
+|      |         |      | E26  | 29      | 23   |
 
-**267 of 345 stories done across 26 epics.**
+**268 of 345 stories done across 26 epics.**

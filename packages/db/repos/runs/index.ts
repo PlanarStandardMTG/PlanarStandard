@@ -188,6 +188,24 @@ export async function listLiveRuns(client: SupabaseClient): Promise<readonly Run
   return (data as unknown as RunRow[]).map(toRun);
 }
 
+/** A run on the schedule, with how many have entered. */
+export interface ScheduledRun {
+  readonly run: Run;
+  readonly entrantCount: number;
+}
+
+/** Every run past draft and not cancelled, for `/events` (E26.22). */
+export async function listScheduledRuns(client: SupabaseClient): Promise<readonly ScheduledRun[]> {
+  const { data, error } = await client
+    .from("tournament_runs")
+    .select(`${RUN_COLUMNS}, run_entrants(count)`)
+    .in("state", ["registration", "running", "top_cut", "finished"]);
+  if (error !== null) fail("listScheduledRuns", error);
+  return (data as unknown as Array<RunRow & { run_entrants: Array<{ count: number }> }>).map(
+    (row) => ({ run: toRun(row), entrantCount: row.run_entrants[0]?.count ?? 0 }),
+  );
+}
+
 /** The tournament a finished run was imported into (E26.21). Service-role: a client may not set it. */
 export async function linkRunTournament(
   serviceClient: SupabaseClient,

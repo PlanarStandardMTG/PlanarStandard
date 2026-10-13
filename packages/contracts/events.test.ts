@@ -71,8 +71,8 @@ describe("events contracts", () => {
     expectTypeOf(empty).toExtend<EventSchedule>();
   });
 
-  it("names every calendar the site caches, and nothing about how results arrive", () => {
-    expectTypeOf<EventSource>().toEqualTypeOf<"challonge" | "melee">();
+  it("names every calendar the schedule shows, the site's own runs included", () => {
+    expectTypeOf<EventSource>().toEqualTypeOf<"challonge" | "melee" | "site">();
   });
 
   it("describes a melee.gg event with the same fields as a Challonge one", () => {

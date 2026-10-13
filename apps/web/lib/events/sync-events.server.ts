@@ -9,6 +9,7 @@ import {
   newlyCompleted,
   parseChallongeEvents,
   parseMeleeEvents,
+  runScheduleEntry,
   syncCutoff,
 } from "@ps/core";
 import {
@@ -16,6 +17,7 @@ import {
   getSyncState,
   listAllCachedEvents,
   listCachedEvents,
+  listScheduledRuns,
   listSourcedTournaments,
   recordCompletions,
   recordSyncResult,
@@ -103,13 +105,21 @@ export async function loadEvents(now: Date = new Date()): Promise<EventsView> {
   await Promise.all(calendars.map((calendar) => refreshIfDue(calendar, now)));
 
   const publicClient = createPublicClient();
-  const [events, syncs, sourced] = await Promise.all([
+  const [cached, runs, syncs, sourced] = await Promise.all([
     listAllCachedEvents(publicClient),
+    // Runs on the site join the calendars uncached: they are rows here already (E26.22).
+    listScheduledRuns(publicClient),
     // The sync ledger has no read policy, so "when was this last refreshed"
     // needs the service-role client even though the answer is shown publicly.
     readSyncStates(calendars),
     listSourcedTournaments(publicClient),
   ]);
+
+  const seenAt = now.toISOString();
+  const events = [
+    ...cached,
+    ...runs.flatMap(({ run, entrantCount }) => runScheduleEntry(run, entrantCount, seenAt) ?? []),
+  ];
 
   return {
     // Every finished event, not the last month's: `/events` pages through them.
