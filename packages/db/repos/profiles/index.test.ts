@@ -6,7 +6,9 @@ import {
   getProfile,
   getProfileByHandle,
   getProfileByUserId,
+  getProfileContacts,
   listMembers,
+  saveProfileContacts,
   setMemberBanned,
   setMemberRole,
   updateProfile,
@@ -171,6 +173,37 @@ suite("repos/profiles", () => {
       }
     });
 
+    it("keeps a person's contact names to themself, and clears them on request (E26.15)", async () => {
+      await saveProfileContacts(owner, {
+        profileId: ownerId,
+        arenaUsername: "Chandra#12345",
+        discordName: "chandra",
+      });
+
+      expect(await getProfileContacts(owner, ownerId)).toEqual({
+        profileId: ownerId,
+        arenaUsername: "Chandra#12345",
+        discordName: "chandra",
+      });
+      expect(await getProfileContacts(anon, ownerId)).toBeNull();
+
+      const neighbour = await owner
+        .from("profile_contacts")
+        .insert({ profile_id: neighbourId, arena_username: "Forged#1" });
+      expect(neighbour.error?.code).toBe("42501");
+
+      await saveProfileContacts(owner, {
+        profileId: ownerId,
+        arenaUsername: null,
+        discordName: null,
+      });
+      const { data } = await service
+        .from("profile_contacts")
+        .select("profile_id")
+        .eq("profile_id", ownerId);
+      expect(data).toEqual([]);
+    });
+
     it("lets a person edit their own profile", async () => {
       const saved = await updateProfile(owner, ownerId, {
         displayName: "Chandra",
@@ -218,8 +251,18 @@ suite("repos/profiles", () => {
     const transient = data.user?.id ?? "";
     const profile = await getProfileByUserId(service, transient);
     expect(profile?.displayName).toBe("Briefly Here");
+    await service
+      .from("profile_contacts")
+      .insert({ profile_id: profile?.id, arena_username: "BrieflyHere#40213" });
 
     await service.auth.admin.deleteUser(transient);
+
+    // Contact names are personal data too (E26.15).
+    const { data: contacts } = await service
+      .from("profile_contacts")
+      .select("profile_id")
+      .eq("profile_id", profile?.id ?? "");
+    expect(contacts).toEqual([]);
 
     // The row survives: eight tables reference `profiles` and two of those
     // columns are `not null`, so deleting it is not something the schema allows.

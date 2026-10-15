@@ -37,10 +37,17 @@ export interface Player {
   readonly createdAt: IsoDateTime;
 }
 
-export type IdentityPlatform = "discord" | "challonge" | "melee" | "mtgo" | "arena" | "manual";
+/** `site` is a member's profile handle, for events run on the site itself (E26.11). */
+export type IdentityPlatform =
+  "discord" | "challonge" | "melee" | "mtgo" | "arena" | "manual" | "site";
 
+/** `member_registered` is a member's site handle, written when they register for a run (E26.17). */
 export type IdentitySource =
-  "import_inferred" | "admin_assigned" | "discord_oauth" | "organizer_entered";
+  | "import_inferred"
+  | "admin_assigned"
+  | "discord_oauth"
+  | "organizer_entered"
+  | "member_registered";
 
 /**
  * A handle as one platform spelled it. An unseen handle is a new person until an admin

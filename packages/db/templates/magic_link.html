@@ -80,8 +80,8 @@
                   Sign in to Planar Standard
                 </h1>
                 <p style="margin: 0 0 16px">
-                  Here is the sign-in link you requested. It can be used once and expires in one
-                  hour.
+                  Here is the sign-in link you requested. It and the code below can be used once and
+                  expire in one hour.
                 </p>
                 <p style="margin: 24px 0">
                   {{ if or (eq .RedirectTo "") (eq .RedirectTo .SiteURL) }}
@@ -113,6 +113,18 @@
                     >Sign in</a
                   >
                   {{ end }}
+                </p>
+                <p style="margin: 0 0 8px">Or, in the Planar Standard Play app, type this code:</p>
+                <p
+                  style="
+                    margin: 0 0 24px;
+                    font-family: ui-monospace, Menlo, Consolas, monospace;
+                    font-size: 28px;
+                    font-weight: 700;
+                    letter-spacing: 6px;
+                  "
+                >
+                  {{ .Token }}
                 </p>
                 <p style="margin: 0 0 16px">Welcome back.</p>
                 <p style="margin: 24px 0 0">— The Planar Standard team</p>

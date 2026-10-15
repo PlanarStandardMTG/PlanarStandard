@@ -3,7 +3,7 @@
 // If a function needs data, it takes it as an argument.
 // Modules land under core/<area>/<name>/ per §8 of the master plan
 // (decklist, legality, metrics, similarity, elo, identity, stats, reddit,
-// results, content, events, auth).
+// results, content, events, auth, runs).
 
 // stats — presentation-safe aggregation (§8.7)
 export { wilson } from "./stats/wilson/index";
@@ -183,6 +183,8 @@ export {
   checkProfileHandle,
 } from "./auth/profile-handle/index";
 export type { HandleCheck, HandleProblem } from "./auth/profile-handle/index";
+export { CONTACT_NAME_MAX_LENGTH, checkContactNames } from "./auth/contact-names/index";
+export type { ContactNameProblem, ContactNamesCheck } from "./auth/contact-names/index";
 export {
   PASSWORD_MAX_BYTES,
   PASSWORD_MIN_LENGTH,
@@ -295,3 +297,41 @@ export { eventRounds } from "./results/event-rounds/index";
 export type { EventRound, RoundMatch } from "./results/event-rounds/index";
 export { readDecklistSheet } from "./results/decklist-sheet/index";
 export type { DecklistSheet, SheetDeck, SheetEntry } from "./results/decklist-sheet/index";
+
+// runs — an event run on the site, from pairings to standings (§28, E26)
+export { countedGames, isCounted, runRecords } from "./runs/record/index";
+export {
+  gameWinPct,
+  matchWinPct,
+  opponentsAverage,
+  opponentsOf,
+  PERCENTAGE_FLOOR,
+  tiebreakers,
+} from "./runs/tiebreakers/index";
+export type { Tiebreakers } from "./runs/tiebreakers/index";
+export { seededRandom, seededShuffle } from "./runs/seeded-random/index";
+export { runStandings } from "./runs/standings/index";
+export type { StandingsInput } from "./runs/standings/index";
+export { assignBye, byeCandidates } from "./runs/assign-bye/index";
+export { isPairable, pairSwiss } from "./runs/pair-swiss/index";
+export type { PairSwissInput, PairSwissResult } from "./runs/pair-swiss/index";
+export { suggestRounds } from "./runs/suggest-rounds/index";
+export { bracketOrder, cutSeeds, nextCutRound, runCutSeeds } from "./runs/top-cut/index";
+export type { CutRound, CutRoundInput } from "./runs/top-cut/index";
+export { canMoveRun, runMoves } from "./runs/run-state/index";
+export type { RunMove, RunMoveRefusal, RunProgress } from "./runs/run-state/index";
+export { runEntrantHandle, toParsedEvent } from "./runs/to-parsed-event/index";
+export type { FinishedRun } from "./runs/to-parsed-event/index";
+export {
+  checkRunDetails,
+  MAX_SWISS_ROUNDS,
+  MAX_TOP_CUT,
+  RUN_NAME_MAX_LENGTH,
+} from "./runs/run-details/index";
+export type { RunDetailsInput, RunDetailsProblem } from "./runs/run-details/index";
+export { runProgress } from "./runs/run-progress/index";
+export type { RunPosition, RunProgressInput } from "./runs/run-progress/index";
+export { gamesFromChoice, resultChoices } from "./runs/result-choice/index";
+export type { ResultChoice } from "./runs/result-choice/index";
+export { runScheduleEntry } from "./runs/schedule-entry/index";
+export { roundTitles } from "./runs/round-title/index";

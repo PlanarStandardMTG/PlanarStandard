@@ -46,6 +46,7 @@ import { resolveEventHandles } from "@/lib/results/resolve-handles.server";
  */
 
 export interface IngestSource {
+  /** Also the identity platform the event's handles resolve on; `site` for a run (E26.21). */
   readonly source: EventSource;
   readonly externalId: string;
   readonly adapter: ResultsAdapter;
@@ -95,7 +96,12 @@ export async function ingestEvent(
   const contentHash = createHash("sha256").update(event.input.bytes).digest("hex");
   const existing = await findImportByContentHash(service, tournament.id, contentHash);
   if (existing?.status === "committed") {
-    const resolved = await resolveEventHandles(service, event.source, eventHandles(parsed));
+    const resolved = await resolveEventHandles(
+      service,
+      event.source,
+      eventHandles(parsed),
+      rosterNames(parsed),
+    );
     await writeEntries(service, tournament, parsed, resolved.players);
     const decks = await writeDecklists(service, tournament, parsed, resolved.players);
     return { tournament, written: false, matches: 0, issues: parsed.issues, rated: false, decks };
@@ -132,7 +138,12 @@ export async function ingestEvent(
     })),
   );
 
-  const resolved = await resolveEventHandles(service, event.source, eventHandles(parsed));
+  const resolved = await resolveEventHandles(
+    service,
+    event.source,
+    eventHandles(parsed),
+    rosterNames(parsed),
+  );
   const ledger = ledgerMatches(parsedMatches, resolved.identities);
   const committed = await replaceTournamentMatches(
     service,
@@ -163,6 +174,17 @@ export async function ingestEvent(
     rated: tournament.isRated,
     decks,
   };
+}
+
+/** The names the source printed beside its handles, for the players a miss creates. */
+function rosterNames(parsed: ParsedEvent): ReadonlyMap<string, string> {
+  return new Map(
+    (parsed.roster ?? []).flatMap((entry) =>
+      entry.displayName === undefined || entry.displayName.trim() === ""
+        ? []
+        : [[entry.handle, entry.displayName.trim()] as const],
+    ),
+  );
 }
 
 /** Everyone the pairings or the standings name. */

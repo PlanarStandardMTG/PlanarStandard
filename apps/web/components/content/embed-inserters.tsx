@@ -7,7 +7,7 @@ import {
   listFinisherOptions,
   uploadPostImage,
   type FinisherOption,
-} from "@/app/dashboard/community/actions";
+} from "@/app/(site)/dashboard/community/actions";
 import { cn } from "@/lib/cn";
 
 /**

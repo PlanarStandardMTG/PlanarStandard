@@ -4,7 +4,7 @@ import type { CardRuling } from "@ps/contracts";
 import { FORMAT_NAME_MAX, type CardRuleInput, type FormatDraftProblem } from "@ps/core";
 import { startTransition, useActionState, useState, type FormEvent } from "react";
 
-import { saveFormat, type FormatSaveState } from "@/app/admin/formats/actions";
+import { saveFormat, type FormatSaveState } from "@/app/(site)/admin/formats/actions";
 
 import { LegalSetList } from "./legal-set-list";
 

@@ -12,7 +12,7 @@ import {
 
 import Link from "next/link";
 
-import { checkDraft, saveDeck, type DraftCheck, type SaveState } from "@/app/decks/actions";
+import { checkDraft, saveDeck, type DraftCheck, type SaveState } from "@/app/(site)/decks/actions";
 import type { FormatOption } from "@/components/decks/format-labels";
 import { loginHref } from "@/lib/auth/next-path";
 import { keepDraft, takeDraft } from "@/lib/decks/draft-handoff";

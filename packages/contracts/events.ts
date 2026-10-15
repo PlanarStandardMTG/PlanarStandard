@@ -11,8 +11,11 @@ import type { ExternalEventId, IsoDateTime } from "./primitives";
  * adapter (§9) that knows nothing about this table. The site's own view of what
  * is on is not per-platform, so nothing downstream of the cache branches on this
  * value except the label on a card.
+ *
+ * `site` is an event run here (E26.22): never cached or synced, it joins the schedule
+ * straight from `tournament_runs`, and its results arrive through `adapters/site-run`.
  */
-export type EventSource = "challonge" | "melee";
+export type EventSource = "challonge" | "melee" | "site";
 
 /**
  * Where an event is in its life, reduced to the three states a schedule can show.

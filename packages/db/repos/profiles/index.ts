@@ -1,7 +1,14 @@
-import type { Profile, ProfileId, UserRole } from "@ps/contracts";
+import type { Profile, ProfileContacts, ProfileId, UserRole } from "@ps/contracts";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
-import { PROFILE_COLUMNS, toProfile, type ProfileRow } from "./rows";
+import {
+  PROFILE_COLUMNS,
+  PROFILE_CONTACTS_COLUMNS,
+  toProfile,
+  toProfileContacts,
+  type ProfileContactsRow,
+  type ProfileRow,
+} from "./rows";
 
 /**
  * Reads and writes over `profiles` (E16.4).
@@ -196,4 +203,59 @@ export async function adminRemoveMemberContent(
     decksDeleted: row.decks_deleted,
     decksHidden: row.decks_hidden,
   };
+}
+
+/**
+ * A member's Arena username and Discord name (E26.15), or null when they have set
+ * neither or the caller may not see them — `profile_contacts`' policies decide which
+ * (§28), so this cannot tell the two apart and does not try.
+ */
+export async function getProfileContacts(
+  client: SupabaseClient,
+  profileId: ProfileId,
+): Promise<ProfileContacts | null> {
+  const { data, error } = await client
+    .from("profile_contacts")
+    .select(PROFILE_CONTACTS_COLUMNS)
+    .eq("profile_id", profileId)
+    .maybeSingle();
+
+  if (error !== null) throw new Error(`getProfileContacts failed: ${error.message}`);
+  return data === null ? null : toProfileContacts(data as unknown as ProfileContactsRow);
+}
+
+/** Every member's contact names the caller may read, by profile — the admin users page. */
+export async function listProfileContacts(
+  client: SupabaseClient,
+): Promise<ReadonlyMap<ProfileId, ProfileContacts>> {
+  const { data, error } = await client.from("profile_contacts").select(PROFILE_CONTACTS_COLUMNS);
+
+  if (error !== null) throw new Error(`listProfileContacts failed: ${error.message}`);
+  return new Map(
+    (data as unknown as ProfileContactsRow[]).map((row) => [
+      row.profile_id as ProfileId,
+      toProfileContacts(row),
+    ]),
+  );
+}
+
+/**
+ * Save the caller's own contact names. Both null removes the row, so a member who
+ * clears them leaves nothing behind. Under their own client: the policies allow
+ * only their own row.
+ */
+export async function saveProfileContacts(
+  client: SupabaseClient,
+  contacts: ProfileContacts,
+): Promise<void> {
+  const { error } =
+    contacts.arenaUsername === null && contacts.discordName === null
+      ? await client.from("profile_contacts").delete().eq("profile_id", contacts.profileId)
+      : await client.from("profile_contacts").upsert({
+          profile_id: contacts.profileId,
+          arena_username: contacts.arenaUsername,
+          discord_name: contacts.discordName,
+        });
+
+  if (error !== null) throw new Error(`saveProfileContacts failed: ${error.message}`);
 }
