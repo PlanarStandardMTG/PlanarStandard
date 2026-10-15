@@ -125,6 +125,37 @@ describe("core/runs/standings", () => {
     expect(order(standings)).toEqual(["a", "b"]);
   });
 
+  it("shows the standings as they stood after an earlier round", () => {
+    const pairings = [
+      played(1, "a", "b", [2, 0, 0]),
+      played(1, "c", "d", [2, 0, 0]),
+      played(2, "b", "a", [2, 0, 0]),
+      played(2, "d", "c", [2, 1, 0]),
+    ];
+    const entrants = [
+      entrant("a"),
+      entrant("b", { droppedAfterRound: 2 }),
+      entrant("c"),
+      entrant("d"),
+    ];
+    const afterOne = runStandings({ entrants, pairings, seed: "s", throughRound: 1 });
+
+    expect(afterOne.find((s) => s.entrantId === "a")).toMatchObject({
+      matchPoints: 3,
+      roundsPlayed: 1,
+    });
+    expect(afterOne.find((s) => s.entrantId === "b")).toMatchObject({
+      matchPoints: 0,
+      dropped: false,
+    });
+    expect(
+      runStandings({ entrants, pairings, seed: "s" }).find((s) => s.entrantId === "b"),
+    ).toMatchObject({
+      matchPoints: 3,
+      dropped: true,
+    });
+  });
+
   it("breaks an exact tie by the seed, the same way on every read", () => {
     const entrants = ["a", "b", "c", "d", "e", "f"].map((id) => entrant(id));
     const read = (seed: string) => order(runStandings({ entrants, pairings: [], seed }));

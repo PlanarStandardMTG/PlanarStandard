@@ -25,15 +25,13 @@ type RunPageProblem =
 export const RUN_ERRORS: Readonly<
   Record<RunDetailsProblem | RunMoveRefusal | RunPageProblem, string>
 > = {
-  "no-handle": "Set a handle on your profile first: your matches are recorded under it.",
+  "no-handle": "Set a handle on your profile first.",
   "registration-closed": "Registration is not open.",
   "deck-empty": "Choose one of your decks or paste a list.",
   "deck-long": "That list is too long.",
-  "deck-unreadable":
-    "Some lines of that list could not be read. Check it in the deck editor first.",
+  "deck-unreadable": "Some lines of that list could not be read.",
   "deck-locked": "Decks are locked once the event starts.",
-  "handle-clash":
-    "Another player already plays under a handle like yours. Ask an admin, or change your handle.",
+  "handle-clash": "That handle is taken by another player. Change yours or ask an admin.",
   "already-registered": "You are already registered.",
   "not-withdrawable": "Entries are fixed once the event starts.",
   "guest-name": "A guest needs a name of up to 60 characters.",
@@ -42,11 +40,9 @@ export const RUN_ERRORS: Readonly<
   "not-running": "That is done while the event is being played.",
   "swiss-rounds-done": "Every Swiss round has been paired.",
   "round-has-results": "A result is in, so this round can no longer be re-paired.",
-  "result-refused":
-    "That result cannot be changed by you now: a confirmed result is the organizer's to change.",
-  "result-invalid": "That result is not possible here. The top cut has no draws.",
-  "no-pairing-without-rematch":
-    "No pairing avoids a rematch. Reduce the Swiss rounds, or move on to the cut or finish.",
+  "result-refused": "Only the organizer can change a confirmed result.",
+  "result-invalid": "That result isn't allowed here.",
+  "no-pairing-without-rematch": "No pairing avoids a rematch. Reduce the Swiss rounds.",
   "name-empty": "An event needs a name.",
   "name-long": "That name is too long.",
   "no-format": "Tick at least one format version.",
@@ -54,7 +50,7 @@ export const RUN_ERRORS: Readonly<
   "top-cut": "The top cut must be a whole number from 0 to 512.",
   "nothing-to-play": "With no Swiss rounds, the event needs a top cut of at least 2.",
   "not-a-move": "The event cannot move there from where it is.",
-  "too-few-entrants": "At least two entrants must be checked in to start.",
+  "too-few-entrants": "Check in at least two players to start.",
   "has-swiss-rounds": "Play the Swiss rounds before the top cut.",
   "no-swiss-rounds": "This event has no Swiss rounds: start the top cut.",
   "no-top-cut": "This event has no top cut.",
@@ -66,25 +62,24 @@ export const RUN_ERRORS: Readonly<
 
 export const RUN_DONE: Readonly<Record<string, string>> = {
   saved: "Saved.",
-  registered: "You are registered. Your deck can change until the event starts.",
-  deck: "Your deck is updated.",
+  registered: "Registered.",
+  deck: "Deck updated.",
   withdrawn: "Withdrawn.",
   guest: "Guest added.",
-  dropped: "Dropped. They will not be paired again.",
-  started: "The event has started. Entries and decks are locked.",
-  paired: "The round is paired.",
-  repaired: "The round is re-paired.",
-  reported: "Reported. It counts once your opponent confirms it.",
+  dropped: "Dropped.",
+  started: "Started.",
+  paired: "Paired.",
+  repaired: "Re-paired.",
+  reported: "Reported.",
   confirmed: "Confirmed.",
   "result-set": "Result saved.",
-  "cut-finished": "The top cut has a champion. Finish the run to import it.",
-  finished: "Finished and imported. It is on the tournaments page now.",
-  unchanged: "Nothing has changed since the last import.",
-  chased: "Both players have been nudged.",
-  "chase-unsent":
-    "Nobody could be nudged: neither player has notifications on. Find them at the table.",
-  registration: "Registration is open.",
-  cancelled: "The event is cancelled.",
+  "cut-finished": "Top cut complete.",
+  finished: "Finished.",
+  unchanged: "No changes to import.",
+  chased: "Players notified.",
+  "chase-unsent": "Neither player has notifications on.",
+  registration: "Registration open.",
+  cancelled: "Cancelled.",
 };
 
 export const STATE_LABEL: Readonly<Record<string, string>> = {

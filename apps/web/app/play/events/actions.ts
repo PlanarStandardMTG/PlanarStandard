@@ -32,6 +32,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { requireRole } from "@/lib/auth/guard";
+import { deckAsText } from "@/lib/decks/deck-text";
 import { loadRun } from "@/lib/runs/load-run";
 import { importFinishedRun } from "@/lib/runs/finish-run.server";
 import { checkRunDeck } from "@/lib/runs/run-deck";
@@ -145,8 +146,10 @@ async function chosenList(
   const deckId = form.get("deckId")?.toString() ?? "";
   if (deckId !== "") {
     const deck = await getDeckWithCards(client, deckId);
-    if (deck === null || deck.ownerId !== ownerId || deck.rawImport === null) return null;
-    return { deckId, text: deck.rawImport };
+    if (deck === null || deck.ownerId !== ownerId) return null;
+    // A deck saved before lists were kept as text has only its cards.
+    const text = deck.rawImport ?? deckAsText(deck.cards);
+    return text.trim() === "" ? null : { deckId, text };
   }
   const text = form.get("decklist")?.toString() ?? "";
   return text.trim() === "" ? null : { deckId: null, text };
@@ -374,12 +377,23 @@ export async function pairRoundAction(form: FormData): Promise<never> {
   }
   await notifyRoundPaired(runId, number);
   revalidatePath(back);
-  redirect(`${back}?done=${repair ? "repaired" : "paired"}`);
+  redirect(`${back}?round=${number}&done=${repair ? "repaired" : "paired"}`);
 }
 
 // ---------------------------------------------------------------------------
 // Results (E26.20)
 // ---------------------------------------------------------------------------
+
+/** The event page a form came from, keeping its tab (`?round=3`) when it had one. */
+function backTo(runId: string, form: FormData): string {
+  const round = form.get("view")?.toString() ?? "";
+  return /^\d+$/.test(round) ? `/play/events/${runId}?round=${round}` : `/play/events/${runId}`;
+}
+
+/** `back` with one more query parameter, whether or not it already has some. */
+function withQuery(back: string, query: string): string {
+  return `${back}${back.includes("?") ? "&" : "?"}${query}`;
+}
 
 /** The pairing a result form names, its round's kind, and which side the caller plays. */
 async function pairingFor(form: FormData, profileId: string) {
@@ -400,13 +414,13 @@ async function pairingFor(form: FormData, profileId: string) {
           ? ("p2" as const)
           : null;
   const elimination = view.rounds.find((r) => r.id === pairing.roundId)?.kind === "elimination";
-  return { client, runId, pairing, side, elimination, back: `/play/events/${runId}` };
+  return { client, runId, pairing, side, elimination, back: backTo(runId, form) };
 }
 
 /** Rethrows anything but the database refusing the change, which becomes a code. */
 function refusedOr(cause: unknown, back: string): never {
-  if (String(cause).includes("42501")) redirect(`${back}?error=result-refused`);
-  if (String(cause).includes("23514")) redirect(`${back}?error=result-invalid`);
+  if (String(cause).includes("42501")) redirect(withQuery(back, `error=result-refused`));
+  if (String(cause).includes("23514")) redirect(withQuery(back, `error=result-invalid`));
   throw cause;
 }
 
@@ -417,30 +431,30 @@ export async function reportResultAction(form: FormData): Promise<never> {
     form,
     viewer.profile.id,
   );
-  if (side === null) redirect(`${back}?error=result-refused`);
+  if (side === null) redirect(withQuery(back, `error=result-refused`));
   const games = gamesFromChoice(form.get("result")?.toString() ?? "", side, elimination);
-  if (games === null) redirect(`${back}?error=result-invalid`);
+  if (games === null) redirect(withQuery(back, `error=result-invalid`));
   try {
     await reportRunResult(client, pairing.id, games);
   } catch (cause) {
     refusedOr(cause, back);
   }
   await notifyResultReported(runId, pairing.id, viewer.profile.id);
-  revalidatePath(back);
-  redirect(`${back}?done=reported`);
+  revalidatePath(`/play/events/${runId}`);
+  redirect(withQuery(back, `done=reported`));
 }
 
 /** The other player agrees with what was reported. */
 export async function confirmResultAction(form: FormData): Promise<never> {
   const viewer = await requireRole("reader");
-  const { client, pairing, back } = await pairingFor(form, viewer.profile.id);
+  const { client, runId, pairing, back } = await pairingFor(form, viewer.profile.id);
   try {
     await confirmRunResult(client, pairing.id);
   } catch (cause) {
     refusedOr(cause, back);
   }
-  revalidatePath(back);
-  redirect(`${back}?done=confirmed`);
+  revalidatePath(`/play/events/${runId}`);
+  redirect(withQuery(back, `done=confirmed`));
 }
 
 /**
@@ -449,19 +463,19 @@ export async function confirmResultAction(form: FormData): Promise<never> {
  */
 export async function setResultAction(form: FormData): Promise<never> {
   const viewer = await requireRole("organizer");
-  const { client, pairing, elimination, back } = await pairingFor(form, viewer.profile.id);
+  const { client, runId, pairing, elimination, back } = await pairingFor(form, viewer.profile.id);
   const accept = form.get("accept") === "1";
   const games = accept
     ? pairing.games
     : gamesFromChoice(form.get("result")?.toString() ?? "", "p1", elimination);
-  if (games === null) redirect(`${back}?error=result-invalid`);
+  if (games === null) redirect(withQuery(back, `error=result-invalid`));
   try {
     await setRunResult(client, pairing.id, games);
   } catch (cause) {
     refusedOr(cause, back);
   }
-  revalidatePath(back);
-  redirect(`${back}?done=result-set`);
+  revalidatePath(`/play/events/${runId}`);
+  redirect(withQuery(back, `done=result-set`));
 }
 
 // ---------------------------------------------------------------------------
@@ -507,7 +521,7 @@ export async function pairCutRoundAction(form: FormData): Promise<never> {
   );
   await notifyRoundPaired(runId, position.nextRound);
   revalidatePath(back);
-  redirect(`${back}?done=paired`);
+  redirect(`${back}?round=${position.nextRound}&done=paired`);
 }
 
 /**

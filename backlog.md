@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 28/29 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 30/31 |
 
 ---
 
@@ -1997,6 +1997,18 @@ _Blocked:_ access to the production Supabase dashboard, to set Authentication �
 emails sent per hour (§28 suggests 30) and paste `packages/db/templates/magic_link.html` into the
 Magic Link template so the code is sent (E26.24). The session numbers are in §28.
 
+✅ **E26.32 — An event's page in tabs** · M · Deps: E26.26 — Event Info first (the organizer's
+controls, your match, registration, current standings and entrants), then a tab per round as it is
+paired, showing that round's pairings and the standings as they stood after it. _AC:_ the tab is in
+the URL, so a result entered on a round's tab and a live refresh both stay on it; pairing a round
+opens its tab.
+_Note:_ added outside the plan, from testing (2026-10-15). `core/runs/standings` gained
+`throughRound`, which also leaves a later drop unshown.
+
+✅ **E26.33 — Only the words needed in the play app** · S · Deps: E26.27 — trim the play app's copy
+to labels, states and short outcomes: no explanatory sentences, no rules restated.
+_Note:_ added outside the plan, from testing (2026-10-15).
+
 _Removed (2026-10-13):_ E26.29, scheduled jobs, because nothing in a run is timed; and E26.30, looking
 for a game, tabled until running events ships (§28). Their IDs are not reused.
 
@@ -2041,7 +2053,7 @@ can start today, in rough order of how much it unblocks.
   417 decklists, against the 3 in `fixtures/archetype-map/`.
 - E22.4, E22.6, E22.7, E15.4 — issue templates, the fifteen ADRs (`docs/adr/` holds only its README),
   linking the module-doc index, and finishing `CONTRIBUTING.md`.
-- **E26 — running events on the site** is built on the `E26` branch, 28 of 29 stories, and
+- **E26 — running events on the site** is built on the `E26` branch, 30 of 31 stories, and
   merges to main as a whole. What is left needs a person or a device rather than code: E26.31 in
   the Supabase dashboard; the _Outstanding:_ checks on E26.23, E26.24 and E26.28 on an Android
   phone and an iPhone; production's VAPID keys in Vercel; and migrations 0048–0054, pushed to
@@ -2109,6 +2121,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 17      | 16   |
 |      |         |      | E24  | 7       | 6    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 29      | 28   |
+|      |         |      | E26  | 31      | 30   |
 
-**273 of 345 stories done across 26 epics.**
+**275 of 347 stories done across 26 epics.**

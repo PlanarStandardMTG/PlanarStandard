@@ -39,7 +39,7 @@ export function WaitingOn({
                 Table {pairing.table}: {name.get(pairing.p1EntrantId)} vs{" "}
                 {name.get(pairing.p2EntrantId ?? "")}
                 <span className="ml-1.5 text-xs text-ink-500">
-                  {pairing.status === "reported" ? "to confirm" : "not reported"}
+                  {pairing.status === "reported" ? "unconfirmed" : "missing"}
                 </span>
               </span>
               {canChase && (

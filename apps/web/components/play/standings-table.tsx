@@ -9,9 +9,11 @@ const two = (value: number) => value.toFixed(2);
  * show the same figures in a set order.
  */
 export function StandingsTable({
+  title,
   standings,
   entrants,
 }: {
+  title: string;
   standings: readonly RunStanding[];
   entrants: readonly RunEntrant[];
 }) {
@@ -20,7 +22,7 @@ export function StandingsTable({
 
   return (
     <section>
-      <h2 className="font-display text-xl">Standings</h2>
+      <h2 className="font-display text-xl">{title}</h2>
       <div className="mt-2 overflow-x-auto">
         <table className="w-full text-left text-sm tabular-nums">
           <thead className="text-xs text-ink-500 dark:text-ink-400">
@@ -60,9 +62,6 @@ export function StandingsTable({
           </tbody>
         </table>
       </div>
-      <p className="mt-2 text-xs text-ink-500 dark:text-ink-400">
-        Tiebreakers in order after points, each at least 0.33 (Magic Tournament Rules, Appendix C).
-      </p>
     </section>
   );
 }

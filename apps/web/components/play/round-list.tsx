@@ -11,7 +11,7 @@ export function gamesText(pairing: PostedRunPairing): string {
 
 const STATUS: Readonly<Record<PostedRunPairing["status"], string>> = {
   pending: "playing",
-  reported: "waiting to be confirmed",
+  reported: "unconfirmed",
   confirmed: "",
 };
 
@@ -38,7 +38,7 @@ export function RoundList({
       {[...rounds].reverse().map((round) => (
         <div key={round.id}>
           <h2 className="font-display text-xl">
-            {round.kind === "elimination" ? "Top cut, round" : "Round"} {round.number}
+            {round.kind === "elimination" ? "Top cut" : "Pairings"}
           </h2>
           <ul className="mt-2 divide-y divide-ink-200 text-sm dark:divide-ink-800">
             {pairings

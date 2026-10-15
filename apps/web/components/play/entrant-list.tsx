@@ -143,9 +143,6 @@ export function EntrantList({
                 placeholder="Name#12345"
                 className={FIELD}
               />
-              <p className="mt-1 text-xs text-ink-500">
-                Only you and their opponent while paired can see it.
-              </p>
             </div>
             <div>
               <label htmlFor="guestList" className="text-sm">

@@ -1,4 +1,4 @@
-import { canMoveRun } from "@ps/core";
+import { canMoveRun, runStandings } from "@ps/core";
 import type { PostedRunPairing } from "@ps/contracts";
 import {
   getEntrantArenaUsername,
@@ -13,6 +13,7 @@ import { notFound } from "next/navigation";
 
 import { PRIMARY, QUIET, SECONDARY } from "@/components/play/button";
 import { EntrantList } from "@/components/play/entrant-list";
+import { EventTabs } from "@/components/play/event-tabs";
 import { LiveRefresh } from "@/components/play/live-refresh";
 import { MyMatch } from "@/components/play/my-match";
 import { NotificationsButton } from "@/components/play/notifications-button";
@@ -70,6 +71,8 @@ export default async function RunPage({
   const { run, entrants, rounds, pairings, position } = view;
 
   const query = await searchParams;
+  const asked = typeof query["round"] === "string" ? Number(query["round"]) : null;
+  const tabRound = rounds.find((r) => r.number === asked) ?? null;
   const error = messageFor(RUN_ERRORS, query["error"]);
   const done = messageFor(RUN_DONE, query["done"]);
   const manages =
@@ -113,6 +116,7 @@ export default async function RunPage({
       playing={run.state === "running" || run.state === "top_cut"}
       correcting={run.state === "finished"}
       p1Name={entrants.find((e) => e.id === pairing.p1EntrantId)?.displayName ?? "Player 1"}
+      view={tabRound?.number ?? null}
     />
   );
   const playing = run.state === "running" || run.state === "top_cut";
@@ -172,7 +176,7 @@ export default async function RunPage({
               href={`/tournaments/${tournament.slug}`}
               className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
             >
-              Results on the site
+              Results
             </Link>
           </p>
         )}
@@ -181,128 +185,156 @@ export default async function RunPage({
         )}
       </header>
 
-      {manages && (
-        <section
-          aria-label="Organizer"
-          className="rounded-xl border border-ink-200 p-4 dark:border-ink-800"
-        >
-          <h2 className="text-sm font-semibold">Organizer</h2>
-          <div className="mt-3 flex flex-wrap items-center gap-3">
-            {run.state === "draft" && (
-              <form action={moveRunAction}>
-                <input type="hidden" name="runId" value={run.id} />
-                <button name="to" value="registration" className={PRIMARY}>
-                  Open registration
-                </button>
-              </form>
-            )}
-            {run.state === "registration" && (
-              <form action={startRunAction}>
-                <input type="hidden" name="runId" value={run.id} />
-                <button className={PRIMARY}>Start ({position.checkedInEntrants} checked in)</button>
-              </form>
-            )}
-            {run.state === "running" &&
-              position.swissRoundsPaired < run.swissRounds &&
-              position.unconfirmedPairings === 0 && (
-                <form action={pairRoundAction}>
-                  <input type="hidden" name="runId" value={run.id} />
-                  <button className={PRIMARY}>Pair round {position.nextRound}</button>
-                </form>
+      {rounds.length > 0 && (
+        <EventTabs eventId={run.id} rounds={rounds} active={tabRound?.number ?? null} />
+      )}
+
+      {tabRound !== null && (
+        <>
+          <RoundList
+            rounds={[tabRound]}
+            pairings={pairings}
+            entrants={entrants}
+            controls={(pairing) =>
+              // A player's own match is reported from the card on Event Info.
+              pairing.id === myPairing?.id && !manages ? null : controlsFor(pairing)
+            }
+          />
+          <StandingsTable
+            title={
+              tabRound.kind === "elimination"
+                ? "Standings after Swiss"
+                : `Standings after round ${tabRound.number}`
+            }
+            standings={runStandings({
+              entrants,
+              pairings: position.swissPairings,
+              seed: run.seed,
+              throughRound: tabRound.number,
+            })}
+            entrants={entrants}
+          />
+        </>
+      )}
+
+      {tabRound === null && (
+        <>
+          {manages && (
+            <section
+              aria-label="Organizer"
+              className="rounded-xl border border-ink-200 p-4 dark:border-ink-800"
+            >
+              <h2 className="text-sm font-semibold">Organizer</h2>
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                {run.state === "draft" && (
+                  <form action={moveRunAction}>
+                    <input type="hidden" name="runId" value={run.id} />
+                    <button name="to" value="registration" className={PRIMARY}>
+                      Open registration
+                    </button>
+                  </form>
+                )}
+                {run.state === "registration" && (
+                  <form action={startRunAction}>
+                    <input type="hidden" name="runId" value={run.id} />
+                    <button className={PRIMARY}>
+                      Start ({position.checkedInEntrants} checked in)
+                    </button>
+                  </form>
+                )}
+                {run.state === "running" &&
+                  position.swissRoundsPaired < run.swissRounds &&
+                  position.unconfirmedPairings === 0 && (
+                    <form action={pairRoundAction}>
+                      <input type="hidden" name="runId" value={run.id} />
+                      <button className={PRIMARY}>Pair round {position.nextRound}</button>
+                    </form>
+                  )}
+                {run.state === "running" && unplayed && (
+                  <form action={pairRoundAction}>
+                    <input type="hidden" name="runId" value={run.id} />
+                    <input type="hidden" name="repair" value="1" />
+                    <button className={SECONDARY}>Re-pair round {latest?.number}</button>
+                  </form>
+                )}
+                {(cutCanStart || cutCanPair) && (
+                  <form action={pairCutRoundAction}>
+                    <input type="hidden" name="runId" value={run.id} />
+                    <button className={PRIMARY}>
+                      {cutCanStart
+                        ? `Start the top ${run.topCut}`
+                        : `Pair top cut round ${position.nextRound}`}
+                    </button>
+                  </form>
+                )}
+                {canFinish && (
+                  <form action={finishRunAction}>
+                    <input type="hidden" name="runId" value={run.id} />
+                    <button className={run.state === "finished" ? SECONDARY : PRIMARY}>
+                      {run.state === "finished" ? "Import again" : "Finish and import"}
+                    </button>
+                  </form>
+                )}
+                {!["finished", "cancelled"].includes(run.state) && (
+                  <Link href={`/play/events/${run.id}/edit`} className={SECONDARY}>
+                    Edit
+                  </Link>
+                )}
+                {run.state === "draft" ? (
+                  <form action={deleteDraftRunAction}>
+                    <input type="hidden" name="runId" value={run.id} />
+                    <button className={QUIET}>Delete draft</button>
+                  </form>
+                ) : (
+                  !["finished", "cancelled"].includes(run.state) && (
+                    <form action={moveRunAction}>
+                      <input type="hidden" name="runId" value={run.id} />
+                      <button name="to" value="cancelled" className={QUIET}>
+                        Cancel event
+                      </button>
+                    </form>
+                  )
+                )}
+              </div>
+              {playing && latest !== undefined && (
+                <WaitingOn
+                  runId={run.id}
+                  pairings={pairings.filter((p) => p.roundId === latest.id)}
+                  entrants={entrants}
+                  canChase={vapidKey !== undefined}
+                />
               )}
-            {run.state === "running" && unplayed && (
-              <form action={pairRoundAction}>
-                <input type="hidden" name="runId" value={run.id} />
-                <input type="hidden" name="repair" value="1" />
-                <button className={SECONDARY}>Re-pair round {latest?.number}</button>
-              </form>
-            )}
-            {(cutCanStart || cutCanPair) && (
-              <form action={pairCutRoundAction}>
-                <input type="hidden" name="runId" value={run.id} />
-                <button className={PRIMARY}>
-                  {cutCanStart
-                    ? `Start the top ${run.topCut}`
-                    : `Pair top cut round ${position.nextRound}`}
-                </button>
-              </form>
-            )}
-            {canFinish && (
-              <form action={finishRunAction}>
-                <input type="hidden" name="runId" value={run.id} />
-                <button className={run.state === "finished" ? SECONDARY : PRIMARY}>
-                  {run.state === "finished" ? "Import again" : "Finish and import"}
-                </button>
-              </form>
-            )}
-            {!["finished", "cancelled"].includes(run.state) && (
-              <Link href={`/play/events/${run.id}/edit`} className={SECONDARY}>
-                Edit
-              </Link>
-            )}
-            {run.state === "draft" ? (
-              <form action={deleteDraftRunAction}>
-                <input type="hidden" name="runId" value={run.id} />
-                <button className={QUIET}>Delete draft</button>
-              </form>
-            ) : (
-              !["finished", "cancelled"].includes(run.state) && (
-                <form action={moveRunAction}>
-                  <input type="hidden" name="runId" value={run.id} />
-                  <button name="to" value="cancelled" className={QUIET}>
-                    Cancel event
-                  </button>
-                </form>
-              )
-            )}
-          </div>
-          {playing && latest !== undefined && (
-            <WaitingOn
-              runId={run.id}
-              pairings={pairings.filter((p) => p.roundId === latest.id)}
-              entrants={entrants}
-              canChase={vapidKey !== undefined}
+            </section>
+          )}
+
+          {mine !== null && playing && (
+            <MyMatch
+              me={mine}
+              pairing={myPairing}
+              roundNumber={latest?.number ?? null}
+              opponent={opponent}
+              opponentArena={opponentArena}
+              standing={view.standings.find((s) => s.entrantId === mine.id) ?? null}
+              controls={myPairing === null ? null : controlsFor(myPairing)}
+              notifications={
+                vapidKey === undefined ? null : <NotificationsButton publicKey={vapidKey} />
+              }
             />
           )}
-        </section>
+
+          <RegistrationPanel
+            run={run}
+            viewer={viewer}
+            entrant={mine}
+            deck={mine === null ? null : (deckOf.get(mine.id) ?? null)}
+            decks={memberDecks}
+          />
+
+          <StandingsTable title="Standings" standings={view.standings} entrants={entrants} />
+
+          <EntrantList run={run} entrants={entrants} decks={deckOf} manages={manages} />
+        </>
       )}
-
-      {mine !== null && playing && (
-        <MyMatch
-          me={mine}
-          pairing={myPairing}
-          roundNumber={latest?.number ?? null}
-          opponent={opponent}
-          opponentArena={opponentArena}
-          standing={view.standings.find((s) => s.entrantId === mine.id) ?? null}
-          controls={myPairing === null ? null : controlsFor(myPairing)}
-          notifications={
-            vapidKey === undefined ? null : <NotificationsButton publicKey={vapidKey} />
-          }
-        />
-      )}
-
-      <RegistrationPanel
-        run={run}
-        viewer={viewer}
-        entrant={mine}
-        deck={mine === null ? null : (deckOf.get(mine.id) ?? null)}
-        decks={memberDecks}
-      />
-
-      <RoundList
-        rounds={rounds}
-        pairings={pairings}
-        entrants={entrants}
-        controls={(pairing) =>
-          // A player's own match is reported from the card above.
-          pairing.id === myPairing?.id && !manages ? null : controlsFor(pairing)
-        }
-      />
-
-      <StandingsTable standings={view.standings} entrants={entrants} />
-
-      <EntrantList run={run} entrants={entrants} decks={deckOf} manages={manages} />
     </div>
   );
 }

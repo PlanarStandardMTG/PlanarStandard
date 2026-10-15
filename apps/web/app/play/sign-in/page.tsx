@@ -24,10 +24,7 @@ export default async function PlaySignInPage({
 
   return (
     <div className="mx-auto w-full max-w-sm">
-      <h1 className="font-display text-3xl tracking-tight">Sign in</h1>
-      <p className="mt-1 mb-6 text-sm text-ink-600 dark:text-ink-400">
-        We email you a code. No password needed.
-      </p>
+      <h1 className="mb-6 font-display text-3xl tracking-tight">Sign in</h1>
       <CodeSignIn next={next} />
     </div>
   );

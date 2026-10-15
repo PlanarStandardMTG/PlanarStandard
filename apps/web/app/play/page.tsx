@@ -48,9 +48,7 @@ export default async function PlayHome() {
                   className="block rounded-xl border-2 border-gold-500/50 px-4 py-3 hover:bg-ink-50 dark:hover:bg-ink-900"
                 >
                   <p className="font-medium">{run.name}</p>
-                  <p className="text-xs text-ink-500 dark:text-ink-400">
-                    {STATE_LABEL[run.state]} — your pairing and result
-                  </p>
+                  <p className="text-xs text-ink-500 dark:text-ink-400">{STATE_LABEL[run.state]}</p>
                 </Link>
               </li>
             ))}
@@ -61,10 +59,7 @@ export default async function PlayHome() {
       <section>
         <h1 className="font-display text-3xl tracking-tight">Events</h1>
         {runs.length === 0 ? (
-          <p className="mt-3 text-sm text-ink-600 dark:text-ink-400">
-            Nothing is open or being played right now. Events appear here once their organizer opens
-            registration.
-          </p>
+          <p className="mt-3 text-sm text-ink-600 dark:text-ink-400">No events right now.</p>
         ) : (
           <ul className="mt-4 divide-y divide-ink-200 rounded-xl border border-ink-200 dark:divide-ink-800 dark:border-ink-800">
             {runs.map((run) => (
@@ -99,9 +94,7 @@ export default async function PlayHome() {
             </Link>
           </div>
           {mine.length === 0 ? (
-            <p className="mt-2 text-sm text-ink-600 dark:text-ink-400">
-              None yet. A new event is a draft until you open registration.
-            </p>
+            <p className="mt-2 text-sm text-ink-600 dark:text-ink-400">None yet.</p>
           ) : (
             <ul className="mt-3 divide-y divide-ink-200 rounded-xl border border-ink-200 dark:divide-ink-800 dark:border-ink-800">
               {mine.map((run) => (

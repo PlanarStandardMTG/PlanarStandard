@@ -23,10 +23,10 @@ function DeckChoice({
       {decks.length > 0 && (
         <div>
           <label htmlFor="deckId" className="text-sm font-medium">
-            One of your decks
+            Saved deck
           </label>
           <select id="deckId" name="deckId" defaultValue={current?.deckId ?? ""} className={FIELD}>
-            <option value="">— paste a list instead —</option>
+            <option value="">Paste a list instead</option>
             {decks.map((deck) => (
               <option key={deck.id} value={deck.id}>
                 {deck.name}
@@ -37,7 +37,7 @@ function DeckChoice({
       )}
       <div>
         <label htmlFor="decklist" className="text-sm font-medium">
-          {decks.length > 0 ? "Or paste a list" : "Your list"}
+          {decks.length > 0 ? "Or paste a list" : "Decklist"}
         </label>
         <textarea
           id="decklist"
@@ -69,7 +69,8 @@ export function RegistrationPanel({
   deck: RunEntrantDeck | null;
   decks: readonly Deck[];
 }) {
-  if (run.state !== "registration" && entrant === null) return null;
+  // Once play starts, a player's match card says everything this would.
+  if (run.state !== "registration") return null;
 
   if (viewer === null) {
     return (
@@ -85,37 +86,30 @@ export function RegistrationPanel({
   }
 
   if (entrant !== null) {
-    const open = run.state === "registration";
     return (
       <section className="rounded-xl border border-ink-200 p-4 dark:border-ink-800">
-        <h2 className="text-sm font-semibold">You are registered</h2>
+        <h2 className="text-sm font-semibold">Registered</h2>
         <p className="mt-1 text-sm text-ink-600 dark:text-ink-400">
           {deck === null
-            ? "No deck yet."
+            ? "No deck submitted."
             : deck.isLegal === false
-              ? "Your deck is not legal in this event's format versions. The organizer can see that."
-              : open
-                ? "Your deck is in. You can change it until the event starts."
-                : "Your deck is locked for this event."}
+              ? "Deck not legal in this event's formats."
+              : "Deck submitted."}
         </p>
-        {open && (
-          <>
-            <details className="mt-3">
-              <summary className="cursor-pointer text-sm font-medium">Change deck</summary>
-              <form action={changeDeckAction} className="mt-3 space-y-3">
-                <input type="hidden" name="runId" value={run.id} />
-                <input type="hidden" name="entrantId" value={entrant.id} />
-                <DeckChoice decks={decks} current={deck} />
-                <button className={PRIMARY}>Save deck</button>
-              </form>
-            </details>
-            <form action={withdrawAction} className="mt-3">
-              <input type="hidden" name="runId" value={run.id} />
-              <input type="hidden" name="entrantId" value={entrant.id} />
-              <button className={QUIET}>Withdraw</button>
-            </form>
-          </>
-        )}
+        <details className="mt-3">
+          <summary className="cursor-pointer text-sm font-medium">Change deck</summary>
+          <form action={changeDeckAction} className="mt-3 space-y-3">
+            <input type="hidden" name="runId" value={run.id} />
+            <input type="hidden" name="entrantId" value={entrant.id} />
+            <DeckChoice decks={decks} current={deck} />
+            <button className={PRIMARY}>Save deck</button>
+          </form>
+        </details>
+        <form action={withdrawAction} className="mt-3">
+          <input type="hidden" name="runId" value={run.id} />
+          <input type="hidden" name="entrantId" value={entrant.id} />
+          <button className={QUIET}>Withdraw</button>
+        </form>
       </section>
     );
   }
@@ -123,14 +117,14 @@ export function RegistrationPanel({
   if (viewer.profile.handle === null) {
     return (
       <section className="rounded-xl border border-ink-200 p-4 text-sm dark:border-ink-800">
-        To register, set a handle on{" "}
+        Set a handle on{" "}
         <Link
           href="/dashboard/profile"
           className="font-medium text-eclipse-700 dark:text-eclipse-400"
         >
           your profile
-        </Link>
-        : your matches here are recorded under it.
+        </Link>{" "}
+        to register.
       </section>
     );
   }

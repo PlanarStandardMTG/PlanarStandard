@@ -25,11 +25,20 @@ function label(choice: ResultChoice): string {
   return `Drew ${score}`;
 }
 
-function Hidden({ runId, pairingId }: { runId: string; pairingId: string }) {
+function Hidden({
+  runId,
+  pairingId,
+  view,
+}: {
+  runId: string;
+  pairingId: string;
+  view: number | null;
+}) {
   return (
     <>
       <input type="hidden" name="runId" value={runId} />
       <input type="hidden" name="pairingId" value={pairingId} />
+      {view !== null && <input type="hidden" name="view" value={view} />}
     </>
   );
 }
@@ -49,6 +58,7 @@ export function ResultControls({
   playing,
   correcting,
   p1Name,
+  view,
 }: {
   runId: string;
   pairing: PostedRunPairing;
@@ -61,6 +71,8 @@ export function ResultControls({
   /** The organizer can also correct a finished run, then import it again (E26.21). */
   correcting: boolean;
   p1Name: string;
+  /** The round tab the controls sit on, to come back to after a change; null is Event Info. */
+  view: number | null;
 }) {
   if (pairing.p2EntrantId === null || !(playing || (manages && correcting))) return null;
   const choices = resultChoices(elimination);
@@ -82,26 +94,26 @@ export function ResultControls({
               action={confirmResultAction}
               className="flex flex-wrap items-center gap-2 text-sm"
             >
-              <Hidden runId={runId} pairingId={pairing.id} />
+              <Hidden runId={runId} pairingId={pairing.id} view={view} />
               <span>
-                Your opponent reported: <strong>{reportedText}</strong> for you.
+                Opponent reported: <strong>{reportedText}</strong>
               </span>
               <button className={PRIMARY}>Confirm</button>
             </form>
           )}
           {pairing.status === "reported" && !theirs && (
             <p className="text-xs text-ink-500">
-              You reported {reportedText}. Waiting for your opponent to confirm.
+              You reported {reportedText}. Awaiting confirmation.
             </p>
           )}
           <form action={reportResultAction} className="flex flex-wrap items-center gap-2">
-            <Hidden runId={runId} pairingId={pairing.id} />
+            <Hidden runId={runId} pairingId={pairing.id} view={view} />
             <label className="sr-only" htmlFor={`report-${pairing.id}`}>
               Your result
             </label>
             <select id={`report-${pairing.id}`} name="result" className={SELECT} defaultValue="">
               <option value="" disabled>
-                {theirs ? "Report something else…" : "Your result…"}
+                {theirs ? "Different result…" : "Your result…"}
               </option>
               {choices.map((c) => (
                 <option key={c.code} value={c.code}>
@@ -117,20 +129,18 @@ export function ResultControls({
       {manages && (
         <details className="text-sm">
           <summary className="cursor-pointer text-xs text-ink-500">
-            {pairing.status === "confirmed"
-              ? `Overrule (${gamesText(pairing)})`
-              : "Organizer: enter result"}
+            {pairing.status === "confirmed" ? "Overrule" : "Enter result"}
           </summary>
           <div className="mt-2 flex flex-wrap items-center gap-2">
             {pairing.status === "reported" && (
               <form action={setResultAction}>
-                <Hidden runId={runId} pairingId={pairing.id} />
+                <Hidden runId={runId} pairingId={pairing.id} view={view} />
                 <input type="hidden" name="accept" value="1" />
                 <button className={PRIMARY}>Accept {gamesText(pairing)}</button>
               </form>
             )}
             <form action={setResultAction} className="flex flex-wrap items-center gap-2">
-              <Hidden runId={runId} pairingId={pairing.id} />
+              <Hidden runId={runId} pairingId={pairing.id} view={view} />
               <label className="sr-only" htmlFor={`set-${pairing.id}`}>
                 Result for {p1Name}
               </label>

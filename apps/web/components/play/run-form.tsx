@@ -57,7 +57,6 @@ export function RunForm({
     setExpected(players);
     if (!touched) setStructure(suggestRounds(players));
   };
-  const suggestion = suggestRounds(expected);
 
   return (
     <form action={action} className="space-y-5">
@@ -95,10 +94,11 @@ export function RunForm({
           className={FIELD}
         />
         <input type="hidden" name="startsAt" value={startsAt} />
-        <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">
-          In your time zone{hydrated ? `, ${Intl.DateTimeFormat().resolvedOptions().timeZone}` : ""}
-          .
-        </p>
+        {hydrated && (
+          <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">
+            {Intl.DateTimeFormat().resolvedOptions().timeZone}
+          </p>
+        )}
       </div>
 
       <div>
@@ -111,16 +111,13 @@ export function RunForm({
           rows={3}
           maxLength={2000}
           defaultValue={run?.description ?? ""}
-          placeholder="Best of three. Pairings posted here and in Discord."
+          placeholder="Best of three"
           className={FIELD}
         />
       </div>
 
       <fieldset>
         <legend className="text-sm font-medium">Format versions</legend>
-        <p className="text-xs text-ink-500 dark:text-ink-400">
-          Decks are checked against these. The first ticked is the default.
-        </p>
         <div className="mt-2 space-y-1.5">
           {versions.map((version) => (
             <label key={version.id} className="flex items-center gap-2 text-sm">
@@ -140,16 +137,11 @@ export function RunForm({
       <fieldset disabled={structureLocked} className="space-y-3">
         <legend className="text-sm font-medium">Structure</legend>
         {structureLocked ? (
-          <p className="text-xs text-ink-500 dark:text-ink-400">
-            Fixed once the event has started.
-          </p>
+          <p className="text-xs text-ink-500 dark:text-ink-400">Locked once the event starts.</p>
         ) : (
           <div>
             <label htmlFor="expected" className="text-xs text-ink-600 dark:text-ink-400">
-              Players expected — suggests {suggestion.swissRounds} Swiss round
-              {suggestion.swissRounds === 1 ? "" : "s"}
-              {suggestion.topCut > 0 ? ` and a top ${suggestion.topCut}` : ", no cut"} (MTR Appendix
-              E)
+              Expected players
             </label>
             <input
               id="expected"
@@ -203,7 +195,7 @@ export function RunForm({
           </div>
         </div>
         <p className="text-xs text-ink-500 dark:text-ink-400">
-          Any numbers work: 0 Swiss rounds is straight single elimination, 0 is no cut.
+          0 rounds: single elimination. 0 cut: none.
         </p>
       </fieldset>
 

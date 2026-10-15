@@ -69,15 +69,10 @@ export function InstallPrompt() {
       aria-label="Install the app"
       className="rounded-xl border border-gold-500/40 bg-paper p-4 text-sm text-ink-800 dark:bg-ink-900 dark:text-ink-200"
     >
-      <p className="font-medium">Add Planar Standard Play to your home screen</p>
-      {ios ? (
+      <p className="font-medium">Install Planar Standard Play</p>
+      {ios && (
         <p className="mt-1 text-ink-600 dark:text-ink-400">
-          Tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>. On iPhone that is
-          also what lets the app notify you of a new pairing.
-        </p>
-      ) : (
-        <p className="mt-1 text-ink-600 dark:text-ink-400">
-          It opens straight to your event, without a browser tab.
+          Tap <strong>Share</strong>, then <strong>Add to Home Screen</strong>.
         </p>
       )}
       <div className="mt-3 flex gap-3">

@@ -36,18 +36,16 @@ export function MyMatch({
   return (
     <section aria-label="Your match" className="rounded-xl border-2 border-gold-500/50 p-4">
       <p className="text-xs font-medium tracking-wide text-gold-700 uppercase dark:text-gold-400">
-        {roundNumber === null ? "You are in" : `Round ${roundNumber}`}
-        {record !== null && <span className="ml-2 text-ink-500 normal-case">you are {record}</span>}
+        {roundNumber === null ? "Your match" : `Round ${roundNumber}`}
+        {record !== null && <span className="ml-2 text-ink-500 normal-case">{record}</span>}
       </p>
 
       {me.droppedAfterRound !== null ? (
-        <p className="mt-2 text-sm">You have dropped. Thanks for playing.</p>
+        <p className="mt-2 text-sm">Dropped.</p>
       ) : pairing === null ? (
-        <p className="mt-2 text-sm text-ink-600 dark:text-ink-400">
-          No pairing yet. It appears here as soon as the organizer pairs the round.
-        </p>
+        <p className="mt-2 text-sm text-ink-600 dark:text-ink-400">Waiting for pairings.</p>
       ) : pairing.p2EntrantId === null ? (
-        <p className="mt-2 text-lg font-semibold">You have a bye this round.</p>
+        <p className="mt-2 text-lg font-semibold">Bye</p>
       ) : (
         <>
           <p className="mt-2 text-lg">
@@ -61,9 +59,7 @@ export function MyMatch({
               <CopyButton text={opponentArena} label={`Copy ${opponentArena}`} />
             </div>
           ) : (
-            <p className="mt-1 text-sm text-ink-500">
-              They have not shared an Arena username. Ask the organizer.
-            </p>
+            <p className="mt-1 text-sm text-ink-500">No Arena username.</p>
           )}
           {controls}
         </>

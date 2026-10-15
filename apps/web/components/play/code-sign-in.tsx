@@ -39,9 +39,6 @@ export function CodeSignIn({ next }: { next: string }) {
         <button className={`${PRIMARY} w-full`} disabled={pending}>
           Email me a code
         </button>
-        <p className="text-xs text-ink-500 dark:text-ink-400">
-          New here? The same code makes your account.
-        </p>
       </form>
     );
   }
@@ -49,10 +46,7 @@ export function CodeSignIn({ next }: { next: string }) {
   return (
     <form action={act} className="space-y-4">
       {state.error !== null && <PlayNotice tone="warn">{state.error}</PlayNotice>}
-      <p className="text-sm text-ink-600 dark:text-ink-400">
-        If {state.email} has an account, a six-digit code is on its way. Type it here — the link in
-        the same email works too, but it opens your browser rather than this app.
-      </p>
+      <p className="text-sm text-ink-600 dark:text-ink-400">Code sent to {state.email}.</p>
       <input type="hidden" name="next" value={next} />
       <div>
         <label htmlFor="code" className="text-sm font-medium">
@@ -72,10 +66,10 @@ export function CodeSignIn({ next }: { next: string }) {
       </button>
       <div className="flex justify-between">
         <button name="intent" value="send" className={QUIET} disabled={pending}>
-          Send another code
+          Resend
         </button>
         <a href={`/play/sign-in?next=${encodeURIComponent(next)}`} className={QUIET}>
-          Use a different email
+          Change email
         </a>
       </div>
     </form>

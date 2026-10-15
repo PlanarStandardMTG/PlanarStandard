@@ -9,6 +9,11 @@ export interface StandingsInput {
   /** The Swiss pairings only: the top cut is ranked by how far a player got, not by this. */
   readonly pairings: readonly RunPairing[];
   readonly seed: string;
+  /**
+   * The standings as they stood after this round: later rounds are left out, and a
+   * player who dropped later is not shown as dropped yet. Omitted, they are current.
+   */
+  readonly throughRound?: number;
 }
 
 /**
@@ -25,7 +30,22 @@ function isListed(entrant: RunEntrant, paired: ReadonlySet<string>): boolean {
  * game-win % (MTR §3.1), compared at full precision. An exact tie falls to a draw from
  * the run's seed, so the order is the same on every read (ADR 004).
  */
-export function runStandings({ entrants, pairings, seed }: StandingsInput): RunStanding[] {
+export function runStandings({
+  entrants: allEntrants,
+  pairings: allPairings,
+  seed,
+  throughRound,
+}: StandingsInput): RunStanding[] {
+  const pairings =
+    throughRound === undefined ? allPairings : allPairings.filter((p) => p.round <= throughRound);
+  const entrants =
+    throughRound === undefined
+      ? allEntrants
+      : allEntrants.map((e) =>
+          e.droppedAfterRound !== null && e.droppedAfterRound >= throughRound
+            ? { ...e, droppedAfterRound: null }
+            : e,
+        );
   const paired = new Set(
     pairings.flatMap((p) =>
       p.p2EntrantId === null ? [p.p1EntrantId] : [p.p1EntrantId, p.p2EntrantId],

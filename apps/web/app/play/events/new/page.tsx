@@ -25,9 +25,6 @@ export default async function NewRunPage({
   return (
     <div>
       <h1 className="font-display text-3xl tracking-tight">New event</h1>
-      <p className="mt-1 text-sm text-ink-600 dark:text-ink-400">
-        A draft until you open registration: only you and admins can see it.
-      </p>
       {error !== null && (
         <div className="mt-4">
           <PlayNotice tone="warn">{error}</PlayNotice>

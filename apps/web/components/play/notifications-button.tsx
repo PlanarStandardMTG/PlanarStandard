@@ -57,15 +57,14 @@ export function NotificationsButton({ publicKey }: { publicKey: string }) {
   if (status === "install-first") {
     return (
       <p className="text-xs text-ink-500 dark:text-ink-400">
-        On iPhone, add this app to your Home Screen to get notified of your pairings.
+        Add to Home Screen to get notifications.
       </p>
     );
   }
   if (status === "denied") {
     return (
       <p className="text-xs text-ink-500 dark:text-ink-400">
-        Notifications are blocked for this site. Allow them in your browser settings to be told your
-        pairings.
+        Notifications are blocked in your browser settings.
       </p>
     );
   }
@@ -101,7 +100,7 @@ export function NotificationsButton({ publicKey }: { publicKey: string }) {
 
   return status === "on" ? (
     <p className="flex items-center gap-3 text-xs text-ink-500 dark:text-ink-400">
-      Notifications are on for this device.
+      Notifications on.
       <button type="button" onClick={() => void turnOff()} className="underline">
         Turn off
       </button>
