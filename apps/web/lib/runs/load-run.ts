@@ -6,7 +6,7 @@ import type {
   RunRound,
   RunStanding,
 } from "@ps/contracts";
-import { runProgress, runStandings, type RunPosition } from "@ps/core";
+import { roundTitles, runProgress, runStandings, type RunPosition } from "@ps/core";
 import { getRun, listRunEntrants, listRunPairings, listRunRounds } from "@ps/db";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -19,6 +19,8 @@ export interface RunView {
   /** Swiss standings, derived on every read (ADR 004). */
   readonly standings: readonly RunStanding[];
   readonly position: RunPosition;
+  /** Each round's title by number: `Round 3`, or Quarterfinals to Finals in the cut. */
+  readonly titles: ReadonlyMap<number, string>;
 }
 
 /** Null when the run is unknown, or a draft the caller may not see. */
@@ -32,5 +34,6 @@ export async function loadRun(client: SupabaseClient, runId: RunId): Promise<Run
   ]);
   const position = runProgress({ run, entrants, rounds, pairings });
   const standings = runStandings({ entrants, pairings: position.swissPairings, seed: run.seed });
-  return { run, entrants, rounds, pairings, standings, position };
+  const titles = roundTitles(rounds, pairings);
+  return { run, entrants, rounds, pairings, standings, position, titles };
 }

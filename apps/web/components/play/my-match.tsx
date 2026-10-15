@@ -11,7 +11,7 @@ import { CopyButton } from "./copy-button";
 export function MyMatch({
   me,
   pairing,
-  roundNumber,
+  roundTitle,
   opponent,
   opponentArena,
   standing,
@@ -20,7 +20,7 @@ export function MyMatch({
 }: {
   me: RunEntrant;
   pairing: PostedRunPairing | null;
-  roundNumber: number | null;
+  roundTitle: string | null;
   opponent: RunEntrant | null;
   opponentArena: string | null;
   standing: RunStanding | null;
@@ -36,7 +36,7 @@ export function MyMatch({
   return (
     <section aria-label="Your match" className="rounded-xl border-2 border-gold-500/50 p-4">
       <p className="text-xs font-medium tracking-wide text-gold-700 uppercase dark:text-gold-400">
-        {roundNumber === null ? "Your match" : `Round ${roundNumber}`}
+        {roundTitle ?? "Your match"}
         {record !== null && <span className="ml-2 text-ink-500 normal-case">{record}</span>}
       </p>
 

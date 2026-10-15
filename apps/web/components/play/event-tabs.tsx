@@ -10,10 +10,12 @@ import { cn } from "@/lib/cn";
 export function EventTabs({
   eventId,
   rounds,
+  titles,
   active,
 }: {
   eventId: string;
   rounds: readonly RunRound[];
+  titles: ReadonlyMap<number, string>;
   /** Null is Event Info. */
   active: number | null;
 }) {
@@ -21,7 +23,7 @@ export function EventTabs({
     { key: "info", label: "Event Info", href: `/play/events/${eventId}`, on: active === null },
     ...rounds.map((round) => ({
       key: round.id,
-      label: `Round ${round.number}`,
+      label: titles.get(round.number) ?? `Round ${round.number}`,
       href: `/play/events/${eventId}?round=${round.number}`,
       on: active === round.number,
     })),

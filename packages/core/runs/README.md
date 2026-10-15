@@ -17,6 +17,7 @@ run-progress    the facts run-state judges a move by
 run-details     an organizer's name, formats and structure
 result-choice   the results a pairing can be given         MTR §2.4, §2.5
 schedule-entry  a run as an event on /events
+round-title     Round 3, or Quarterfinals to Finals in the cut
 to-parsed-event a finished run, ready for ingest-event     ADR 006, ADR 015
 seeded-random   the only randomness, from the run's seed
 ```

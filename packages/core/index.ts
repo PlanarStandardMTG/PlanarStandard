@@ -334,3 +334,4 @@ export type { RunPosition, RunProgressInput } from "./runs/run-progress/index";
 export { gamesFromChoice, resultChoices } from "./runs/result-choice/index";
 export type { ResultChoice } from "./runs/result-choice/index";
 export { runScheduleEntry } from "./runs/schedule-entry/index";
+export { roundTitles } from "./runs/round-title/index";

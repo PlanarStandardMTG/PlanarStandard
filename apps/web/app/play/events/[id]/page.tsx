@@ -1,4 +1,4 @@
-import { canMoveRun, runStandings } from "@ps/core";
+import { canMoveRun, roundTitles, runStandings } from "@ps/core";
 import type { PostedRunPairing } from "@ps/contracts";
 import {
   getEntrantArenaUsername,
@@ -97,6 +97,14 @@ export default async function RunPage({
       ? position.unconfirmedPairings === 0
       : canMoveRun(run, "finished", position).ok;
   const latest = rounds.at(-1);
+  // What the cut's next round will be called once paired: the bracket is already set.
+  const nextCutTitle = roundTitles(
+    [
+      ...rounds,
+      { id: "next", runId: run.id, number: position.nextRound, kind: "elimination", pairedAt: "" },
+    ],
+    pairings,
+  ).get(position.nextRound);
   const controlsFor = (pairing: PostedRunPairing) => (
     <ResultControls
       runId={run.id}
@@ -186,7 +194,12 @@ export default async function RunPage({
       </header>
 
       {rounds.length > 0 && (
-        <EventTabs eventId={run.id} rounds={rounds} active={tabRound?.number ?? null} />
+        <EventTabs
+          eventId={run.id}
+          rounds={rounds}
+          titles={view.titles}
+          active={tabRound?.number ?? null}
+        />
       )}
 
       {tabRound !== null && (
@@ -261,9 +274,7 @@ export default async function RunPage({
                   <form action={pairCutRoundAction}>
                     <input type="hidden" name="runId" value={run.id} />
                     <button className={PRIMARY}>
-                      {cutCanStart
-                        ? `Start the top ${run.topCut}`
-                        : `Pair top cut round ${position.nextRound}`}
+                      {cutCanStart ? `Start the top ${run.topCut}` : `Pair the ${nextCutTitle}`}
                     </button>
                   </form>
                 )}
@@ -311,7 +322,7 @@ export default async function RunPage({
             <MyMatch
               me={mine}
               pairing={myPairing}
-              roundNumber={latest?.number ?? null}
+              roundTitle={latest === undefined ? null : (view.titles.get(latest.number) ?? null)}
               opponent={opponent}
               opponentArena={opponentArena}
               standing={view.standings.find((s) => s.entrantId === mine.id) ?? null}

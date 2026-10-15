@@ -38,9 +38,7 @@ export async function notifyRoundPaired(runId: RunId, roundNumber: number): Prom
     if (view === null) return;
     const service = createServiceRoleClient();
     const byId = new Map(view.entrants.map((e) => [e.id, e]));
-    const round = view.rounds.find((r) => r.number === roundNumber);
-    const label =
-      round?.kind === "elimination" ? `Top cut, round ${roundNumber}` : `Round ${roundNumber}`;
+    const label = view.titles.get(roundNumber) ?? `Round ${roundNumber}`;
     const url = `/play/events/${runId}`;
 
     await Promise.all(
