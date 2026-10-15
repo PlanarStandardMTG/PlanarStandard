@@ -205,15 +205,30 @@ describe.skipIf(!reachable)("repos/identity", () => {
   });
 
   it("links a player to a member, finds them by it, and unlinks", async () => {
-    // Seeded Odis Brackwater (`seed/0001_profiles.sql`); nothing else here links them.
-    const member = "11111111-1111-4111-8111-000000000005" as ProfileId;
+    // A member of its own: registering for an event links a seeded account (E26.17).
+    const { data: user, error } = await service.auth.admin.createUser({
+      email: `link-${Date.now()}@example.test`,
+      email_confirm: true,
+    });
+    if (error !== null) throw new Error(error.message);
+    const { data: profile } = await service
+      .from("profiles")
+      .select("id")
+      .eq("user_id", user.user.id)
+      .single();
+    const member = (profile as { id: string }).id as ProfileId;
     const linked = await aPlayer("Linked");
 
-    await setPlayerProfile(service, linked.playerId, member);
-    expect((await getPlayerByProfile(client, member))?.id).toBe(linked.playerId);
+    try {
+      await setPlayerProfile(service, linked.playerId, member);
+      expect((await getPlayerByProfile(client, member))?.id).toBe(linked.playerId);
 
-    await setPlayerProfile(service, linked.playerId, null);
-    expect(await getPlayerByProfile(client, member)).toBeNull();
+      await setPlayerProfile(service, linked.playerId, null);
+      expect(await getPlayerByProfile(client, member)).toBeNull();
+    } finally {
+      await service.auth.admin.deleteUser(user.user.id);
+      await service.from("profiles").delete().eq("id", member);
+    }
   });
 
   describe("exclusions", () => {
