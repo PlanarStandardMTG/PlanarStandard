@@ -1496,7 +1496,9 @@ _Note:_ added outside the plan.
 needs: no intro restating a page's title, no body under an empty state's title, shorter notices,
 errors and hints.
 _AC:_ metadata descriptions, the privacy page, `/ratings-explained`, attribution, the decklist CSV
-format and "cannot be undone" warnings are kept; every other page says less than before.
+format and "cannot be undone" warnings are kept; every other page says less than before. The home
+page's hero reads "Welcome to Planar Standard" over "The portal for the community Magic: The Gathering
+format."
 _Note:_ added outside the plan.
 
 ---

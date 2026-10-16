@@ -57,11 +57,10 @@ export default async function HomePage() {
           <div>
             <SeasonBadge />
             <h1 className="mt-6 font-display text-5xl/[0.98] tracking-tight text-balance sm:text-6xl/[0.95]">
-              Welcome to the <em className="text-gold-700 dark:text-gold-400">Planar Standard</em>{" "}
-              portal
+              Welcome to <em className="text-gold-700 dark:text-gold-400">Planar Standard</em>
             </h1>
             <p className="mt-5 max-w-xl text-lg text-ink-600 dark:text-ink-300">
-              Results, decklists and an Elo leaderboard for the format.
+              The portal for the community Magic: The Gathering format.
             </p>
           </div>
 
