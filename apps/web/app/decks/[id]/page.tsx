@@ -164,7 +164,7 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
 
       {!isLatest && (
         <p className="mb-6 rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
-          This is an earlier version of this deck.{" "}
+          This is an earlier version.{" "}
           <Link href={`/decks/${latest.id}`} className="font-medium underline">
             See the latest
           </Link>

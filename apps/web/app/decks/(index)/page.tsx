@@ -92,9 +92,7 @@ export default async function DecksPage({
       {view !== "mine" ? (
         <BrowseDecks scope={view} params={params} />
       ) : viewer === null ? (
-        <EmptyState title="Sign in to see your decks">
-          Decks you import, and the ones you played at events, are kept here.
-        </EmptyState>
+        <EmptyState title="Sign in to see your decks" />
       ) : (
         <YourDecks profileId={viewer.profile.id} />
       )}

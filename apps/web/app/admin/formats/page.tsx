@@ -40,9 +40,7 @@ export default async function AdminFormatsPage({
         <div>
           <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Formats</h1>
           <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-            Each version of Planar Standard’s rules: its legal sets, deck limits and card rules.
-            Decks and the rules page check against the one in force. Kitchen Table has no rules to
-            edit.
+            Decks and the rules page check against the version in force.
           </p>
         </div>
         <Link href="/admin/formats/new" className={BUTTON}>
@@ -55,8 +53,7 @@ export default async function AdminFormatsPage({
       )}
       {versions.every((version) => !version.isCurrent) && (
         <Notice tone="warn">
-          No version is in force, so no deck can be checked against Planar Standard. Mark one as the
-          version in force.
+          No version is in force, so decks cannot be checked. Mark one as in force.
         </Notice>
       )}
 

@@ -20,13 +20,13 @@ export const metadata: Metadata = {
 
 const DONE: Readonly<Record<string, string>> = {
   role: "Role changed.",
-  banned: "Member banned. They keep their account and data, and can do nothing a role grants.",
+  banned: "Member banned.",
   unbanned: "Ban lifted.",
 };
 
 const ERRORS: Readonly<Record<string, string>> = {
   missing: "That member no longer exists.",
-  self: "You cannot change your own role or ban yourself — ask another admin.",
+  self: "You cannot change your own role or ban yourself.",
   erased: "That account has been deleted.",
   role: "That is not a role.",
   "not-admin": "Only an admin can do that.",
@@ -51,8 +51,8 @@ export default async function AdminUsersPage({
       <header className="mb-8">
         <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Users</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-          Roles are a ladder — each one can do everything the ones below it can. A ban takes every
-          rung away without deleting anything.
+          Each role can do everything the ones below it can. A ban removes them all without deleting
+          anything.
         </p>
       </header>
 

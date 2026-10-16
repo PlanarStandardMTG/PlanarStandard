@@ -26,44 +26,43 @@ export const ADMIN_SECTIONS: readonly AdminSection[] = [
   {
     href: "/admin/formats",
     label: "Formats",
-    description: "Legal sets, deck limits and card rules for each version of the format.",
+    description: "Legal sets, deck limits and card rules per version.",
     role: "admin",
   },
   {
     href: "/admin/players",
     label: "Players",
-    description: "Merge handles that belong to one person, and undo a merge.",
+    description: "Merge handles that belong to one person.",
     role: "admin",
   },
   {
     href: "/admin/seasons",
     label: "Seasons",
-    description: "Open and close seasons. The leaderboard rates the current one.",
+    description: "Open and close seasons.",
     role: "admin",
   },
   {
     href: "/admin/fetching",
     label: "Event fetching",
-    description:
-      "Finished events fetched from melee.gg and Challonge, and what each is missing: match history or decklists.",
+    description: "Finished melee.gg and Challonge events, and what each is missing.",
     role: "admin",
   },
   {
     href: "/admin/processing",
     label: "Data processing",
-    description: "What each stored tournament counts towards: Elo and card statistics.",
+    description: "What each tournament counts towards: Elo and card statistics.",
     role: "admin",
   },
   {
     href: "/admin/events",
     label: "Event dates",
-    description: "Start times for melee.gg events, which its API leaves out.",
+    description: "Start times for melee.gg events.",
     role: "admin",
   },
   {
     href: "/dashboard/review",
     label: "Community review",
-    description: "Members' submissions waiting for a writer or above to approve them.",
+    description: "Submissions waiting for approval.",
     role: "writer",
   },
 ];

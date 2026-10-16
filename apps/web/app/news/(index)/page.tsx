@@ -19,11 +19,10 @@ export default async function NewsPage() {
   return (
     <PostFeedPage
       title="News"
-      description="Announcements from the format itself — B&R updates, season openings, and event news."
+      description="B&R updates, season openings and event news."
       posts={posts}
       action={<WritePostButton kind="official" />}
       emptyTitle="No announcements yet"
-      emptyBody="B&R updates and season news will be posted here."
     />
   );
 }

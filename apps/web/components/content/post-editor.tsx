@@ -250,8 +250,8 @@ export function PostEditor(props: PostEditorProps) {
                 limit={tab === "discord" ? DISCORD_MESSAGE_LIMIT : null}
                 note={
                   tab === "reddit"
-                    ? "Paste into a Reddit text post. Tables become lists, images become links, and every link points at the site."
-                    : "Paste into a Discord message. Long posts are cut at a paragraph and always keep the link to the full post."
+                    ? "Paste into a Reddit text post."
+                    : "Paste into a Discord message. Long posts are cut, with a link to the rest."
                 }
               />
             )}
@@ -363,7 +363,7 @@ function ComponentsPanel({
       </summary>
       <div className="space-y-4 border-t border-ink-200 px-4 py-4 text-sm dark:border-ink-800">
         <p className="text-ink-600 dark:text-ink-400">
-          A component is one line on its own, like{" "}
+          A component goes on its own line, like{" "}
           <code className="rounded bg-ink-100 px-1 text-xs dark:bg-ink-800">
             :::name{"{"}key=&quot;value&quot;{"}"}
           </code>
@@ -371,8 +371,7 @@ function ComponentsPanel({
           <code className="rounded bg-ink-100 px-1 text-xs dark:bg-ink-800">
             inline=&quot;true&quot;
           </code>{" "}
-          can go inside a sentence instead. The site shows it live; Reddit and Discord get a text
-          version of it.
+          can go inside a sentence.
         </p>
 
         <div className="grid gap-2">
@@ -426,7 +425,7 @@ const PROBLEM_TEXT: Readonly<Record<string, string>> = {
   "title:empty": "Give it a title.",
   "title:long": "That title is too long.",
   "subtitle:long": "That subtitle is too long.",
-  "excerpt:long": "That excerpt is too long — keep it to a sentence or two.",
+  "excerpt:long": "That excerpt is too long.",
   "tags:many": "Five tags at most.",
   "tags:invalid": "Tags are lowercase letters, digits and hyphens.",
   "body:empty": "There is nothing to submit yet.",
@@ -440,7 +439,7 @@ function describe(problems: readonly DraftProblem[]): Readonly<Record<string, re
       problem.code === "unknown-embed"
         ? `There is no component called “${problem.detail}”.`
         : problem.code === "wrong-kind-embed"
-          ? `The ${problem.detail} component is for news posts only — remove it to submit.`
+          ? `The ${problem.detail} component is for news posts only.`
           : problem.code === "bad-embed"
             ? `Component problem — ${problem.detail}.`
             : (PROBLEM_TEXT[`${problem.field}:${problem.code}`] ?? "Check this field.");

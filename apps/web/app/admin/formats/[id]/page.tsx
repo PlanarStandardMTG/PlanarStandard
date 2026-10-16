@@ -22,10 +22,8 @@ export const metadata: Metadata = {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const ERRORS: Readonly<Record<string, string>> = {
-  current:
-    "The version in force can’t be deleted. Mark another version as in force first, then delete this one.",
-  "in-use":
-    "A season, tournament or deck was checked against this version, so it can’t be deleted. It can stay as a past version.",
+  current: "The version in force can’t be deleted. Mark another as in force first.",
+  "in-use": "A season, tournament or deck uses this version, so it can’t be deleted.",
 };
 
 /** View and edit one version, card rules shown by name (E20.33). */

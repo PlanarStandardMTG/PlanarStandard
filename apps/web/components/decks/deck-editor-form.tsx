@@ -249,8 +249,7 @@ export function DeckEditorForm({
           Decklist
         </label>
         <p className="text-xs text-ink-500 dark:text-ink-400">
-          One card per line, quantity first. A line reading “Sideboard” starts the sideboard. Set
-          codes like “(DFT) 67” are fine and optional.
+          One card per line, quantity first. “Sideboard” starts the sideboard.
         </p>
         <textarea
           id="decklist"
@@ -286,9 +285,7 @@ export function DeckEditorForm({
           </Link>
         </div>
       ) : (
-        <p className="text-sm text-ink-600 dark:text-ink-400">
-          Your account can’t save decks, but you can still check one here.
-        </p>
+        <p className="text-sm text-ink-600 dark:text-ink-400">Your account can’t save decks.</p>
       )}
 
       <dialog

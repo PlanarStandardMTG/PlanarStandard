@@ -24,7 +24,7 @@ const LIMIT = 300;
 const DONE: Readonly<Record<string, string>> = {
   merged: "Merged, and the ladder recomputed.",
   undone: "Merge undone, and the ladder recomputed.",
-  linked: "Player linked. Their decklists from events will match their saved decks from now on.",
+  linked: "Player linked.",
   unlinked: "Player unlinked from their member.",
 };
 
@@ -38,8 +38,7 @@ const ERRORS: Readonly<Record<string, string>> = {
   "already-undone": "That merge has already been undone.",
   "no-member": "No member has that handle.",
   "member-taken": "That member is already linked to another player.",
-  "since-merged":
-    "One of those players has been merged again since, so this merge can’t be undone on its own. Undo the later one first.",
+  "since-merged": "One of those players was merged again since. Undo the later merge first.",
 };
 
 const FIELD =
@@ -85,9 +84,8 @@ export default async function AdminPlayersPage({
       <header className="mb-8">
         <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Players</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-          Every player and the handles they have played under. Imports link a handle to an existing
-          player only when it matches exactly, ignoring case and punctuation; merge anything else
-          that is the same person here. Their matches stay as they are and the ladder is recomputed.
+          Imports only link exact handle matches (ignoring case and punctuation). Merge the rest
+          here; the ladder is recomputed.
         </p>
       </header>
 
@@ -213,8 +211,7 @@ export default async function AdminPlayersPage({
           <div className="mt-4 flex flex-wrap items-end gap-3">
             <div className="grow">
               <label htmlFor="reason" className="text-sm font-medium">
-                Reason{" "}
-                <span className="font-normal text-ink-500">(optional, kept in the history)</span>
+                Reason <span className="font-normal text-ink-500">(optional)</span>
               </label>
               <input
                 id="reason"
@@ -230,7 +227,7 @@ export default async function AdminPlayersPage({
         )}
         {players.length === LIMIT && (
           <p className="mt-3 text-xs text-ink-500">
-            Showing the first {LIMIT}. Search to find anyone further down.
+            Showing the first {LIMIT}. Search for the rest.
           </p>
         )}
       </form>
@@ -241,8 +238,7 @@ export default async function AdminPlayersPage({
             Link a player to a member
           </h2>
           <p className="mb-4 max-w-prose text-sm text-ink-600 dark:text-ink-400">
-            A linked member sees the events they played on their decks page, and a decklist from an
-            event is matched to the decks they have saved. Leave the handle empty to unlink.
+            Their event decklists match their saved decks. Leave the handle empty to unlink.
           </p>
           <form action={linkMember} className="flex flex-wrap items-end gap-3">
             <input type="hidden" name="q" value={search} />

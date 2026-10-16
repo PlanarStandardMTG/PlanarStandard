@@ -19,11 +19,10 @@ export default async function CommunityPage() {
   return (
     <PostFeedPage
       title="Community"
-      description="Deck guides, tournament reports, and analysis, written by members of the community."
+      description="Deck guides, tournament reports and analysis by members."
       posts={posts}
       action={<WritePostButton kind="community" />}
       emptyTitle="No community posts yet"
-      emptyBody="Community writing will show up here once the first piece is published."
     />
   );
 }

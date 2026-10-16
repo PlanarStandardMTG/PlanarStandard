@@ -37,7 +37,7 @@ async function OwnDecks({ ownerId }: { ownerId: Parameters<typeof listMemberDeck
     return <ErrorState title="Your decks could not be loaded" detail={loaded.error} />;
   const [decks, formats] = loaded.value;
   if (decks.length === 0) {
-    return <EmptyState title="No decks yet">Imported decks will be listed here.</EmptyState>;
+    return <EmptyState title="No decks yet" />;
   }
 
   return (

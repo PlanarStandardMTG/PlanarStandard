@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 59/70 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 60/71 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1492,6 +1492,13 @@ move from the middle of the hairline to its start, shrinking away from the headi
 _AC:_ no divider shows a centred cluster of dots, which read as a carousel's pager beside the event card's.
 _Note:_ added outside the plan.
 
+✅ **E20.71 — `ui`: only the words needed** · S · Deps: — — the site's copy is cut to what a reader
+needs: no intro restating a page's title, no body under an empty state's title, shorter notices,
+errors and hints.
+_AC:_ metadata descriptions, the privacy page, `/ratings-explained`, attribution, the decklist CSV
+format and "cannot be undone" warnings are kept; every other page says less than before.
+_Note:_ added outside the plan.
+
 ---
 
 ## E21 — Season II backfill
@@ -2059,7 +2066,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 16      | 15   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 70      | 59   |
+| E9   | 9       | 9    | E20  | 71      | 60   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
@@ -2067,4 +2074,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E25  | 8       | 6    |
 |      |         |      | E26  | 29      | 0    |
 
-**245 of 345 stories done across 26 epics.**
+**246 of 346 stories done across 26 epics.**

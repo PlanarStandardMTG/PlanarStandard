@@ -30,9 +30,6 @@ export default async function DashboardPage() {
     <>
       <header className="mb-8">
         <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Dashboard</h1>
-        <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-          Your profile, your posts, and everything else your account can do.
-        </p>
       </header>
 
       <ul className="grid gap-4 sm:grid-cols-2">

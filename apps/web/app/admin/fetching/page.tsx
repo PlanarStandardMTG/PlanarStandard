@@ -116,18 +116,6 @@ export default async function AdminFetchingPage({
     <>
       <header className="mb-8">
         <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Event fetching</h1>
-        <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-          When the calendar sees a tournament finish, it queues it here once. The scheduled job, or
-          the button below, fetches each one from melee.gg or Challonge and stores everything it
-          sends: matches, standings, and any decklists. What an event counts towards is decided on{" "}
-          <Link
-            href="/admin/processing"
-            className="text-eclipse-700 hover:underline dark:text-eclipse-400"
-          >
-            Data processing
-          </Link>
-          .
-        </p>
       </header>
 
       <Outcome params={params} />
@@ -160,7 +148,7 @@ export default async function AdminFetchingPage({
         </form>
         <RefetchEverythingButton finished={rows.length} action={refetchEverything} />
         <p className="text-xs text-ink-500 dark:text-ink-400">
-          A pass takes a few waiting events; press it again for the rest.
+          Each press fetches a few; press again for the rest.
         </p>
       </div>
 
@@ -185,17 +173,12 @@ export default async function AdminFetchingPage({
       ) : view === "matches" ? (
         <>
           <p className="mb-6 max-w-prose text-sm text-ink-600 dark:text-ink-400">
-            Events whose fetch stored no matches — the platform sent none, or every attempt failed.
-            Re-fetch one to try its platform again. Uploading its match history as a CSV is not
-            built yet.
+            The platform sent no matches, or every attempt failed. Re-fetch one to try again.
           </p>
           <EventRows rows={withoutMatches} empty="Every fetched event has its match history." />
         </>
       ) : (
-        <EventRows
-          rows={rows}
-          empty="Nothing yet. A tournament appears here the first time the calendar sees it finish."
-        />
+        <EventRows rows={rows} empty="Nothing yet." />
       )}
     </>
   );
@@ -272,12 +255,10 @@ async function MissingDecklists({
   return (
     <>
       <p className="mb-6 max-w-prose text-sm text-ink-600 dark:text-ink-400">
-        Choose &ldquo;Add decklists&rdquo; on an event, then upload a CSV with a{" "}
-        <code className="font-mono">player</code> and a <code className="font-mono">deck</code>{" "}
-        column, and optionally an <code className="font-mono">archetype</code>. A deck is a link to
-        one on this site, its id, or the list written out — a card per line, or{" "}
-        <code className="font-mono">;</code> between cards. Each list is matched to the
-        player&rsquo;s own saved decks first, and stored straight away.
+        Upload a CSV with <code className="font-mono">player</code> and{" "}
+        <code className="font-mono">deck</code> columns, and optionally{" "}
+        <code className="font-mono">archetype</code>. A deck is a link or id of one on this site, or
+        the list itself — a card per line, or <code className="font-mono">;</code> between cards.
       </p>
 
       {opened !== null && (
@@ -341,9 +322,7 @@ function Calendars({ calendars, now }: { calendars: readonly CalendarSync[]; now
     <section className="mt-6 mb-8 rounded-xl border border-ink-200 p-5 dark:border-ink-800">
       <h2 className="font-semibold">Calendars</h2>
       <p className="mt-1 max-w-prose text-sm text-ink-600 dark:text-ink-400">
-        A finished event joins the queue when its platform&rsquo;s calendar is next refreshed, which
-        happens by itself every two hours. Refresh one now if an event has just finished. Each press
-        spends a request, and Challonge allows 500 a month.
+        Each refreshes by itself every two hours. Challonge allows 500 requests a month.
       </p>
       <ul className="mt-4 divide-y divide-ink-200 dark:divide-ink-800">
         {calendars.map(({ source, configured, sync }) => (
@@ -397,9 +376,7 @@ function Outcome({ params }: { params: Record<string, string | string[] | undefi
   const value = (key: string) => (typeof params[key] === "string" ? params[key] : undefined);
 
   if (value("error") === "confirm") {
-    return (
-      <Notice tone="warn">Nothing was re-fetched — the confirmation word did not match.</Notice>
-    );
+    return <Notice tone="warn">The confirmation word did not match.</Notice>;
   }
   if (value("done") === "fetched") {
     const failed = Number(value("failed") ?? 0);
@@ -419,9 +396,7 @@ function Outcome({ params }: { params: Record<string, string | string[] | undefi
         return (
           <Notice tone="good">
             Refreshed {label}: {value("events") ?? 0} events
-            {queued > 0
-              ? `, and ${queued} newly finished ${queued === 1 ? "one" : "ones"} queued. Press "Fetch now" to fetch ${queued === 1 ? "it" : "them"}.`
-              : ", and nothing new has finished."}
+            {queued > 0 ? `, ${queued} newly finished queued.` : ", nothing new finished."}
           </Notice>
         );
       case "busy":
@@ -439,7 +414,7 @@ function Outcome({ params }: { params: Record<string, string | string[] | undefi
   if (value("done") === "requeued") {
     return (
       <Notice tone="good">
-        Every finished tournament is back in the queue — {value("waiting") ?? 0} waiting.
+        All finished tournaments requeued — {value("waiting") ?? 0} waiting.
       </Notice>
     );
   }

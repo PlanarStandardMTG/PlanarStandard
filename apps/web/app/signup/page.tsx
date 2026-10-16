@@ -36,10 +36,7 @@ export default async function SignUpPage({
   const error = authMessage(params["error"]);
 
   return (
-    <AuthShell
-      title="Create an account"
-      intro="You only need one to write something — reading the site never asks."
-    >
+    <AuthShell title="Create an account">
       {error !== null && <Notice tone="warn">{error}</Notice>}
 
       <Card className="mt-6 p-6">
@@ -51,7 +48,7 @@ export default async function SignUpPage({
             autoComplete="name"
             maxLength={60}
             placeholder="Optional"
-            hint="How you are credited on anything you write. You can change it later."
+            hint="Shown on anything you write."
           />
           <Field
             label="Email"

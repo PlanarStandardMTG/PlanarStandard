@@ -25,11 +25,6 @@ export async function NewPostPage({ kind }: { kind: PostKind }) {
         <h1 className="mt-2 font-display text-4xl tracking-tight sm:text-5xl">
           {official ? "New news post" : "New community post"}
         </h1>
-        {official && (
-          <p className="mt-1 text-sm text-ink-600 dark:text-ink-400">
-            Published under the format&rsquo;s name, at <code>/news</code>.
-          </p>
-        )}
       </header>
 
       <EditorFor

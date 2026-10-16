@@ -12,7 +12,7 @@ import { createSessionClient } from "@/lib/supabase/session";
 
 const SAVED: Readonly<Record<string, string>> = {
   draft: "Draft saved.",
-  review: "Submitted. It will go live once a writer or an admin approves it.",
+  review: "Submitted for review.",
   published: "Saved, and live.",
 };
 
@@ -83,10 +83,7 @@ export async function EditPostPage({
           }}
         />
       ) : (
-        <Notice tone="warn">
-          This post has been published. Only a writer can change it now — ask one if something needs
-          correcting.
-        </Notice>
+        <Notice tone="warn">Published. Only a writer can change it now.</Notice>
       )}
     </>
   );

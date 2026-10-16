@@ -107,7 +107,6 @@ export default async function HomePage() {
                 compact
                 showKind={false}
                 emptyTitle="No community posts yet"
-                emptyBody="Members write these under their own byline. Announcements from the format are in news."
               />
             ) : (
               <ErrorState title="Could not load recent community posts" detail={community.error} />

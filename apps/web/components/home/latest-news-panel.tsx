@@ -21,11 +21,7 @@ export function LatestNewsPanel({ posts }: { posts: readonly PostWithAuthor[] })
   const [lead, ...rest] = posts;
 
   if (lead === undefined) {
-    return (
-      <EmptyState title="No announcements yet" className="h-full">
-        B&amp;R notices, season openings, and event recaps are posted here.
-      </EmptyState>
-    );
+    return <EmptyState title="No announcements yet" className="h-full" />;
   }
 
   return (

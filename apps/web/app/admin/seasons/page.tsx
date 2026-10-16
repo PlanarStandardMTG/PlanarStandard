@@ -40,8 +40,7 @@ export default async function AdminSeasonsPage({
         <div>
           <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Seasons</h1>
           <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-            Every tournament belongs to the season its date falls in. The dates the leaderboard
-            rates are set under Data processing.
+            A tournament belongs to the season its date falls in.
           </p>
         </div>
         <Link href="/admin/seasons/new" className={BUTTON}>

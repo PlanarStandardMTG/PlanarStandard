@@ -111,8 +111,7 @@ export async function saveDeck(_previous: SaveState, form: FormData): Promise<Sa
       return {
         problems: [],
         confirm: null,
-        error:
-          "This deck has a newer version than the one you are editing. Open the latest and edit that.",
+        error: "A newer version exists. Edit the latest instead.",
       };
     }
   }

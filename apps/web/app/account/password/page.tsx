@@ -21,10 +21,10 @@ export const metadata: Metadata = {
  * has expired lands on the login page rather than on an empty form.
  */
 const LOCAL_ERRORS: Readonly<Record<string, string>> = {
-  mismatch: "Those two passwords are not the same.",
+  mismatch: "The passwords do not match.",
   blank: "A password cannot be blank.",
   "too-short": `A password needs at least ${PASSWORD_MIN_LENGTH} characters.`,
-  "too-long": "That password is longer than the 72 bytes bcrypt will hash. Shorten it.",
+  "too-long": "That password is too long (72 bytes at most).",
 };
 
 export default async function NewPasswordPage({
@@ -44,7 +44,7 @@ export default async function NewPasswordPage({
   return (
     <AuthShell
       title="Set a new password"
-      intro="This replaces whatever you had before. Any link you were emailed stops working once you do."
+      intro="Any link you were emailed stops working once you do."
     >
       {error !== null && <Notice tone="warn">{error}</Notice>}
 

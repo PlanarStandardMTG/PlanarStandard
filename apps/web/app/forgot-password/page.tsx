@@ -26,10 +26,7 @@ export default async function ForgotPasswordPage({
   const error = authMessage(params["error"]);
 
   return (
-    <AuthShell
-      title="Reset your password"
-      intro="Give us the address on the account and we will email you a link to choose a new password."
-    >
+    <AuthShell title="Reset your password" intro="We will email you a link to choose a new one.">
       {error !== null && <Notice tone="warn">{error}</Notice>}
 
       <Card className="mt-6 p-6">

@@ -57,8 +57,8 @@ export function RatingWindowForm({
         Elo time frame
       </h2>
       <p className="text-xs text-ink-500 dark:text-ink-400">
-        Rated events on or between these dates count. With no end date, every event from the start
-        onwards counts. Saving recomputes the ratings.
+        Rated events between these dates count; leave the end blank for no end. Saving recomputes
+        the ratings.
       </p>
       <div className="mt-3 flex flex-wrap items-end gap-4">
         <div className="w-full sm:w-44">

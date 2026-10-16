@@ -40,13 +40,10 @@ type Sort = "newest" | "win-rate";
 /** Which decks a tab lists (E20.55): every one, members' own, or those from events. */
 export type DeckScope = "all" | "community" | "tournament";
 
-const NONE_YET: Record<DeckScope, [title: string, detail: string]> = {
-  all: ["No public decks yet", "Public decks will be listed here."],
-  community: [
-    "No community decks yet",
-    "Decks members import and make public will be listed here.",
-  ],
-  tournament: ["No tournament decks yet", "Decks played at events will be listed here."],
+const NONE_YET: Record<DeckScope, string> = {
+  all: "No public decks yet",
+  community: "No community decks yet",
+  tournament: "No tournament decks yet",
 };
 
 type Browse = DeckFilter & {
@@ -267,16 +264,14 @@ export async function BrowseDecks({ scope, params }: { scope: DeckScope; params:
             filtering
               ? "No deck matches that filter"
               : legalIn === null
-                ? NONE_YET[filter.scope][0]
+                ? NONE_YET[filter.scope]
                 : `No deck here is legal in ${legalIn.version.name} yet`
           }
         >
-          {filtering ? (
+          {filtering && (
             <Link href={clearedHref(filter)} className="underline underline-offset-2">
               Clear the filter
             </Link>
-          ) : (
-            NONE_YET[filter.scope][1]
           )}
         </EmptyState>
       ) : (

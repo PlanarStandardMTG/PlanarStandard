@@ -55,15 +55,15 @@ export default async function UnauthorizedPage({
             This account is banned
           </h1>
           <p className="mt-3 text-ink-600 dark:text-ink-400">
-            An admin banned it on {formatDate(viewer.profile.bannedAt)}. You can still read the
-            site, and export or delete your data from{" "}
+            Banned on {formatDate(viewer.profile.bannedAt)}. You can still read the site, and export
+            or delete your data from{" "}
             <Link
               href="/dashboard/profile"
               className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
             >
               your profile
             </Link>
-            . To ask about it, contact the admins in{" "}
+            . Questions go to the admins in{" "}
             <a
               href="https://discord.gg/eeYH9XMCjT"
               className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
@@ -100,8 +100,7 @@ export default async function UnauthorizedPage({
 
         <Card className="mt-6 p-6 text-sm">
           <p className="text-ink-600 dark:text-ink-400">
-            Roles are granted by the format&rsquo;s admins, not requested from this page. If you run
-            events or write for the site and need access, ask in{" "}
+            To ask for access, message the admins in{" "}
             <a
               href="https://discord.gg/eeYH9XMCjT"
               className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"

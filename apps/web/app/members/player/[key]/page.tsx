@@ -40,10 +40,7 @@ export default async function PlayerHandlePage({ params }: { params: Promise<{ k
   return (
     <div className="flex-1">
       <Container className="py-12">
-        <PageHeader kicker="Unclaimed handle" title={player.displayName}>
-          Nobody has claimed this handle, so it belongs to no member and has no history beyond its
-          results.
-        </PageHeader>
+        <PageHeader kicker="Unclaimed handle" title={player.displayName} />
 
         {canRemoveContent(viewer.profile) && (
           <p className="text-sm text-ink-600 dark:text-ink-400">

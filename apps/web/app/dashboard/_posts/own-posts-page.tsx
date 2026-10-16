@@ -50,13 +50,13 @@ export async function OwnPostsPage({
         <h1 className="font-display text-4xl tracking-tight sm:text-5xl">
           {news ? "Your news posts" : "Your community posts"}
         </h1>
-        <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-          {news
-            ? "Published under the format’s name, at /news."
-            : submissionStatus(role) === "published"
-              ? `As a ${role}, what you submit is published straight away.`
-              : "What you submit waits for a writer or an admin to approve it before it is published."}
-        </p>
+        {!news && (
+          <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
+            {submissionStatus(role) === "published"
+              ? "Published as soon as you submit."
+              : "Posts are published once a writer approves them."}
+          </p>
+        )}
       </header>
 
       {done === "deleted" && (
@@ -74,7 +74,7 @@ export async function OwnPostsPage({
 
       <h2 className="mt-10 mb-4 font-display text-xl font-semibold">Written</h2>
       {own.length === 0 ? (
-        <EmptyState title="Nothing yet">Drafts and submissions are listed here.</EmptyState>
+        <EmptyState title="Nothing yet" />
       ) : (
         <ul className="divide-y divide-ink-200 rounded-lg border border-ink-200 dark:divide-ink-800 dark:border-ink-800">
           {own.map((post) => (

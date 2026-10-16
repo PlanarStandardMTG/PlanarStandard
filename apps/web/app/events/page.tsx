@@ -40,9 +40,7 @@ export default async function EventsPage({
   return (
     <div className="flex-1">
       <Container className="py-12">
-        <PageHeader kicker="The schedule" title="Events">
-          Upcoming and live events, and results from every past one.
-        </PageHeader>
+        <PageHeader kicker="The schedule" title="Events" />
 
         {!events.ok ? (
           <ErrorState title="Could not load the schedule" detail={events.error} />
@@ -51,8 +49,8 @@ export default async function EventsPage({
           events.value.schedule.past.length === 0 ? (
           <EmptyState title="No events on the calendar">
             {events.value.configured
-              ? "Nothing is scheduled right now. Organisers post new brackets a week or two ahead."
-              : "This site has no calendar credentials configured, so nothing is being fetched. Run `pnpm db:reset` for seed events."}
+              ? "Nothing is scheduled right now."
+              : "No calendar credentials configured. Run `pnpm db:reset` for seed events."}
           </EmptyState>
         ) : (
           <>
@@ -179,5 +177,5 @@ function freshness(syncs: readonly EventSyncState[], now: Date): string {
       : `${label} ${formatTimeAgo(sync.lastSucceededAt, now)}`;
   });
 
-  return `Refreshed from ${clauses.join(" · ")}. Check the event page for anything time-critical.`;
+  return `Refreshed from ${clauses.join(" · ")}.`;
 }

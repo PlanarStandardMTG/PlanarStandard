@@ -41,9 +41,7 @@ export default async function NewDeckPage() {
         {saver === "member" ? "Import a deck" : "Check a deck"}
       </h1>
       <p className="mt-1 mb-8 text-sm text-ink-600 dark:text-ink-400">
-        {saver === "member"
-          ? "Paste a list from Arena, MTGO or a text file. It is checked as you type; illegal decks can still be saved."
-          : "Paste a list from Arena, MTGO or a text file. It is checked against the format as you type."}
+        Paste a list from Arena, MTGO or a text file.
       </p>
       <DeckEditorForm
         saver={saver}

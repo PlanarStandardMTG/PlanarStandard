@@ -51,10 +51,6 @@ export default async function ReviewQueuePage({
     <>
       <header className="mb-8">
         <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Review queue</h1>
-        <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-          Submissions waiting for approval. Approving one publishes it under its author&rsquo;s
-          name; sending one back returns it to them as a draft.
-        </p>
       </header>
 
       {typeof done === "string" && DONE[done] !== undefined && (
@@ -66,7 +62,7 @@ export default async function ReviewQueuePage({
 
       <div className="mt-6">
         {queue.length === 0 ? (
-          <EmptyState title="Nothing waiting">Every submission has been reviewed.</EmptyState>
+          <EmptyState title="Nothing waiting" />
         ) : (
           <ul className="space-y-4">
             {queue.map((post) => (

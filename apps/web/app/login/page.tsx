@@ -52,10 +52,7 @@ export default async function LoginPage({
   const error = authMessage(params["error"]);
 
   return (
-    <AuthShell
-      title="Sign in"
-      intro="Everything here is readable without an account. Signing in is for writing — posting to the community, running an event, submitting a deck."
-    >
+    <AuthShell title="Sign in">
       {error !== null && <Notice tone="warn">{error}</Notice>}
 
       <Card className="mt-6 p-6">
@@ -104,7 +101,7 @@ export default async function LoginPage({
             autoComplete="email"
             required
             placeholder="you@example.com"
-            hint="No password needed. If you have never signed in before, this makes you an account."
+            hint="No password needed. Makes you an account if you have none."
           />
           <button
             type="submit"

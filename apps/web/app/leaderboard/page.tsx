@@ -74,9 +74,7 @@ export default async function LeaderboardPage({
         ) : (
           <>
             {data.value.ranked.length + data.value.unranked.length === 0 ? (
-              <EmptyState title="Nobody is ranked yet">
-                The leaderboard fills in after the first rated event.
-              </EmptyState>
+              <EmptyState title="Nobody is ranked yet" />
             ) : (
               <Ladder
                 ranked={data.value.ranked}
@@ -87,9 +85,8 @@ export default async function LeaderboardPage({
               />
             )}
             <p className="mt-8 text-sm text-ink-500 dark:text-ink-400">
-              Players are ranked once they have played in{" "}
-              {describeThreshold(data.value.config.minEventsForLeaderboard)}. Everyone else who has
-              played in an event is listed after them as unranked.
+              Ranked after playing in {describeThreshold(data.value.config.minEventsForLeaderboard)}
+              ; everyone else is unranked.
             </p>
           </>
         )}
