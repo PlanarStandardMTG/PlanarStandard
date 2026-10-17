@@ -43,7 +43,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
-| E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
+| E24  | Home page                             | 2     | E16.1        | 🚧 7/8   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
 | E26  | Running events on the site            | 11    | E2, E18.11   | ⬜ 0/29  |
 
@@ -1737,6 +1737,14 @@ contract and already null-safe. _AC:_ a finish with no deck stays unlinked rathe
 answer, once there is a metagame to show: what the field currently looks like. Left unscoped
 deliberately — the shape of it depends on what `MetaShare` turns out to read well at tile size.
 
+✅ **E24.8 — The home page stops paying for the card index** · S · Deps: E24.5 — `/` was the most
+expensive route on Vercel's Active CPU, because the podium's colour pips build the whole card index
+on every new instance. The podium is now cached across instances, and the calendar refresh runs after
+the response instead of before it.
+_AC:_ a new instance renders `/` without loading `data/cards/`; admin imports and hidden deck versions
+expire the cached podium; no visitor waits on the sync-window claim or a third-party calendar.
+_Note:_ added outside the plan.
+
 ## E25 — Admin: fetching and processing
 
 Phase 2. Stream J. `/admin/processing` did two different jobs on one screen: fetching a finished
@@ -2072,8 +2080,8 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
-|      |         |      | E24  | 7       | 6    |
+|      |         |      | E24  | 8       | 7    |
 |      |         |      | E25  | 8       | 6    |
 |      |         |      | E26  | 29      | 0    |
 
-**246 of 346 stories done across 26 epics.**
+**247 of 347 stories done across 26 epics.**

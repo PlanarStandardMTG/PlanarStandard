@@ -142,5 +142,7 @@ export async function deleteDeckVersions(form: FormData): Promise<void> {
     versionIds,
   );
   revalidatePath("/decks");
+  // The home page's podium is cached and may link to a version just hidden.
+  revalidatePath("/");
   redirect(left === null ? "/decks?view=mine" : `/decks/${left}`);
 }

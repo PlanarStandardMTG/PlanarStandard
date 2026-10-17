@@ -12,12 +12,12 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { ErrorState } from "@/components/ui/states";
 import { loadEvents } from "@/lib/events/sync-events.server";
 import { load } from "@/lib/load";
-import { loadLatestPodium } from "@/lib/podium/latest-podium";
+import { cachedLatestPodium } from "@/lib/podium/latest-podium";
 import { createPublicClient } from "@/lib/supabase/server";
 
-// Posts are published from the site, not from a deploy, and `/events` refreshes
-// a third-party calendar during the render, so the home page must not be baked
-// at build time.
+// Posts are published from the site, not from a deploy, and the schedule is
+// refreshed from third-party calendars, so the home page must not be baked at
+// build time.
 export const dynamic = "force-dynamic";
 
 const NEWS_COUNT = 4;
@@ -31,8 +31,7 @@ const UPCOMING_EVENT_COUNT = 3;
  * `load` per region rather than one try around the page: a database that cannot
  * answer for posts should cost the news tile and not the event beside it.
  * Everything is fetched in parallel — one `Promise.all`, not four sequential
- * awaits, which on a page that refreshes a third-party calendar mid-render is
- * the difference between fast and noticeably not.
+ * awaits.
  */
 export default async function HomePage() {
   const now = new Date();
@@ -41,7 +40,7 @@ export default async function HomePage() {
   const [news, events, podium, community] = await Promise.all([
     load(() => listPublishedPostsByKind(client, "official", NEWS_COUNT)),
     load(() => loadEvents(now)),
-    load(() => loadLatestPodium(client)),
+    load(cachedLatestPodium),
     load(() => listPublishedPostsByKind(client, "community", ARTICLE_COUNT)),
   ]);
 
