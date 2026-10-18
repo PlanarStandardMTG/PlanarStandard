@@ -135,6 +135,11 @@ split it. Every module ships `index.ts` (usually under 60 lines), `index.test.ts
   `oracle_id` columns carry **no foreign key** — integrity comes from `dataset-integrity.test.ts`
   instead. Never hand-edit `data/cards/`. Card filtering happens in-app against the loaded index, not in
   SQL. Streaming prune only: never `JSON.parse` the whole bulk file.
+- **A deck's colours, card names and legality are stored when it is saved, not worked out per view**
+  (E20.72). `deck_traits` and `deck_legality` are written by `lib/decks/deck-traits.server.ts`; anything
+  new that writes `deck_cards` must call `refreshDecks`, or the deck browses with no colours and as
+  illegal everywhere. A format edit that narrows a version's rules marks it stale for an admin to
+  recheck from `/admin/processing`; a new or widened version is rechecked on save.
 - **`data/sets.json` ≠ `format_legal_sets`.** The first is the _fetch scope_ — what the committed dataset
   contains, generous by design, changed by PR. The second is the _legal pool per format version_,
   admin-edited in the database so special events can define custom pools without a deploy.

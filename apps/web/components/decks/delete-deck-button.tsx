@@ -2,8 +2,6 @@
 
 import { useRef, useState } from "react";
 
-import { deleteDeckVersions } from "@/app/decks/actions";
-
 const OUTLINE_BUTTON =
   "rounded-lg border border-ink-300 px-3 py-1.5 text-sm text-ink-700 dark:border-ink-700 dark:text-ink-300";
 
@@ -17,13 +15,16 @@ export interface DeletableVersion {
  * Delete some or all versions of a deck, chosen in a dialog (E20.31). The page
  * being viewed starts ticked. To the member they are gone; the rows are hidden
  * rather than deleted, which is the action's business and not this dialog's.
+ * The action is a prop so this client module never reaches a server-only one (E1.7).
  */
 export function DeleteDeckButton({
   deckId,
   deckName,
   versions,
   current,
+  deleteDeckVersions,
 }: {
+  deleteDeckVersions: (form: FormData) => Promise<void>;
   deckId: string;
   deckName: string;
   /** Oldest first. */

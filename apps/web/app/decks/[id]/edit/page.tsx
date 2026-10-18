@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+import { checkDraft, saveDeck } from "@/app/decks/actions";
 import { DeckEditorForm } from "@/components/decks/deck-editor-form";
 import { formatChoice, formatOptions } from "@/components/decks/format-labels";
 import { Container } from "@/components/ui/container";
@@ -63,6 +64,8 @@ export default async function EditDeckPage({ params }: { params: Promise<{ id: s
       </p>
       <DeckEditorForm
         parentId={deck.id}
+        saveDeck={saveDeck}
+        checkDraft={checkDraft}
         formats={formatOptions(versions)}
         initial={{
           name: deck.name,

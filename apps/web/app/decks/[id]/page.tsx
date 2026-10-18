@@ -12,6 +12,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
+import { deleteDeckVersions } from "@/app/decks/actions";
 import { ColorPips } from "@/components/decks/color-pips";
 import { DeckLegality } from "@/components/decks/deck-legality";
 import { DeleteDeckButton } from "@/components/decks/delete-deck-button";
@@ -149,6 +150,7 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
               </Link>
             )}
             <DeleteDeckButton
+              deleteDeckVersions={deleteDeckVersions}
               deckId={deck.id}
               deckName={deck.name}
               current={deck.id}

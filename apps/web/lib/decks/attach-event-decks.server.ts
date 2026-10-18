@@ -14,6 +14,7 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 import { cardIndex } from "@/lib/cards/card-index";
 import { toDeckCards } from "@/lib/decks/deck-cards";
+import { refreshDecks } from "@/lib/decks/deck-traits.server";
 import { placeEventDecks } from "@/lib/decks/place-event-decks.server";
 
 /**
@@ -137,6 +138,10 @@ export async function attachEventDecks(
   await setEntryDecks(service, tournament.id, links);
   await deleteUnusedEventDecks(service, replaced);
   await placeEventDecks(service, [tournament]);
+  await refreshDecks(
+    service,
+    links.map((link) => link.deckId),
+  );
   return { attached: links.length, unchanged, problems };
 }
 

@@ -2,6 +2,7 @@ import { listFormatVersions } from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { checkDraft, saveDeck } from "@/app/decks/actions";
 import { DeckEditorForm, type DeckSaver } from "@/components/decks/deck-editor-form";
 import { formatChoice, formatOptions } from "@/components/decks/format-labels";
 import { Container } from "@/components/ui/container";
@@ -45,6 +46,8 @@ export default async function NewDeckPage() {
       </p>
       <DeckEditorForm
         saver={saver}
+        saveDeck={saveDeck}
+        checkDraft={checkDraft}
         formats={formatOptions(versions)}
         initial={{
           name: "",

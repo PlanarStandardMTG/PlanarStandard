@@ -1,4 +1,4 @@
-import { listFormatVersions } from "@ps/db";
+import { listFormatVersions, listStaleLegalityVersions } from "@ps/db";
 import type { Metadata } from "next";
 import Link from "next/link";
 
@@ -32,7 +32,11 @@ export default async function AdminFormatsPage({
 }) {
   await requireRole("admin");
   const { done } = await searchParams;
-  const versions = await listFormatVersions(await createSessionClient());
+  const session = await createSessionClient();
+  const [versions, stale] = await Promise.all([
+    listFormatVersions(session),
+    listStaleLegalityVersions(session),
+  ]);
 
   return (
     <>
@@ -56,6 +60,15 @@ export default async function AdminFormatsPage({
           No version is in force, so decks cannot be checked. Mark one as in force.
         </Notice>
       )}
+      {stale.size > 0 && (
+        <Notice tone="warn">
+          Some decks may no longer be legal.{" "}
+          <Link href="/admin/processing" className="underline underline-offset-2">
+            Recheck decks
+          </Link>{" "}
+          when you&rsquo;re done editing.
+        </Notice>
+      )}
 
       {versions.length === 0 ? (
         <p className="mt-6 text-sm text-ink-600 dark:text-ink-400">No versions yet.</p>
@@ -70,6 +83,7 @@ export default async function AdminFormatsPage({
                 <span className="flex items-center gap-3">
                   <span className="font-medium">{version.name}</span>
                   {version.isCurrent && <Badge>In force</Badge>}
+                  {stale.has(version.id) && <Badge>Decks need rechecking</Badge>}
                 </span>
               </Link>
             </li>

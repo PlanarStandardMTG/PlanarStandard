@@ -5,6 +5,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { deleteFormat, saveFormat } from "@/app/admin/formats/actions";
 import { Notice } from "@/components/auth/form-parts";
 import { DeleteFormatButton } from "@/components/format/delete-format-button";
 import { FormatVersionForm } from "@/components/format/format-version-form";
@@ -56,7 +57,7 @@ export default async function EditFormatPage({
       </Link>
       <header className="mt-2 mb-8 flex flex-wrap items-start justify-between gap-4">
         <h1 className="font-display text-4xl tracking-tight sm:text-5xl">{version.name}</h1>
-        <DeleteFormatButton id={version.id} name={version.name} />
+        <DeleteFormatButton id={version.id} name={version.name} deleteFormat={deleteFormat} />
       </header>
 
       {typeof error === "string" && ERRORS[error] !== undefined && (
@@ -68,6 +69,7 @@ export default async function EditFormatPage({
       <FormatVersionForm
         id={version.id}
         knownSets={cardSetCodes()}
+        save={saveFormat}
         initial={{
           name: version.name,
           notes: version.notesMarkdown ?? "",

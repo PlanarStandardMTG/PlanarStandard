@@ -7,16 +7,19 @@ import {
   listFormatVersions,
   listTournamentCoverage,
   matchDeckCards,
+  setLegalityStale,
   setRatingWindow,
   setTournamentFormats,
   setTournamentInclusion,
 } from "@ps/db";
+import type { SupabaseClient } from "@supabase/supabase-js";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import type { RatingWindowState } from "@/components/processing/rating-window-form";
 import { requireRole } from "@/lib/auth/guard";
 import { cardIndex } from "@/lib/cards/card-index";
+import { recheckAllDecks } from "@/lib/decks/deck-traits.server";
 import { findCardMatches } from "@/lib/decks/match-deck-cards.server";
 import { placeEventDecks } from "@/lib/decks/place-event-decks.server";
 import { recomputeRatings } from "@/lib/ratings/recompute-ratings.server";
@@ -66,12 +69,15 @@ export async function setEventFormats(id: string, formatVersionIds: readonly str
 const LISTED_DECKS = 50;
 
 /**
- * Check every event's decks against its versions again (E20.67) — after cards
- * are matched or a version's rules change, nothing else re-runs the choice.
+ * Check every deck again after cards are matched or a version's rules change,
+ * since nothing else re-runs either: its stored traits and legality in every
+ * version (E20.72), then which of its event's versions each event deck is
+ * checked against (E20.67).
  */
 export async function recheckDeckFormats(): Promise<never> {
   await requireRole("admin");
   const service = createServiceRoleClient();
+  await recheckAllDecks(service);
   const events = (await listTournamentCoverage(service)).flatMap((row) =>
     row.decks === 0 ? [] : [row.tournament],
   );
@@ -90,6 +96,7 @@ export async function matchCards(): Promise<never> {
   await requireRole("admin");
   const service = createServiceRoleClient();
   const matched = await matchDeckCards(service, (await findCardMatches(service)).matches);
+  if (matched > 0) await markDecksStale(service);
 
   revalidatePath("/", "layout");
   redirect(`/admin/processing?done=matched&lines=${matched}`);
@@ -105,10 +112,25 @@ export async function confirmCardMatch(form: FormData): Promise<never> {
   const oracleId = (form.get("oracle_id")?.toString() ?? "") as OracleId;
   let matched = 0;
   if (name !== "" && cardIndex().byOracleId.has(oracleId)) {
-    matched = await matchDeckCards(createServiceRoleClient(), [{ name, oracleId }]);
+    const service = createServiceRoleClient();
+    matched = await matchDeckCards(service, [{ name, oracleId }]);
+    if (matched > 0) await markDecksStale(service);
     revalidatePath("/", "layout");
   }
   redirect(`/admin/processing?done=matched&lines=${matched}`);
+}
+
+/**
+ * A matched line changes its deck's colours, names and legality; the stored
+ * ones wait for an admin's recheck (E20.72).
+ */
+async function markDecksStale(service: SupabaseClient): Promise<void> {
+  const versions = await listFormatVersions(service);
+  await setLegalityStale(
+    service,
+    versions.map((version) => version.id),
+    true,
+  );
 }
 
 /** Apply every staged Elo choice, then rebuild the ladder once (ADR 004). */

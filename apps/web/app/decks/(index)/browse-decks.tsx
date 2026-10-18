@@ -1,7 +1,5 @@
 import type { Color, FormatVersion } from "@ps/contracts";
 import {
-  checkDeck,
-  colorIdentity,
   compareWinRates,
   deckWinRate,
   formatRecord,
@@ -10,19 +8,20 @@ import {
   type DeckFilter,
   type DeckWinRate,
 } from "@ps/core";
-import { getFormatDetail, listBrowsableDecks, listFormatVersions, type DeckEvent } from "@ps/db";
+import { listBrowsableDecks, listFormatVersions, listLegalDeckIds, type DeckEvent } from "@ps/db";
 import Link from "next/link";
 
 import { ColorPips } from "@/components/decks/color-pips";
 import { deckFormatLabel } from "@/components/decks/format-labels";
 import { EmptyState, ErrorState } from "@/components/ui/states";
-import { cardIndex } from "@/lib/cards/card-index";
-import { formatRules, toResolvedDeck } from "@/lib/decks/deck-view";
 import { formatShortDate } from "@/lib/format-date";
 import { load } from "@/lib/load";
 import { createSessionClient } from "@/lib/supabase/session";
 
 const PAGE_SIZE = 10;
+
+/** A deck whose traits have not been computed yet matches only an empty filter. */
+const NO_TRAITS = { colors: [], castColors: [], cardNames: [] } as const;
 
 const COLORS: readonly { color: Color; label: string }[] = [
   { color: "W", label: "White" },
@@ -140,41 +139,36 @@ function inScope(
  * or another one the filter picks (E20.53, E20.60), and All by an event as well
  * (E20.69). Tournament goes by its events instead: every format by default,
  * narrowed by the format an event was played under (E20.62) and the event
- * itself (E20.61). Cards are not in Postgres, so the filter runs here against the card
- * index rather than in the query. Each deck shows who it is credited to and its
- * record over every version's events, and can be sorted by match win rate (E20.45).
+ * itself (E20.61). Each deck shows who it is credited to and its record over
+ * every version's events, and can be sorted by match win rate (E20.45).
  *
- * Legality is checked on every request against the version's rules as they are
- * now, whatever format the deck was saved for.
+ * No list and no card data: colours, card names and legality in each version
+ * are read from what was stored when the deck was saved (E20.72). Legality is
+ * against a version's rules whatever format the deck was saved for, and lags
+ * an edit that narrowed them until an admin rechecks.
  */
 export async function BrowseDecks({ scope, params }: { scope: DeckScope; params: Params }) {
   const asked = readFilter(scope, params);
   const loaded = await load(async () => {
     const client = await createSessionClient();
     const [decks, versions] = await Promise.all([
-      listBrowsableDecks(client),
+      listBrowsableDecks(client, { withCardNames: asked.cards.length > 0 }),
       listFormatVersions(client),
     ]);
     const current = versions.find((version) => version.isCurrent);
     const chosen = versions.find((version) => version.id === asked.legal) ?? current;
-    const legalIn =
-      scope === "tournament" || chosen === undefined
-        ? null
-        : await getFormatDetail(client, chosen.id);
-    return [decks, versions, legalIn] as const;
+    const legalIn = scope === "tournament" || chosen === undefined ? null : chosen;
+    const legal = legalIn === null ? null : await listLegalDeckIds(client, legalIn.id);
+    return [decks, versions, legalIn, legal] as const;
   });
   if (!loaded.ok) return <ErrorState title="Decks could not be loaded" detail={loaded.error} />;
-  const [decks, versions, legalIn] = loaded.value;
+  const [decks, versions, legalIn, legal] = loaded.value;
 
-  const index = cardIndex();
-  const rules = formatRules(legalIn);
-  const candidates = latestVersions(decks).flatMap(({ deck, lineage }) => {
-    const resolved = toResolvedDeck(deck);
-    return inScope(scope, deck, lineage) &&
-      (rules === null || checkDeck(resolved, rules, index).legal)
-      ? [{ deck, resolved, events: lineage.flatMap((version) => version.events), lineage }]
-      : [];
-  });
+  const candidates = latestVersions(decks).flatMap(({ deck, lineage }) =>
+    inScope(scope, deck, lineage) && (legal === null || legal.has(deck.id))
+      ? [{ deck, events: lineage.flatMap((version) => version.events), lineage }]
+      : [],
+  );
   // The menus offer only the formats the tab's events were played under, and
   // the events in the format chosen, so a pick never empties the list by
   // itself; anything else in the URL is ignored.
@@ -194,7 +188,7 @@ export async function BrowseDecks({ scope, params }: { scope: DeckScope; params:
   const filter: Browse = {
     ...asked,
     // A version deleted since the link was made falls back to the one in force.
-    legal: legalIn?.version.id ?? null,
+    legal: legalIn?.id ?? null,
     current: scope === "tournament" ? null : (versions.find((v) => v.isCurrent)?.id ?? null),
     eventFormat,
     event: events.some((event) => event.id === asked.event) ? asked.event : null,
@@ -206,12 +200,12 @@ export async function BrowseDecks({ scope, params }: { scope: DeckScope; params:
         (filter.eventFormat === null || event.formatVersionIds.includes(filter.eventFormat)) &&
         (filter.event === null || event.id === filter.event),
     );
-  const matching = candidates.flatMap(({ deck, resolved, events: played, lineage }) =>
-    matchesDeckFilter(resolved, index, filter) && playedAsAsked(played)
+  const matching = candidates.flatMap(({ deck, events: played, lineage }) =>
+    matchesDeckFilter(deck.traits ?? NO_TRAITS, filter) && playedAsAsked(played)
       ? [
           {
             deck,
-            colors: colorIdentity(resolved, index),
+            colors: (deck.traits ?? NO_TRAITS).colors,
             winRate: deckWinRate(lineage.flatMap((version) => version.records)),
           },
         ]
@@ -265,7 +259,7 @@ export async function BrowseDecks({ scope, params }: { scope: DeckScope; params:
               ? "No deck matches that filter"
               : legalIn === null
                 ? NONE_YET[filter.scope]
-                : `No deck here is legal in ${legalIn.version.name} yet`
+                : `No deck here is legal in ${legalIn.name} yet`
           }
         >
           {filtering && (

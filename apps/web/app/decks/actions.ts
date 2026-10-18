@@ -1,20 +1,8 @@
 "use server";
 
 import { cardIndex } from "@/lib/cards/card-index";
-import type {
-  DeckFormat,
-  DeckId,
-  FormatVersionDetail,
-  LegalityVerdict,
-  ResolvedDeck,
-} from "@ps/contracts";
-import {
-  checkDeckImport,
-  checkDeckInFormat,
-  readDecklist,
-  type DeckImportProblem,
-  type UnknownCard,
-} from "@ps/core";
+import type { DeckFormat, DeckId, FormatVersionDetail, ResolvedDeck } from "@ps/contracts";
+import { checkDeckImport, checkDeckInFormat, readDecklist } from "@ps/core";
 import {
   createMemberDeck,
   getFormatDetail,
@@ -25,31 +13,19 @@ import {
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import type { DraftCheck, SaveState } from "@/components/decks/deck-editor-form";
 import { requireRole } from "@/lib/auth/guard";
 import { toDeckCards } from "@/lib/decks/deck-cards";
+import { refreshDecks } from "@/lib/decks/deck-traits.server";
 import { formatRules } from "@/lib/decks/deck-view";
 import { createPublicClient } from "@/lib/supabase/server";
+import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
 import { createSessionClient } from "@/lib/supabase/session";
 
 /**
  * Save, check and remove a member's own deck (E20.28, E20.30, E20.31). The owner is
  * always the session's, and `decks_member_insert` checks it again underneath.
  */
-
-/** What the editor shows beside the list: what stops it saving, and what only needs a yes. */
-export interface DraftCheck {
-  readonly problems: readonly DeckImportProblem[];
-  readonly unknownCards: readonly UnknownCard[];
-  /** Null when the format chosen names no version to check against. */
-  readonly verdict: LegalityVerdict | null;
-}
-
-export interface SaveState {
-  readonly problems: readonly DeckImportProblem[];
-  /** Set when the deck saves only once the member confirms it: not legal, or unknown cards. */
-  readonly confirm: DraftCheck | null;
-  readonly error: string | null;
-}
 
 interface ChosenFormat {
   readonly format: DeckFormat;
@@ -121,6 +97,7 @@ export async function saveDeck(_previous: SaveState, form: FormData): Promise<Sa
     { name, visibility, format, rawImport: decklist, formatVersionId, parentDeckId: parentId },
     toDeckCards(deck),
   );
+  await refreshDecks(createServiceRoleClient(), [id]);
 
   revalidatePath("/decks");
   redirect(`/decks/${id}`);

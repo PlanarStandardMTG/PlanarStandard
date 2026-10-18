@@ -4,9 +4,20 @@ import type { CardRuling } from "@ps/contracts";
 import { FORMAT_NAME_MAX, type CardRuleInput, type FormatDraftProblem } from "@ps/core";
 import { startTransition, useActionState, useState, type FormEvent } from "react";
 
-import { saveFormat, type FormatSaveState } from "@/app/admin/formats/actions";
-
 import { LegalSetList } from "./legal-set-list";
+
+/**
+ * What a save sends back. The action arrives as a prop rather than an import,
+ * so this client module never reaches a server-only one (E1.7).
+ */
+export interface FormatSaveState {
+  readonly problems: readonly FormatDraftProblem[];
+}
+
+export type SaveFormatAction = (
+  previous: FormatSaveState,
+  form: FormData,
+) => Promise<FormatSaveState>;
 
 /**
  * One format version's fields, legal sets, deck limits and card rules (E20.33).
@@ -88,14 +99,16 @@ export function FormatVersionForm({
   id,
   initial,
   knownSets,
+  save,
 }: {
   /** Null for a new version. */
   id: string | null;
   initial: FormatFormValues;
   /** The sets the card dataset holds, offered to add with one click. */
   knownSets: readonly string[];
+  save: SaveFormatAction;
 }) {
-  const [state, action, pending] = useActionState<FormatSaveState, FormData>(saveFormat, {
+  const [state, action, pending] = useActionState<FormatSaveState, FormData>(save, {
     problems: [],
   });
   const [values, setValues] = useState(initial);

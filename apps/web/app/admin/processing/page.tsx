@@ -5,6 +5,7 @@ import {
   listDecksWithCards,
   listFormatVersions,
   listRatingRuns,
+  listStaleLegalityVersions,
   listTournamentCoverage,
 } from "@ps/db";
 import type { Metadata } from "next";
@@ -61,13 +62,15 @@ export default async function AdminProcessingPage({
 
   const session = await createSessionClient();
   const service = createServiceRoleClient();
-  const [coverage, window, [lastRun], versions, cards] = await Promise.all([
+  const [coverage, window, [lastRun], versions, cards, staleIds] = await Promise.all([
     listTournamentCoverage(session),
     getRatingWindow(session),
     listRatingRuns(service, 1),
     listFormatVersions(session),
     findCardMatches(service),
+    listStaleLegalityVersions(session),
   ]);
+  const stale = versions.filter((version) => staleIds.has(version.id));
   const illegalIds = (typeof params["decks"] === "string" ? params["decks"].split(",") : []).filter(
     isUuid,
   );
@@ -110,8 +113,8 @@ export default async function AdminProcessingPage({
 
       {params["done"] === "rechecked" && (
         <Notice tone="good">
-          Deck formats rechecked:{" "}
-          {params["moved"] === "1" ? "1 deck" : `${String(params["moved"])} decks`} moved.
+          Decks rechecked: {params["moved"] === "1" ? "1 deck" : `${String(params["moved"])} decks`}{" "}
+          moved.
           {params["none"] !== "0" &&
             (params["none"] === "1"
               ? " 1 deck is legal in none of its event’s formats (usually an unmatched card):"
@@ -166,14 +169,20 @@ export default async function AdminProcessingPage({
 
       <div className="mb-8 flex flex-wrap items-center gap-4 rounded-xl border border-ink-200 px-5 py-4 dark:border-ink-800">
         <div className="min-w-0 flex-1">
-          <p className="font-semibold">Deck formats</p>
+          <p className="font-semibold">
+            {stale.length === 0
+              ? "Decks are up to date"
+              : `Decks need rechecking for ${stale.map((version) => version.name).join(", ")}`}
+          </p>
           <p className="text-xs text-ink-500 dark:text-ink-400">
-            Recheck after matching cards or editing a format&rsquo;s rules.
+            {stale.length === 0
+              ? "Recheck after matching cards or editing a format’s rules."
+              : "Until then, /decks may list decks that are no longer legal."}
           </p>
         </div>
         <form action={recheckDeckFormats}>
           <button type="submit" className={BUTTON}>
-            Recheck deck formats
+            Recheck decks
           </button>
         </form>
       </div>

@@ -48,6 +48,7 @@ export { deckSections, sectionOf } from "./decklist/deck-sections/index";
 export type { DeckSection, DeckSectionKey, SectionCard } from "./decklist/deck-sections/index";
 export { latestVersions } from "./decklist/latest-versions/index";
 export type { LatestVersion, Versioned } from "./decklist/latest-versions/index";
+export { deckTraits } from "./decklist/deck-traits/index";
 export { matchesDeckFilter } from "./decklist/match-deck-filter/index";
 export type { DeckFilter } from "./decklist/match-deck-filter/index";
 export { frontImage, pickPrinting } from "./decklist/pick-printing/index";
@@ -115,6 +116,8 @@ export { checkCard, copyLimit, isInPool } from "./legality/check-card/index";
 export type { CardUnderTest } from "./legality/check-card/index";
 export { checkDeck } from "./legality/check-deck/index";
 export { checkDeckInFormat } from "./legality/check-deck-in-format/index";
+export { rulesChange } from "./legality/rules-change/index";
+export type { RulesChange } from "./legality/rules-change/index";
 export { bestFormat } from "./legality/best-format/index";
 export type { BestFormat } from "./legality/best-format/index";
 export {

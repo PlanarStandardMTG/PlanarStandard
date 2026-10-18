@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
+import { saveFormat } from "@/app/admin/formats/actions";
 import { FormatVersionForm } from "@/components/format/format-version-form";
 import { requireRole } from "@/lib/auth/guard";
 import { cardSetCodes } from "@/lib/cards/card-index";
@@ -39,6 +40,7 @@ export default async function NewFormatPage() {
       <FormatVersionForm
         id={null}
         knownSets={knownSets}
+        save={saveFormat}
         initial={{
           name: "",
           notes: "",

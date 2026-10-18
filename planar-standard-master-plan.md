@@ -141,23 +141,25 @@ Write these first. Once they exist, every other package can be built in parallel
 | `deck-sections`     | A deck split into the sections it is read in: maindeck by type, sideboard |
 | `pick-printing`     | Which printing of a card a deck page shows                                |
 | `latest-versions`   | A member's decks as one entry each: the newest version                    |
-| `match-deck-filter` | Whether a deck casts every chosen colour and holds every named card       |
+| `deck-traits`       | A deck's pips, cast colours and card names, stored when it is saved       |
+| `match-deck-filter` | Whether a deck's traits cast every chosen colour and name every card      |
 
 Real cases from existing data that each needs to survive: missing set codes, `*F*` markers, promo sets (`PSOS`), alphanumeric collectors (`25p`, `WOE-273`), split cards (`Sanar, Unfinished Genius / Wild Idea`), fullwidth `｜` and `＞`, and filenames where the OS rewrote `｜` to `_`.
 
 #### 8.2 `core/legality` — deck + rules → verdict
 
-| Module                 | One-line job                                                                                                       |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `build-card-index`     | Dataset arrays → lookup maps by oracle id, normalized name, and set. Pure: takes the parsed dataset as an argument |
-| `resolve-card-name`    | Parsed decklist name → `oracle_id`, with fuzzy "did you mean" candidates                                           |
-| `resolve-format`       | Format version rows → a flat `FormatRules` object                                                                  |
-| `check-card`           | One card against the pool, banlist, and exceptions                                                                 |
-| `check-deck`           | Sizes, copy limits, basic-land exemption; composes `check-card`                                                    |
-| `resolve-deck`         | `ParsedDeck` → `ResolvedDeck`, resolving every line's name                                                         |
-| `check-deck-in-format` | A deck against the format it was built for: Planar Standard is checked, Kitchen Table is not                       |
-| `check-deck-import`    | Whether a pasted list, with its name, visibility and format, can be saved                                          |
-| `check-format-draft`   | Whether an admin's format version form can be saved; card rules by name, with "did you mean"                       |
+| Module                 | One-line job                                                                                                           |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `build-card-index`     | Dataset arrays → lookup maps by oracle id, normalized name, and set. Pure: takes the parsed dataset as an argument     |
+| `resolve-card-name`    | Parsed decklist name → `oracle_id`, with fuzzy "did you mean" candidates                                               |
+| `resolve-format`       | Format version rows → a flat `FormatRules` object                                                                      |
+| `check-card`           | One card against the pool, banlist, and exceptions                                                                     |
+| `check-deck`           | Sizes, copy limits, basic-land exemption; composes `check-card`                                                        |
+| `resolve-deck`         | `ParsedDeck` → `ResolvedDeck`, resolving every line's name                                                             |
+| `check-deck-in-format` | A deck against the format it was built for: Planar Standard is checked, Kitchen Table is not                           |
+| `check-deck-import`    | Whether a pasted list, with its name, visibility and format, can be saved                                              |
+| `check-format-draft`   | Whether an admin's format version form can be saved; card rules by name, with "did you mean"                           |
+| `rules-change`         | Whether an edit to a version's rules narrowed or widened what is legal, so stored legality goes stale only when it can |
 
 **The format rule, confirmed from real data:** a card is legal if its oracle card has _any_ printing in a legal set. Any printing may then be played. (EG: Season II tracks six sets (SOS, ECL, EOE, TDM, DFT, FDN) while printings come from FIN, ONE, M19, PLST, and promos.)
 
@@ -708,7 +710,8 @@ The format admin UI validates the second against the first and warns when an adm
 create table format_versions (
   id uuid primary key default gen_random_uuid(),
   name text not null, effective_from date not null, effective_to date,
-  notes_markdown text, is_current boolean not null default false
+  notes_markdown text, is_current boolean not null default false,
+  deck_legality_stale boolean not null default true  -- E20.72: rules narrowed since decks were checked
 );
 create unique index format_versions_one_current
   on format_versions (is_current) where is_current;
@@ -792,6 +795,21 @@ create table deck_metrics (
   type_counts jsonb not null, set_counts jsonb not null, rarity_counts jsonb not null,
   unresolved_cards int not null default 0,
   computed_at timestamptz not null default now()
+);
+
+-- What the deck browser lists and filters by, written when a deck is saved
+-- because the card data it needs is not in Postgres (E20.72).
+create table deck_traits (
+  deck_id uuid primary key references decks(id) on delete cascade,
+  colors text[] not null, cast_colors text[] not null, card_names text[] not null,
+  computed_at timestamptz not null default now()
+);
+create table deck_legality (
+  format_version_id uuid not null references format_versions(id) on delete cascade,
+  deck_id uuid not null references decks(id) on delete cascade,
+  legal boolean not null,
+  computed_at timestamptz not null default now(),
+  primary key (format_version_id, deck_id)
 );
 
 create table card_stats (

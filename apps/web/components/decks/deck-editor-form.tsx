@@ -1,5 +1,6 @@
 "use client";
 
+import type { LegalityVerdict } from "@ps/contracts";
 import { DECK_NAME_MAX, DECKLIST_MAX, type DeckImportProblem, type UnknownCard } from "@ps/core";
 import {
   startTransition,
@@ -12,7 +13,6 @@ import {
 
 import Link from "next/link";
 
-import { checkDraft, saveDeck, type DraftCheck, type SaveState } from "@/app/decks/actions";
 import type { FormatOption } from "@/components/decks/format-labels";
 import { loginHref } from "@/lib/auth/next-path";
 import { keepDraft, takeDraft } from "@/lib/decks/draft-handoff";
@@ -25,7 +25,28 @@ import { keepDraft, takeDraft } from "@/lib/decks/draft-handoff";
  *
  * A visitor can check a list but not save it (E20.59). Signing in from here
  * keeps what they wrote, and the editor puts it back when they return.
+ *
+ * Both actions arrive as props rather than imports, so this client module
+ * never reaches a server-only one (E1.7).
  */
+
+/** What the editor shows beside the list: what stops it saving, and what only needs a yes. */
+export interface DraftCheck {
+  readonly problems: readonly DeckImportProblem[];
+  readonly unknownCards: readonly UnknownCard[];
+  /** Null when the format chosen names no version to check against. */
+  readonly verdict: LegalityVerdict | null;
+}
+
+export interface SaveState {
+  readonly problems: readonly DeckImportProblem[];
+  /** Set when the deck saves only once the member confirms it: not legal, or unknown cards. */
+  readonly confirm: DraftCheck | null;
+  readonly error: string | null;
+}
+
+export type SaveDeckAction = (previous: SaveState, form: FormData) => Promise<SaveState>;
+export type CheckDraftAction = (format: string, decklist: string) => Promise<DraftCheck>;
 const FIELD =
   "mt-1.5 w-full rounded-lg border border-ink-300 bg-paper px-3 py-2 text-sm " +
   "focus:border-eclipse-500 focus:outline-none dark:border-ink-700 dark:bg-ink-950";
@@ -100,12 +121,16 @@ export function DeckEditorForm({
   formats,
   parentId = null,
   saver = "member",
+  saveDeck,
+  checkDraft,
 }: {
   initial: DeckDraft;
   formats: readonly FormatOption[];
   /** The version being edited; the save becomes its successor. */
   parentId?: string | null;
   saver?: DeckSaver;
+  saveDeck: SaveDeckAction;
+  checkDraft: CheckDraftAction;
 }) {
   const [state, action, pending] = useActionState<SaveState, FormData>(saveDeck, {
     problems: [],

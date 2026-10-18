@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 16/17 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 60/71 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 61/72 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
@@ -1513,6 +1513,19 @@ page's hero reads "Welcome to Planar Standard" over "The portal for the communit
 format."
 _Note:_ added outside the plan.
 
+✅ **E20.72 — `/decks` reads stored traits, not every list** · M · Deps: E20.40, E20.53 — the browser
+loaded every public deck with its whole list on each request and checked each against the card data,
+so its cost grew with every deck imported. A deck's pips, cast colours, card names (`deck_traits`) and
+legality in each format version (`deck_legality`) are now worked out when it is saved, and `/decks`
+reads those. A format edit that narrows a version's rules marks it stale (`deck_legality_stale`) for an
+admin to recheck from `/admin/processing`; a new or widened version is rechecked on save, and matching
+cards marks every version stale. The home page's podium reads its colours from the same rows.
+_AC:_ `/decks` loads no decklist and no card data; with 806 decks locally a warm request fell from
+147 ms to 31 ms of CPU, with the same deck counts for every filter tried. A ban, a removed set or a
+tighter limit flags the version on `/admin/formats` and `/admin/processing`; "Recheck decks" clears it.
+_Note:_ added outside the plan. The migration starts every version stale and every deck without
+traits, so `/decks` lists nothing until an admin presses "Recheck decks" once.
+
 ---
 
 ## E21 — Season II backfill
@@ -2088,7 +2101,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 17      | 16   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 71      | 60   |
+| E9   | 9       | 9    | E20  | 72      | 61   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 17      | 16   |
@@ -2096,4 +2109,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E25  | 8       | 6    |
 |      |         |      | E26  | 29      | 0    |
 
-**248 of 348 stories done across 26 epics.**
+**249 of 349 stories done across 26 epics.**

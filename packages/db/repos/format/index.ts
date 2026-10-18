@@ -88,6 +88,41 @@ export async function listFormatVersions(
 }
 
 /**
+ * The versions whose stored deck legality is out of date (E20.72): their rules
+ * narrowed, or cards were matched, since the decks were last checked.
+ */
+export async function listStaleLegalityVersions(
+  client: SupabaseClient,
+): Promise<ReadonlySet<FormatVersionId>> {
+  const { data, error } = await client
+    .from("format_versions")
+    .select("id")
+    .eq("deck_legality_stale", true);
+
+  if (error !== null) throw new Error(`listStaleLegalityVersions failed: ${error.message}`);
+  return new Set((data as { id: string }[]).map((row) => row.id as FormatVersionId));
+}
+
+/**
+ * Mark these versions' stored deck legality out of date, or up to date again
+ * after a recheck (E20.72). Service role: the flag is the site's bookkeeping,
+ * not an admin's edit.
+ */
+export async function setLegalityStale(
+  serviceClient: SupabaseClient,
+  formatVersionIds: readonly FormatVersionId[],
+  stale: boolean,
+): Promise<void> {
+  if (formatVersionIds.length === 0) return;
+  const { error } = await serviceClient
+    .from("format_versions")
+    .update({ deck_legality_stale: stale })
+    .in("id", formatVersionIds);
+
+  if (error !== null) throw new Error(`setLegalityStale failed: ${error.message}`);
+}
+
+/**
  * Create a version (`formatVersionId` null) or replace one, with its sets,
  * constraints and card rules, in one transaction (E20.33). Making it current
  * un-marks the old current version. Takes the admin's own client:

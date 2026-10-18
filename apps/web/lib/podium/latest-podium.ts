@@ -1,11 +1,14 @@
 import type { EventPodium } from "@ps/contracts";
-import { colorIdentity, ratedByDefault } from "@ps/core";
-import { listDecksWithCards, listTournamentFinishers, listTournamentsWithDecks } from "@ps/db";
+import { ratedByDefault } from "@ps/core";
+import {
+  listDeckTraits,
+  listDecksWithCards,
+  listTournamentFinishers,
+  listTournamentsWithDecks,
+} from "@ps/db";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { unstable_cache } from "next/cache";
 
-import { cardIndex } from "@/lib/cards/card-index";
-import { toResolvedDeck } from "@/lib/decks/deck-view";
 import { createPublicClient } from "@/lib/supabase/server";
 
 /** How many finishers the home page shows. Four fills the row at every width. */
@@ -15,11 +18,9 @@ export const PODIUM_SIZE = 4;
 const RECENT = 20;
 
 /**
- * The podium, cached across requests and server instances.
- *
- * Its colour pips need the whole card index, and parsing it was most of the CPU
- * a new instance spent on its first `/`. Imports and deck edits revalidate `/`,
- * which expires this too; the hour is a backstop.
+ * The podium, cached across requests and server instances: four database
+ * reads in a row, on the page most visits start at. Imports and deck edits
+ * revalidate `/`, which expires this too; the hour is a backstop.
  */
 export const cachedLatestPodium = unstable_cache(
   () => loadLatestPodium(createPublicClient()),
@@ -43,10 +44,12 @@ export async function loadLatestPodium(client: SupabaseClient): Promise<EventPod
     0,
     PODIUM_SIZE,
   );
-  const decks = await listDecksWithCards(client, {
-    ids: finishers.flatMap((f) => (f.deckId === null ? [] : [f.deckId])),
-  });
-  const index = cardIndex();
+  const deckIds = finishers.flatMap((f) => (f.deckId === null ? [] : [f.deckId]));
+  // Colours from the stored traits (E20.72), so the home page never loads the card data.
+  const [decks, traits] = await Promise.all([
+    listDecksWithCards(client, { ids: deckIds }),
+    listDeckTraits(client, deckIds),
+  ]);
 
   return {
     name: event.name,
@@ -57,7 +60,6 @@ export async function loadLatestPodium(client: SupabaseClient): Promise<EventPod
     playerCount: event.playerCount,
     finishes: finishers.map((finisher) => {
       const deck = decks.find((d) => d.id === finisher.deckId);
-      const resolved = deck === undefined ? null : toResolvedDeck(deck);
       return {
         placement: finisher.placement,
         handle: finisher.displayName ?? "Hidden player",
@@ -65,7 +67,7 @@ export async function loadLatestPodium(client: SupabaseClient): Promise<EventPod
         deckName: deck?.name ?? null,
         deckId: deck?.id ?? null,
         record: finisher.record,
-        colors: resolved === null ? [] : colorIdentity(resolved, index),
+        colors: (deck === undefined ? undefined : traits.get(deck.id)?.colors) ?? [],
       };
     }),
   };

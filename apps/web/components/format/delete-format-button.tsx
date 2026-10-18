@@ -2,13 +2,22 @@
 
 import { useRef } from "react";
 
-import { deleteFormat } from "@/app/admin/formats/actions";
-
 const OUTLINE_BUTTON =
   "rounded-lg border border-ink-300 px-3 py-1.5 text-sm text-ink-700 dark:border-ink-700 dark:text-ink-300";
 
-/** Delete a format version, after the admin confirms it (E20.33). */
-export function DeleteFormatButton({ id, name }: { id: string; name: string }) {
+/**
+ * Delete a format version, after the admin confirms it (E20.33). The action is
+ * a prop so this client module never reaches a server-only one (E1.7).
+ */
+export function DeleteFormatButton({
+  id,
+  name,
+  deleteFormat,
+}: {
+  id: string;
+  name: string;
+  deleteFormat: (form: FormData) => Promise<void>;
+}) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
   return (
