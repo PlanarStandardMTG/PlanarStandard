@@ -1,7 +1,6 @@
 import type { LeaderboardRow, RatingWindow, UnrankedPlayerRow } from "@ps/contracts";
 import { getLeaderboard, getRatingConfig, getRatingWindow, listUnrankedPlayers } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { SeasonBadge } from "@/components/layout/season-badge";
 import { RatingsTable } from "@/components/leaderboard/ratings-table";
@@ -13,6 +12,7 @@ import {
   type LadderSort,
 } from "@/components/leaderboard/sort-ladder";
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { PageHeader } from "@/components/ui/page-header";
 import { Pager } from "@/components/ui/pager";
 import { EmptyState, ErrorState } from "@/components/ui/states";

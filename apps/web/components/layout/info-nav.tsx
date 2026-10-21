@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { Link } from "@/components/ui/link";
 import { publishedInfoPages } from "@/lib/info-pages/pages";
 
 /**

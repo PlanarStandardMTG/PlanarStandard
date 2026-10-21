@@ -8,7 +8,6 @@ import {
   listPlayedEntries,
 } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
@@ -18,6 +17,7 @@ import { DeckLegality } from "@/components/decks/deck-legality";
 import { DeleteDeckButton } from "@/components/decks/delete-deck-button";
 import { DeckDisplay } from "@/components/decks/deck-display";
 import { FORMAT_LABELS } from "@/components/decks/format-labels";
+import { Link } from "@/components/ui/link";
 import { PlayedEvents } from "@/components/ui/played-events";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";

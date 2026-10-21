@@ -35,7 +35,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | ✅ 23/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
-| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 16/17 |
+| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 17/18 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 16/17 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
@@ -828,6 +828,13 @@ Vercel Web Analytics from the root layout and nothing is stored on the visitor's
 says what a view records, its lawful basis and that Vercel processes it.
 _Note:_ added outside the plan. It reverses E16.12's "no analytics" but not its "no consent banner":
 no cookie is set and the visitor hash is discarded after 24 hours. Adds `@vercel/analytics`.
+
+✅ **E16.18 — Links stop prefetching** · S · Deps: E16.1 — every route renders per request, so a
+prefetch fetched only the route tree, yet each link in view was a function invocation; the header
+and footer alone made about fourteen per page view. `components/ui/link` wraps `next/link` with
+`prefetch={false}`, and lint refuses `next/link` anywhere else in `apps/web`.
+_AC:_ no link prefetches unless it passes `prefetch`; importing `next/link` fails `pnpm lint`.
+_Note:_ added outside the plan.
 
 ---
 
@@ -2102,7 +2109,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E2   | 9       | 9    | E13  | 23      | 23   |
 | E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
-| E5   | 6       | 6    | E16  | 17      | 16   |
+| E5   | 6       | 6    | E16  | 18      | 17   |
 | E6   | 8       | 8    | E17  | 17      | 16   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
@@ -2114,4 +2121,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E25  | 8       | 6    |
 |      |         |      | E26  | 29      | 0    |
 
-**250 of 350 stories done across 26 epics.**
+**251 of 351 stories done across 26 epics.**

@@ -1,10 +1,11 @@
 import { canViewHistory } from "@ps/core";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { currentViewer } from "@/lib/auth/viewer";
 import { cn } from "@/lib/cn";
 import { personHref, type Person } from "@/lib/people/member-href";
+
+import { Link } from "./link";
 
 /**
  * A member's or a player's name. A link to their history for a writer or above

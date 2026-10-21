@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { saveSeason } from "@/app/admin/seasons/actions";
 import { SeasonForm } from "@/components/seasons/season-form";
+import { Link } from "@/components/ui/link";
 import { requireRole } from "@/lib/auth/guard";
 
 export const dynamic = "force-dynamic";

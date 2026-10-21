@@ -2,13 +2,13 @@ import type { FormatVersionId } from "@ps/contracts";
 import { DEFAULT_CONSTRAINTS } from "@ps/core";
 import { getFormatDetail } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { deleteFormat, saveFormat } from "@/app/admin/formats/actions";
 import { Notice } from "@/components/auth/form-parts";
 import { DeleteFormatButton } from "@/components/format/delete-format-button";
 import { FormatVersionForm } from "@/components/format/format-version-form";
+import { Link } from "@/components/ui/link";
 import { requireRole } from "@/lib/auth/guard";
 import { cardIndex, cardSetCodes } from "@/lib/cards/card-index";
 import { createSessionClient } from "@/lib/supabase/session";

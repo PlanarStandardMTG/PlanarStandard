@@ -1,10 +1,10 @@
 import { canRemoveContent } from "@ps/core";
 import { getPlayer, getPlayerBySlug, listIdentitiesByPlayer, listPlayedEntries } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { PageHeader } from "@/components/ui/page-header";
 import { PlayedEvents } from "@/components/ui/played-events";
 import { requireRole } from "@/lib/auth/guard";

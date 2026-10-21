@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { ADMIN_SECTIONS } from "@/lib/auth/admin-sections";
 import { requireRole } from "@/lib/auth/guard";
 

@@ -8,7 +8,6 @@ import {
   listPostsByAuthor,
 } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
@@ -16,6 +15,7 @@ import { Notice } from "@/components/auth/form-parts";
 import { RemoveEverythingButton } from "@/components/members/remove-everything-button";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { PageHeader } from "@/components/ui/page-header";
 import { PlayedEvents } from "@/components/ui/played-events";
 import { requireRole } from "@/lib/auth/guard";

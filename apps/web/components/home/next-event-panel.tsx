@@ -1,9 +1,9 @@
-import Link from "next/link";
 import type { ExternalEvent } from "@ps/contracts";
 
 import { EventCarousel } from "@/components/home/event-carousel";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Link } from "@/components/ui/link";
 import { LocalTime } from "@/components/ui/local-time";
 import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";
 

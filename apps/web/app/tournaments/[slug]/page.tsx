@@ -1,6 +1,5 @@
 import type { EventSource } from "@ps/contracts";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
@@ -8,6 +7,7 @@ import { RoundPairings } from "@/components/tournaments/round-pairings";
 import { StandingsList } from "@/components/tournaments/standings-list";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { PageHeader } from "@/components/ui/page-header";
 import { SectionHeading } from "@/components/ui/section-heading";
 import { EmptyState } from "@/components/ui/states";

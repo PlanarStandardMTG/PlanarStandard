@@ -1,8 +1,8 @@
 import { HANDLE_MAX_LENGTH, HANDLE_MIN_LENGTH } from "@ps/core";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
+import { Link } from "@/components/ui/link";
 import { requireViewer } from "@/lib/auth/guard";
 import { formatTimeAgo } from "@/lib/format-date";
 

@@ -7,13 +7,13 @@ import {
   type TournamentCoverage,
 } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Notice } from "@/components/auth/form-parts";
 import { DecklistUploadForm } from "@/components/fetching/decklist-upload-form";
 import { EventTable, type EventRow } from "@/components/fetching/event-table";
 import { RefetchEverythingButton } from "@/components/fetching/refetch-everything-button";
 import type { BadgeVariant } from "@/components/ui/badge";
+import { Link } from "@/components/ui/link";
 import { Placement } from "@/components/ui/marks";
 import { requireRole } from "@/lib/auth/guard";
 import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";

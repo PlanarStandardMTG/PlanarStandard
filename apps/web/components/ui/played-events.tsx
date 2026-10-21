@@ -1,10 +1,11 @@
 import type { PlayedEntry } from "@ps/db";
 import { formatRecord } from "@ps/core";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
-import { DotLeader, Placement } from "./marks";
 import { formatDate } from "@/lib/format-date";
+
+import { Link } from "./link";
+import { DotLeader, Placement } from "./marks";
 
 /**
  * Events somebody played, newest first: where they finished, their record, and

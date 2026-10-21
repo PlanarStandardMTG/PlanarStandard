@@ -1,11 +1,11 @@
 import type { PostKind } from "@ps/contracts";
 import { canEditOwnPost } from "@ps/core";
 import { getPostForEditing } from "@ps/db";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { Notice } from "@/components/auth/form-parts";
 import { EditorFor } from "@/components/content/editor-page";
+import { Link } from "@/components/ui/link";
 import { requireRole } from "@/lib/auth/guard";
 import { editPostHref, ownPostsHref, postHref } from "@/lib/post-url";
 import { createSessionClient } from "@/lib/supabase/session";

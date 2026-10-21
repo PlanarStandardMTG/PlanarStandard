@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { AuthShell, Card } from "@/components/auth/form-parts";
+import { Link } from "@/components/ui/link";
 import { safeNextPath } from "@/lib/auth/next-path";
 
 export const dynamic = "force-dynamic";

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { AuthShell, Card, Field, Notice, SubmitButton } from "@/components/auth/form-parts";
+import { Link } from "@/components/ui/link";
 import { authMessage } from "@/lib/auth/auth-error";
 
 export const dynamic = "force-dynamic";

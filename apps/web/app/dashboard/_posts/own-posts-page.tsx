@@ -1,11 +1,11 @@
 import type { PostKind, PostStatus } from "@ps/contracts";
 import { canEditOwnPost, submissionStatus } from "@ps/core";
 import { listPostsByAuthor } from "@ps/db";
-import Link from "next/link";
 
 import { Notice } from "@/components/auth/form-parts";
 import { WritePostButton } from "@/components/content/write-post-button";
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
+import { Link } from "@/components/ui/link";
 import { EmptyState } from "@/components/ui/states";
 import { requireRole } from "@/lib/auth/guard";
 import { formatDate } from "@/lib/format-date";

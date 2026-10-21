@@ -1,9 +1,9 @@
 import { isUserRole } from "@ps/core";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { safeNextPath } from "@/lib/auth/next-path";
 import { currentViewer } from "@/lib/auth/viewer";
 import { formatDate } from "@/lib/format-date";

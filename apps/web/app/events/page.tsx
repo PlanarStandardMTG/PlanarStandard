@@ -1,9 +1,9 @@
 import type { EventSyncState, ExternalEvent } from "@ps/contracts";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { EventGroup } from "@/components/events/event-group";
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { PageHeader } from "@/components/ui/page-header";
 import { Pager } from "@/components/ui/pager";
 import { EmptyState, ErrorState } from "@/components/ui/states";

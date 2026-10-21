@@ -7,9 +7,9 @@ import {
   listTournamentCoverage,
 } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
+import { Link } from "@/components/ui/link";
 import { ADMIN_SECTIONS } from "@/lib/auth/admin-sections";
 import { requireRole } from "@/lib/auth/guard";
 import { createSessionClient } from "@/lib/supabase/session";

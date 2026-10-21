@@ -11,9 +11,8 @@ import {
   type FormEvent,
 } from "react";
 
-import Link from "next/link";
-
 import type { FormatOption } from "@/components/decks/format-labels";
+import { Link } from "@/components/ui/link";
 import { loginHref } from "@/lib/auth/next-path";
 import { keepDraft, takeDraft } from "@/lib/decks/draft-handoff";
 

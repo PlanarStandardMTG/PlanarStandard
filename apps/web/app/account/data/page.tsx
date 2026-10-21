@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { AuthShell, Card, Notice } from "@/components/auth/form-parts";
+import { Link } from "@/components/ui/link";
 import { requireViewer } from "@/lib/auth/guard";
 
 export const dynamic = "force-dynamic";

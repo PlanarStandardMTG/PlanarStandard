@@ -1,11 +1,11 @@
 import type { SeasonId } from "@ps/contracts";
 import { getSeason } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { saveSeason } from "@/app/admin/seasons/actions";
 import { SeasonForm } from "@/components/seasons/season-form";
+import { Link } from "@/components/ui/link";
 import { requireRole } from "@/lib/auth/guard";
 import { createSessionClient } from "@/lib/supabase/session";
 

@@ -9,10 +9,10 @@ import {
   type DeckWinRate,
 } from "@ps/core";
 import { listBrowsableDecks, listFormatVersions, listLegalDeckIds, type DeckEvent } from "@ps/db";
-import Link from "next/link";
 
 import { ColorPips } from "@/components/decks/color-pips";
 import { deckFormatLabel } from "@/components/decks/format-labels";
+import { Link } from "@/components/ui/link";
 import { EmptyState, ErrorState } from "@/components/ui/states";
 import { formatShortDate } from "@/lib/format-date";
 import { load } from "@/lib/load";

@@ -8,9 +8,9 @@ import {
   listPlayedEntries,
   type PlayedEntry,
 } from "@ps/db";
-import Link from "next/link";
 
 import { deckFormatLabel } from "@/components/decks/format-labels";
+import { Link } from "@/components/ui/link";
 import { PlayedEvents } from "@/components/ui/played-events";
 import { Badge } from "@/components/ui/badge";
 import { EmptyState, ErrorState } from "@/components/ui/states";

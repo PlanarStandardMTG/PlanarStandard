@@ -1,7 +1,6 @@
-import Link from "next/link";
-
 import { ColorPips } from "@/components/decks/color-pips";
 import { DeckSectionsList } from "@/components/decks/deck-sections-list";
+import { Link } from "@/components/ui/link";
 
 import type { LoadedDeck } from "./load-deck";
 

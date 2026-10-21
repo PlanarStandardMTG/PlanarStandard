@@ -1,8 +1,8 @@
 import { meetsRole } from "@ps/core";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
+import { Link } from "@/components/ui/link";
 import { DASHBOARD_MINIMUM, DASHBOARD_SECTIONS } from "@/lib/auth/dashboard-sections";
 import { requireRole } from "@/lib/auth/guard";
 

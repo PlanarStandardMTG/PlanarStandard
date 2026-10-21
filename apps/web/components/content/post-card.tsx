@@ -1,7 +1,7 @@
-import Link from "next/link";
 import type { PostWithAuthor } from "@ps/contracts";
 
 import { Card } from "@/components/ui/card";
+import { Link } from "@/components/ui/link";
 import { cn } from "@/lib/cn";
 import { postHref } from "@/lib/post-url";
 

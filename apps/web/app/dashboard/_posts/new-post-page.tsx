@@ -1,7 +1,7 @@
 import type { PostKind } from "@ps/contracts";
-import Link from "next/link";
 
 import { EditorFor } from "@/components/content/editor-page";
+import { Link } from "@/components/ui/link";
 import { requireRole } from "@/lib/auth/guard";
 import { ownPostsHref } from "@/lib/post-url";
 

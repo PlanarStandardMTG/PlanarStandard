@@ -9,11 +9,11 @@ import {
   listTournamentCoverage,
 } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Notice } from "@/components/auth/form-parts";
 import { InclusionTable } from "@/components/processing/inclusion-table";
 import { RatingWindowForm } from "@/components/processing/rating-window-form";
+import { Link } from "@/components/ui/link";
 import { requireRole } from "@/lib/auth/guard";
 import { findCardMatches } from "@/lib/decks/match-deck-cards.server";
 import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";

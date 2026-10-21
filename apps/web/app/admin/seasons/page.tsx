@@ -1,9 +1,9 @@
 import { listSeasons } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Notice } from "@/components/auth/form-parts";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "@/components/ui/link";
 import { requireRole } from "@/lib/auth/guard";
 import { formatDate } from "@/lib/format-date";
 import { createSessionClient } from "@/lib/supabase/session";

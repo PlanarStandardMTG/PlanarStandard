@@ -2,9 +2,9 @@
 
 import type { PostReaction, PostReactionCounts } from "@ps/contracts";
 import { POST_REACTIONS, toggledReaction } from "@ps/core";
-import Link from "next/link";
 import { useOptimistic, useTransition } from "react";
 
+import { Link } from "@/components/ui/link";
 import { cn } from "@/lib/cn";
 
 const LABELS: Readonly<Record<PostReaction, string>> = { thumbs_up: "Thumbs up" };

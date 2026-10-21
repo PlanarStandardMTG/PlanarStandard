@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { saveFormat } from "@/app/admin/formats/actions";
 import { FormatVersionForm } from "@/components/format/format-version-form";
+import { Link } from "@/components/ui/link";
 import { requireRole } from "@/lib/auth/guard";
 import { cardSetCodes } from "@/lib/cards/card-index";
 import { loadCurrentFormat } from "@/lib/format/current-format";
