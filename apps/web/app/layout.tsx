@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Instrument_Sans, JetBrains_Mono } from "next/font/google";
 import localFont from "next/font/local";
@@ -44,6 +45,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <SiteHeader />
         <main className="flex flex-1 flex-col">{children}</main>
         <SiteFooter />
+        <Analytics />
       </body>
     </html>
   );

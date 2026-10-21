@@ -35,7 +35,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | ✅ 23/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
-| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 15/16 |
+| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 16/17 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 16/17 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
@@ -823,6 +823,11 @@ _Note:_ added outside the plan. It retires E16.14's night regions: `dark:` is no
 `<html data-theme>`, set by a head script in `app/layout.tsx`, and falls back to
 `prefers-color-scheme` with no script at all. The stored-preference helpers in `lib/preferences.ts`
 also back the deck page's remembered layout (E20.29).
+✅ **E16.17 — Page views are counted, without cookies** · S · Deps: E16.12 — _AC:_ every page loads
+Vercel Web Analytics from the root layout and nothing is stored on the visitor's device; `/privacy`
+says what a view records, its lawful basis and that Vercel processes it.
+_Note:_ added outside the plan. It reverses E16.12's "no analytics" but not its "no consent banner":
+no cookie is set and the visitor hash is discarded after 24 hours. Adds `@vercel/analytics`.
 
 ---
 
@@ -2097,7 +2102,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E2   | 9       | 9    | E13  | 23      | 23   |
 | E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
-| E5   | 6       | 6    | E16  | 16      | 15   |
+| E5   | 6       | 6    | E16  | 17      | 16   |
 | E6   | 8       | 8    | E17  | 17      | 16   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
@@ -2109,4 +2114,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E25  | 8       | 6    |
 |      |         |      | E26  | 29      | 0    |
 
-**249 of 349 stories done across 26 epics.**
+**250 of 350 stories done across 26 epics.**
