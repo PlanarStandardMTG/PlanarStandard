@@ -167,6 +167,7 @@ export async function replaceEvents(
   source: EventSource,
   events: readonly ParsedExternalEvent[],
   fetchedAt: string,
+  { prune = true }: { readonly prune?: boolean } = {},
 ): Promise<void> {
   if (events.length > 0) {
     const { error } = await serviceClient.from("external_events").upsert(
@@ -186,6 +187,9 @@ export async function replaceEvents(
 
     if (error !== null) throw new Error(`replaceEvents upsert failed: ${error.message}`);
   }
+
+  // A calendar fetched one page at a time is a window, not the whole truth.
+  if (!prune) return;
 
   const kept = events.map((event) => event.externalId);
   const stale = serviceClient.from("external_events").delete().eq("source", source);

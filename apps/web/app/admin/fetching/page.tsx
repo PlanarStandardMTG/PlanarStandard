@@ -314,7 +314,7 @@ async function MissingDecklists({
 
 /**
  * Each platform's calendar is what queues a finished event, and it refreshes
- * itself on a page view once its last attempt is two hours old
+ * itself on a page view once its last attempt is three hours old
  * (`core/events/sync-window`). These buttons skip the wait (E25.7).
  */
 function Calendars({ calendars, now }: { calendars: readonly CalendarSync[]; now: Date }) {
@@ -322,7 +322,7 @@ function Calendars({ calendars, now }: { calendars: readonly CalendarSync[]; now
     <section className="mt-6 mb-8 rounded-xl border border-ink-200 p-5 dark:border-ink-800">
       <h2 className="font-semibold">Calendars</h2>
       <p className="mt-1 max-w-prose text-sm text-ink-600 dark:text-ink-400">
-        Each refreshes by itself every two hours. Challonge allows 500 requests a month.
+        Each refreshes by itself every three hours. Challonge allows 500 requests a month.
       </p>
       <ul className="mt-4 divide-y divide-ink-200 dark:divide-ink-800">
         {calendars.map(({ source, configured, sync }) => (

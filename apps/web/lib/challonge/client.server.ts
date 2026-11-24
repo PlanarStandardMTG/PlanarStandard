@@ -10,9 +10,13 @@ import { challongeGetAllPages } from "./transport.server";
 
 export { isChallongeConfigured } from "./transport.server";
 
-/** Pages of the tournaments list. 50 × 4 is far more events than the community runs at once. */
-const PAGE_SIZE = 50;
-const MAX_PAGES = 4;
+/**
+ * One request, newest-created first (seen against the live API): a refresh spends one
+ * request of the 500 a month, however many events the community has run. Older events
+ * stay in the cache — see `replaceEvents`' `prune`.
+ */
+const PAGE_SIZE = 100;
+const MAX_PAGES = 1;
 
 /**
  * Fetch the community's tournament list.

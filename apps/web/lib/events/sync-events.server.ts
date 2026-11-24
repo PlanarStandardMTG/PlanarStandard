@@ -42,7 +42,7 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
  *
  * The refresh runs after the response, so no visitor waits on a third party or
  * on the claim; the one whose view triggered it sees the events we already had.
- * A refresh that failed costs the same, because a schedule that is two hours
+ * A refresh that failed costs the same, because a schedule that is hours
  * stale is worth far more than an error page.
  *
  * Refreshing is per-source and reading is not. A fetch has to know whose calendar
@@ -61,6 +61,8 @@ interface Calendar {
   readonly isConfigured: () => boolean;
   readonly fetchEvents: () => Promise<CalendarFetch>;
   readonly parse: (payload: unknown) => readonly ParsedExternalEvent[];
+  /** False when a fetch is the newest page only, so absence from it means nothing. */
+  readonly fetchesWholeCalendar: boolean;
 }
 
 const CALENDARS: readonly Calendar[] = [
@@ -69,12 +71,14 @@ const CALENDARS: readonly Calendar[] = [
     isConfigured: isChallongeConfigured,
     fetchEvents: fetchCommunityTournaments,
     parse: parseChallongeEvents,
+    fetchesWholeCalendar: false,
   },
   {
     source: "melee",
     isConfigured: isMeleeConfigured,
     fetchEvents: fetchTournamentList,
     parse: parseMeleeEvents,
+    fetchesWholeCalendar: true,
   },
 ];
 
@@ -211,7 +215,9 @@ async function refresh(calendar: Calendar, cutoff: string, now: Date): Promise<C
     const finished = newlyCompleted(previous, events);
     await recordCompletions(service, source, finished, fetchedAt);
 
-    await replaceEvents(service, source, events, fetchedAt);
+    await replaceEvents(service, source, events, fetchedAt, {
+      prune: calendar.fetchesWholeCalendar,
+    });
     await recordSyncResult(service, source, {
       succeededAt: fetchedAt,
       eventCount: events.length,

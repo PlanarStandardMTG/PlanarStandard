@@ -42,7 +42,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E20  | Feature slices                        | 3–10  | E18          | 🚧 61/72 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
-| E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
+| E23  | Upcoming events                       | 2     | E13.1        | 🚧 17/18 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 7/8   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
 | E26  | Running events on the site            | 11    | E2, E18.11   | ⬜ 0/29  |
@@ -1709,6 +1709,13 @@ _Note:_ added outside the plan. `eventSchedule` is given no window; `lib/paging.
 `components/ui/pager.tsx` links newer and older. A `?q=` box filters them by a word in the name, ignoring case,
 and the pager keeps it.
 
+✅ **E23.18 — A Challonge refresh is one request** · S · Deps: E23.8 — the calendar fetched 50 events
+a page, up to four pages, so 87 events cost two requests every refresh and the month ran over 500.
+_AC:_ a refresh spends one request (`per_page=100`, newest-created first); older events stay cached
+(upsert, no prune); the interval is three hours, 240 requests a month.
+_Note:_ melee.gg still replaces wholesale. If Challonge outgrows 100 events, one finishing after it
+drops off the first page would never be queued.
+
 ---
 
 ## E24 — Home page
@@ -2116,9 +2123,9 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E9   | 9       | 9    | E20  | 72      | 61   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
-|      |         |      | E23  | 17      | 16   |
+|      |         |      | E23  | 18      | 17   |
 |      |         |      | E24  | 8       | 7    |
 |      |         |      | E25  | 8       | 6    |
 |      |         |      | E26  | 29      | 0    |
 
-**251 of 351 stories done across 26 epics.**
+**252 of 352 stories done across 26 epics.**
