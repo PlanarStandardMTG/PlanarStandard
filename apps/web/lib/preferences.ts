@@ -15,6 +15,12 @@ export const THEME: Preference<"system" | "light" | "dark"> = {
   fallback: "system",
 };
 
+export const BACKDROP_MOTION: Preference<"on" | "off"> = {
+  key: "ps:backdrop-motion",
+  values: ["on", "off"],
+  fallback: "on",
+};
+
 export const DECK_LAYOUT: Preference<"text" | "images"> = {
   key: "ps:deck-layout",
   values: ["text", "images"],
@@ -51,12 +57,18 @@ export function writePreference<T extends string>(preference: Preference<T>, val
 
 /**
  * Run in `<head>` before first paint, so a stored theme never flashes the
- * system one first. "system" is no attribute at all; the CSS does the rest.
+ * system one first, and a stilled backdrop never starts moving. "system" and
+ * "on" are no attribute at all; the CSS does the rest.
  */
-export const THEME_SCRIPT = `(function(){try{var t=localStorage.getItem(${JSON.stringify(THEME.key)});if(t==="light"||t==="dark")document.documentElement.setAttribute("data-theme",t)}catch(e){}})()`;
+export const HEAD_SCRIPT = `(function(){try{var d=document.documentElement,t=localStorage.getItem(${JSON.stringify(THEME.key)});if(t==="light"||t==="dark")d.setAttribute("data-theme",t);if(localStorage.getItem(${JSON.stringify(BACKDROP_MOTION.key)})==="off")d.setAttribute("data-backdrop-motion","off")}catch(e){}})()`;
 
 /** What the head script does, for a choice made after load. */
 export function applyTheme(theme: (typeof THEME.values)[number]) {
   if (theme === "system") document.documentElement.removeAttribute("data-theme");
   else document.documentElement.setAttribute("data-theme", theme);
+}
+
+export function applyBackdropMotion(motion: (typeof BACKDROP_MOTION.values)[number]) {
+  if (motion === "on") document.documentElement.removeAttribute("data-backdrop-motion");
+  else document.documentElement.setAttribute("data-backdrop-motion", "off");
 }

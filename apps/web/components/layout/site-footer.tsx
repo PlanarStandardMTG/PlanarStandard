@@ -5,6 +5,7 @@ import { PlanarMark } from "@/components/ui/planar-mark";
 import { COMMUNITY_LINKS } from "@/lib/community-links";
 
 import { InfoNav } from "./info-nav";
+import { MotionToggle } from "./motion-toggle";
 import { ThemeToggle } from "./theme-toggle";
 
 export function SiteFooter() {
@@ -15,6 +16,7 @@ export function SiteFooter() {
           <PlanarMark className="size-8 text-gold-700 dark:text-gold-400" />
           <StarRule />
           <ThemeToggle />
+          <MotionToggle />
         </div>
         <div className="flex flex-wrap items-start justify-between gap-4">
           <InfoNav />
