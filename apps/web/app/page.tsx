@@ -1,4 +1,5 @@
 import { upcomingEvents } from "@ps/core";
+import type { Metadata } from "next";
 import { listPublishedPostsByKind } from "@ps/db";
 
 import { PostList } from "@/components/content/post-list";
@@ -19,6 +20,8 @@ import { createPublicClient } from "@/lib/supabase/server";
 // refreshed from third-party calendars, so the home page must not be baked at
 // build time.
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 const NEWS_COUNT = 4;
 const ARTICLE_COUNT = 3;

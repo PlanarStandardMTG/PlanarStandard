@@ -13,6 +13,7 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { EmptyState } from "@/components/ui/states";
 import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";
 import { formatDate } from "@/lib/format-date";
+import { pageMetadata } from "@/lib/seo/page-metadata";
 import { createPublicClient } from "@/lib/supabase/server";
 import { loadTournamentView } from "@/lib/tournaments/tournament-view";
 
@@ -30,10 +31,11 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   const view = await findTournament((await params).slug);
   if (view === null) return { title: "Tournament not found" };
-  return {
+  return pageMetadata({
     title: view.tournament.name,
     description: `Standings, decklists and every round of ${view.tournament.name}, ${formatDate(view.tournament.eventDate)}.`,
-  };
+    path: `/tournaments/${view.tournament.slug}`,
+  });
 }
 
 /**

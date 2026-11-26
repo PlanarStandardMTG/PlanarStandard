@@ -23,7 +23,9 @@ const LINK_PREVIEWS = [
  * working through them used most of the hosting plan's CPU (E17.17).
  *
  * `$` ends a path, so `/` alone is the home page rather than everything.
- * `/_next/static/` lets a search engine render the pages it may read.
+ * `/_next/static/` lets a search engine render the pages it may read. The share
+ * image and the icon are built once at build time, and are what the pages'
+ * Open Graph tags and JSON-LD point to; no `$`, since Next appends a version query.
  */
 export default async function robots(): Promise<MetadataRoute.Robots> {
   const origin = await siteOrigin();
@@ -39,6 +41,8 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
           "/llms.txt",
           "/llms-full.txt",
           "/_next/static/",
+          "/opengraph-image",
+          "/icon.svg",
         ],
         disallow: "/",
       },

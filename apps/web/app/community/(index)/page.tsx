@@ -4,14 +4,16 @@ import { listPublishedPostsByKind } from "@ps/db";
 import { PostFeedPage } from "@/components/content/post-feed-page";
 import { WritePostButton } from "@/components/content/write-post-button";
 import { load } from "@/lib/load";
+import { pageMetadata } from "@/lib/seo/page-metadata";
 import { createPublicClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "Community",
   description: "Deck guides, tournament reports, and metagame analysis written by the community.",
-};
+  path: "/community",
+});
 
 export default async function CommunityPage() {
   const posts = await load(() => listPublishedPostsByKind(createPublicClient(), "community", 50));

@@ -8,6 +8,8 @@ import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { InlineScript } from "@/components/ui/inline-script";
 import { THEME_SCRIPT } from "@/lib/preferences";
+import { SITE_NAME } from "@/lib/seo/page-metadata";
+import { siteOrigin } from "@/lib/site-origin";
 
 import "./globals.css";
 
@@ -21,14 +23,18 @@ const functionTwo = localFont({
 const instrumentSans = Instrument_Sans({ subsets: ["latin"], variable: "--font-instrument-sans" });
 const jetbrainsMono = JetBrains_Mono({ subsets: ["latin"], variable: "--font-jetbrains-mono" });
 
-export const metadata: Metadata = {
-  title: {
-    default: "Planar Standard",
-    template: "%s · Planar Standard",
-  },
-  description:
-    "Metagame analytics, an Elo leaderboard, and decklist validation for the Planar Standard format.",
-};
+const DESCRIPTION =
+  "Metagame analytics, an Elo leaderboard, and decklist validation for the Planar Standard format.";
+
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    metadataBase: new URL(await siteOrigin()),
+    title: { default: SITE_NAME, template: `%s · ${SITE_NAME}` },
+    description: DESCRIPTION,
+    openGraph: { type: "website", siteName: SITE_NAME, locale: "en_US", description: DESCRIPTION },
+    twitter: { card: "summary_large_image" },
+  };
+}
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

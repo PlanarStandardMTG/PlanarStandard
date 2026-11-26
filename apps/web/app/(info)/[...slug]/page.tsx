@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { Container } from "@/components/ui/container";
 import { findInfoPage, publishedInfoPages } from "@/lib/info-pages/pages";
 import { renderInfoPage } from "@/lib/info-pages/render";
+import { pageMetadata } from "@/lib/seo/page-metadata";
 
 /**
  * Every MDX info page, at the root of the site: `/about`, `/rules`, and the
@@ -33,7 +34,11 @@ export function generateStaticParams(): { slug: string[] }[] {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const page = findInfoPage((await params).slug);
   if (page === null) return {};
-  return { title: page.frontmatter.title, description: page.frontmatter.description };
+  return pageMetadata({
+    title: page.frontmatter.title,
+    description: page.frontmatter.description,
+    path: page.href,
+  });
 }
 
 export default async function InfoPageRoute({ params }: Params) {

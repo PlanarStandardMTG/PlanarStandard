@@ -1,4 +1,4 @@
-import type { Deck, DeckId } from "@ps/contracts";
+import type { Deck, DeckId, DeckWithCards } from "@ps/contracts";
 import {
   getDeckWithCards,
   getPlayer,
@@ -27,6 +27,7 @@ import { buildDeckView, type DeckView } from "@/lib/decks/deck-view";
 import { deckAsText } from "@/lib/decks/deck-text";
 import { loadDeckFormat } from "@/lib/format/current-format";
 import { formatDate } from "@/lib/format-date";
+import { pageMetadata } from "@/lib/seo/page-metadata";
 import { PersonName } from "@/components/ui/person-name";
 import { createSessionClient } from "@/lib/supabase/session";
 
@@ -46,6 +47,15 @@ const findDeck = cache(async (id: string) => {
   return await getDeckWithCards(await createSessionClient(), id as DeckId);
 });
 
+/** What a shared link's preview says under the deck's name. */
+function deckSummary(deck: DeckWithCards): string {
+  const main = deck.cards
+    .filter((card) => card.board === "main")
+    .reduce((total, card) => total + card.quantity, 0);
+  const archetype = deck.archetypeRaw === null ? "" : ` ${deck.archetypeRaw}`;
+  return `A ${main}-card ${FORMAT_LABELS[deck.format]}${archetype} deck.`;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -54,7 +64,11 @@ export async function generateMetadata({
   const deck = await findDeck((await params).id);
   if (deck === null) return { title: "Deck not found" };
   return {
-    title: deck.name,
+    ...pageMetadata({
+      title: deck.name,
+      description: deckSummary(deck),
+      path: `/decks/${deck.id}`,
+    }),
     ...(deck.visibility === "public" ? {} : { robots: { index: false, follow: false } }),
   };
 }

@@ -2,11 +2,13 @@ import type { PostKind } from "@ps/contracts";
 import { getPublishedPostBySlug } from "@ps/db";
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { cache } from "react";
 
 import { PostArticle } from "@/components/content/post-article";
 import { Container } from "@/components/ui/container";
 import { ErrorState } from "@/components/ui/states";
 import { load } from "@/lib/load";
+import { pageMetadata } from "@/lib/seo/page-metadata";
 import { createPublicClient } from "@/lib/supabase/server";
 
 /**
@@ -17,8 +19,12 @@ import { createPublicClient } from "@/lib/supabase/server";
  * kind check is what stops a community post being readable at a `/news/` URL and vice
  * versa — one post, one canonical address.
  */
+const findPost = cache(
+  async (slug: string) => await load(() => getPublishedPostBySlug(createPublicClient(), slug)),
+);
+
 export async function renderPostPage(slug: string, kind: PostKind) {
-  const post = await load(() => getPublishedPostBySlug(createPublicClient(), slug));
+  const post = await findPost(slug);
 
   if (!post.ok) {
     return (
@@ -34,11 +40,15 @@ export async function renderPostPage(slug: string, kind: PostKind) {
 }
 
 export async function postMetadata(slug: string, kind: PostKind): Promise<Metadata> {
-  const post = await load(() => getPublishedPostBySlug(createPublicClient(), slug));
+  const post = await findPost(slug);
   if (!post.ok || post.value === null || post.value.kind !== kind) return {};
 
-  const description = post.value.excerpt ?? post.value.subtitle;
-  return description === null
-    ? { title: post.value.title }
-    : { title: post.value.title, description };
+  const { title, excerpt, subtitle, heroImageUrl, publishedAt, updatedAt, author } = post.value;
+  return pageMetadata({
+    title,
+    description: excerpt ?? subtitle ?? undefined,
+    path: `/${kind === "official" ? "news" : "community"}/${slug}`,
+    image: heroImageUrl,
+    article: { publishedTime: publishedAt, modifiedTime: updatedAt, authors: [author.displayName] },
+  });
 }
