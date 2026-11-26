@@ -42,7 +42,7 @@ export function CardInserter({ insert }: { insert: Insert }) {
   const [inline, setInline] = useState(false);
 
   return (
-    <Inserter title="Card" note="Its image, linked to Scryfall. Reddit gets the name as a link.">
+    <Inserter title="Card" note="Its image, linked to Scryfall.">
       <Field label="Card name">
         <input
           value={name}
@@ -92,7 +92,7 @@ export function ImageInserter({ insert }: { insert: Insert }) {
   }
 
   return (
-    <Inserter title="Image" note="Upload a picture or link to one. Reddit gets a link to it.">
+    <Inserter title="Image" note="Upload a picture or link to one.">
       <Field label="Upload">
         <input
           type="file"
@@ -194,7 +194,7 @@ export function DecklistInserter({
   const [title, setTitle] = useState("");
 
   return (
-    <Inserter title="Decklist" note="Shown by section on the site; Reddit gets the list as text.">
+    <Inserter title="Decklist" note="Shown by section.">
       <DeckPicker decks={decks} value={id} onChange={setId} optional={false} />
       <Field label="Heading (optional, instead of its name)">
         <input value={title} onChange={(e) => setTitle(e.target.value)} className={INPUT} />
@@ -243,10 +243,7 @@ export function TournamentInserter({
   }
 
   return (
-    <Inserter
-      title="Tournament"
-      note="A card with the results, and a deck inside it. Reddit gets the results, then the deck."
-    >
+    <Inserter title="Tournament" note="The results, with a deck inside.">
       <Field label="Event">
         <select value={slug} onChange={(e) => choose(e.target.value, show)} className={INPUT}>
           <option value="">

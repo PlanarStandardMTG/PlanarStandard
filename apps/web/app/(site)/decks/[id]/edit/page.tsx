@@ -1,12 +1,13 @@
 import type { DeckId } from "@ps/contracts";
 import { getDeckWithCards, listDeckVersions, listFormatVersions } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
+import { checkDraft, saveDeck } from "@/app/(site)/decks/actions";
 import { DeckEditorForm } from "@/components/decks/deck-editor-form";
 import { formatChoice, formatOptions } from "@/components/decks/format-labels";
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { requireRole } from "@/lib/auth/guard";
 import { deckAsText } from "@/lib/decks/deck-text";
 import { createSessionClient } from "@/lib/supabase/session";
@@ -59,10 +60,12 @@ export default async function EditDeckPage({ params }: { params: Promise<{ id: s
       </Link>
       <h1 className="mt-2 font-display text-4xl tracking-tight sm:text-5xl">Edit deck</h1>
       <p className="mt-1 mb-8 text-sm text-ink-600 dark:text-ink-400">
-        Saving keeps this version as it is and adds the new one to the deck’s history.
+        Saving adds a new version and keeps this one.
       </p>
       <DeckEditorForm
         parentId={deck.id}
+        saveDeck={saveDeck}
+        checkDraft={checkDraft}
         formats={formatOptions(versions)}
         initial={{
           name: deck.name,

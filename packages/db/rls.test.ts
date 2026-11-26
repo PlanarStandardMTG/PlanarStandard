@@ -239,6 +239,8 @@ suite("RLS — the allow-deny matrix", () => {
       "card_stats",
       "matchup_stats",
       "deck_metrics",
+      "deck_traits",
+      "deck_legality",
       "deck_similarity",
       "deck_map_layout",
       "player_ratings",

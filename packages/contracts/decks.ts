@@ -1,4 +1,4 @@
-import type { OracleId, SetCode } from "./cards";
+import type { Color, OracleId, SetCode } from "./cards";
 import type {
   ArchetypeId,
   DeckId,
@@ -203,4 +203,18 @@ export interface DeckCard {
 /** A deck with its list — what a deck page renders, and the only read that needs both. */
 export interface DeckWithCards extends Deck {
   readonly cards: readonly DeckCard[];
+}
+
+/**
+ * A `deck_traits` row (E20.72): what the deck browser shows and filters by,
+ * worked out from the list when the deck is saved, because the card data it
+ * needs is not in Postgres.
+ */
+export interface DeckTraits {
+  /** The maindeck's colour identity, lands included: the pips. */
+  readonly colors: readonly Color[];
+  /** Every colour a spell on any board has in its mana cost: the colour filter. */
+  readonly castColors: readonly Color[];
+  /** Each card's name, normalized, once each: the card-name filter. */
+  readonly cardNames: readonly string[];
 }

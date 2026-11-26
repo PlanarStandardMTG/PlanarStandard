@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { ColorPips } from "@/components/decks/color-pips";
+import { Link } from "@/components/ui/link";
 import type { EntryDeck } from "@/lib/tournaments/tournament-view";
 
 /** The deck a player brought, linked to its list; the archetype when the list has no name. */

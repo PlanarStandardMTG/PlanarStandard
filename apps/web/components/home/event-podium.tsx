@@ -1,9 +1,9 @@
 import type { EventPodium as EventPodiumData, PodiumFinish } from "@ps/contracts";
 import { formatRecord } from "@ps/core";
-import Link from "next/link";
 
 import { ColorPips } from "@/components/decks/color-pips";
 import { Card } from "@/components/ui/card";
+import { Link } from "@/components/ui/link";
 import { Placement, StarRule } from "@/components/ui/marks";
 import { cn } from "@/lib/cn";
 import { formatDate } from "@/lib/format-date";

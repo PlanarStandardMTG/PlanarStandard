@@ -1,7 +1,6 @@
-import Link from "next/link";
-
 import { ColorPips } from "@/components/decks/color-pips";
 import { DeckSectionsList } from "@/components/decks/deck-sections-list";
+import { Link } from "@/components/ui/link";
 
 import type { LoadedDeck } from "./load-deck";
 
@@ -24,7 +23,7 @@ export function DeckPanel({ deck, title }: { deck: LoadedDeck; title?: string | 
       </div>
       {deck.visibility === "private" && (
         <p className="mb-3 rounded-md bg-amber-50 px-3 py-2 text-xs text-amber-900 dark:bg-amber-950 dark:text-amber-200">
-          Only you can see this deck. Make it public or unlisted so readers can.
+          Only you can see this deck. Make it public or unlisted.
         </p>
       )}
       <DeckSectionsList sections={sections} compact />

@@ -1,9 +1,9 @@
-import Link from "next/link";
 import type { ExternalEvent } from "@ps/contracts";
 
 import { EventCarousel } from "@/components/home/event-carousel";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Link } from "@/components/ui/link";
 import { LocalTime } from "@/components/ui/local-time";
 import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";
 
@@ -23,9 +23,6 @@ export function NextEventPanel({ events }: { events: readonly ExternalEvent[] })
     return (
       <Card className="flex h-full flex-col justify-center p-6 text-center sm:p-7">
         <p className="font-medium text-ink-700 dark:text-ink-300">Nothing scheduled</p>
-        <p className="mx-auto mt-2 max-w-60 text-sm text-ink-500 dark:text-ink-400">
-          Organisers post new brackets a week or two ahead.
-        </p>
         <Link
           href="/events"
           className="mt-4 text-sm font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"

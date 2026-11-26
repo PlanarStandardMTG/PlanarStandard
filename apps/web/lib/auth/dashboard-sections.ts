@@ -26,7 +26,7 @@ export const DASHBOARD_SECTIONS: readonly DashboardSection[] = [
     // The decks page's own tab, until the dashboard has one.
     href: "/decks?view=mine",
     label: "Decks",
-    description: "The decks you have saved, and a way to save more.",
+    description: "Your saved decks.",
     role: "reader",
   },
   {
@@ -45,7 +45,7 @@ export const DASHBOARD_SECTIONS: readonly DashboardSection[] = [
   {
     href: "/dashboard/review",
     label: "Review queue",
-    description: "Approve members' submissions for publication, or send them back.",
+    description: "Approve or send back members' submissions.",
     role: "writer",
   },
   {

@@ -23,6 +23,7 @@ import {
   recordSyncResult,
   replaceEvents,
 } from "@ps/db";
+import { after } from "next/server";
 
 import { fetchCommunityTournaments, isChallongeConfigured } from "@/lib/challonge/client.server";
 import type { CalendarFetch } from "@/lib/events/calendar-fetch";
@@ -39,11 +40,12 @@ import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
  * update; what the payload means is each parser's; what the page shows is
  * `event-schedule`'s. What is left here is the order of operations.
  *
- *   claim the window → fetch → parse → queue what finished → replace → record → read the cache
+ *   read the cache → respond → claim the window → fetch → parse → queue what finished → replace → record
  *
- * The cache is read at the end either way. A refresh that failed still serves the
- * events we had, because a schedule that is two hours stale is worth far more
- * than an error page.
+ * The refresh runs after the response, so no visitor waits on a third party or
+ * on the claim; the one whose view triggered it sees the events we already had.
+ * A refresh that failed costs the same, because a schedule that is hours
+ * stale is worth far more than an error page.
  *
  * Refreshing is per-source and reading is not. A fetch has to know whose calendar
  * it is spending a request on, and one platform's outage must not spend the
@@ -61,6 +63,8 @@ interface Calendar {
   readonly isConfigured: () => boolean;
   readonly fetchEvents: () => Promise<CalendarFetch>;
   readonly parse: (payload: unknown) => readonly ParsedExternalEvent[];
+  /** False when a fetch is the newest page only, so absence from it means nothing. */
+  readonly fetchesWholeCalendar: boolean;
 }
 
 const CALENDARS: readonly Calendar[] = [
@@ -69,12 +73,14 @@ const CALENDARS: readonly Calendar[] = [
     isConfigured: isChallongeConfigured,
     fetchEvents: fetchCommunityTournaments,
     parse: parseChallongeEvents,
+    fetchesWholeCalendar: false,
   },
   {
     source: "melee",
     isConfigured: isMeleeConfigured,
     fetchEvents: fetchTournamentList,
     parse: parseMeleeEvents,
+    fetchesWholeCalendar: true,
   },
 ];
 
@@ -100,9 +106,9 @@ export function resultKey(event: { readonly source: string; readonly externalId:
 export async function loadEvents(now: Date = new Date()): Promise<EventsView> {
   const calendars = CALENDARS.filter((calendar) => calendar.isConfigured());
 
-  // Side by side: each claims its own window, and a slow platform should not add
-  // its timeout to the other's before the page can render.
-  await Promise.all(calendars.map((calendar) => refreshIfDue(calendar, now)));
+  // Side by side: each claims its own window, and a slow platform should not
+  // hold up the other's refresh.
+  after(() => Promise.all(calendars.map((calendar) => refreshIfDue(calendar, now))));
 
   const publicClient = createPublicClient();
   const [cached, runs, syncs, sourced] = await Promise.all([
@@ -219,7 +225,9 @@ async function refresh(calendar: Calendar, cutoff: string, now: Date): Promise<C
     const finished = newlyCompleted(previous, events);
     await recordCompletions(service, source, finished, fetchedAt);
 
-    await replaceEvents(service, source, events, fetchedAt);
+    await replaceEvents(service, source, events, fetchedAt, {
+      prune: calendar.fetchesWholeCalendar,
+    });
     await recordSyncResult(service, source, {
       succeededAt: fetchedAt,
       eventCount: events.length,

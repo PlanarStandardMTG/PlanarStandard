@@ -8,7 +8,6 @@ import {
   listTournamentsByIds,
 } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { PRIMARY, QUIET, SECONDARY } from "@/components/play/button";
@@ -16,14 +15,15 @@ import { EntrantList } from "@/components/play/entrant-list";
 import { EventTabs } from "@/components/play/event-tabs";
 import { LiveRefresh } from "@/components/play/live-refresh";
 import { MyMatch } from "@/components/play/my-match";
-import { NotificationsButton } from "@/components/play/notifications-button";
 import { PlayNotice } from "@/components/play/notice";
+import { NotificationsButton } from "@/components/play/notifications-button";
 import { RegistrationPanel } from "@/components/play/registration-panel";
 import { ResultControls } from "@/components/play/result-controls";
 import { RoundList } from "@/components/play/round-list";
+import { messageFor, RUN_DONE, RUN_ERRORS, STATE_LABEL } from "@/components/play/run-messages";
 import { StandingsTable } from "@/components/play/standings-table";
 import { WaitingOn } from "@/components/play/waiting-on";
-import { messageFor, RUN_DONE, RUN_ERRORS, STATE_LABEL } from "@/components/play/run-messages";
+import { Link } from "@/components/ui/link";
 import { LocalTime } from "@/components/ui/local-time";
 import { currentViewer } from "@/lib/auth/viewer";
 import { loadRun } from "@/lib/runs/load-run";

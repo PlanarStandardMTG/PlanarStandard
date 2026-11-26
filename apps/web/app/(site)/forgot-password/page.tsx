@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { AuthShell, Card, Field, Notice, SubmitButton } from "@/components/auth/form-parts";
+import { Link } from "@/components/ui/link";
 import { authMessage } from "@/lib/auth/auth-error";
 
 export const dynamic = "force-dynamic";
@@ -26,10 +26,7 @@ export default async function ForgotPasswordPage({
   const error = authMessage(params["error"]);
 
   return (
-    <AuthShell
-      title="Reset your password"
-      intro="Give us the address on the account and we will email you a link to choose a new password."
-    >
+    <AuthShell title="Reset your password" intro="We will email you a link to choose a new one.">
       {error !== null && <Notice tone="warn">{error}</Notice>}
 
       <Card className="mt-6 p-6">

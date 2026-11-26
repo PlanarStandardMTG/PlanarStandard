@@ -1,6 +1,6 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { Link } from "./link";
 import { StarRule } from "./marks";
 
 /**

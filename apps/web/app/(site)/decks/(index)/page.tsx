@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { EmptyState } from "@/components/ui/states";
 import { currentViewer } from "@/lib/auth/viewer";
 
@@ -92,9 +92,7 @@ export default async function DecksPage({
       {view !== "mine" ? (
         <BrowseDecks scope={view} params={params} />
       ) : viewer === null ? (
-        <EmptyState title="Sign in to see your decks">
-          Decks you import, and the ones you played at events, are kept here.
-        </EmptyState>
+        <EmptyState title="Sign in to see your decks" />
       ) : (
         <YourDecks profileId={viewer.profile.id} />
       )}

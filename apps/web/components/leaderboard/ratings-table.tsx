@@ -1,7 +1,7 @@
 import type { LeaderboardRow } from "@ps/contracts";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
+import { Link } from "@/components/ui/link";
 import { Placement } from "@/components/ui/marks";
 import { cn } from "@/lib/cn";
 import { PersonName } from "@/components/ui/person-name";

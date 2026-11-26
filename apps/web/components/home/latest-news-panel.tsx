@@ -1,8 +1,8 @@
-import Link from "next/link";
 import type { PostWithAuthor } from "@ps/contracts";
 
 import { PostMeta } from "@/components/content/post-meta";
 import { Card } from "@/components/ui/card";
+import { Link } from "@/components/ui/link";
 import { DotLeader } from "@/components/ui/marks";
 import { EmptyState } from "@/components/ui/states";
 import { dateAttribute, formatDate } from "@/lib/format-date";
@@ -21,11 +21,7 @@ export function LatestNewsPanel({ posts }: { posts: readonly PostWithAuthor[] })
   const [lead, ...rest] = posts;
 
   if (lead === undefined) {
-    return (
-      <EmptyState title="No announcements yet" className="h-full">
-        B&amp;R notices, season openings, and event recaps are posted here.
-      </EmptyState>
-    );
+    return <EmptyState title="No announcements yet" className="h-full" />;
   }
 
   return (

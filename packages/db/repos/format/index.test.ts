@@ -9,7 +9,9 @@ import {
   getCurrentFormatVersion,
   getFormatDetail,
   listFormatVersions,
+  listStaleLegalityVersions,
   saveFormatVersion,
+  setLegalityStale,
 } from "./index";
 
 /**
@@ -165,6 +167,25 @@ describe.skipIf(!reachable)("db/repos/format — admin edits", () => {
       expect(await deleteFormatVersion(admin, id)).toEqual({ ok: true });
     }
     expect(await getFormatDetail(client, id)).toBeNull();
+  });
+
+  it("starts a version's deck legality stale, and keeps the flag through an admin's save", async () => {
+    const admin = await signIn("newsdesk@planarstandard.test");
+    const id = await saveFormatVersion(admin, null, draft());
+
+    try {
+      expect((await listStaleLegalityVersions(client)).has(id)).toBe(true);
+      await setLegalityStale(service, [id], false);
+      expect((await listStaleLegalityVersions(client)).has(id)).toBe(false);
+
+      await saveFormatVersion(admin, id, draft({ name: "Renamed" }));
+      expect((await listStaleLegalityVersions(client)).has(id)).toBe(false);
+
+      await setLegalityStale(service, [id], true);
+      expect((await listStaleLegalityVersions(client)).has(id)).toBe(true);
+    } finally {
+      await deleteFormatVersion(admin, id);
+    }
   });
 
   it("moves 'current' to a new version and back, keeping exactly one", async () => {

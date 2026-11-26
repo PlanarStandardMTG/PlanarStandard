@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useState, useTransition } from "react";
 
 import { AdminTable, FilterInput, matchesFilter } from "@/components/ui/admin-table";
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
+import { Link } from "@/components/ui/link";
 
 export interface EventRow<K> {
   readonly key: K;

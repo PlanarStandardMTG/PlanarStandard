@@ -1,7 +1,9 @@
 import { upcomingEvents } from "@ps/core";
+import type { Metadata } from "next";
 import { listPublishedPostsByKind } from "@ps/db";
 
 import { PostList } from "@/components/content/post-list";
+import { JsonLd } from "@/components/seo/json-ld";
 import { EventPodium } from "@/components/home/event-podium";
 import { LatestNewsPanel } from "@/components/home/latest-news-panel";
 import { NextEventPanel } from "@/components/home/next-event-panel";
@@ -12,13 +14,17 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { ErrorState } from "@/components/ui/states";
 import { loadEvents } from "@/lib/events/sync-events.server";
 import { load } from "@/lib/load";
-import { loadLatestPodium } from "@/lib/podium/latest-podium";
+import { organizationSchema, websiteSchema } from "@/lib/seo/json-ld";
+import { siteOrigin } from "@/lib/site-origin";
+import { cachedLatestPodium } from "@/lib/podium/latest-podium";
 import { createPublicClient } from "@/lib/supabase/server";
 
-// Posts are published from the site, not from a deploy, and `/events` refreshes
-// a third-party calendar during the render, so the home page must not be baked
-// at build time.
+// Posts are published from the site, not from a deploy, and the schedule is
+// refreshed from third-party calendars, so the home page must not be baked at
+// build time.
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 const NEWS_COUNT = 4;
 const ARTICLE_COUNT = 3;
@@ -31,18 +37,18 @@ const UPCOMING_EVENT_COUNT = 3;
  * `load` per region rather than one try around the page: a database that cannot
  * answer for posts should cost the news tile and not the event beside it.
  * Everything is fetched in parallel — one `Promise.all`, not four sequential
- * awaits, which on a page that refreshes a third-party calendar mid-render is
- * the difference between fast and noticeably not.
+ * awaits.
  */
 export default async function HomePage() {
   const now = new Date();
   const client = createPublicClient();
 
-  const [news, events, podium, community] = await Promise.all([
+  const [news, events, podium, community, origin] = await Promise.all([
     load(() => listPublishedPostsByKind(client, "official", NEWS_COUNT)),
     load(() => loadEvents(now)),
-    load(() => loadLatestPodium(client)),
+    load(cachedLatestPodium),
     load(() => listPublishedPostsByKind(client, "community", ARTICLE_COUNT)),
+    siteOrigin(),
   ]);
 
   // One ordered list of what a player can still turn up to; the tile shows the
@@ -51,17 +57,18 @@ export default async function HomePage() {
 
   return (
     <>
+      <JsonLd data={websiteSchema(origin)} />
+      <JsonLd data={organizationSchema(origin)} />
       <section className="relative overflow-hidden border-b border-ink-200 dark:border-ink-800">
         <PlanarMark className="pointer-events-none absolute -top-48 -right-56 size-[46rem] text-ink-100 dark:text-ink-900" />
         <Container className="relative grid items-center gap-10 py-14 lg:grid-cols-[1fr_20rem] lg:py-20">
           <div>
             <SeasonBadge />
             <h1 className="mt-6 font-display text-5xl/[0.98] tracking-tight text-balance sm:text-6xl/[0.95]">
-              Welcome to the <em className="text-gold-700 dark:text-gold-400">Planar Standard</em>{" "}
-              portal
+              Welcome to <em className="text-gold-700 dark:text-gold-400">Planar Standard</em>
             </h1>
             <p className="mt-5 max-w-xl text-lg text-ink-600 dark:text-ink-300">
-              Results, decklists and an Elo leaderboard for the format.
+              The portal for the community Magic: The Gathering format.
             </p>
           </div>
 
@@ -107,7 +114,6 @@ export default async function HomePage() {
                 compact
                 showKind={false}
                 emptyTitle="No community posts yet"
-                emptyBody="Members write these under their own byline. Announcements from the format are in news."
               />
             ) : (
               <ErrorState title="Could not load recent community posts" detail={community.error} />

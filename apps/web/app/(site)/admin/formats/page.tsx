@@ -1,9 +1,9 @@
-import { listFormatVersions } from "@ps/db";
+import { listFormatVersions, listStaleLegalityVersions } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Notice } from "@/components/auth/form-parts";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "@/components/ui/link";
 import { requireRole } from "@/lib/auth/guard";
 import { createSessionClient } from "@/lib/supabase/session";
 
@@ -32,7 +32,11 @@ export default async function AdminFormatsPage({
 }) {
   await requireRole("admin");
   const { done } = await searchParams;
-  const versions = await listFormatVersions(await createSessionClient());
+  const session = await createSessionClient();
+  const [versions, stale] = await Promise.all([
+    listFormatVersions(session),
+    listStaleLegalityVersions(session),
+  ]);
 
   return (
     <>
@@ -40,9 +44,7 @@ export default async function AdminFormatsPage({
         <div>
           <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Formats</h1>
           <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-            Each version of Planar Standard’s rules: its legal sets, deck limits and card rules.
-            Decks and the rules page check against the one in force. Kitchen Table has no rules to
-            edit.
+            Decks and the rules page check against the version in force.
           </p>
         </div>
         <Link href="/admin/formats/new" className={BUTTON}>
@@ -55,8 +57,16 @@ export default async function AdminFormatsPage({
       )}
       {versions.every((version) => !version.isCurrent) && (
         <Notice tone="warn">
-          No version is in force, so no deck can be checked against Planar Standard. Mark one as the
-          version in force.
+          No version is in force, so decks cannot be checked. Mark one as in force.
+        </Notice>
+      )}
+      {stale.size > 0 && (
+        <Notice tone="warn">
+          Some decks may no longer be legal.{" "}
+          <Link href="/admin/processing" className="underline underline-offset-2">
+            Recheck decks
+          </Link>{" "}
+          when you&rsquo;re done editing.
         </Notice>
       )}
 
@@ -73,6 +83,7 @@ export default async function AdminFormatsPage({
                 <span className="flex items-center gap-3">
                   <span className="font-medium">{version.name}</span>
                   {version.isCurrent && <Badge>In force</Badge>}
+                  {stale.has(version.id) && <Badge>Decks need rechecking</Badge>}
                 </span>
               </Link>
             </li>

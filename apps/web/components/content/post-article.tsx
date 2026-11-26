@@ -1,7 +1,7 @@
-import Link from "next/link";
 import type { PostWithAuthor } from "@ps/contracts";
 
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { FEED_LABEL, feedHref } from "@/lib/post-url";
 
 import { PostBody } from "./post-body";

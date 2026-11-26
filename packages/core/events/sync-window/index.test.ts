@@ -43,7 +43,7 @@ describe("core/events/sync-window", () => {
   });
 
   it("gives the cutoff the claim compares against", () => {
-    expect(syncCutoff(NOW)).toBe("2026-09-15T10:00:00.000Z");
+    expect(syncCutoff(NOW)).toBe("2026-09-15T09:00:00.000Z");
     expect(syncCutoff(NOW, 60 * 1000)).toBe("2026-09-15T11:59:00.000Z");
   });
 

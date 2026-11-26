@@ -56,10 +56,9 @@ export function RemoveEverythingButton({
             </li>
             <li>
               {decks === 1 ? "Their 1 saved deck is" : `All ${decks} of their saved decks are`}{" "}
-              deleted with every version. A deck an event names is hidden instead, so the event
-              keeps its list.
+              deleted. A deck an event uses is hidden instead.
             </li>
-            <li>Their account, role and tournament results stay. Banning is separate.</li>
+            <li>Their account, role and results stay.</li>
           </ul>
           <label htmlFor="remove-all-confirm" className="mt-4 block text-sm">
             Type <span className="font-semibold">{name}</span> to confirm

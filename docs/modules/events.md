@@ -48,11 +48,15 @@ it is the constraint every decision below falls out of.
 | ----------- | -------------- | ------------------ |
 | 5 minutes   | 288            | 8,928              |
 | 30 minutes  | 48             | 1,488              |
-| **2 hours** | **12**         | **372**            |
+| 2 hours     | 12             | 372                |
+| **3 hours** | **8**          | **248**            |
 | 6 hours     | 4              | 124                |
 
-Two hours is the shipped value. It leaves about a quarter of the month's budget
-spare for a manual refresh, a future scheduled job, or a busy weekend — and the
+Three hours is the shipped value, and a Challonge refresh is one request: the
+list is fetched as a single page of 100, newest-created first, and upserted
+without pruning, so older events stay cached. It leaves about half the month's
+budget for event results (three or more requests each), manual refreshes, or a
+busy weekend — and the
 page tells the reader how old what they are looking at is, so the staleness is
 disclosed rather than hidden.
 
@@ -92,12 +96,12 @@ returns the rows it touched. A read-then-write would let a burst of simultaneous
 visitors each decide independently that a refresh was due.
 
 **A failed refresh still serves the cache.** Nothing in the path rethrows. A
-schedule two hours stale is worth far more to a visitor than an error page, and
+schedule hours stale is worth far more to a visitor than an error page, and
 the "refreshed N hours ago" line at the foot of the page is how they find out.
 
 **An admin can skip the wait.** `/admin/fetching` shows when each calendar was
 last fetched and has a refresh button per platform (E25.7). It claims with a
-cutoff of now rather than two hours ago, so it goes through the same ledger row,
+cutoff of now rather than three hours ago, so it goes through the same ledger row,
 restarts that calendar's window, and queues what it finds finished. Each press
 is one request against the month's budget.
 

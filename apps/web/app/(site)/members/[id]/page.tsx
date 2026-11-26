@@ -8,7 +8,6 @@ import {
   listPostsByAuthor,
 } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import type { ReactNode } from "react";
 
@@ -16,6 +15,7 @@ import { Notice } from "@/components/auth/form-parts";
 import { RemoveEverythingButton } from "@/components/members/remove-everything-button";
 import { Badge } from "@/components/ui/badge";
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { PageHeader } from "@/components/ui/page-header";
 import { PlayedEvents } from "@/components/ui/played-events";
 import { requireRole } from "@/lib/auth/guard";
@@ -36,16 +36,16 @@ export const metadata: Metadata = {
 const DONE: Readonly<Record<string, string>> = {
   post: "Post deleted.",
   "deck-deleted": "Deck deleted, every version.",
-  "deck-hidden": "An event names this deck, so it is hidden rather than deleted.",
-  banned: "Member banned. They keep their account and data, and can post nothing new.",
+  "deck-hidden": "Deck hidden; an event uses it, so it can’t be deleted.",
+  banned: "Member banned.",
   unbanned: "Ban lifted.",
 };
 
 const ERRORS: Readonly<Record<string, string>> = {
-  self: "You cannot ban yourself or remove your own things from here.",
+  self: "You cannot do that to yourself.",
   erased: "That account has been deleted.",
   "not-admin": "Only an admin can do that.",
-  confirm: "The name did not match, so nothing was removed.",
+  confirm: "The name did not match. Nothing was removed.",
 };
 
 const SMALL_BUTTON =
@@ -127,12 +127,6 @@ export default async function MemberHistoryPage({
           <Notice tone="warn">{ERRORS[query["error"]]}</Notice>
         )}
 
-        {!admin && (
-          <p className="mt-6 text-sm text-ink-500 dark:text-ink-400">
-            You see what is public or waiting for review. Admins also see drafts and private decks.
-          </p>
-        )}
-
         <Section title="Posts" count={posts.length} empty="No posts.">
           {posts.map((post) => (
             <Row
@@ -186,9 +180,7 @@ export default async function MemberHistoryPage({
             Events <span className="text-ink-500 dark:text-ink-400">{played.length}</span>
           </h2>
           {player === null ? (
-            <p className="text-sm text-ink-500 dark:text-ink-400">
-              Not linked to a player, so no results are theirs yet.
-            </p>
+            <p className="text-sm text-ink-500 dark:text-ink-400">Not linked to a player.</p>
           ) : played.length === 0 ? (
             <p className="text-sm text-ink-500 dark:text-ink-400">
               Linked to {player.displayName}, who has no results yet.

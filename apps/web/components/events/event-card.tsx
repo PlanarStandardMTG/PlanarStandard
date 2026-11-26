@@ -1,8 +1,8 @@
 import type { ExternalEvent } from "@ps/contracts";
-import Link from "next/link";
 
 import { Badge, type BadgeVariant } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { Link } from "@/components/ui/link";
 import { LocalTime } from "@/components/ui/local-time";
 import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";
 

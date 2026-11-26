@@ -125,6 +125,19 @@ describe.skipIf(!reachable)("repos/events", () => {
     expect(sources.size).toBeGreaterThan(1);
   });
 
+  it("keeps events missing from the payload when told not to prune", async () => {
+    await replaceEvents(
+      service,
+      TEST_SOURCE,
+      [event("1001", "Old"), event("1002", "New")],
+      FETCHED_AT,
+    );
+    await replaceEvents(service, TEST_SOURCE, [event("1002", "New")], FETCHED_AT, { prune: false });
+
+    const ids = (await listCachedEvents(client, TEST_SOURCE)).map((e) => e.externalId).sort();
+    expect(ids).toEqual(["1001", "1002"]);
+  });
+
   it("supersedes wholesale — an event dropped from the payload leaves the cache", async () => {
     await replaceEvents(
       service,

@@ -7,9 +7,9 @@ import {
   listTournamentCoverage,
 } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
+import { Link } from "@/components/ui/link";
 import { ADMIN_SECTIONS } from "@/lib/auth/admin-sections";
 import { requireRole } from "@/lib/auth/guard";
 import { createSessionClient } from "@/lib/supabase/session";
@@ -51,9 +51,6 @@ export default async function AdminPage() {
     <>
       <header className="mb-8">
         <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Admin</h1>
-        <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-          Who can do what on the site, and what is waiting on somebody to decide.
-        </p>
       </header>
 
       <ul className="grid gap-4 sm:grid-cols-2">

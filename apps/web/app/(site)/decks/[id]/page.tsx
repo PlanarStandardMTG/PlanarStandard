@@ -1,4 +1,4 @@
-import type { Deck, DeckId } from "@ps/contracts";
+import type { Deck, DeckId, DeckWithCards } from "@ps/contracts";
 import {
   getDeckWithCards,
   getPlayer,
@@ -8,15 +8,16 @@ import {
   listPlayedEntries,
 } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { cache } from "react";
 
+import { deleteDeckVersions } from "@/app/(site)/decks/actions";
 import { ColorPips } from "@/components/decks/color-pips";
 import { DeckLegality } from "@/components/decks/deck-legality";
 import { DeleteDeckButton } from "@/components/decks/delete-deck-button";
 import { DeckDisplay } from "@/components/decks/deck-display";
 import { FORMAT_LABELS } from "@/components/decks/format-labels";
+import { Link } from "@/components/ui/link";
 import { PlayedEvents } from "@/components/ui/played-events";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
@@ -26,6 +27,7 @@ import { buildDeckView, type DeckView } from "@/lib/decks/deck-view";
 import { deckAsText } from "@/lib/decks/deck-text";
 import { loadDeckFormat } from "@/lib/format/current-format";
 import { formatDate } from "@/lib/format-date";
+import { pageMetadata } from "@/lib/seo/page-metadata";
 import { PersonName } from "@/components/ui/person-name";
 import { createSessionClient } from "@/lib/supabase/session";
 
@@ -45,6 +47,15 @@ const findDeck = cache(async (id: string) => {
   return await getDeckWithCards(await createSessionClient(), id as DeckId);
 });
 
+/** What a shared link's preview says under the deck's name. */
+function deckSummary(deck: DeckWithCards): string {
+  const main = deck.cards
+    .filter((card) => card.board === "main")
+    .reduce((total, card) => total + card.quantity, 0);
+  const archetype = deck.archetypeRaw === null ? "" : ` ${deck.archetypeRaw}`;
+  return `A ${main}-card ${FORMAT_LABELS[deck.format]}${archetype} deck.`;
+}
+
 export async function generateMetadata({
   params,
 }: {
@@ -53,7 +64,11 @@ export async function generateMetadata({
   const deck = await findDeck((await params).id);
   if (deck === null) return { title: "Deck not found" };
   return {
-    title: deck.name,
+    ...pageMetadata({
+      title: deck.name,
+      description: deckSummary(deck),
+      path: `/decks/${deck.id}`,
+    }),
     ...(deck.visibility === "public" ? {} : { robots: { index: false, follow: false } }),
   };
 }
@@ -149,6 +164,7 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
               </Link>
             )}
             <DeleteDeckButton
+              deleteDeckVersions={deleteDeckVersions}
               deckId={deck.id}
               deckName={deck.name}
               current={deck.id}
@@ -164,7 +180,7 @@ export default async function DeckPage({ params }: { params: Promise<{ id: strin
 
       {!isLatest && (
         <p className="mb-6 rounded-xl border border-amber-200 bg-amber-50/60 px-4 py-3 text-sm text-amber-900 dark:border-amber-900/60 dark:bg-amber-950/30 dark:text-amber-200">
-          This is an earlier version of this deck.{" "}
+          This is an earlier version.{" "}
           <Link href={`/decks/${latest.id}`} className="font-medium underline">
             See the latest
           </Link>

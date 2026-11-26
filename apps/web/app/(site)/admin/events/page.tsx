@@ -19,7 +19,7 @@ export const metadata: Metadata = {
 };
 
 const DONE: Readonly<Record<string, string>> = {
-  set: "Start time saved. The schedule shows it now.",
+  set: "Start time saved.",
   cleared: "Start time cleared.",
 };
 
@@ -54,9 +54,7 @@ export default async function AdminEventsPage({
       <header className="mb-6">
         <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Event dates</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-          melee.gg&rsquo;s API doesn&rsquo;t send when an event starts, so set it here in your own
-          time zone; saving shows the UTC time that is stored. A calendar refresh keeps what you
-          set.
+          melee.gg doesn&rsquo;t send start times. Set them here in your own time zone.
           {undated > 0 && (
             <>
               {" "}
@@ -74,9 +72,7 @@ export default async function AdminEventsPage({
       )}
 
       {events.length === 0 ? (
-        <EmptyState title="No melee.gg events cached">
-          They appear here once the calendar has been fetched.
-        </EmptyState>
+        <EmptyState title="No melee.gg events yet" />
       ) : (
         <ul className="mt-6 divide-y divide-ink-200 rounded-xl border border-ink-200 dark:divide-ink-800 dark:border-ink-800">
           {events.map(({ event, manualStartsAt }) => (

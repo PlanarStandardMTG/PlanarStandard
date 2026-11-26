@@ -1,9 +1,9 @@
 import { CONTACT_NAME_MAX_LENGTH, HANDLE_MAX_LENGTH, HANDLE_MIN_LENGTH } from "@ps/core";
 import { getProfileContacts } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Card } from "@/components/ui/card";
+import { Link } from "@/components/ui/link";
 import { requireViewer } from "@/lib/auth/guard";
 import { formatTimeAgo } from "@/lib/format-date";
 import { createSessionClient } from "@/lib/supabase/session";
@@ -32,7 +32,7 @@ const ERRORS: Readonly<Record<string, string>> = {
   "handle-too-short": `A handle needs at least ${HANDLE_MIN_LENGTH} characters.`,
   "handle-too-long": `A handle can be at most ${HANDLE_MAX_LENGTH} characters.`,
   "handle-charset":
-    "A handle can use letters, numbers, hyphens, and underscores, and has to start and end with a letter or number.",
+    "Letters, numbers, hyphens and underscores only, starting and ending with a letter or number.",
   "handle-reserved": "That handle is reserved.",
   "handle-taken": "Somebody already has that handle.",
   "arena-tag":
@@ -43,10 +43,10 @@ const ERRORS: Readonly<Record<string, string>> = {
 };
 
 const ROLE_BLURBS: Readonly<Record<string, string>> = {
-  reader: "You can read everything on the site and submit decklists.",
-  writer: "You can write and publish community posts directly.",
+  reader: "You can save decks and submit posts for review.",
+  writer: "You can publish community posts directly.",
   organizer: "You can create tournaments and import results.",
-  admin: "You can edit the format, merge identities, and grant roles.",
+  admin: "You can edit the format, merge players and grant roles.",
 };
 
 const FIELD =
@@ -98,14 +98,9 @@ export default async function ProfilePage({
         <h2 className="font-display text-lg font-semibold">
           {profile.role.charAt(0).toUpperCase() + profile.role.slice(1)}
         </h2>
-        <p className="mt-1 text-sm text-ink-600 dark:text-ink-400">
-          {ROLE_BLURBS[profile.role]} Roles are granted by the format&rsquo;s admins — there is
-          nothing to request here.
-        </p>
+        <p className="mt-1 text-sm text-ink-600 dark:text-ink-400">{ROLE_BLURBS[profile.role]}</p>
         {email !== null && (
-          <p className="mt-3 text-sm text-ink-500 dark:text-ink-400">
-            Signed in with {email}. Only you can see this.
-          </p>
+          <p className="mt-3 text-sm text-ink-500 dark:text-ink-400">Signed in as {email}.</p>
         )}
         <p className="mt-3 text-sm">
           <Link
@@ -114,10 +109,6 @@ export default async function ProfilePage({
           >
             Set a new password
           </Link>
-          <span className="text-ink-500 dark:text-ink-400">
-            {" "}
-            — including if you have only ever signed in with a link or a provider.
-          </span>
         </p>
         <p className="mt-2 text-sm">
           <Link
@@ -128,7 +119,7 @@ export default async function ProfilePage({
           </Link>
           <span className="text-ink-500 dark:text-ink-400">
             {" "}
-            — what we hold, how to take a copy, and how to delete your account.
+            — download it or delete your account.
           </span>
         </p>
       </Card>
@@ -167,7 +158,7 @@ export default async function ProfilePage({
               className={FIELD}
             />
             <p className="mt-1 text-xs text-ink-500 dark:text-ink-400">
-              How you are credited on anything you write.
+              Shown on anything you write.
             </p>
           </div>
 

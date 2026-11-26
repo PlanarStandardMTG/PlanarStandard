@@ -1,7 +1,7 @@
 import type { PostKind } from "@ps/contracts";
 import { canWriteKind } from "@ps/core";
-import Link from "next/link";
 
+import { Link } from "@/components/ui/link";
 import { loginHref } from "@/lib/auth/next-path";
 import { currentViewer } from "@/lib/auth/viewer";
 import { newPostHref } from "@/lib/post-url";

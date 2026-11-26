@@ -1,6 +1,6 @@
 import type { RunRound } from "@ps/contracts";
-import Link from "next/link";
 
+import { Link } from "@/components/ui/link";
 import { cn } from "@/lib/cn";
 
 /**

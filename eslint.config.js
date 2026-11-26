@@ -22,5 +22,15 @@ export default [
       ...tseslint.configs.recommended.rules,
     },
   },
+  {
+    files: ["apps/web/**/*.tsx", "apps/web/**/*.ts"],
+    ignores: ["apps/web/components/ui/link.tsx"],
+    rules: {
+      "no-restricted-imports": [
+        "error",
+        { name: "next/link", message: 'Use { Link } from "@/components/ui/link" (E16.18).' },
+      ],
+    },
+  },
   prettier,
 ];

@@ -1,10 +1,10 @@
 import { canRemoveContent } from "@ps/core";
 import { getPlayer, getPlayerBySlug, listIdentitiesByPlayer, listPlayedEntries } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound, redirect } from "next/navigation";
 
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { PageHeader } from "@/components/ui/page-header";
 import { PlayedEvents } from "@/components/ui/played-events";
 import { requireRole } from "@/lib/auth/guard";
@@ -40,10 +40,7 @@ export default async function PlayerHandlePage({ params }: { params: Promise<{ k
   return (
     <div className="flex-1">
       <Container className="py-12">
-        <PageHeader kicker="Unclaimed handle" title={player.displayName}>
-          Nobody has claimed this handle, so it belongs to no member and has no history beyond its
-          results.
-        </PageHeader>
+        <PageHeader kicker="Unclaimed handle" title={player.displayName} />
 
         {canRemoveContent(viewer.profile) && (
           <p className="text-sm text-ink-600 dark:text-ink-400">

@@ -1,9 +1,9 @@
 import type { Metadata, Viewport } from "next";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { DevAccountSwitcher } from "@/components/layout/dev-account-switcher";
 import { RegisterServiceWorker } from "@/components/play/register-service-worker";
+import { Link } from "@/components/ui/link";
 import { PlanarMark } from "@/components/ui/planar-mark";
 import { currentViewer } from "@/lib/auth/viewer";
 

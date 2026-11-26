@@ -1,7 +1,6 @@
 import type { LeaderboardRow, RatingWindow, UnrankedPlayerRow } from "@ps/contracts";
 import { getLeaderboard, getRatingConfig, getRatingWindow, listUnrankedPlayers } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { SeasonBadge } from "@/components/layout/season-badge";
 import { RatingsTable } from "@/components/leaderboard/ratings-table";
@@ -13,6 +12,7 @@ import {
   type LadderSort,
 } from "@/components/leaderboard/sort-ladder";
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { PageHeader } from "@/components/ui/page-header";
 import { Pager } from "@/components/ui/pager";
 import { EmptyState, ErrorState } from "@/components/ui/states";
@@ -74,9 +74,7 @@ export default async function LeaderboardPage({
         ) : (
           <>
             {data.value.ranked.length + data.value.unranked.length === 0 ? (
-              <EmptyState title="Nobody is ranked yet">
-                The leaderboard fills in after the first rated event.
-              </EmptyState>
+              <EmptyState title="Nobody is ranked yet" />
             ) : (
               <Ladder
                 ranked={data.value.ranked}
@@ -87,9 +85,8 @@ export default async function LeaderboardPage({
               />
             )}
             <p className="mt-8 text-sm text-ink-500 dark:text-ink-400">
-              Players are ranked once they have played in{" "}
-              {describeThreshold(data.value.config.minEventsForLeaderboard)}. Everyone else who has
-              played in an event is listed after them as unranked.
+              Ranked after playing in {describeThreshold(data.value.config.minEventsForLeaderboard)}
+              ; everyone else is unranked.
             </p>
           </>
         )}

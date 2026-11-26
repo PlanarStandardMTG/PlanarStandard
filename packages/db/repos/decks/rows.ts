@@ -1,9 +1,11 @@
 import type {
   ArchetypeId,
+  Color,
   Deck,
   DeckCard,
   DeckId,
   DeckSubmissionRoute,
+  DeckTraits,
   DeckVisibility,
   DeckWithCards,
   FormatVersionId,
@@ -96,22 +98,48 @@ export interface DeckEvent {
   readonly formatVersionIds: readonly FormatVersionId[];
 }
 
-/** A deck as the browser lists it (E20.40, E20.45). */
-export interface BrowsableDeck extends DeckWithCards {
+/**
+ * A deck as the browser lists it (E20.40, E20.45): no list, and its stored
+ * traits in place of one (E20.72). `traits` is null until the deck's have been
+ * computed.
+ */
+export interface BrowsableDeck extends Deck {
   readonly author: DeckAuthor | null;
   /** One per event entry that played this version; a draft event's are left out. */
   readonly records: readonly WinLossDraw[];
   /** The events behind `records`. */
   readonly events: readonly DeckEvent[];
+  readonly traits: DeckTraits | null;
 }
 
-export const BROWSABLE_DECK_COLUMNS =
-  `${DECK_WITH_CARDS_COLUMNS}, player:players (id, display_name), ` +
+/**
+ * `card_names` is a few hundred bytes a deck, and only a card-name filter
+ * reads it, so a listing asks for it only then.
+ */
+export const browsableDeckColumns = (withCardNames: boolean) =>
+  `${DECK_SUMMARY_COLUMNS}, player:players (id, display_name), ` +
   "owner:profiles (id, display_name), entries:tournament_entries (match_wins, match_losses, match_draws, " +
   "tournament:tournaments (id, name, event_date, format_version_id, " +
-  "formats:tournament_formats (format_version_id, position)))";
+  "formats:tournament_formats (format_version_id, position))), " +
+  `traits:deck_traits (colors, cast_colors${withCardNames ? ", card_names" : ""})`;
 
-export interface BrowsableDeckRow extends DeckWithCardsRow {
+export interface DeckTraitsRow {
+  readonly colors: readonly string[];
+  readonly cast_colors: readonly string[];
+  /** Absent unless the select asked for it. */
+  readonly card_names?: readonly string[];
+}
+
+export function toDeckTraits(row: DeckTraitsRow): DeckTraits {
+  return {
+    colors: row.colors as Color[],
+    castColors: row.cast_colors as Color[],
+    cardNames: row.card_names ?? [],
+  };
+}
+
+export interface BrowsableDeckRow extends DeckRow {
+  readonly traits: DeckTraitsRow | null;
   readonly player: { readonly id: string; readonly display_name: string } | null;
   readonly owner: { readonly id: string; readonly display_name: string } | null;
   readonly entries:
@@ -194,7 +222,8 @@ export function toBrowsableDeck(row: BrowsableDeckRow): BrowsableDeck {
         ? { kind: "member", id: row.owner.id as ProfileId, name: row.owner.display_name }
         : null;
   return {
-    ...toDeckWithCards(row),
+    ...toDeck(row),
+    traits: row.traits === null ? null : toDeckTraits(row.traits),
     author,
     records: (row.entries ?? []).map((entry) => ({
       wins: entry.match_wins ?? 0,

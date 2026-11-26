@@ -1,8 +1,8 @@
 import { meetsRole } from "@ps/core";
-import Link from "next/link";
 import type { ReactNode } from "react";
 
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { DASHBOARD_SECTIONS } from "@/lib/auth/dashboard-sections";
 import { requireViewer } from "@/lib/auth/guard";
 

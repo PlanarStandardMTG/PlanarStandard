@@ -25,17 +25,13 @@ export async function Banlist() {
   if (!format.ok)
     return <ErrorState title="The banlist could not be loaded" detail={format.error} />;
   if (format.value === null) {
-    return (
-      <EmptyState title="No format version is current">The banlist will appear here.</EmptyState>
-    );
+    return <EmptyState title="No format version is current" />;
   }
 
   const { version, cardRules } = format.value;
 
   if (cardRules.length === 0) {
-    return (
-      <EmptyState title={`Nothing is banned in ${version.name}`}>No cards are banned.</EmptyState>
-    );
+    return <EmptyState title={`Nothing is banned in ${version.name}`} />;
   }
 
   return (

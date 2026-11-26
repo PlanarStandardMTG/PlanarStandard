@@ -23,7 +23,7 @@ export function PostFeedPage({
   description: string;
   posts: Loaded<readonly PostWithAuthor[]>;
   emptyTitle: string;
-  emptyBody: string;
+  emptyBody?: string;
   /** Beside the title — the way to add to this feed, for whoever may. */
   action?: ReactNode;
 }) {
@@ -44,7 +44,7 @@ export function PostFeedPage({
           // says nothing. The page title already said it.
           showKind={false}
           emptyTitle={emptyTitle}
-          emptyBody={emptyBody}
+          {...(emptyBody === undefined ? {} : { emptyBody })}
         />
       ) : (
         <ErrorState title="Could not load posts" detail={posts.error} />

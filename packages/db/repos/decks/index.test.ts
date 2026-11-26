@@ -1,6 +1,7 @@
 import type {
   DeckCard,
   DeckId,
+  FormatVersionId,
   OracleId,
   PlayerId,
   ProfileId,
@@ -21,11 +22,16 @@ import {
   listDeckVersions,
   listDecksByPlayer,
   listBrowsableDecks,
+  listDeckIds,
+  listDeckTraits,
   listDecksWithCards,
+  listLegalDeckIds,
   listMemberDecks,
   listPublicDecksBySeason,
   listUnmatchedCardNames,
   matchDeckCards,
+  saveDeckLegality,
+  saveDeckTraits,
   type NewDeck,
 } from "./index";
 
@@ -264,17 +270,65 @@ describe.skipIf(!reachable)("repos/decks", () => {
     ).toEqual(["Public"]);
   });
 
-  it("browses public decks with their lists, and nothing unlisted, private or hidden", async () => {
+  it("browses public decks with their traits, and nothing unlisted, private or hidden", async () => {
     const pub = await write(deck({ name: "Browse public" }), [card({ name: "Llanowar Elves" })]);
+    const bare = await write(deck({ name: "Browse bare" }), []);
     await write(deck({ name: "Browse unlisted", visibility: "unlisted" }), []);
     await write(deck({ name: "Browse private", visibility: "private" }), []);
     await write(deck({ name: "Browse hidden", hiddenAt: "2026-09-01T00:00:00Z" }), []);
+    await saveDeckTraits(service, [
+      {
+        deckId: pub.id,
+        traits: { colors: ["G"], castColors: ["G"], cardNames: ["llanowar elves"] },
+      },
+    ]);
 
-    const browsable = (await listBrowsableDecks(client)).filter((d) =>
-      d.name.startsWith("Browse "),
+    const browse = async (withCardNames: boolean) =>
+      (await listBrowsableDecks(client, { withCardNames }))
+        .filter((d) => d.name.startsWith("Browse "))
+        .map((d) => [d.id, d.traits]);
+    expect(await browse(true)).toEqual([
+      [bare.id, null],
+      [pub.id, { colors: ["G"], castColors: ["G"], cardNames: ["llanowar elves"] }],
+    ]);
+    // The names are only sent when a card-name filter needs them.
+    expect(await browse(false)).toEqual([
+      [bare.id, null],
+      [pub.id, { colors: ["G"], castColors: ["G"], cardNames: [] }],
+    ]);
+  });
+
+  it("stores each deck's traits and legality, readable only where the deck is", async () => {
+    // The seeded version by id, not "the current one": `repos/format` makes a
+    // version of its own current for a moment, then deletes it.
+    const versionId = "22222222-2222-4222-8222-000000000001" as FormatVersionId;
+    const legal = await write(deck({ name: "Stored legal" }), []);
+    const illegal = await write(deck({ name: "Stored illegal" }), []);
+    const hidden = await write(deck({ name: "Stored private", visibility: "private" }), []);
+    const traits = { colors: [], castColors: ["R" as const], cardNames: ["shock"] };
+    await saveDeckTraits(
+      service,
+      [legal, hidden].map((d) => ({ deckId: d.id, traits })),
     );
-    expect(browsable.map((d) => d.name)).toEqual(["Browse public"]);
-    expect(browsable[0]?.cards.map((c) => c.name)).toEqual(pub.cards.map((c) => c.name));
+    await saveDeckLegality(service, [
+      { deckId: legal.id, formatVersionId: versionId, legal: true },
+      { deckId: illegal.id, formatVersionId: versionId, legal: false },
+      { deckId: hidden.id, formatVersionId: versionId, legal: true },
+    ]);
+    // A second write replaces the first rather than failing on the key.
+    await saveDeckLegality(service, [
+      { deckId: illegal.id, formatVersionId: versionId, legal: false },
+    ]);
+
+    const legalIds = await listLegalDeckIds(client, versionId);
+    expect([legal.id, illegal.id, hidden.id].map((id) => legalIds.has(id))).toEqual([
+      true,
+      false,
+      false,
+    ]);
+    expect((await listLegalDeckIds(service, versionId)).has(hidden.id)).toBe(true);
+    expect([...(await listDeckTraits(client, [legal.id, hidden.id])).keys()]).toEqual([legal.id]);
+    expect((await listDeckIds(service)).includes(hidden.id)).toBe(true);
   });
 
   it("credits a browsed deck to its player, else its owner, with each event and its record", async () => {
@@ -312,7 +366,7 @@ describe.skipIf(!reachable)("repos/decks", () => {
       .single();
 
     try {
-      const browsable = (await listBrowsableDecks(client)).filter((d) =>
+      const browsable = (await listBrowsableDecks(client, { withCardNames: false })).filter((d) =>
         d.name.startsWith("Credit "),
       );
       expect(browsable.map((d) => [d.name, d.author, d.records, d.events])).toEqual([

@@ -1,9 +1,9 @@
 import { listSeasons } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Notice } from "@/components/auth/form-parts";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "@/components/ui/link";
 import { requireRole } from "@/lib/auth/guard";
 import { formatDate } from "@/lib/format-date";
 import { createSessionClient } from "@/lib/supabase/session";
@@ -40,8 +40,7 @@ export default async function AdminSeasonsPage({
         <div>
           <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Seasons</h1>
           <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-            Every tournament belongs to the season its date falls in. The dates the leaderboard
-            rates are set under Data processing.
+            A tournament belongs to the season its date falls in.
           </p>
         </div>
         <Link href="/admin/seasons/new" className={BUTTON}>

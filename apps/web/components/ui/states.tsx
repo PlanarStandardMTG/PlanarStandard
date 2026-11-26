@@ -58,9 +58,7 @@ export function ErrorState({
       )}
     >
       <p className="font-medium text-red-900 dark:text-red-200">{title}</p>
-      <p className="mt-1 text-sm text-red-800/80 dark:text-red-300/80">
-        This one is on us, not on you. Try again in a moment.
-      </p>
+      <p className="mt-1 text-sm text-red-800/80 dark:text-red-300/80">Try again in a moment.</p>
       {showDetail && (
         <pre className="mt-4 overflow-x-auto rounded-lg bg-red-100 p-3 text-xs text-red-900 dark:bg-red-950/60 dark:text-red-200">
           {detail}

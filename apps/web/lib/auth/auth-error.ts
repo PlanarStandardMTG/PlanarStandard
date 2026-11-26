@@ -79,19 +79,17 @@ export function authErrorCode(error: SupabaseishError | null): AuthErrorCode | n
 
 export const AUTH_MESSAGES: Readonly<Record<AuthErrorCode, string>> = {
   "invalid-credentials": "That email and password do not match an account.",
-  "email-not-confirmed":
-    "That account still needs confirming. Check your email for the link we sent when you signed up.",
+  "email-not-confirmed": "Confirm your account first, with the link we emailed you.",
   "weak-password": "That password is too short.",
-  "same-password": "That is already your password. Choose a different one.",
+  "same-password": "That is already your password.",
   "email-invalid": "That does not look like an email address.",
-  "email-taken":
-    "That address already has an account. Sign in instead, or reset the password if you have forgotten it.",
+  "email-taken": "That address already has an account. Sign in or reset the password.",
   "rate-limited": "Too many attempts. Wait a minute and try again.",
-  "link-expired": "That link has expired or has already been used. Ask for a new one.",
-  "provider-denied": "That sign-in was cancelled before it finished. Nothing was saved.",
-  "provider-unavailable": "That sign-in option is not available right now. Try another.",
-  "signups-disabled": "New accounts are closed at the moment.",
-  unknown: "That did not work. Please try again.",
+  "link-expired": "That link has expired or been used. Ask for a new one.",
+  "provider-denied": "Sign-in was cancelled.",
+  "provider-unavailable": "That sign-in option is unavailable. Try another.",
+  "signups-disabled": "New accounts are closed.",
+  unknown: "That did not work. Try again.",
 };
 
 /** Narrows whatever arrived in `?error=`. */

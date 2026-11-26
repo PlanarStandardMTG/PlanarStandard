@@ -1,6 +1,5 @@
-import Link from "next/link";
-
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { PlanarMark } from "@/components/ui/planar-mark";
 
 import { AccountNav } from "./account-nav";

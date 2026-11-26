@@ -56,12 +56,12 @@ export async function EditorFor({
       saveLabel={live ? "Save" : "Save draft"}
       statusNote={
         live
-          ? "This post is live; saving updates it."
+          ? "Live; saving updates it."
           : status === "review"
-            ? "Waiting for review. Saving a draft takes it out of the queue."
+            ? "In review. Saving a draft withdraws it."
             : direct
-              ? "Publishing makes it live straight away."
-              : "A writer or an admin approves it before it goes live."
+              ? "Publishing makes it live."
+              : "Published once a writer approves it."
       }
       components={embedsFor(kind).map((embed) => embed.name)}
       decks={decks.map((deck) => ({ id: deck.id, name: deck.name, visibility: deck.visibility }))}

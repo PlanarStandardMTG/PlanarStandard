@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { AuthShell, Card } from "@/components/auth/form-parts";
+import { Link } from "@/components/ui/link";
 import { safeNextPath } from "@/lib/auth/next-path";
 
 export const dynamic = "force-dynamic";
@@ -25,18 +25,18 @@ interface Reason {
 
 const SIGN_IN_LINK: Reason = {
   title: "Check your email",
-  body: "If that address has an account, a sign-in link is on its way. It expires in an hour and can only be used once.",
+  body: "If that address has an account, a sign-in link is on its way. It expires in an hour.",
 };
 
 const REASONS: Readonly<Record<string, Reason>> = {
   confirm: {
     title: "Confirm your email",
-    body: "We have sent a link to that address. Open it and your account is ready — it expires in an hour.",
+    body: "Open the link we sent to finish. It expires in an hour.",
   },
   link: SIGN_IN_LINK,
   recovery: {
     title: "Check your email",
-    body: "If that address has an account, a link to choose a new password is on its way. It expires in an hour.",
+    body: "If that address has an account, a reset link is on its way. It expires in an hour.",
   },
 };
 
@@ -61,7 +61,7 @@ export default async function CheckEmailPage({
           >
             ask for another one
           </Link>
-          . Links can only be used once, so an old one in your inbox will not work.
+          .
         </p>
       </Card>
     </AuthShell>

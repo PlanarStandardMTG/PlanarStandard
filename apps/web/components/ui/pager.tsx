@@ -1,4 +1,4 @@
-import Link from "next/link";
+import { Link } from "./link";
 
 /**
  * Previous and next links for a paged list, and where the reader is. The href

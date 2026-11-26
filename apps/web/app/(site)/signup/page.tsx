@@ -1,10 +1,10 @@
 import { PASSWORD_MIN_LENGTH } from "@ps/core";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AuthShell, Card, Field, Notice, SubmitButton } from "@/components/auth/form-parts";
 import { OAuthButtons } from "@/components/auth/oauth-buttons";
+import { Link } from "@/components/ui/link";
 import { authMessage } from "@/lib/auth/auth-error";
 import { safeNextPath } from "@/lib/auth/next-path";
 import { currentViewer } from "@/lib/auth/viewer";
@@ -36,10 +36,7 @@ export default async function SignUpPage({
   const error = authMessage(params["error"]);
 
   return (
-    <AuthShell
-      title="Create an account"
-      intro="You only need one to write something — reading the site never asks."
-    >
+    <AuthShell title="Create an account">
       {error !== null && <Notice tone="warn">{error}</Notice>}
 
       <Card className="mt-6 p-6">
@@ -51,7 +48,7 @@ export default async function SignUpPage({
             autoComplete="name"
             maxLength={60}
             placeholder="Optional"
-            hint="How you are credited on anything you write. You can change it later."
+            hint="Shown on anything you write."
           />
           <Field
             label="Email"

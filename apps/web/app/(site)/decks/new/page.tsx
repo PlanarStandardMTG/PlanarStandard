@@ -1,10 +1,11 @@
 import { listFormatVersions } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 
+import { checkDraft, saveDeck } from "@/app/(site)/decks/actions";
 import { DeckEditorForm, type DeckSaver } from "@/components/decks/deck-editor-form";
 import { formatChoice, formatOptions } from "@/components/decks/format-labels";
 import { Container } from "@/components/ui/container";
+import { Link } from "@/components/ui/link";
 import { currentViewer } from "@/lib/auth/viewer";
 import { createPublicClient } from "@/lib/supabase/server";
 
@@ -41,12 +42,12 @@ export default async function NewDeckPage() {
         {saver === "member" ? "Import a deck" : "Check a deck"}
       </h1>
       <p className="mt-1 mb-8 text-sm text-ink-600 dark:text-ink-400">
-        {saver === "member"
-          ? "Paste a list from Arena, MTGO or a text file. It is checked as you type; illegal decks can still be saved."
-          : "Paste a list from Arena, MTGO or a text file. It is checked against the format as you type."}
+        Paste a list from Arena, MTGO or a text file.
       </p>
       <DeckEditorForm
         saver={saver}
+        saveDeck={saveDeck}
+        checkDraft={checkDraft}
         formats={formatOptions(versions)}
         initial={{
           name: "",

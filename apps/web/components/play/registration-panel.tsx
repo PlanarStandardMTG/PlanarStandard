@@ -1,7 +1,7 @@
 import type { Deck, Run, RunEntrant, RunEntrantDeck } from "@ps/contracts";
-import Link from "next/link";
 
 import { changeDeckAction, registerAction, withdrawAction } from "@/app/play/events/actions";
+import { Link } from "@/components/ui/link";
 import type { Viewer } from "@/lib/auth/viewer";
 
 import { PRIMARY, QUIET } from "./button";

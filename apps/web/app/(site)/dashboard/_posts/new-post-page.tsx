@@ -1,7 +1,7 @@
 import type { PostKind } from "@ps/contracts";
-import Link from "next/link";
 
 import { EditorFor } from "@/components/content/editor-page";
+import { Link } from "@/components/ui/link";
 import { requireRole } from "@/lib/auth/guard";
 import { ownPostsHref } from "@/lib/post-url";
 
@@ -25,11 +25,6 @@ export async function NewPostPage({ kind }: { kind: PostKind }) {
         <h1 className="mt-2 font-display text-4xl tracking-tight sm:text-5xl">
           {official ? "New news post" : "New community post"}
         </h1>
-        {official && (
-          <p className="mt-1 text-sm text-ink-600 dark:text-ink-400">
-            Published under the format&rsquo;s name, at <code>/news</code>.
-          </p>
-        )}
       </header>
 
       <EditorFor

@@ -2,12 +2,13 @@ import type { FormatVersionId } from "@ps/contracts";
 import { DEFAULT_CONSTRAINTS } from "@ps/core";
 import { getFormatDetail } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { deleteFormat, saveFormat } from "@/app/(site)/admin/formats/actions";
 import { Notice } from "@/components/auth/form-parts";
 import { DeleteFormatButton } from "@/components/format/delete-format-button";
 import { FormatVersionForm } from "@/components/format/format-version-form";
+import { Link } from "@/components/ui/link";
 import { requireRole } from "@/lib/auth/guard";
 import { cardIndex, cardSetCodes } from "@/lib/cards/card-index";
 import { createSessionClient } from "@/lib/supabase/session";
@@ -22,10 +23,8 @@ export const metadata: Metadata = {
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const ERRORS: Readonly<Record<string, string>> = {
-  current:
-    "The version in force can’t be deleted. Mark another version as in force first, then delete this one.",
-  "in-use":
-    "A season, tournament or deck was checked against this version, so it can’t be deleted. It can stay as a past version.",
+  current: "The version in force can’t be deleted. Mark another as in force first.",
+  "in-use": "A season, tournament or deck uses this version, so it can’t be deleted.",
 };
 
 /** View and edit one version, card rules shown by name (E20.33). */
@@ -58,7 +57,7 @@ export default async function EditFormatPage({
       </Link>
       <header className="mt-2 mb-8 flex flex-wrap items-start justify-between gap-4">
         <h1 className="font-display text-4xl tracking-tight sm:text-5xl">{version.name}</h1>
-        <DeleteFormatButton id={version.id} name={version.name} />
+        <DeleteFormatButton id={version.id} name={version.name} deleteFormat={deleteFormat} />
       </header>
 
       {typeof error === "string" && ERRORS[error] !== undefined && (
@@ -70,6 +69,7 @@ export default async function EditFormatPage({
       <FormatVersionForm
         id={version.id}
         knownSets={cardSetCodes()}
+        save={saveFormat}
         initial={{
           name: version.name,
           notes: version.notesMarkdown ?? "",

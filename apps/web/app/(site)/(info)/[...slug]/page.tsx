@@ -1,9 +1,12 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { JsonLd } from "@/components/seo/json-ld";
 import { Container } from "@/components/ui/container";
 import { findInfoPage, publishedInfoPages } from "@/lib/info-pages/pages";
 import { renderInfoPage } from "@/lib/info-pages/render";
+import { faqEntries, faqPageSchema } from "@/lib/seo/json-ld";
+import { pageMetadata } from "@/lib/seo/page-metadata";
 
 /**
  * Every MDX info page, at the root of the site: `/about`, `/rules`, and the
@@ -22,6 +25,9 @@ import { renderInfoPage } from "@/lib/info-pages/render";
 export const dynamic = "force-dynamic";
 export const dynamicParams = false;
 
+/** Pages written as questions and answers, which carry `FAQPage` schema. */
+const FAQ_PAGES: ReadonlySet<string> = new Set(["/faq"]);
+
 interface Params {
   readonly params: Promise<{ readonly slug: readonly string[] }>;
 }
@@ -33,7 +39,11 @@ export function generateStaticParams(): { slug: string[] }[] {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const page = findInfoPage((await params).slug);
   if (page === null) return {};
-  return { title: page.frontmatter.title, description: page.frontmatter.description };
+  return pageMetadata({
+    title: page.frontmatter.title,
+    description: page.frontmatter.description,
+    path: page.href,
+  });
 }
 
 export default async function InfoPageRoute({ params }: Params) {
@@ -47,6 +57,7 @@ export default async function InfoPageRoute({ params }: Params) {
 
   return (
     <Container className="py-12">
+      {FAQ_PAGES.has(page.href) && <JsonLd data={faqPageSchema(faqEntries(page.body))} />}
       <header className="mb-8 max-w-prose">
         <h1 className="font-display text-4xl tracking-tight sm:text-5xl">
           {page.frontmatter.title}

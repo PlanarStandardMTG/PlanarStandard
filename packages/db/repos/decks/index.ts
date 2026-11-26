@@ -2,6 +2,7 @@ import type {
   Deck,
   DeckCard,
   DeckId,
+  DeckTraits,
   DeckWithCards,
   FormatVersionId,
   OracleId,
@@ -15,16 +16,38 @@ import {
   DECK_COLUMNS,
   DECK_SUMMARY_COLUMNS,
   DECK_WITH_CARDS_COLUMNS,
-  BROWSABLE_DECK_COLUMNS,
   EVENT_ROUTES,
+  browsableDeckColumns,
   toBrowsableDeck,
   toDeck,
+  toDeckTraits,
   toDeckWithCards,
   type BrowsableDeck,
   type BrowsableDeckRow,
   type DeckRow,
+  type DeckTraitsRow,
   type DeckWithCardsRow,
 } from "./rows";
+
+/** PostgREST answers at most `max_rows` (1000) rows a request, and says nothing when it stops. */
+const PAGE = 1000;
+
+/** Every row a query matches, a page at a time. The query must order by something unique. */
+async function everyRow<T>(
+  what: string,
+  page: (
+    from: number,
+    to: number,
+  ) => PromiseLike<{ data: unknown[] | null; error: { message: string } | null }>,
+): Promise<T[]> {
+  const rows: T[] = [];
+  for (let from = 0; ; from += PAGE) {
+    const { data, error } = await page(from, from + PAGE - 1);
+    if (error !== null) throw new Error(`${what} failed: ${error.message}`);
+    rows.push(...((data ?? []) as T[]));
+    if ((data ?? []).length < PAGE) return rows;
+  }
+}
 
 /**
  * Reads and writes over `decks` and `deck_cards` (E13.16).
@@ -221,16 +244,107 @@ export type { BrowsableDeck, DeckAuthor, DeckEvent } from "./rows";
  */
 export async function listBrowsableDecks(
   client: SupabaseClient,
+  { withCardNames }: { readonly withCardNames: boolean },
 ): Promise<readonly BrowsableDeck[]> {
-  const { data, error } = await client
-    .from("decks")
-    .select(BROWSABLE_DECK_COLUMNS)
-    .eq("visibility", "public")
-    .is("hidden_at", null)
-    .order("created_at", { ascending: false });
+  const rows = await everyRow<BrowsableDeckRow>("listBrowsableDecks", (from, to) =>
+    client
+      .from("decks")
+      .select(browsableDeckColumns(withCardNames))
+      .eq("visibility", "public")
+      .is("hidden_at", null)
+      .order("created_at", { ascending: false })
+      .order("id")
+      .range(from, to),
+  );
+  return rows.map(toBrowsableDeck);
+}
 
-  if (error !== null) throw new Error(`listBrowsableDecks failed: ${error.message}`);
-  return (data as unknown as BrowsableDeckRow[]).map(toBrowsableDeck);
+/** Every deck's id, at any visibility: what a recheck of the stored traits walks (E20.72). */
+export async function listDeckIds(serviceClient: SupabaseClient): Promise<readonly DeckId[]> {
+  const rows = await everyRow<{ id: string }>("listDeckIds", (from, to) =>
+    serviceClient.from("decks").select("id").order("id").range(from, to),
+  );
+  return rows.map((row) => row.id as DeckId);
+}
+
+/** These decks' stored traits, where they have been computed (E20.72). */
+export async function listDeckTraits(
+  client: SupabaseClient,
+  deckIds: readonly DeckId[],
+): Promise<ReadonlyMap<DeckId, DeckTraits>> {
+  if (deckIds.length === 0) return new Map();
+  const { data, error } = await client
+    .from("deck_traits")
+    .select("deck_id, colors, cast_colors, card_names")
+    .in("deck_id", deckIds);
+  if (error !== null) throw new Error(`listDeckTraits failed: ${error.message}`);
+  return new Map(
+    (data as unknown as (DeckTraitsRow & { deck_id: string })[]).map((row) => [
+      row.deck_id as DeckId,
+      toDeckTraits(row),
+    ]),
+  );
+}
+
+/** Rows a write sends at once; well under PostgREST's request size. */
+const WRITE_BATCH = 500;
+
+/** Store what these decks were worked out to be, replacing what was there (E20.72). */
+export async function saveDeckTraits(
+  serviceClient: SupabaseClient,
+  rows: readonly { readonly deckId: DeckId; readonly traits: DeckTraits }[],
+): Promise<void> {
+  for (let i = 0; i < rows.length; i += WRITE_BATCH) {
+    const { error } = await serviceClient.from("deck_traits").upsert(
+      rows.slice(i, i + WRITE_BATCH).map(({ deckId, traits }) => ({
+        deck_id: deckId,
+        colors: traits.colors,
+        cast_colors: traits.castColors,
+        card_names: traits.cardNames,
+        computed_at: new Date().toISOString(),
+      })),
+    );
+    if (error !== null) throw new Error(`saveDeckTraits failed: ${error.message}`);
+  }
+}
+
+/** Store whether each deck is legal in each format version, replacing what was there (E20.72). */
+export async function saveDeckLegality(
+  serviceClient: SupabaseClient,
+  rows: readonly {
+    readonly deckId: DeckId;
+    readonly formatVersionId: FormatVersionId;
+    readonly legal: boolean;
+  }[],
+): Promise<void> {
+  for (let i = 0; i < rows.length; i += WRITE_BATCH) {
+    const { error } = await serviceClient.from("deck_legality").upsert(
+      rows.slice(i, i + WRITE_BATCH).map((row) => ({
+        deck_id: row.deckId,
+        format_version_id: row.formatVersionId,
+        legal: row.legal,
+        computed_at: new Date().toISOString(),
+      })),
+    );
+    if (error !== null) throw new Error(`saveDeckLegality failed: ${error.message}`);
+  }
+}
+
+/** The decks stored as legal in a format version — what the browser narrows to (E20.72). */
+export async function listLegalDeckIds(
+  client: SupabaseClient,
+  formatVersionId: FormatVersionId,
+): Promise<ReadonlySet<DeckId>> {
+  const rows = await everyRow<{ deck_id: string }>("listLegalDeckIds", (from, to) =>
+    client
+      .from("deck_legality")
+      .select("deck_id")
+      .eq("format_version_id", formatVersionId)
+      .eq("legal", true)
+      .order("deck_id")
+      .range(from, to),
+  );
+  return new Set(rows.map((row) => row.deck_id as DeckId));
 }
 
 /** What a member supplies when importing a deck; the database fills in the rest. */

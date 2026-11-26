@@ -4,14 +4,16 @@ import { listPublishedPostsByKind } from "@ps/db";
 import { PostFeedPage } from "@/components/content/post-feed-page";
 import { WritePostButton } from "@/components/content/write-post-button";
 import { load } from "@/lib/load";
+import { pageMetadata } from "@/lib/seo/page-metadata";
 import { createPublicClient } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-export const metadata: Metadata = {
+export const metadata: Metadata = pageMetadata({
   title: "News",
   description: "Announcements, B&R updates, and event news for the Planar Standard format.",
-};
+  path: "/news",
+});
 
 export default async function NewsPage() {
   const posts = await load(() => listPublishedPostsByKind(createPublicClient(), "official", 50));
@@ -19,11 +21,10 @@ export default async function NewsPage() {
   return (
     <PostFeedPage
       title="News"
-      description="Announcements from the format itself — B&R updates, season openings, and event news."
+      description="B&R updates, season openings and event news."
       posts={posts}
       action={<WritePostButton kind="official" />}
       emptyTitle="No announcements yet"
-      emptyBody="B&R updates and season news will be posted here."
     />
   );
 }

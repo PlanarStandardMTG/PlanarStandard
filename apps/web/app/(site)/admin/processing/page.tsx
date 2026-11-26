@@ -5,14 +5,15 @@ import {
   listDecksWithCards,
   listFormatVersions,
   listRatingRuns,
+  listStaleLegalityVersions,
   listTournamentCoverage,
 } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { Notice } from "@/components/auth/form-parts";
 import { InclusionTable } from "@/components/processing/inclusion-table";
 import { RatingWindowForm } from "@/components/processing/rating-window-form";
+import { Link } from "@/components/ui/link";
 import { requireRole } from "@/lib/auth/guard";
 import { findCardMatches } from "@/lib/decks/match-deck-cards.server";
 import { EVENT_SOURCE_LABELS } from "@/lib/events/source-label";
@@ -61,13 +62,15 @@ export default async function AdminProcessingPage({
 
   const session = await createSessionClient();
   const service = createServiceRoleClient();
-  const [coverage, window, [lastRun], versions, cards] = await Promise.all([
+  const [coverage, window, [lastRun], versions, cards, staleIds] = await Promise.all([
     listTournamentCoverage(session),
     getRatingWindow(session),
     listRatingRuns(service, 1),
     listFormatVersions(session),
     findCardMatches(service),
+    listStaleLegalityVersions(session),
   ]);
+  const stale = versions.filter((version) => staleIds.has(version.id));
   const illegalIds = (typeof params["decks"] === "string" ? params["decks"].split(",") : []).filter(
     isUuid,
   );
@@ -82,19 +85,8 @@ export default async function AdminProcessingPage({
       <header className="mb-8">
         <h1 className="font-display text-4xl tracking-tight sm:text-5xl">Data processing</h1>
         <p className="mt-2 max-w-prose text-ink-600 dark:text-ink-400">
-          What each stored tournament counts towards. This page works on the site&rsquo;s own data
-          and never calls melee.gg or Challonge — getting an event&rsquo;s results is{" "}
-          <Link
-            href="/admin/fetching"
-            className="text-eclipse-700 hover:underline dark:text-eclipse-400"
-          >
-            Event fetching
-          </Link>
-          . A Monthly starts in both. Elo needs an event&rsquo;s matches, and card statistics its
-          decklists. Elo changes wait until you recompute; card statistics are saved as you tick
-          them. An event starts in the format version in force and can allow more than one; each
-          deck the event made counts in the first of them it is legal in, while a member&rsquo;s own
-          deck keeps theirs.
+          Elo needs an event&rsquo;s matches, card statistics its decklists. Elo changes wait until
+          you recompute; card statistics save as you tick them.
         </p>
       </header>
 
@@ -121,12 +113,12 @@ export default async function AdminProcessingPage({
 
       {params["done"] === "rechecked" && (
         <Notice tone="good">
-          Deck formats rechecked:{" "}
-          {params["moved"] === "1" ? "1 deck" : `${String(params["moved"])} decks`} moved.
+          Decks rechecked: {params["moved"] === "1" ? "1 deck" : `${String(params["moved"])} decks`}{" "}
+          moved.
           {params["none"] !== "0" &&
             (params["none"] === "1"
-              ? " 1 deck is legal in none of its event’s formats and stays in the first — usually a card that isn’t matched yet:"
-              : ` ${String(params["none"])} decks are legal in none of their event’s formats and stay in its first — usually a card that isn’t matched yet:`)}
+              ? " 1 deck is legal in none of its event’s formats (usually an unmatched card):"
+              : ` ${String(params["none"])} decks are legal in none of their event’s formats (usually an unmatched card):`)}
         </Notice>
       )}
       {illegal.length > 0 && (
@@ -177,16 +169,20 @@ export default async function AdminProcessingPage({
 
       <div className="mb-8 flex flex-wrap items-center gap-4 rounded-xl border border-ink-200 px-5 py-4 dark:border-ink-800">
         <div className="min-w-0 flex-1">
-          <p className="font-semibold">Deck formats</p>
+          <p className="font-semibold">
+            {stale.length === 0
+              ? "Decks are up to date"
+              : `Decks need rechecking for ${stale.map((version) => version.name).join(", ")}`}
+          </p>
           <p className="text-xs text-ink-500 dark:text-ink-400">
-            Each deck an event made counts in the first of the event&rsquo;s formats it is legal in.
-            That is decided when the event&rsquo;s formats or decklists change; recheck after
-            matching cards or editing a format&rsquo;s rules.
+            {stale.length === 0
+              ? "Recheck after matching cards or editing a format’s rules."
+              : "Until then, /decks may list decks that are no longer legal."}
           </p>
         </div>
         <form action={recheckDeckFormats}>
           <button type="submit" className={BUTTON}>
-            Recheck deck formats
+            Recheck decks
           </button>
         </form>
       </div>
@@ -200,15 +196,13 @@ export default async function AdminProcessingPage({
                 : `${cards.matches.length} unmatched ${cards.matches.length === 1 ? "card name" : "card names"} can now be matched`}
             </p>
             <p className="text-xs text-ink-500 dark:text-ink-400">
-              A decklist&rsquo;s cards are matched when it is saved, against the card data of the
-              time. After a set is added to the card data, this matches the lines that name its
-              cards.
+              Run after adding a set to the card data.
             </p>
             {cards.unmatched.length > 0 && (
               <details className="mt-2 text-xs text-ink-600 dark:text-ink-400">
                 <summary className="cursor-pointer">
                   {cards.unmatched.length} {cards.unmatched.length === 1 ? "name" : "names"} the
-                  card data doesn&rsquo;t know — confirm a suggestion to match a misspelling
+                  card data doesn&rsquo;t know
                 </summary>
                 <ul className="mt-2 divide-y divide-ink-100 dark:divide-ink-800">
                   {cards.unmatched.map(({ name, suggestion }) => (

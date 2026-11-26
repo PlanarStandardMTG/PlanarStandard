@@ -35,15 +35,15 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | ✅ 23/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
-| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 15/16 |
-| E17  | MDX info pages                        | 2     | E16          | 🚧 15/16 |
+| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 19/20 |
+| E17  | MDX info pages                        | 2     | E16          | 🚧 17/18 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 59/70 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 61/72 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
-| E23  | Upcoming events                       | 2     | E13.1        | 🚧 16/17 |
-| E24  | Home page                             | 2     | E16.1        | 🚧 6/7   |
+| E23  | Upcoming events                       | 2     | E13.1        | 🚧 17/18 |
+| E24  | Home page                             | 2     | E16.1        | 🚧 7/8   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
 | E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 31/32 |
 
@@ -823,6 +823,37 @@ _Note:_ added outside the plan. It retires E16.14's night regions: `dark:` is no
 `<html data-theme>`, set by a head script in `app/layout.tsx`, and falls back to
 `prefers-color-scheme` with no script at all. The stored-preference helpers in `lib/preferences.ts`
 also back the deck page's remembered layout (E20.29).
+✅ **E16.17 — Page views are counted, without cookies** · S · Deps: E16.12 — _AC:_ every page loads
+Vercel Web Analytics from the root layout and nothing is stored on the visitor's device; `/privacy`
+says what a view records, its lawful basis and that Vercel processes it.
+_Note:_ added outside the plan. It reverses E16.12's "no analytics" but not its "no consent banner":
+no cookie is set and the visitor hash is discarded after 24 hours. Adds `@vercel/analytics`.
+
+✅ **E16.18 — Links stop prefetching** · S · Deps: E16.1 — every route renders per request, so a
+prefetch fetched only the route tree, yet each link in view was a function invocation; the header
+and footer alone made about fourteen per page view. `components/ui/link` wraps `next/link` with
+`prefetch={false}`, and lint refuses `next/link` anywhere else in `apps/web`.
+_AC:_ no link prefetches unless it passes `prefetch`; importing `next/link` fails `pnpm lint`.
+_Note:_ added outside the plan.
+
+✅ **E16.19 — Shared links get a title, description and image** · S · Deps: E16.1 — the root layout
+sets `metadataBase` from the site origin and the Open Graph and Twitter defaults; `app/opengraph-image`
+is the site's share card, built once at build time. Posts, info pages, feeds, tournaments and decks set
+their own title, description and canonical URL through `lib/seo/page-metadata`; a post is an
+`article` with its dates and author, and its hero image when it has one.
+_AC:_ every page above renders `og:title`, `og:description`, `og:image` and a canonical URL; crawlers
+may read `/opengraph-image` and `/icon.svg`, which the cards and E16.20's schema point to.
+_Note:_ added outside the plan. A page's own `openGraph` replaces the layout's, so the helper names
+the share image outright rather than relying on inheritance.
+
+✅ **E16.20 — Schema markup for search engines** · S · Deps: E16.19 — JSON-LD `WebSite` and
+`Organization` on the home page, `NewsArticle` on news and `Article` on community posts, and `FAQPage`
+on `/faq`, built from its question headings. `lib/seo/json-ld` holds the typed builders and escapes
+`<`; `components/seo/json-ld` renders the script. Deck, event and member pages get none, since
+crawlers may not read them (E17.17).
+_AC:_ Google's Rich Results Test and validator.schema.org pass on each.
+_Outstanding:_ the Rich Results Test and validator.schema.org runs, which need the deployed pages.
+_Note:_ added outside the plan.
 
 ---
 
@@ -867,6 +898,26 @@ Markdown with `<LegalSets />` and `<Banlist />` written out from the live format
 every link to them; the sitemap and `llms.txt` list only what remains.
 _Note:_ `docs/modules/metrics.md` stays as the record of every definition but is no longer published, so
 its `publish:` markers went with the page and the drift test now covers `/ratings-explained` alone.
+
+✅ **E17.17 — Crawlers read the info pages and posts only** · S · Deps: E17.15 — crawlers working
+through every deck, event and member page used most of the hosting plan's CPU. `robots.txt` now allows
+the home page, the info pages, news and community posts, `llms.txt` and `llms-full.txt`, and disallows
+the rest. Link-preview bots
+(Discord, Reddit and others) may still fetch any page, so a shared link still unfurls. The sitemap
+lists only what crawlers may read.
+_AC:_ `robots.txt` disallows `/` for `*` with an `Allow` for each published info page and for
+`/news` and `/community`; decks, events, tournaments, members and the leaderboard drop out of search
+engines as a result, by choice.
+_Note:_ added outside the plan. `robots.txt` is a request; a scraper that ignores it is the
+firewall's job.
+
+✅ **E17.18 — Page: faq, from the Discord's FAQ** · S · Deps: E17.16 — `/faq` answers what newcomers
+ask in the Discord: the format, finding a game, tournament types, how to join one (with melee.gg's
+full-name warning), where to learn, how to support, and who runs it.
+_AC:_ every heading is a question with its answer below it, so the page can carry `FAQPage` schema;
+it is listed under "Get involved" in `llms.txt`.
+_Note:_ reverses E17.16 for this one page. The old FAQ repeated `/rules`; this one carries what was
+only in the Discord.
 
 ---
 
@@ -1492,6 +1543,28 @@ move from the middle of the hairline to its start, shrinking away from the headi
 _AC:_ no divider shows a centred cluster of dots, which read as a carousel's pager beside the event card's.
 _Note:_ added outside the plan.
 
+✅ **E20.71 — `ui`: only the words needed** · S · Deps: — — the site's copy is cut to what a reader
+needs: no intro restating a page's title, no body under an empty state's title, shorter notices,
+errors and hints.
+_AC:_ metadata descriptions, the privacy page, `/ratings-explained`, attribution, the decklist CSV
+format and "cannot be undone" warnings are kept; every other page says less than before. The home
+page's hero reads "Welcome to Planar Standard" over "The portal for the community Magic: The Gathering
+format."
+_Note:_ added outside the plan.
+
+✅ **E20.72 — `/decks` reads stored traits, not every list** · M · Deps: E20.40, E20.53 — the browser
+loaded every public deck with its whole list on each request and checked each against the card data,
+so its cost grew with every deck imported. A deck's pips, cast colours, card names (`deck_traits`) and
+legality in each format version (`deck_legality`) are now worked out when it is saved, and `/decks`
+reads those. A format edit that narrows a version's rules marks it stale (`deck_legality_stale`) for an
+admin to recheck from `/admin/processing`; a new or widened version is rechecked on save, and matching
+cards marks every version stale. The home page's podium reads its colours from the same rows.
+_AC:_ `/decks` loads no decklist and no card data; with 806 decks locally a warm request fell from
+147 ms to 31 ms of CPU, with the same deck counts for every filter tried. A ban, a removed set or a
+tighter limit flags the version on `/admin/formats` and `/admin/processing`; "Recheck decks" clears it.
+_Note:_ added outside the plan. The migration starts every version stale and every deck without
+traits, so `/decks` lists nothing until an admin presses "Recheck decks" once.
+
 ---
 
 ## E21 — Season II backfill
@@ -1663,6 +1736,13 @@ _Note:_ added outside the plan. `eventSchedule` is given no window; `lib/paging.
 `components/ui/pager.tsx` links newer and older. A `?q=` box filters them by a word in the name, ignoring case,
 and the pager keeps it.
 
+✅ **E23.18 — A Challonge refresh is one request** · S · Deps: E23.8 — the calendar fetched 50 events
+a page, up to four pages, so 87 events cost two requests every refresh and the month ran over 500.
+_AC:_ a refresh spends one request (`per_page=100`, newest-created first); older events stay cached
+(upsert, no prune); the interval is three hours, 240 requests a month.
+_Note:_ melee.gg still replaces wholesale. If Challonge outgrows 100 events, one finishing after it
+drops off the first page would never be queued.
+
 ---
 
 ## E24 — Home page
@@ -1727,6 +1807,14 @@ contract and already null-safe. _AC:_ a finish with no deck stays unlinked rathe
 ⬜ **E24.7 — Metagame tile** · M · Deps: E19.3, E20.8 — the fourth thing the home page should
 answer, once there is a metagame to show: what the field currently looks like. Left unscoped
 deliberately — the shape of it depends on what `MetaShare` turns out to read well at tile size.
+
+✅ **E24.8 — The home page stops paying for the card index** · S · Deps: E24.5 — `/` was the most
+expensive route on Vercel's Active CPU, because the podium's colour pips build the whole card index
+on every new instance. The podium is now cached across instances, and the calendar refresh runs after
+the response instead of before it.
+_AC:_ a new instance renders `/` without loading `data/cards/`; admin imports and hidden deck versions
+expire the cached podium; no visitor waits on the sync-window claim or a third-party calendar.
+_Note:_ added outside the plan.
 
 ## E25 — Admin: fetching and processing
 
@@ -2118,16 +2206,16 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E2   | 9       | 9    | E13  | 23      | 23   |
 | E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
-| E5   | 6       | 6    | E16  | 16      | 15   |
-| E6   | 8       | 8    | E17  | 16      | 15   |
+| E5   | 6       | 6    | E16  | 20      | 19   |
+| E6   | 8       | 8    | E17  | 18      | 17   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 70      | 59   |
+| E9   | 9       | 9    | E20  | 72      | 61   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
-|      |         |      | E23  | 17      | 16   |
-|      |         |      | E24  | 7       | 6    |
+|      |         |      | E23  | 18      | 17   |
+|      |         |      | E24  | 8       | 7    |
 |      |         |      | E25  | 8       | 6    |
 |      |         |      | E26  | 32      | 31   |
 
-**276 of 348 stories done across 26 epics.**
+**286 of 358 stories done across 26 epics.**

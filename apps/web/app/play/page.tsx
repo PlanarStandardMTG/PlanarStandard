@@ -1,11 +1,11 @@
 import { listLiveRuns, listRunsByOrganizer, listRunsEnteredBy } from "@ps/db";
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { PRIMARY } from "@/components/play/button";
 import { InstallPrompt } from "@/components/play/install-prompt";
 import { NotificationsButton } from "@/components/play/notifications-button";
 import { STATE_LABEL } from "@/components/play/run-messages";
+import { Link } from "@/components/ui/link";
 import { LocalTime } from "@/components/ui/local-time";
 import { currentViewer } from "@/lib/auth/viewer";
 import { createSessionClient } from "@/lib/supabase/session";

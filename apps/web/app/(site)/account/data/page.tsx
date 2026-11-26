@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 
 import { AuthShell, Card, Notice } from "@/components/auth/form-parts";
+import { Link } from "@/components/ui/link";
 import { requireViewer } from "@/lib/auth/guard";
 
 export const dynamic = "force-dynamic";
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
  * says what survives before it asks.
  */
 const ERRORS: Readonly<Record<string, string>> = {
-  confirm: "You have to type DELETE to confirm. Nothing was changed.",
+  confirm: "Type DELETE to confirm.",
 };
 
 export default async function AccountDataPage({
@@ -27,43 +27,37 @@ export default async function AccountDataPage({
 }: {
   searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
-  const viewer = await requireViewer();
+  await requireViewer();
   const params = await searchParams;
   const raw = typeof params["error"] === "string" ? params["error"] : null;
   const error = raw === null ? null : (ERRORS[raw] ?? "That did not work.");
 
   return (
-    <AuthShell
-      title="Your data"
-      intro="What this site holds about you, how to take a copy, and how to remove yourself."
-    >
+    <AuthShell title="Your data" intro="What we hold about you, a copy of it, and deleting it.">
       {error !== null && <Notice tone="warn">{error}</Notice>}
 
       <Card className="mt-6 p-6">
         <h2 className="font-display text-lg font-semibold">What we hold</h2>
         <ul className="mt-3 space-y-2 text-sm text-ink-600 dark:text-ink-400">
           <li>
-            <strong className="text-ink-800 dark:text-ink-200">Your email address</strong>, used to
-            sign you in and nothing else. It is never shown on the site.
+            <strong className="text-ink-800 dark:text-ink-200">Your email address</strong>, used
+            only to sign you in. Never shown.
           </li>
           <li>
             <strong className="text-ink-800 dark:text-ink-200">
               Your display name, handle, and bio
             </strong>{" "}
-            — these are your byline, and they are public.
+            — public.
           </li>
           <li>
             <strong className="text-ink-800 dark:text-ink-200">
               Your Arena username and Discord name
             </strong>
-            , if you add them — private: only you, admins, the organizer of an event you enter, and
-            your opponent while you are paired can see them.
+            , if you add them. Seen only by you, admins, your event's organizer and your current
+            opponent.
           </li>
           <li>
-            <strong className="text-ink-800 dark:text-ink-200">
-              Anything you have written or submitted
-            </strong>
-            : posts, decks.
+            <strong className="text-ink-800 dark:text-ink-200">Your posts and decks</strong>
           </li>
           <li>
             <strong className="text-ink-800 dark:text-ink-200">Sign-in records</strong>, kept by our
@@ -71,9 +65,8 @@ export default async function AccountDataPage({
           </li>
         </ul>
         <p className="mt-4 text-sm text-ink-500 dark:text-ink-400">
-          We do not store your password — only a hash, which cannot be read back. There is no
-          advertising and no analytics on this site, and nothing about you is sold or shared. The
-          full detail is in the{" "}
+          Your password is stored only as a hash. No ads, no analytics, nothing sold or shared.
+          Details in the{" "}
           <Link
             href="/privacy"
             className="font-medium text-eclipse-700 hover:underline dark:text-eclipse-400"
@@ -87,8 +80,7 @@ export default async function AccountDataPage({
       <Card className="mt-6 p-6">
         <h2 className="font-display text-lg font-semibold">Take a copy</h2>
         <p className="mt-2 text-sm text-ink-600 dark:text-ink-400">
-          A JSON file with your profile, your contact names, your posts including unpublished
-          drafts, and your decks. It also lists what is held elsewhere and how to ask for it.
+          Your profile, contact names, posts (drafts included) and decks, as JSON.
         </p>
         <a
           href="/account/data/export"
@@ -101,16 +93,12 @@ export default async function AccountDataPage({
       <Card className="mt-6 border-red-300 p-6 dark:border-red-900">
         <h2 className="font-display text-lg font-semibold">Delete your account</h2>
         <p className="mt-2 text-sm text-ink-600 dark:text-ink-400">
-          This removes your email address, your password, every provider you have connected, and
-          your name, handle, bio, and picture. It cannot be undone, and{" "}
-          <strong className="text-ink-800 dark:text-ink-200">we cannot get any of it back</strong>.
+          Removes your email, password, connected providers, name, handle, bio and picture.{" "}
+          <strong className="text-ink-800 dark:text-ink-200">This cannot be undone.</strong>
         </p>
         <p className="mt-3 text-sm text-ink-600 dark:text-ink-400">
-          Anything you published stays up with the byline changed to <em>Deleted member</em> — an
-          post the community is still reading is not removed when its author leaves. Tournament
-          results stay too: they are recorded against the handle you played under rather than
-          against this account, and they came from the organiser&rsquo;s own platform. Download a
-          copy first if you want one.
+          Published posts stay up, credited to <em>Deleted member</em>. Tournament results stay
+          under the handle you played as.
         </p>
 
         <form method="post" action="/auth/erase" className="mt-5 space-y-3">
@@ -139,7 +127,7 @@ export default async function AccountDataPage({
           href="/dashboard/profile"
           className="text-ink-500 hover:text-ink-800 dark:text-ink-400 dark:hover:text-ink-200"
         >
-          Back to {viewer.profile.displayName}&rsquo;s profile
+          Back to your profile
         </Link>
       </p>
     </AuthShell>

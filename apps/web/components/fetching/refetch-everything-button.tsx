@@ -53,20 +53,10 @@ export function RefetchEverythingButton({
           <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-ink-600 dark:text-ink-400">
             <li>
               All {finished} finished {finished === 1 ? "tournament goes" : "tournaments go"} back
-              in the queue, with any finished calendar event that was never queued.
+              in the queue, fetched a few at a time.
             </li>
-            <li>
-              Each one’s results are fetched again, a few requests at a time against each source’s
-              rate limit, so this takes as many runs as it takes.
-            </li>
-            <li>
-              What each event counts towards is kept. A rated event&rsquo;s ratings are rebuilt as
-              its results come back in.
-            </li>
-            <li>
-              Imported results themselves are not deleted — re-importing an event replaces its old
-              results.
-            </li>
+            <li>What each counts towards is kept; ratings rebuild as results come in.</li>
+            <li>Nothing is deleted until its results are replaced.</li>
           </ul>
           <label htmlFor="refetch-confirm" className="mt-4 block text-sm">
             Type <span className="font-mono font-semibold">{REFETCH_CONFIRMATION}</span> to confirm

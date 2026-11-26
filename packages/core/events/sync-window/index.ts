@@ -3,16 +3,17 @@ import type { IsoDateTime } from "@ps/contracts";
 /**
  * How long a fetch of the event calendar is good for.
  *
- * Two hours, and the arithmetic is the reason: Challonge allows 500 requests a
- * month, which is about sixteen a day. A refresh every two hours costs twelve a
- * day — 360 a month — leaving room for a job, a manual refresh, and the pages of
- * a busy weekend. Five minutes would cost 288 a day and exhaust the month's
- * budget in under two days of ordinary traffic.
+ * Three hours, and the arithmetic is the reason: Challonge allows 500 requests a
+ * month, which is about sixteen a day. A refresh every three hours costs eight a
+ * day — 240 a month, one request each — leaving room for event results (three or
+ * more requests per finished event), manual refreshes, and a busy weekend. Five
+ * minutes would cost 288 a day and exhaust the month's budget in under two days
+ * of ordinary traffic.
  *
  * This is the only number to change if the budget or the appetite for staleness
  * changes, and the site is honest about it: `/events` shows how old the cache is.
  */
-export const EVENT_SYNC_INTERVAL_MS = 2 * 60 * 60 * 1000;
+export const EVENT_SYNC_INTERVAL_MS = 3 * 60 * 60 * 1000;
 
 /**
  * Is a refresh due?

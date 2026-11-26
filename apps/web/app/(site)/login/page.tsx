@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import {
@@ -11,6 +10,7 @@ import {
   SubmitButton,
 } from "@/components/auth/form-parts";
 import { OAuthButtons } from "@/components/auth/oauth-buttons";
+import { Link } from "@/components/ui/link";
 import { authMessage } from "@/lib/auth/auth-error";
 import { safeNextPath } from "@/lib/auth/next-path";
 import { currentViewer } from "@/lib/auth/viewer";
@@ -52,10 +52,7 @@ export default async function LoginPage({
   const error = authMessage(params["error"]);
 
   return (
-    <AuthShell
-      title="Sign in"
-      intro="Everything here is readable without an account. Signing in is for writing — posting to the community, running an event, submitting a deck."
-    >
+    <AuthShell title="Sign in">
       {error !== null && <Notice tone="warn">{error}</Notice>}
 
       <Card className="mt-6 p-6">
@@ -104,7 +101,7 @@ export default async function LoginPage({
             autoComplete="email"
             required
             placeholder="you@example.com"
-            hint="No password needed. If you have never signed in before, this makes you an account."
+            hint="No password needed. Makes you an account if you have none."
           />
           <button
             type="submit"

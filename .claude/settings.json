@@ -1,11 +1,11 @@
 {
   "statusLine": {
     "type": "command",
-    "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/graft-statusline.cjs\""
+    "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/trail-statusline.cjs\""
   },
   "subagentStatusLine": {
     "type": "command",
-    "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/graft-statusline.cjs\""
+    "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/trail-statusline.cjs\""
   },
   "hooks": {
     "PostToolUse": [
@@ -14,17 +14,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/graft-hooks.cjs\" post-edit",
+            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/trail-hooks.cjs\" post-edit",
             "timeout": 10000
           }
         ]
       },
       {
-        "matcher": "Bash|mcp__graft__|Read|Grep|Glob",
+        "matcher": "Bash|mcp__graft__|mcp__trail__|Read|Grep|Glob",
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/graft-hooks.cjs\" tool-savings",
+            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/trail-hooks.cjs\" tool-savings",
             "timeout": 8000
           }
         ]
@@ -35,7 +35,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/graft-hooks.cjs\" prompt",
+            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/trail-hooks.cjs\" prompt",
             "timeout": 15000
           }
         ]
@@ -46,7 +46,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/graft-hooks.cjs\" session-start",
+            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/trail-hooks.cjs\" session-start",
             "timeout": 8000
           }
         ]
@@ -57,7 +57,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/graft-hooks.cjs\" stop",
+            "command": "node \"${CLAUDE_PROJECT_DIR:-.}/.claude/helpers/trail-hooks.cjs\" stop",
             "timeout": 8000
           }
         ]
@@ -69,6 +69,7 @@
   ],
   "permissions": {
     "allow": [
+      "Bash(trail:*)",
       "Bash(graft:*)",
       "Bash(npx graft:*)",
       "Bash(graft-dev:*)",

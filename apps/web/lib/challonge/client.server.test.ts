@@ -56,15 +56,17 @@ describe("lib/challonge/client", () => {
     expect(result).toEqual({ status: "ok", payload: { data: [member("1"), member("2")] } });
   });
 
-  it("concatenates full pages into one envelope the parser can read", async () => {
-    const full = Array.from({ length: 50 }, (_, i) => member(`p1-${i}`));
+  it("spends one request however many events there are", async () => {
+    const full = Array.from({ length: 100 }, (_, i) => member(`p1-${i}`));
     const calls = stubFetch([full, [member("p2-0")]]);
 
     const result = await fetchCommunityTournaments();
 
-    expect(calls).toHaveLength(2);
-    expect(result.status).toBe("ok");
-    expect(result.status === "ok" && (result.payload as { data: unknown[] }).data).toHaveLength(51);
+    expect(calls).toHaveLength(1);
+    expect(calls[0]).toContain("per_page=100");
+    expect(result.status === "ok" && (result.payload as { data: unknown[] }).data).toHaveLength(
+      100,
+    );
   });
 
   it("turns a rate limit into a result, not a throw", async () => {

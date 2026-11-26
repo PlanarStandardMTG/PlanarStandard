@@ -1,5 +1,4 @@
-import Link from "next/link";
-
+import { Link } from "@/components/ui/link";
 import { loginHref } from "@/lib/auth/next-path";
 import { currentViewer } from "@/lib/auth/viewer";
 

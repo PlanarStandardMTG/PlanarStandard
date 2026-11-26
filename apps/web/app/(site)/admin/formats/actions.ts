@@ -2,21 +2,22 @@
 
 import { cardIndex } from "@/lib/cards/card-index";
 import type { FormatVersionId } from "@ps/contracts";
-import { checkFormatDraft, type FormatDraftProblem } from "@ps/core";
-import { deleteFormatVersion, saveFormatVersion } from "@ps/db";
+import { checkFormatDraft, rulesChange } from "@ps/core";
+import { deleteFormatVersion, getFormatDetail, saveFormatVersion, setLegalityStale } from "@ps/db";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
+import type { FormatSaveState } from "@/components/format/format-version-form";
 import { requireRole } from "@/lib/auth/guard";
+import { recheckVersion } from "@/lib/decks/deck-traits.server";
+import { formatRules } from "@/lib/decks/deck-view";
+import { createServiceRoleClient } from "@/lib/supabase/service-role.server";
 import { createSessionClient } from "@/lib/supabase/session";
 
 /**
  * Create, edit and delete format versions (E20.33). Written with the admin's own
  * client, so `format_*_admin_write` checks the role again underneath.
  */
-export interface FormatSaveState {
-  readonly problems: readonly FormatDraftProblem[];
-}
 
 export async function saveFormat(
   _previous: FormatSaveState,
@@ -53,8 +54,21 @@ export async function saveFormat(
   );
   if (!check.ok) return { problems: check.problems };
 
-  const saved = await saveFormatVersion(await createSessionClient(), id, check.value);
+  const session = await createSessionClient();
+  const before = id === null ? null : formatRules(await getFormatDetail(session, id));
+  const saved = await saveFormatVersion(session, id, check.value);
+  const after = formatRules(await getFormatDetail(session, saved));
+
+  // Stored deck legality (E20.72). A narrowing edit waits for an admin to
+  // recheck every deck, so several edits cost one; a new or widened version is
+  // rechecked now, or decks it newly allows would stay hidden from `/decks`.
+  const change = before === null || after === null ? null : rulesChange(before, after);
+  const service = createServiceRoleClient();
+  if (change?.narrowed === true) await setLegalityStale(service, [saved], true);
+  else if (change === null || change.widened) await recheckVersion(service, saved);
+
   revalidatePath("/admin/formats");
+  revalidatePath("/decks");
   revalidatePath("/rules");
   redirect(`/admin/formats?done=${id === null ? "created" : "saved"}&id=${saved}`);
 }

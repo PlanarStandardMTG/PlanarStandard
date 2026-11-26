@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "next/link";
 import { useEffect, useOptimistic, useRef, useState, useTransition } from "react";
 
 import { AdminTable, FilterInput, matchesFilter } from "@/components/ui/admin-table";
 import { Badge } from "@/components/ui/badge";
+import { Link } from "@/components/ui/link";
 
 export interface InclusionRow {
   readonly id: string;
