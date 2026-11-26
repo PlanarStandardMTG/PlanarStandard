@@ -43,7 +43,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 17/18 |
-| E24  | Home page                             | 2     | E16.1        | 🚧 7/8   |
+| E24  | Home page                             | 2     | E16.1        | 🚧 8/9   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
 | E26  | Running events on the site            | 11    | E2, E18.11   | ⬜ 0/29  |
 
@@ -1816,6 +1816,14 @@ _AC:_ a new instance renders `/` without loading `data/cards/`; admin imports an
 expire the cached podium; no visitor waits on the sync-window claim or a third-party calendar.
 _Note:_ added outside the plan.
 
+✅ **E24.9 — Seasonal backdrops** · S · Deps: E24.1 — a faint animated background behind the home
+page, changed every few months. Each effect is its own folder in `components/backdrops/`; the page
+picks one by name with a single `BACKDROP` constant, or `null` for none. The first is frosted glass.
+_AC:_ the effect is CSS-only and sits behind the content; it stops under `prefers-reduced-motion` and
+under a footer Motion toggle, which is stored like the theme, applied before first paint, and shown
+only while a backdrop is on the page.
+_Note:_ added outside the plan.
+
 ## E25 — Admin: fetching and processing
 
 Phase 2. Stream J. `/admin/processing` did two different jobs on one screen: fetching a finished
@@ -2151,8 +2159,8 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 18      | 17   |
-|      |         |      | E24  | 8       | 7    |
+|      |         |      | E24  | 9       | 8    |
 |      |         |      | E25  | 8       | 6    |
 |      |         |      | E26  | 29      | 0    |
 
-**255 of 355 stories done across 26 epics.**
+**256 of 356 stories done across 26 epics.**

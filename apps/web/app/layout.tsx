@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
 import { SiteFooter } from "@/components/layout/site-footer";
 import { SiteHeader } from "@/components/layout/site-header";
 import { InlineScript } from "@/components/ui/inline-script";
-import { THEME_SCRIPT } from "@/lib/preferences";
+import { HEAD_SCRIPT } from "@/lib/preferences";
 import { SITE_NAME } from "@/lib/seo/page-metadata";
 import { siteOrigin } from "@/lib/site-origin";
 
@@ -45,7 +45,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
       suppressHydrationWarning
     >
       <head>
-        <InlineScript html={THEME_SCRIPT} />
+        <InlineScript html={HEAD_SCRIPT} />
       </head>
       <body className="flex min-h-dvh flex-col font-sans">
         <SiteHeader />

@@ -2,6 +2,7 @@ import { upcomingEvents } from "@ps/core";
 import type { Metadata } from "next";
 import { listPublishedPostsByKind } from "@ps/db";
 
+import { Backdrop, type BackdropName } from "@/components/backdrops";
 import { PostList } from "@/components/content/post-list";
 import { JsonLd } from "@/components/seo/json-ld";
 import { EventPodium } from "@/components/home/event-podium";
@@ -25,6 +26,9 @@ import { createPublicClient } from "@/lib/supabase/server";
 export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = { alternates: { canonical: "/" } };
+
+/** The seasonal background effect (`components/backdrops`), or `null` for none. */
+const BACKDROP: BackdropName | null = "glass";
 
 const NEWS_COUNT = 4;
 const ARTICLE_COUNT = 3;
@@ -57,6 +61,7 @@ export default async function HomePage() {
 
   return (
     <>
+      <Backdrop name={BACKDROP} />
       <JsonLd data={websiteSchema(origin)} />
       <JsonLd data={organizationSchema(origin)} />
       <section className="relative overflow-hidden border-b border-ink-200 dark:border-ink-800">

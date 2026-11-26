@@ -1,6 +1,12 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 
-import { DECK_LAYOUT, readPreference, THEME, writePreference } from "./preferences";
+import {
+  BACKDROP_MOTION,
+  DECK_LAYOUT,
+  readPreference,
+  THEME,
+  writePreference,
+} from "./preferences";
 
 function stubStorage(initial: Record<string, string> = {}) {
   const items = new Map(Object.entries(initial));
@@ -27,6 +33,7 @@ describe("preferences", () => {
     stubStorage({ "ps:theme": "sepia" });
     expect(readPreference(THEME)).toBe("system");
     expect(readPreference(DECK_LAYOUT)).toBe("text");
+    expect(readPreference(BACKDROP_MOTION)).toBe("on");
   });
 
   it("falls back when storage throws", () => {

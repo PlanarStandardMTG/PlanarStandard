@@ -1,0 +1,110 @@
+/*
+ * Frosted glass: slow drifting glows refracted through a grained pane, with a
+ * sheen that crosses it now and then. Every layer stays under ~10% alpha.
+ */
+.glass {
+  --glow-a: rgb(201 143 36 / 0.09); /* gold-500 */
+  --glow-b: rgb(142 116 255 / 0.07); /* eclipse-500 */
+  --sheen: rgb(255 255 255 / 0.35);
+  --grain-opacity: 0.05;
+
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+:global(:root[data-theme="dark"]) .glass {
+  --glow-a: rgb(227 168 59 / 0.06); /* gold-400 */
+  --glow-b: rgb(167 146 255 / 0.08); /* eclipse-400 */
+  --sheen: rgb(255 255 255 / 0.05);
+  --grain-opacity: 0.07;
+}
+
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme="light"])) .glass {
+    --glow-a: rgb(227 168 59 / 0.06);
+    --glow-b: rgb(167 146 255 / 0.08);
+    --sheen: rgb(255 255 255 / 0.05);
+    --grain-opacity: 0.07;
+  }
+}
+
+.glow {
+  position: absolute;
+  inset: -20%;
+  background:
+    radial-gradient(40% 35% at 25% 20%, var(--glow-a), transparent 70%),
+    radial-gradient(35% 40% at 80% 65%, var(--glow-b), transparent 70%),
+    radial-gradient(30% 25% at 55% 95%, var(--glow-a), transparent 70%);
+  filter: blur(24px);
+  animation: drift 48s ease-in-out infinite alternate;
+}
+
+.grain {
+  position: absolute;
+  inset: 0;
+  opacity: var(--grain-opacity);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+/* A band three viewports wide, so it can enter and leave the screen fully. */
+.sheen {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -100%;
+  width: 300%;
+  background: linear-gradient(
+    105deg,
+    transparent 42%,
+    var(--sheen) 49%,
+    transparent 50%,
+    var(--sheen) 51.5%,
+    transparent 56%
+  );
+  opacity: 0.6;
+  animation: sweep 14s cubic-bezier(0.45, 0, 0.25, 1) infinite;
+}
+
+.sheen + .sheen {
+  opacity: 0.35;
+  animation-duration: 23s;
+  animation-delay: -9s;
+}
+
+@keyframes drift {
+  from {
+    transform: translate3d(-3%, -2%, 0) rotate(0deg);
+  }
+  to {
+    transform: translate3d(3%, 2%, 0) rotate(6deg);
+  }
+}
+
+/* Crosses in the first 40%, then rests off-screen. */
+@keyframes sweep {
+  from {
+    transform: translate3d(-34%, 0, 0);
+  }
+  40%,
+  to {
+    transform: translate3d(34%, 0, 0);
+  }
+}
+
+/* The reader's motion setting in the footer, then their system's. */
+:global(:root[data-backdrop-motion="off"]) .glow {
+  animation: none;
+}
+:global(:root[data-backdrop-motion="off"]) .sheen {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .glow {
+    animation: none;
+  }
+  .sheen {
+    display: none;
+  }
+}
