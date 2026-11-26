@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
+import { JsonLd } from "@/components/seo/json-ld";
 import { Container } from "@/components/ui/container";
 import { findInfoPage, publishedInfoPages } from "@/lib/info-pages/pages";
 import { renderInfoPage } from "@/lib/info-pages/render";
+import { faqEntries, faqPageSchema } from "@/lib/seo/json-ld";
 import { pageMetadata } from "@/lib/seo/page-metadata";
 
 /**
@@ -22,6 +24,9 @@ import { pageMetadata } from "@/lib/seo/page-metadata";
  */
 export const dynamic = "force-dynamic";
 export const dynamicParams = false;
+
+/** Pages written as questions and answers, which carry `FAQPage` schema. */
+const FAQ_PAGES: ReadonlySet<string> = new Set(["/faq"]);
 
 interface Params {
   readonly params: Promise<{ readonly slug: readonly string[] }>;
@@ -52,6 +57,7 @@ export default async function InfoPageRoute({ params }: Params) {
 
   return (
     <Container className="py-12">
+      {FAQ_PAGES.has(page.href) && <JsonLd data={faqPageSchema(faqEntries(page.body))} />}
       <header className="mb-8 max-w-prose">
         <h1 className="font-display text-4xl tracking-tight sm:text-5xl">
           {page.frontmatter.title}

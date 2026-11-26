@@ -2,17 +2,10 @@ import { Container } from "@/components/ui/container";
 import { Link } from "@/components/ui/link";
 import { StarRule } from "@/components/ui/marks";
 import { PlanarMark } from "@/components/ui/planar-mark";
+import { COMMUNITY_LINKS } from "@/lib/community-links";
 
 import { InfoNav } from "./info-nav";
 import { ThemeToggle } from "./theme-toggle";
-
-// The community's own links, as listed on the existing site's footer.
-const LINKS = [
-  { href: "https://discord.gg/eeYH9XMCjT", label: "Discord" },
-  { href: "https://www.reddit.com/r/planarMTG/", label: "Reddit" },
-  { href: "https://www.twitch.tv/planarstandardmtg", label: "Twitch" },
-  { href: "https://www.youtube.com/@PlanarStandardMTG", label: "YouTube" },
-] as const;
 
 export function SiteFooter() {
   return (
@@ -38,7 +31,7 @@ export function SiteFooter() {
             A community site for the Planar Standard format.
           </p>
           <ul className="flex gap-4">
-            {LINKS.map((link) => (
+            {COMMUNITY_LINKS.map((link) => (
               <li key={link.href}>
                 <a
                   href={link.href}

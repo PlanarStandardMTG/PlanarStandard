@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { listPublishedPostsByKind } from "@ps/db";
 
 import { PostList } from "@/components/content/post-list";
+import { JsonLd } from "@/components/seo/json-ld";
 import { EventPodium } from "@/components/home/event-podium";
 import { LatestNewsPanel } from "@/components/home/latest-news-panel";
 import { NextEventPanel } from "@/components/home/next-event-panel";
@@ -13,6 +14,8 @@ import { SectionHeading } from "@/components/ui/section-heading";
 import { ErrorState } from "@/components/ui/states";
 import { loadEvents } from "@/lib/events/sync-events.server";
 import { load } from "@/lib/load";
+import { organizationSchema, websiteSchema } from "@/lib/seo/json-ld";
+import { siteOrigin } from "@/lib/site-origin";
 import { cachedLatestPodium } from "@/lib/podium/latest-podium";
 import { createPublicClient } from "@/lib/supabase/server";
 
@@ -40,11 +43,12 @@ export default async function HomePage() {
   const now = new Date();
   const client = createPublicClient();
 
-  const [news, events, podium, community] = await Promise.all([
+  const [news, events, podium, community, origin] = await Promise.all([
     load(() => listPublishedPostsByKind(client, "official", NEWS_COUNT)),
     load(() => loadEvents(now)),
     load(cachedLatestPodium),
     load(() => listPublishedPostsByKind(client, "community", ARTICLE_COUNT)),
+    siteOrigin(),
   ]);
 
   // One ordered list of what a player can still turn up to; the tile shows the
@@ -53,6 +57,8 @@ export default async function HomePage() {
 
   return (
     <>
+      <JsonLd data={websiteSchema(origin)} />
+      <JsonLd data={organizationSchema(origin)} />
       <section className="relative overflow-hidden border-b border-ink-200 dark:border-ink-800">
         <PlanarMark className="pointer-events-none absolute -top-48 -right-56 size-[46rem] text-ink-100 dark:text-ink-900" />
         <Container className="relative grid items-center gap-10 py-14 lg:grid-cols-[1fr_20rem] lg:py-20">

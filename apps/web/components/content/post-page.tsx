@@ -5,10 +5,13 @@ import { notFound } from "next/navigation";
 import { cache } from "react";
 
 import { PostArticle } from "@/components/content/post-article";
+import { JsonLd } from "@/components/seo/json-ld";
 import { Container } from "@/components/ui/container";
 import { ErrorState } from "@/components/ui/states";
 import { load } from "@/lib/load";
+import { articleSchema } from "@/lib/seo/json-ld";
 import { pageMetadata } from "@/lib/seo/page-metadata";
+import { siteOrigin } from "@/lib/site-origin";
 import { createPublicClient } from "@/lib/supabase/server";
 
 /**
@@ -36,7 +39,12 @@ export async function renderPostPage(slug: string, kind: PostKind) {
 
   if (post.value === null || post.value.kind !== kind) notFound();
 
-  return <PostArticle post={post.value} />;
+  return (
+    <>
+      <JsonLd data={articleSchema(post.value, await siteOrigin())} />
+      <PostArticle post={post.value} />
+    </>
+  );
 }
 
 export async function postMetadata(slug: string, kind: PostKind): Promise<Metadata> {

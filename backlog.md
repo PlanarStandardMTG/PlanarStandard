@@ -35,7 +35,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E13  | Schema, migrations, repositories      | 3–5   | E2           | ✅ 23/23 |
 | E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
-| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 18/20 |
+| E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 19/20 |
 | E17  | MDX info pages                        | 2     | E16          | 🚧 17/18 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
@@ -846,10 +846,13 @@ may read `/opengraph-image` and `/icon.svg`, which the cards and E16.20's schema
 _Note:_ added outside the plan. A page's own `openGraph` replaces the layout's, so the helper names
 the share image outright rather than relying on inheritance.
 
-⬜ **E16.20 — Schema markup for search engines** · S · Deps: E16.19 — JSON-LD `WebSite` and
-`Organization` on the home page, `NewsArticle`/`Article` on posts, `FAQPage` on `/faq`, from one typed
-helper that escapes `<`.
+✅ **E16.20 — Schema markup for search engines** · S · Deps: E16.19 — JSON-LD `WebSite` and
+`Organization` on the home page, `NewsArticle` on news and `Article` on community posts, and `FAQPage`
+on `/faq`, built from its question headings. `lib/seo/json-ld` holds the typed builders and escapes
+`<`; `components/seo/json-ld` renders the script. Deck, event and member pages get none, since
+crawlers may not read them (E17.17).
 _AC:_ Google's Rich Results Test and validator.schema.org pass on each.
+_Outstanding:_ the Rich Results Test and validator.schema.org runs, which need the deployed pages.
 _Note:_ added outside the plan.
 
 ---
@@ -2140,7 +2143,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E2   | 9       | 9    | E13  | 23      | 23   |
 | E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
-| E5   | 6       | 6    | E16  | 20      | 18   |
+| E5   | 6       | 6    | E16  | 20      | 19   |
 | E6   | 8       | 8    | E17  | 18      | 17   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
@@ -2152,4 +2155,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E25  | 8       | 6    |
 |      |         |      | E26  | 29      | 0    |
 
-**254 of 355 stories done across 26 epics.**
+**255 of 355 stories done across 26 epics.**
