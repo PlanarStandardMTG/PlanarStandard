@@ -11,6 +11,7 @@ const REDDIT = "https://www.reddit.com/r/planarMTG/";
 const SECTIONS: Readonly<Record<string, "rules" | "involved" | "numbers">> = {
   "/rules": "rules",
   "/getting-started": "involved",
+  "/faq": "involved",
   "/ratings-explained": "numbers",
 };
 

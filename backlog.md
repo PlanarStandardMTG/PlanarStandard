@@ -36,7 +36,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E14  | RLS and access control                | 1     | E13          | ✅ 7/7   |
 | E15  | Seed data and local dev               | 0     | E13          | 🚧 1/5   |
 | E16  | Web foundation, auth, dashboard shell | 1     | E13          | 🚧 17/18 |
-| E17  | MDX info pages                        | 2     | E16          | 🚧 16/17 |
+| E17  | MDX info pages                        | 2     | E16          | 🚧 17/18 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
 | E20  | Feature slices                        | 3–10  | E18          | 🚧 61/72 |
@@ -891,6 +891,14 @@ _AC:_ `robots.txt` disallows `/` for `*` with an `Allow` for each published info
 engines as a result, by choice.
 _Note:_ added outside the plan. `robots.txt` is a request; a scraper that ignores it is the
 firewall's job.
+
+✅ **E17.18 — Page: faq, from the Discord's FAQ** · S · Deps: E17.16 — `/faq` answers what newcomers
+ask in the Discord: the format, finding a game, tournament types, how to join one (with melee.gg's
+full-name warning), where to learn, how to support, and who runs it.
+_AC:_ every heading is a question with its answer below it, so the page can carry `FAQPage` schema;
+it is listed under "Get involved" in `llms.txt`.
+_Note:_ reverses E17.16 for this one page. The old FAQ repeated `/rules`; this one carries what was
+only in the Discord.
 
 ---
 
@@ -2117,7 +2125,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E3   | 7       | 7    | E14  | 7       | 7    |
 | E4   | 7       | 5    | E15  | 5       | 1    |
 | E5   | 6       | 6    | E16  | 18      | 17   |
-| E6   | 8       | 8    | E17  | 17      | 16   |
+| E6   | 8       | 8    | E17  | 18      | 17   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
 | E9   | 9       | 9    | E20  | 72      | 61   |
@@ -2128,4 +2136,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E25  | 8       | 6    |
 |      |         |      | E26  | 29      | 0    |
 
-**252 of 352 stories done across 26 epics.**
+**253 of 353 stories done across 26 epics.**

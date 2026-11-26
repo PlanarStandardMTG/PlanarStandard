@@ -28,6 +28,7 @@ describe("content/pages", () => {
         .sort(),
     ).toEqual([
       "/about",
+      "/faq",
       "/getting-started",
       "/privacy",
       "/ratings-explained",
