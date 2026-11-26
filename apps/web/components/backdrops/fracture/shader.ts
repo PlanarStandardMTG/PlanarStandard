@@ -1,8 +1,3 @@
-export const VERTEX = `
-attribute vec2 aPosition;
-void main() { gl_Position = vec4(aPosition, 0.0, 1.0); }
-`;
-
 /**
  * The screen as Voronoi plates of broken glass, drifting apart from an impact.
  * A front runs out from the impact as `uProgress` goes from 0 to 1: the glass

@@ -43,7 +43,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 17/18 |
-| E24  | Home page                             | 2     | E16.1        | 🚧 9/10  |
+| E24  | Home page                             | 2     | E16.1        | 🚧 10/11 |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
 | E26  | Running events on the site            | 11    | E2, E18.11   | ⬜ 0/29  |
 
@@ -1832,6 +1832,15 @@ the Motion toggle or reduced motion leaves the glass untouched and still, and tu
 it again; it redraws at most 12 times a second and not at all in a hidden tab.
 _Note:_ added outside the plan.
 
+✅ **E24.11 — Rain and rising water backdrop** · M · Deps: E24.10 — the third backdrop, `nauctis`:
+light rain, with water pooling at the bottom and rising over six minutes until the page is
+underwater. The WebGL plumbing that `fracture` had to itself moves to `shader-backdrop.tsx`, so an
+effect is now a shader, its colours and its timing.
+_AC:_ rain falls above the surface only; below it, a tint that deepens with depth, caustic light,
+rays and bubbles; past the top of the screen it is all underwater. Motion off or reduced motion
+draws nothing, and turning motion on starts it dry again. `fracture` behaves as before.
+_Note:_ added outside the plan.
+
 ## E25 — Admin: fetching and processing
 
 Phase 2. Stream J. `/admin/processing` did two different jobs on one screen: fetching a finished
@@ -2167,8 +2176,8 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 18      | 17   |
-|      |         |      | E24  | 10      | 9    |
+|      |         |      | E24  | 11      | 10   |
 |      |         |      | E25  | 8       | 6    |
 |      |         |      | E26  | 29      | 0    |
 
-**257 of 357 stories done across 26 epics.**
+**258 of 358 stories done across 26 epics.**
