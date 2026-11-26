@@ -1,0 +1,27 @@
+/* Colours are "r g b" in 0–1, read by the shader whenever the theme changes. */
+.fracture {
+  --plate-shade: 0.23 0.21 0.31; /* ink-700 */
+  --plate-glint: 1 1 1;
+  --plate-rift: 0.55 0.52 0.6; /* ink-400 */
+  --plate-strength: 0.7;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+:global(:root[data-theme="dark"]) .fracture {
+  --plate-shade: 0.05 0.05 0.09; /* ink-950 */
+  --plate-glint: 0.85 0.81 0.73; /* ink-200 */
+  --plate-rift: 0.56 0.45 1; /* eclipse-500 */
+  --plate-strength: 0.5;
+}
+
+@media (prefers-color-scheme: dark) {
+  :global(:root:not([data-theme="light"])) .fracture {
+    --plate-shade: 0.05 0.05 0.09;
+    --plate-glint: 0.85 0.81 0.73;
+    --plate-rift: 0.56 0.45 1;
+    --plate-strength: 0.5;
+  }
+}

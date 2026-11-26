@@ -28,7 +28,7 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = { alternates: { canonical: "/" } };
 
 /** The seasonal background effect (`components/backdrops`), or `null` for none. */
-const BACKDROP: BackdropName | null = "glass";
+const BACKDROP: BackdropName | null = "fracture";
 
 const NEWS_COUNT = 4;
 const ARTICLE_COUNT = 3;
