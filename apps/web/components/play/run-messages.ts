@@ -14,7 +14,6 @@ type RunPageProblem =
   | "guest-name"
   | "arena-tag"
   | "arena-too-long"
-  | "not-running"
   | "swiss-rounds-done"
   | "round-has-results"
   | "no-pairing-without-rematch"
@@ -42,7 +41,7 @@ export const RUN_ERRORS: Readonly<
   "round-has-results": "A result is in, so this round can no longer be re-paired.",
   "result-refused": "Only the organizer can change a confirmed result.",
   "result-invalid": "That result isn't allowed here.",
-  "no-pairing-without-rematch": "No pairing avoids a rematch. Reduce the Swiss rounds.",
+  "no-pairing-without-rematch": "No pairing avoids a rematch. End the Swiss here instead.",
   "name-empty": "An event needs a name.",
   "name-long": "That name is too long.",
   "no-format": "Tick at least one format version.",
@@ -51,6 +50,9 @@ export const RUN_ERRORS: Readonly<
   "nothing-to-play": "With no Swiss rounds, the event needs a top cut of at least 2.",
   "not-a-move": "The event cannot move there from where it is.",
   "too-few-entrants": "Check in at least two players to start.",
+  "too-many-rounds":
+    "Too many Swiss rounds for this many players. Check in more or edit the rounds.",
+  "no-swiss-played": "Pair a Swiss round first.",
   "has-swiss-rounds": "Play the Swiss rounds before the top cut.",
   "no-swiss-rounds": "This event has no Swiss rounds: start the top cut.",
   "no-top-cut": "This event has no top cut.",
@@ -74,6 +76,7 @@ export const RUN_DONE: Readonly<Record<string, string>> = {
   confirmed: "Confirmed.",
   "result-set": "Result saved.",
   "cut-finished": "Top cut complete.",
+  "swiss-ended": "Swiss ended.",
   finished: "Finished.",
   unchanged: "No changes to import.",
   chased: "Players notified.",

@@ -22,6 +22,7 @@ import {
   setEntrantCheckedIn,
   setRunResult,
   setRunState,
+  setRunStructure,
   updateRun,
 } from "./index";
 
@@ -229,5 +230,12 @@ describe.skipIf(!reachable)("repos/runs", () => {
     expect(
       (await listRunEntrants(anon, run.id)).find((e) => e.id === guest.id)?.droppedAfterRound,
     ).toBe(1);
+
+    // Ending the Swiss after round 1 is the organizer's alone.
+    await expect(
+      setRunStructure(as("alice"), run.id, { swissRounds: 1, topCut: 0 }),
+    ).rejects.toThrow(/no run the caller manages/);
+    await setRunStructure(organizer, run.id, { swissRounds: 1, topCut: 0 });
+    expect(await getRun(anon, run.id)).toMatchObject({ swissRounds: 1, topCut: 0 });
   });
 });

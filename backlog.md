@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 17/18 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 7/8   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 31/32 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 32/33 |
 
 ---
 
@@ -2117,6 +2117,14 @@ Semifinals and Finals, a top 6 or 8 adds Quarterfinals, a top 16 starts with a n
 _Note:_ added outside the plan, from testing (2026-10-15). `core/runs/round-title` counts back from
 the final of the bracket the first cut round was paired with.
 
+✅ **E26.35 — Never stuck in Swiss** · S · Deps: E26.19, E26.21 — a run will not start with more
+Swiss rounds than its checked-in players can play without a rematch (`core/runs/swiss-capacity`),
+and an organizer can end the Swiss after any completed round, choosing the top cut then, so the
+run goes on to its cut or finishes. _AC:_ two players cannot start three rounds; a run whose next
+round cannot be paired ends its Swiss and finishes, or plays a cut, without being cancelled.
+_Note:_ added outside the plan, from testing (2026-11-27). The ceiling is the round-robin count; a
+field can still run out of pairings below it, which ending the Swiss covers.
+
 _Removed (2026-10-13):_ E26.29, scheduled jobs, because nothing in a run is timed; and E26.30, looking
 for a game, tabled until running events ships (§28). Their IDs are not reused.
 
@@ -2161,7 +2169,7 @@ can start today, in rough order of how much it unblocks.
   417 decklists, against the 3 in `fixtures/archetype-map/`.
 - E22.4, E22.6, E22.7, E15.4 — issue templates, the fifteen ADRs (`docs/adr/` holds only its README),
   linking the module-doc index, and finishing `CONTRIBUTING.md`.
-- **E26 — running events on the site** is built on the `E26` branch, 31 of 32 stories, and
+- **E26 — running events on the site** is built on the `E26` branch, 32 of 33 stories, and
   merges to main as a whole. What is left needs a person or a device rather than code: E26.31 in
   the Supabase dashboard; the _Outstanding:_ checks on E26.23, E26.24 and E26.28 on an Android
   phone and an iPhone; production's VAPID keys in Vercel; and migrations 0048–0054, pushed to
@@ -2229,6 +2237,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 18      | 17   |
 |      |         |      | E24  | 8       | 7    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 32      | 31   |
+|      |         |      | E26  | 33      | 32   |
 
-**288 of 360 stories done across 26 epics.**
+**289 of 361 stories done across 26 epics.**

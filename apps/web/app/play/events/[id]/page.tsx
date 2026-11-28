@@ -1,4 +1,4 @@
-import { canMoveRun, roundTitles, runStandings } from "@ps/core";
+import { canEndSwiss, canMoveRun, MAX_TOP_CUT, roundTitles, runStandings } from "@ps/core";
 import type { PostedRunPairing } from "@ps/contracts";
 import {
   getEntrantArenaUsername,
@@ -31,6 +31,7 @@ import { createSessionClient } from "@/lib/supabase/session";
 
 import {
   deleteDraftRunAction,
+  endSwissAction,
   finishRunAction,
   moveRunAction,
   pairCutRoundAction,
@@ -90,6 +91,7 @@ export default async function RunPage({
   const [tournament] =
     run.tournamentId === null ? [] : await listTournamentsByIds(client, [run.tournamentId]);
   const cutCanStart = run.state === "running" && canMoveRun(run, "top_cut", position).ok;
+  const swissCanEnd = canEndSwiss(run, position, run.topCut).ok;
   const cutCanPair =
     run.state === "top_cut" && position.unconfirmedPairings === 0 && !position.cutFinished;
   const canFinish =
@@ -268,6 +270,26 @@ export default async function RunPage({
                     <input type="hidden" name="runId" value={run.id} />
                     <input type="hidden" name="repair" value="1" />
                     <button className={SECONDARY}>Re-pair round {latest?.number}</button>
+                  </form>
+                )}
+                {swissCanEnd && (
+                  <form action={endSwissAction} className="flex items-center gap-2">
+                    <input type="hidden" name="runId" value={run.id} />
+                    <label className="flex items-center gap-1.5 text-sm">
+                      Top cut
+                      <input
+                        name="topCut"
+                        type="number"
+                        min={0}
+                        max={MAX_TOP_CUT}
+                        required
+                        defaultValue={run.topCut}
+                        className="w-16 rounded-lg border border-ink-300 bg-paper px-2 py-1.5 text-sm dark:border-ink-700 dark:bg-ink-950"
+                      />
+                    </label>
+                    <button className={SECONDARY}>
+                      End Swiss after round {position.swissRoundsPaired}
+                    </button>
                   </form>
                 )}
                 {(cutCanStart || cutCanPair) && (

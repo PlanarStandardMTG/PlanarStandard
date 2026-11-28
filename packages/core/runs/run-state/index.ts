@@ -1,5 +1,8 @@
 import type { Run, RunState } from "@ps/contracts";
 
+import { MAX_TOP_CUT } from "../run-details/index";
+import { maxSwissRounds } from "../swiss-capacity/index";
+
 /** What a move depends on, counted by the caller from the run's rows. */
 export interface RunProgress {
   readonly checkedInEntrants: number;
@@ -13,13 +16,17 @@ export interface RunProgress {
 export type RunMoveRefusal =
   | "not-a-move"
   | "too-few-entrants"
+  | "too-many-rounds"
   | "has-swiss-rounds"
   | "no-swiss-rounds"
   | "no-top-cut"
   | "has-top-cut"
   | "swiss-rounds-left"
   | "results-missing"
-  | "cut-unfinished";
+  | "cut-unfinished"
+  | "not-running"
+  | "no-swiss-played"
+  | "top-cut";
 
 export type RunMove =
   | { readonly ok: true }
@@ -76,6 +83,13 @@ export function canMoveRun(
     if (to === "running" && run.swissRounds === 0) {
       return refuse("no-swiss-rounds", "This run has no Swiss rounds: start the top cut.");
     }
+    const most = maxSwissRounds(progress.checkedInEntrants);
+    if (to === "running" && run.swissRounds > most) {
+      return refuse(
+        "too-many-rounds",
+        `${progress.checkedInEntrants} entrants can play at most ${most} Swiss round(s) without a rematch.`,
+      );
+    }
     if (to === "top_cut" && run.swissRounds > 0) {
       return refuse("has-swiss-rounds", "Play the Swiss rounds before the top cut.");
     }
@@ -103,4 +117,31 @@ export function canMoveRun(
     return refuse("cut-unfinished", "The top cut has no champion yet.");
   }
   return resultsIn;
+}
+
+/**
+ * Whether a run in Swiss may end it now, after the rounds already paired, with a top cut of
+ * `topCut` (0 for none). It is how an organizer gets out of a Swiss that has run out of
+ * rematch-free pairings, or is running long, without cancelling (§28). The run then moves
+ * on as if it had been set up with that many rounds.
+ */
+export function canEndSwiss(
+  run: Pick<Run, "state" | "swissRounds">,
+  progress: RunProgress,
+  topCut: number,
+): RunMove {
+  if (run.state !== "running") return refuse("not-running", "Only a run in Swiss can end it.");
+  if (progress.swissRoundsPaired === 0) {
+    return refuse("no-swiss-played", "Pair a Swiss round first, or cancel the run.");
+  }
+  if (progress.swissRoundsPaired >= run.swissRounds) {
+    return refuse("not-a-move", "Every Swiss round has been paired.");
+  }
+  if (!Number.isInteger(topCut) || topCut < 0 || topCut > MAX_TOP_CUT) {
+    return refuse("top-cut", `The top cut must be a whole number from 0 to ${MAX_TOP_CUT}.`);
+  }
+  if (progress.unconfirmedPairings > 0) {
+    return refuse("results-missing", `${progress.unconfirmedPairings} result(s) still to confirm.`);
+  }
+  return OK;
 }

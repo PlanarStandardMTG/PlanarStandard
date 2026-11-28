@@ -2,6 +2,7 @@
 
 import type { RunState } from "@ps/contracts";
 import {
+  canEndSwiss,
   canMoveRun,
   checkContactNames,
   checkRunDetails,
@@ -26,6 +27,7 @@ import {
   setRunFormats,
   setRunResult,
   setRunState,
+  setRunStructure,
   updateRun,
 } from "@ps/db";
 import { revalidatePath } from "next/cache";
@@ -378,6 +380,30 @@ export async function pairRoundAction(form: FormData): Promise<never> {
   await notifyRoundPaired(runId, number);
   revalidatePath(back);
   redirect(`${back}?round=${number}&done=${repair ? "repaired" : "paired"}`);
+}
+
+/**
+ * Ends the Swiss after the rounds paired so far, with the top cut the organizer chose
+ * (E26.35). The run then reads as if set up that way, so the usual buttons start the cut
+ * or finish it: a Swiss that has run out of pairings never has to be cancelled.
+ */
+export async function endSwissAction(form: FormData): Promise<never> {
+  await requireRole("organizer");
+  const runId = form.get("runId")?.toString() ?? "";
+  const back = `/play/events/${runId}`;
+  const topCut = Number(form.get("topCut") ?? NaN);
+  const client = await createSessionClient();
+  const view = await loadRun(client, runId);
+  if (view === null) redirect("/play");
+
+  const move = canEndSwiss(view.run, view.position, topCut);
+  if (!move.ok) redirect(`${back}?error=${move.reason}`);
+  await setRunStructure(client, runId, {
+    swissRounds: view.position.swissRoundsPaired,
+    topCut,
+  });
+  revalidatePath(back);
+  redirect(`${back}?done=swiss-ended`);
 }
 
 // ---------------------------------------------------------------------------

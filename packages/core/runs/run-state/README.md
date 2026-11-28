@@ -8,7 +8,9 @@
 
 **Gotchas.** draft → registration → running → top cut → finished, cancelled from anywhere
 before finished. No Swiss rounds goes registration → top cut; no cut (or a cut of one)
-finishes after the last Swiss round. Starting needs two checked-in entrants; moving on
-needs every result confirmed.
+finishes after the last Swiss round. Starting needs two checked-in entrants and no more
+Swiss rounds than they can play without a rematch (`swiss-capacity`); moving on needs every
+result confirmed. `canEndSwiss` lets a run in Swiss stop after the rounds paired so far, with
+a new top cut, so a run that cannot be paired further is never stuck.
 
 `pnpm --filter core test -- runs/run-state`

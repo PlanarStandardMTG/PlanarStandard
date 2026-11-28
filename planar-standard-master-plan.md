@@ -1168,8 +1168,13 @@ the flow then does the best the rules allow.
 - With 5–8 entrants, where Appendix E would run single elimination, the suggestion is 3 Swiss rounds
   and no cut. Below Appendix E's table it is the same for 3–4 entrants, and 1 round for two.
 - Zero Swiss rounds means straight single elimination, seeded by the seed.
-- More Swiss rounds than the field can pair without rematches reaches the "no such pairing" case
-  above.
+- A run cannot start with more Swiss rounds than its checked-in players can play without a
+  rematch: one fewer than the field when it is even, the field itself when odd, since each player
+  then has one bye. The organizer checks in more players or lowers the rounds.
+- That is a ceiling, not a promise: pairing by points can run out of rematch-free pairings a round
+  or two early. So an organizer can end the Swiss after any completed round, choosing the top cut
+  then (0 for none), and the run starts its cut or finishes from there. No run is stuck short of
+  cancelling it.
 
 **The top cut** is single elimination with no draws (§2.4):
 
@@ -1325,7 +1330,7 @@ Identity and ratings precede decks: the leaderboard is what makes the site matte
 
 14. How many Swiss rounds, and what top cut, for an event's size?
 
-- The organizer's choice, prefilled from MTR Appendix E; any value works, including no Swiss rounds
+- The organizer's choice, prefilled from MTR Appendix E; any value the field can pair works, including no Swiss rounds
 
 15. May a player who dropped re-enter?
 

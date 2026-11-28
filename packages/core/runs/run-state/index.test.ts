@@ -1,7 +1,7 @@
 import type { RunState } from "@ps/contracts";
 import { describe, expect, it } from "vitest";
 
-import { canMoveRun, runMoves } from "./index";
+import { canEndSwiss, canMoveRun, runMoves } from "./index";
 import type { RunProgress } from "./index";
 
 const progress = (extra: Partial<RunProgress> = {}): RunProgress => ({
@@ -92,6 +92,44 @@ describe("core/runs/run-state", () => {
       ok: false,
       reason: "not-a-move",
       message: "A run in draft cannot move to running.",
+    });
+  });
+
+  it("refuses a start with more Swiss rounds than the field can play without a rematch", () => {
+    const run = { state: "registration" as const, swissRounds: 3, topCut: 0 };
+    const two = canMoveRun(run, "running", progress({ checkedInEntrants: 2 }));
+    expect(reason(two)).toBe("too-many-rounds");
+    expect(two.ok ? "" : two.message).toContain("at most 1");
+    expect(reason(canMoveRun(run, "running", progress({ checkedInEntrants: 3 })))).toBe("ok");
+    expect(reason(canMoveRun(run, "running", progress({ checkedInEntrants: 4 })))).toBe("ok");
+  });
+
+  describe("ending the Swiss early", () => {
+    const running = { state: "running" as const, swissRounds: 3 };
+
+    it("is allowed after a round, with results in, and any top cut", () => {
+      const after = progress({ swissRoundsPaired: 1 });
+      expect(canEndSwiss(running, after, 0)).toEqual({ ok: true });
+      expect(canEndSwiss(running, after, 4)).toEqual({ ok: true });
+    });
+
+    it("waits for every result", () => {
+      const facts = progress({ swissRoundsPaired: 1, unconfirmedPairings: 1 });
+      expect(reason(canEndSwiss(running, facts, 0))).toBe("results-missing");
+    });
+
+    it("needs a round paired, rounds left, a run in Swiss and a sane cut", () => {
+      expect(reason(canEndSwiss(running, progress(), 0))).toBe("no-swiss-played");
+      expect(reason(canEndSwiss(running, progress({ swissRoundsPaired: 3 }), 0))).toBe(
+        "not-a-move",
+      );
+      const inCut = { state: "top_cut" as const, swissRounds: 3 };
+      expect(reason(canEndSwiss(inCut, progress({ swissRoundsPaired: 1 }), 0))).toBe("not-running");
+      for (const cut of [-1, 1.5, 513]) {
+        expect(reason(canEndSwiss(running, progress({ swissRoundsPaired: 1 }), cut))).toBe(
+          "top-cut",
+        );
+      }
     });
   });
 });

@@ -15,6 +15,7 @@ import type {
   RunRoundId,
   RunRoundKind,
   RunState,
+  RunStructure,
   TournamentId,
 } from "@ps/contracts";
 import type { SupabaseClient } from "@supabase/supabase-js";
@@ -144,6 +145,21 @@ export async function setRunState(
     .select("id");
   if (error !== null) fail("setRunState", error);
   if ((data ?? []).length === 0) fail("setRunState", { message: "no run the caller manages" });
+}
+
+/** Resets a started run's Swiss rounds and top cut, for ending the Swiss early (`core/runs/run-state`). */
+export async function setRunStructure(
+  client: SupabaseClient,
+  runId: RunId,
+  structure: RunStructure,
+): Promise<void> {
+  const { data, error } = await client
+    .from("tournament_runs")
+    .update({ swiss_rounds: structure.swissRounds, top_cut: structure.topCut })
+    .eq("id", runId)
+    .select("id");
+  if (error !== null) fail("setRunStructure", error);
+  if ((data ?? []).length === 0) fail("setRunStructure", { message: "no run the caller manages" });
 }
 
 /** Deletes a draft. Anything that has been public is cancelled instead. */
