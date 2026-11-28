@@ -11,4 +11,5 @@ import type { EventSource } from "@ps/contracts";
 export const EVENT_SOURCE_LABELS: Record<EventSource, string> = {
   challonge: "Challonge",
   melee: "melee.gg",
+  site: "Planar Standard",
 };

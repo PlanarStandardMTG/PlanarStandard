@@ -9,7 +9,7 @@ import {
   setPlayerProfile,
 } from "@ps/db";
 import { createClient } from "@supabase/supabase-js";
-import { afterAll, describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 
 import { toDeckCards } from "@/lib/decks/deck-cards";
 import { cardIndex } from "@/lib/cards/card-index";
@@ -35,8 +35,12 @@ const reachable = await fetch(`${url}/rest/v1/`, {
 
 const service = createClient(url, serviceKey);
 const tag = String(Date.now()).slice(-8);
-/** Seeded Ines Quillfeather (`seed/0001_profiles.sql`); nothing else links them. */
-const MEMBER = "11111111-1111-4111-8111-000000000004" as ProfileId;
+/**
+ * A member of the test's own, so a seeded account linked to a player by local use —
+ * registering for an event does that (E26.17) — cannot collide with it.
+ */
+let MEMBER = "" as ProfileId;
+let memberUser = "";
 /** From `seed/0006_seasons.sql`. */
 const SEASON_II = "44444444-4444-4444-8444-000000000002";
 
@@ -46,6 +50,21 @@ const OTHER = "4 Shock\n20 Mountain";
 const made = { tournaments: [] as string[], players: [] as PlayerId[], decks: [] as string[] };
 
 describe.skipIf(!reachable)("lib/decks/attach-event-decks", () => {
+  beforeAll(async () => {
+    const { data, error } = await service.auth.admin.createUser({
+      email: `attach-decks-${tag}@example.test`,
+      email_confirm: true,
+    });
+    if (error !== null) throw new Error(error.message);
+    memberUser = data.user.id;
+    const { data: profile } = await service
+      .from("profiles")
+      .select("id")
+      .eq("user_id", memberUser)
+      .single();
+    MEMBER = (profile as { id: string }).id as ProfileId;
+  });
+
   afterAll(async () => {
     await service.from("tournament_entries").delete().in("player_id", made.players);
     const { data } = await service.from("decks").select("id").in("player_id", made.players);
@@ -53,6 +72,8 @@ describe.skipIf(!reachable)("lib/decks/attach-event-decks", () => {
     await service.from("decks").delete().in("id", decks);
     await service.from("tournaments").delete().in("id", made.tournaments);
     await service.from("players").delete().in("id", made.players);
+    await service.auth.admin.deleteUser(memberUser);
+    await service.from("profiles").delete().eq("id", MEMBER);
   });
 
   it("uses the member's saved deck, makes one for anyone else, and re-runs as a no-op", async () => {

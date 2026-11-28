@@ -1089,13 +1089,20 @@ built for this format only; a generic event manager can come later, out of what 
 replaced a plan for a separate events service on its own database (2026-10-13): one database means a
 foreign key where that plan needed an export, a token, an adapter and a fetch job (ADR 015).
 
+**Words.** In the code an event played here is a **run**, which keeps it apart from `tournaments`,
+the record it becomes, and from the calendar's `external_events`. Members never see the word: on
+every page, URL and notification it is an **event**, at `/play/events/<id>`.
+
 **Where it lives.**
 
 - `core/runs` — pure: points and records, tiebreakers, standings, Swiss pairing, byes, the top cut,
   which state a run may move to, and a finished run as a `ParsedEvent`. Randomness arrives as a seed.
-- `db` — `tournament_runs`, one per `tournaments` row in `draft`, holding the live state, the seed, the
-  Swiss rounds and the top cut; `run_entrants`, `run_rounds`, `run_pairings` and `run_result_changes`;
-  `profile_contacts` and `push_subscriptions`. Nothing in the ledger changes while a run is live.
+- `db` — `tournament_runs`, holding a run's name, date, live state, seed, Swiss rounds and top cut,
+  with its format versions in `tournament_run_formats`; `run_entrants`, `run_guest_contacts`,
+  `run_rounds`, `run_pairings` and `run_result_changes`; `profile_contacts` and
+  `push_subscriptions`. Nothing in the ledger changes while a run is live: the run's `tournaments`
+  row is created when it finishes, by the import, and `tournament_runs.tournament_id` points at it.
+  The tournament reads rely on a draft event being hidden, so a live run never appears among them.
 - `web` — `/play` for players and for an organizer running the room from a phone, under the same
   sign-in and guards as the rest of the site.
 
@@ -1119,7 +1126,7 @@ and the leaderboard, decks and tournament pages never show them. Only these peop
 - the organizer of a run the member is entered in
 - the member's opponent, while they are paired, so they can send a Direct Challenge
 
-A guest's Arena username sits on their entrant row under the same rules.
+A guest's Arena username sits in `run_guest_contacts`, beside their entrant row, under the same rules.
 
 **Scoring and standings** follow the Magic Tournament Rules (April 2025), and `core` cites the
 section for each rule:
@@ -1159,10 +1166,15 @@ prefilled with a suggestion from Appendix E, but any value is allowed, whatever 
 the flow then does the best the rules allow.
 
 - With 5–8 entrants, where Appendix E would run single elimination, the suggestion is 3 Swiss rounds
-  and no cut.
+  and no cut. Below Appendix E's table it is the same for 3–4 entrants, and 1 round for two.
 - Zero Swiss rounds means straight single elimination, seeded by the seed.
-- More Swiss rounds than the field can pair without rematches reaches the "no such pairing" case
-  above.
+- A run cannot start with more Swiss rounds than its checked-in players can play without a
+  rematch: one fewer than the field when it is even, the field itself when odd, since each player
+  then has one bye. The organizer checks in more players or lowers the rounds.
+- That is a ceiling, not a promise: pairing by points can run out of rematch-free pairings a round
+  or two early. So an organizer can end the Swiss after any completed round, choosing the top cut
+  then (0 for none), and the run starts its cut or finishes from there. No run is stuck short of
+  cancelling it.
 
 **The top cut** is single elimination with no draws (§2.4):
 
@@ -1182,7 +1194,9 @@ added after that: there is no late-entry logic. Rounds have no timer. The organi
 round when every result is in.
 
 **Decks.** An entrant picks a saved deck or pastes one, and it locks when the run starts (ADR 013,
-E18.11). Legality is checked against the run's format versions (E20.66).
+E18.11). Legality is checked against the run's format versions (E20.66). Lists are private to the
+entrant and the organizer until the event is imported, unless the organizer made it an open-decklist
+event: then everyone sees every list once it starts (E26.36).
 
 **Results.** Either player reports, and the other confirms. The organizer can enter or overrule any
 result, and every change is logged with who made it.
@@ -1211,12 +1225,12 @@ game found this way records nothing and is not rated.
 **Free plans.** Everything runs on free tiers. These limits were checked at the time of writing;
 check them again before relying on them.
 
-| Limit                          | Roughly                                       | So                                                                                                                  |
-| ------------------------------ | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
-| Vercel Hobby cron              | once a day                                    | Nothing in a run is timed. Anything that needs a schedule later runs from Supabase `pg_cron` plus `pg_net` (E23.14) |
-| Supabase Realtime              | 200 concurrent connections, 2M messages/month | Plenty for an event; subscribe per run, not to everything                                                           |
-| Supabase auth email rate limit | set in the dashboard when custom SMTP is on   | Raise it before an event day; sessions last weeks, so codes are rare                                                |
-| Resend                         | 100 emails a day, 3,000 a month               | The real ceiling on sign-in codes                                                                                   |
+| Limit                          | Roughly                                       | So                                                                                                                                                                            |
+| ------------------------------ | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Vercel Hobby cron              | once a day                                    | Nothing in a run is timed. Anything that needs a schedule later runs from Supabase `pg_cron` plus `pg_net` (E23.14)                                                           |
+| Supabase Realtime              | 200 concurrent connections, 2M messages/month | Plenty for an event; subscribe per run, not to everything                                                                                                                     |
+| Supabase auth email rate limit | set in the dashboard when custom SMTP is on   | Suggested 30 an hour on an event day, within Resend's 100 a day. A session refreshes its hourly token silently and has no fixed end, so a member types a code once per device |
+| Resend                         | 100 emails a day, 3,000 a month               | The real ceiling on sign-in codes                                                                                                                                             |
 
 ---
 
@@ -1318,7 +1332,7 @@ Identity and ratings precede decks: the leaderboard is what makes the site matte
 
 14. How many Swiss rounds, and what top cut, for an event's size?
 
-- The organizer's choice, prefilled from MTR Appendix E; any value works, including no Swiss rounds
+- The organizer's choice, prefilled from MTR Appendix E; any value the field can pair works, including no Swiss rounds
 
 15. May a player who dropped re-enter?
 

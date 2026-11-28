@@ -26,10 +26,16 @@ export interface EventIdentities {
 /** A handle is one word or so; this many collisions means something else is wrong. */
 const MAX_SLUG_ATTEMPTS = 20;
 
+/**
+ * `displayNames` names the players a miss creates, where the source printed a name
+ * beside the handle — a run's guest is `run-guest-<id>` with the name the organizer
+ * typed (E26.21). Without one, a new player is named after their handle.
+ */
 export async function resolveEventHandles(
   service: SupabaseClient,
   platform: IdentityPlatform,
   handles: readonly string[],
+  displayNames: ReadonlyMap<string, string> = new Map(),
 ): Promise<EventIdentities> {
   const known = await listIdentitiesByNormalized(service, handles.map(normalizeHandle));
   const { resolutions, issues } = resolveHandles(platform, handles, known);
@@ -48,7 +54,7 @@ export async function resolveEventHandles(
               handle,
               source: "import_inferred",
             })
-          : await createPlayer(service, platform, handle);
+          : await createPlayer(service, platform, handle, displayNames.get(handle) ?? handle);
     identities.set(handle, identity.id);
     players.set(handle, identity.playerId);
   }
@@ -60,12 +66,13 @@ async function createPlayer(
   service: SupabaseClient,
   platform: IdentityPlatform,
   handle: string,
+  displayName: string,
 ): Promise<IdentityRef> {
   for (let attempt = 1; ; attempt++) {
     try {
       return await createPlayerWithIdentity(service, {
-        displayName: handle,
-        slug: playerSlug(handle, attempt),
+        displayName,
+        slug: playerSlug(displayName, attempt),
         platform,
         handle,
         source: "import_inferred",

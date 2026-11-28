@@ -5,6 +5,17 @@ import type { IsoDateTime, PostId, PostRevisionId, ProfileId } from "./primitive
 
 export type UserRole = "reader" | "writer" | "organizer" | "admin";
 
+/**
+ * How to reach a member for a match: their Arena username for a Direct Challenge, and
+ * their Discord name. Private (§28) — the member, admins, the organizer of a run they
+ * are in, and their opponent while paired — and never a handle.
+ */
+export interface ProfileContacts {
+  readonly profileId: ProfileId;
+  readonly arenaUsername: string | null;
+  readonly discordName: string | null;
+}
+
 export interface Profile {
   readonly id: ProfileId;
   readonly displayName: string;

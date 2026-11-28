@@ -51,3 +51,7 @@ export type ResultImportId = string;
 export type StagedMatchId = string;
 export type MatchCorrectionId = string;
 export type RatingRunId = string;
+export type RunId = string;
+export type RunEntrantId = string;
+export type RunRoundId = string;
+export type RunPairingId = string;

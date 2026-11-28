@@ -1,4 +1,4 @@
-import { listDecksByOwner, listPostsByAuthor } from "@ps/db";
+import { getProfileContacts, listDecksByOwner, listPostsByAuthor } from "@ps/db";
 
 import type { Viewer } from "@/lib/auth/viewer";
 import { createSessionClient } from "@/lib/supabase/session";
@@ -26,6 +26,8 @@ export interface PersonalDataExport {
     readonly signedUp: string;
   };
   readonly profile: unknown;
+  /** Arena username and Discord name, kept apart from the public profile (E26.15). */
+  readonly contacts: unknown;
   readonly posts: readonly unknown[];
   readonly decks: readonly unknown[];
   readonly notHeldHere: readonly string[];
@@ -35,15 +37,17 @@ export async function personalDataExport(viewer: Viewer): Promise<PersonalDataEx
   const supabase = await createSessionClient();
   const { profile, email } = viewer;
 
-  const [posts, decks] = await Promise.all([
+  const [posts, decks, contacts] = await Promise.all([
     listPostsByAuthor(supabase, profile.id),
     listDecksByOwner(supabase, profile.id),
+    getProfileContacts(supabase, profile.id),
   ]);
 
   return {
     exportedAt: new Date().toISOString(),
     account: { email, signedUp: profile.createdAt },
     profile,
+    contacts,
     posts,
     decks,
     notHeldHere: [

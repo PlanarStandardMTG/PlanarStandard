@@ -13,7 +13,7 @@ To sign in, use the **Dev** dropdown in the header — one click per seeded
 account, reader through admin. It exists only under `next dev`; see
 [`docs/modules/auth.md`](../../docs/modules/auth.md#working-on-this-locally).
 
-**Layout.** `app/` is routes only. `components/ui/` holds primitives that know
+**Layout.** `app/` is routes only. Every site page sits in the `(site)` route group, whose layout adds the header and footer; `app/play` is the play app (E26.23), with its own chrome, manifest and service worker (`public/play-sw.js`), and the root layout holds only what both share. `components/ui/` holds primitives that know
 nothing about the domain; `components/content/` holds the post components that
 every feed and article page shares; `components/home/` holds the three tiles the
 home page is made of (E24); `lib/` holds helpers, the two Supabase clients,
@@ -74,8 +74,10 @@ special case of the other; §25's split rule decides which a document is.
   request, and a page that relies on its parent is one route move from having no
   check. `proxy.ts` refreshes the session and decides nothing. See
   [`docs/modules/auth.md`](../../docs/modules/auth.md).
-- Signing in is a form POST to a route handler, so there is still **no browser
-  Supabase client** in the repo and the whole flow works with JavaScript off. The
+- Signing in is a form POST to a route handler, so the whole flow works with
+  JavaScript off. The one browser Supabase client is the play app's
+  `LiveRefresh` (E26.26): anonymous, the public key only, subscribed to one run's
+  tables so the page refreshes when a result comes in. The
   header renders the account state on the server, which is why it never flickers
   from signed-out to signed-in.
 - **Every route that can change a credential is under `app/auth/`** — password,

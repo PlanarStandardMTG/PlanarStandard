@@ -30,7 +30,7 @@ field required, removing a field, narrowing a union, or renaming anything is.
 
 ## Modules
 
-`primitives` is not one of the domain modules in §7; `events` is a ninth, added with E23. It exists so `IsoDate`
+`primitives` is not one of the domain modules in §7; `events` is a ninth, added with E23, and `runs` a tenth, added with E26. It exists so `IsoDate`
 has one definition rather than four, and so no domain module has to own a scalar
 only its neighbours need.
 
@@ -44,8 +44,9 @@ only its neighbours need.
 | `identity`   | `IdentityId` · `PlayerId` · `MergeSuggestionId` · `PlayerVisibility` · `IdentityPlatform` · `IdentitySource` · `Handle` · `IdentityRef` · `Signal` · `ExclusionReason` · `Exclusion` · `MergeCandidate` · `MergeSuggestionStatus` · `MergeSuggestion`                                                                                                                                                                                                                                    |
 | `ratings`    | `RatingConfig` · `LedgerMatch` · `RatingEvent` · `PlayerRating` · `RatingAnomalyKind` · `SelfPlayAnomaly` · `DuplicateMatchAnomaly` · `ImpossibleGameCountAnomaly` · `RatingJumpAnomaly` · `RatingAnomaly` · `ReplayResult`                                                                                                                                                                                                                                                              |
 | `metrics`    | `ArchetypeId` · `ArchetypeSupertype` · `MvBucket` · `MvBuckets` · `ColorCountKey` · `ColorCounts` · `CardTypeBucket` · `TypeCounts` · `SetCounts` · `MetricRarity` · `RarityCounts` · `DeckMetrics` · `DeckVector` · `SimilarityEdge` · `LayoutPoint` · `EventSeriesPoint` · `EventSeries` · `CardEventStats` · `ArchetypeEventStats` · `ArchetypeShare` · `StatsBoard` · `CardStats` · `ArchetypeStats` · `MatchupStats` · `WilsonInterval` · `SuppressionLevel` · `SuppressionVerdict` |
-| `content`    | `ProfileId` · `PostId` · `PostRevisionId` · `UserRole` · `Profile` · `PostStatus` · `PostKind` · `PostReaction` · `PostReactionCounts` · `Post` · `PostAuthor` · `PostWithAuthor` · `PostRevision` · `InfoPageComponent` · `InfoPageFrontmatter` · `RedditConversionInput`                                                                                                                                                                                                               |
+| `content`    | `ProfileId` · `PostId` · `PostRevisionId` · `UserRole` · `Profile` · `ProfileContacts` · `PostStatus` · `PostKind` · `PostReaction` · `PostReactionCounts` · `Post` · `PostAuthor` · `PostWithAuthor` · `PostRevision` · `InfoPageComponent` · `InfoPageFrontmatter` · `RedditConversionInput`                                                                                                                                                                                           |
 | `events`     | `ExternalEventId` · `EventSource` · `ExternalEventState` · `ExternalEvent` · `EventSyncState` · `EventSchedule`                                                                                                                                                                                                                                                                                                                                                                          |
+| `runs`       | `RunId` · `RunEntrantId` · `RunRoundId` · `RunPairingId` · `RunState` · `RunStructure` · `Run` · `RunEntrant` · `RunEntrantDeck` · `RunRoundKind` · `RunRound` · `RunGames` · `RunResultStatus` · `RunPairing` · `ProposedRunPairing` · `PostedRunPairing` · `RunResultSnapshot` · `RunResultChange` · `RunRecord` · `RunStanding` · `PushSubscriptionRecord`                                                                                                                            |
 
 ## Who owns what
 
@@ -53,7 +54,7 @@ An id is declared once, by the module that owns the concept, and imported
 everywhere else. The graph is acyclic:
 
 ```
-primitives ← cards, content, results, format, identity, ratings, metrics, events
+primitives ← cards, content, results, format, identity, ratings, metrics, events, runs
 cards      ← decks, format, metrics
 decks      ← format, metrics
 content    ← identity                 (ProfileId, UserRole)

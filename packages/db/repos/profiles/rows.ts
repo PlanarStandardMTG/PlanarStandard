@@ -1,4 +1,4 @@
-import type { Profile, ProfileId, UserRole } from "@ps/contracts";
+import type { Profile, ProfileContacts, ProfileId, UserRole } from "@ps/contracts";
 
 /** `profiles` as PostgREST returns it. The snake_case shape stops at this file. */
 export interface ProfileRow {
@@ -27,5 +27,22 @@ export function toProfile(row: ProfileRow): Profile {
     createdAt: row.created_at,
     deletedAt: row.deleted_at,
     bannedAt: row.banned_at,
+  };
+}
+
+/** `profile_contacts` as PostgREST returns it. */
+export interface ProfileContactsRow {
+  readonly profile_id: string;
+  readonly arena_username: string | null;
+  readonly discord_name: string | null;
+}
+
+export const PROFILE_CONTACTS_COLUMNS = "profile_id, arena_username, discord_name";
+
+export function toProfileContacts(row: ProfileContactsRow): ProfileContacts {
+  return {
+    profileId: row.profile_id as ProfileId,
+    arenaUsername: row.arena_username,
+    discordName: row.discord_name,
   };
 }
