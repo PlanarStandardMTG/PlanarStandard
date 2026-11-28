@@ -67,7 +67,7 @@ const all = (value: string | string[] | undefined) =>
 
 /**
  * The browser's state as the URL carries it:
- * `?color=W&cards=Shock;Opt&legal=<id>&event=<id>&sort=win-rate&page=2`, and on
+ * `?color=W&cards=Shock;Opt&by=jane&legal=<id>&event=<id>&sort=win-rate&page=2`, and on
  * the Tournament tab `?view=tournament&format=<id>&event=<id>` in place of `legal`.
  */
 function readFilter(scope: DeckScope, params: Params): Omit<Browse, "current"> {
@@ -80,6 +80,7 @@ function readFilter(scope: DeckScope, params: Params): Omit<Browse, "current"> {
       .map((name) => name.trim())
       .filter(Boolean),
     text,
+    creator: (all(params["by"])[0] ?? "").trim(),
     legal: scope === "tournament" ? null : all(params["legal"])[0] || null,
     eventFormat: scope === "tournament" ? all(params["format"])[0] || null : null,
     event: scope === "community" ? null : all(params["event"])[0] || null,
@@ -92,6 +93,7 @@ function pageHref(filter: Browse, page: number, sort: Sort = filter.sort) {
   if (filter.scope !== "all") query.set("view", filter.scope);
   for (const color of filter.colors) query.append("color", color);
   if (filter.text.trim() !== "") query.set("cards", filter.text);
+  if (filter.creator !== "") query.set("by", filter.creator);
   if (filter.legal !== filter.current && filter.legal !== null) query.set("legal", filter.legal);
   if (filter.eventFormat !== null) query.set("format", filter.eventFormat);
   if (filter.event !== null) query.set("event", filter.event);
@@ -109,6 +111,7 @@ const clearedHref = (filter: Browse) =>
       colors: [],
       cards: [],
       text: "",
+      creator: "",
       legal: filter.current,
       eventFormat: null,
       event: null,
@@ -134,8 +137,8 @@ function inScope(
 
 /**
  * The All, Community and Tournament tabs (E20.40, E20.55): every public deck
- * in the tab at its newest version, narrowed by colour and card name, ten to a
- * page. All and Community list the decks legal in the format version in force,
+ * in the tab at its newest version, narrowed by colour, card name and creator
+ * (E20.73), ten to a page. All and Community list the decks legal in the format version in force,
  * or another one the filter picks (E20.53, E20.60), and All by an event as well
  * (E20.69). Tournament goes by its events instead: every format by default,
  * narrowed by the format an event was played under (E20.62) and the event
@@ -201,7 +204,8 @@ export async function BrowseDecks({ scope, params }: { scope: DeckScope; params:
         (filter.event === null || event.id === filter.event),
     );
   const matching = candidates.flatMap(({ deck, events: played, lineage }) =>
-    matchesDeckFilter(deck.traits ?? NO_TRAITS, filter) && playedAsAsked(played)
+    matchesDeckFilter(deck.traits ?? NO_TRAITS, deck.author?.name ?? null, filter) &&
+    playedAsAsked(played)
       ? [
           {
             deck,
@@ -219,6 +223,7 @@ export async function BrowseDecks({ scope, params }: { scope: DeckScope; params:
   const filtering =
     filter.colors.length > 0 ||
     filter.cards.length > 0 ||
+    filter.creator !== "" ||
     filter.legal !== filter.current ||
     filter.eventFormat !== null ||
     filter.event !== null;
@@ -363,6 +368,7 @@ function FilterMenu({
   const count =
     filter.colors.length +
     filter.cards.length +
+    (filter.creator === "" ? 0 : 1) +
     (filter.legal === filter.current ? 0 : 1) +
     (filter.eventFormat === null ? 0 : 1) +
     (filter.event === null ? 0 : 1);
@@ -408,6 +414,20 @@ function FilterMenu({
           type="search"
           defaultValue={filter.text}
           placeholder="Llanowar Elves; Shock"
+          className="w-full rounded-lg border border-ink-300 bg-paper px-3 py-2 text-sm focus:border-eclipse-500 focus:outline-none dark:border-ink-700 dark:bg-ink-950"
+        />
+        <label
+          htmlFor="by"
+          className="mt-4 mb-1 block text-xs font-medium text-ink-500 dark:text-ink-400"
+        >
+          Created by
+        </label>
+        <input
+          id="by"
+          name="by"
+          type="search"
+          defaultValue={filter.creator}
+          placeholder="Name"
           className="w-full rounded-lg border border-ink-300 bg-paper px-3 py-2 text-sm focus:border-eclipse-500 focus:outline-none dark:border-ink-700 dark:bg-ink-950"
         />
         {versions.length > 0 && (
