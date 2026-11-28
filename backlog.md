@@ -39,7 +39,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E17  | MDX info pages                        | 2     | E16          | 🚧 17/18 |
 | E18  | Services                              | 5–8   | E3–E13       | 🚧 8/24  |
 | E19  | Chart components                      | 8     | E2           | ⬜ 0/14  |
-| E20  | Feature slices                        | 3–10  | E18          | 🚧 62/73 |
+| E20  | Feature slices                        | 3–10  | E18          | 🚧 63/74 |
 | E21  | Season II backfill                    | 7     | E3, E12, E18 | ⬜ 0/6   |
 | E22  | Governance and docs                   | 0     | —            | 🚧 3/12  |
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 17/18 |
@@ -1571,6 +1571,13 @@ _AC:_ typing part of a member's or player's name lists only their decks; an uncr
 once a name is typed; the filter's count and "Clear" include it.
 _Note:_ added outside the plan.
 
+✅ **E20.74 — `posts`: thumbs up on the feed** · XS · Deps: E20.41 — each card on `/news` and
+`/community` with any thumbs up shows the count beside the post, read for the whole feed in one
+call (`post_reaction_totals`).
+_AC:_ the count matches the post page's; totals that fail to load leave the cards without one rather
+than failing the feed. The home page's compact list is unchanged.
+_Note:_ added outside the plan.
+
 ---
 
 ## E21 — Season II backfill
@@ -2153,7 +2160,7 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 | E6   | 8       | 8    | E17  | 18      | 17   |
 | E7   | 5       | 5    | E18  | 24      | 8    |
 | E8   | 7       | 7    | E19  | 14      | 0    |
-| E9   | 9       | 9    | E20  | 73      | 62   |
+| E9   | 9       | 9    | E20  | 74      | 63   |
 | E10  | 3       | 3    | E21  | 6       | 0    |
 | E11  | 6       | 6    | E22  | 12      | 3    |
 |      |         |      | E23  | 18      | 17   |
@@ -2161,4 +2168,4 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E25  | 8       | 6    |
 |      |         |      | E26  | 29      | 0    |
 
-**256 of 356 stories done across 26 epics.**
+**257 of 357 stories done across 26 epics.**

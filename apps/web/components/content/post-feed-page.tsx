@@ -1,9 +1,11 @@
 import type { PostWithAuthor } from "@ps/contracts";
+import { listPostReactionTotals } from "@ps/db";
 import type { ReactNode } from "react";
 
 import { Container } from "@/components/ui/container";
 import { ErrorState } from "@/components/ui/states";
-import type { Loaded } from "@/lib/load";
+import { load, type Loaded } from "@/lib/load";
+import { createPublicClient } from "@/lib/supabase/server";
 
 import { PostList } from "./post-list";
 
@@ -11,7 +13,7 @@ import { PostList } from "./post-list";
  * A whole feed page. `/news` and `/community` are this component with different
  * arguments — the kinds differ editorially, not structurally.
  */
-export function PostFeedPage({
+export async function PostFeedPage({
   title,
   description,
   posts,
@@ -27,6 +29,16 @@ export function PostFeedPage({
   /** Beside the title — the way to add to this feed, for whoever may. */
   action?: ReactNode;
 }) {
+  // The feed is the page; totals that fail to load are left off its cards.
+  const reactions = posts.ok
+    ? await load(() =>
+        listPostReactionTotals(
+          createPublicClient(),
+          posts.value.map((post) => post.id),
+        ),
+      )
+    : null;
+
   return (
     <Container className="py-12">
       <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
@@ -43,6 +55,7 @@ export function PostFeedPage({
           // Within a single-kind feed the badge would be on every card, so it
           // says nothing. The page title already said it.
           showKind={false}
+          {...(reactions?.ok === true ? { reactions: reactions.value } : {})}
           emptyTitle={emptyTitle}
           {...(emptyBody === undefined ? {} : { emptyBody })}
         />

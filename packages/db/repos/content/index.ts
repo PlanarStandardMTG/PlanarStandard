@@ -294,6 +294,26 @@ export async function listPostReactionCounts(
   }));
 }
 
+/**
+ * How many reactions each of these published posts has (E20.74), for a feed.
+ * A post nobody has reacted to is absent from the map.
+ */
+export async function listPostReactionTotals(
+  client: SupabaseClient,
+  postIds: readonly PostId[],
+): Promise<ReadonlyMap<PostId, number>> {
+  if (postIds.length === 0) return new Map();
+  const { data, error } = await client.rpc("post_reaction_totals", { p_post_ids: postIds });
+
+  if (error !== null) throw new Error(`listPostReactionTotals failed: ${error.message}`);
+  return new Map(
+    (data as { post_id: string; total: number | string }[]).map((row) => [
+      row.post_id as PostId,
+      Number(row.total),
+    ]),
+  );
+}
+
 /** The caller's own reaction to a post, or null. RLS shows nobody else's. */
 export async function getOwnPostReaction(
   client: SupabaseClient,
