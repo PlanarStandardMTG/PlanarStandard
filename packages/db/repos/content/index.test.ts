@@ -11,6 +11,7 @@ import {
   getPostForEditing,
   getPublishedPostBySlug,
   listPostReactionCounts,
+  listPostReactionTotals,
   listPostsAwaitingReview,
   listPostsByAuthor,
   listPublishedPostSlugs,
@@ -159,6 +160,18 @@ describe.skipIf(!reachable)("repos/content — submission and review", () => {
 
     await setOwnPostReaction(reader, post.id, readerId, null);
     expect(await listPostReactionCounts(client, post.id)).toEqual([]);
+  });
+
+  it("totals a feed's reactions in one call, leaving out posts with none", async () => {
+    const liked = await createPost(writer, draft("liked", writerId, "published"));
+    const quiet = await createPost(writer, draft("quiet", writerId, "published"));
+    await setOwnPostReaction(reader, liked.id, readerId, "thumbs_up");
+    await setOwnPostReaction(writer, liked.id, writerId, "thumbs_up");
+
+    const totals = await listPostReactionTotals(client, [liked.id, quiet.id]);
+    expect(totals.get(liked.id)).toBe(2);
+    expect(totals.has(quiet.id)).toBe(false);
+    expect(await listPostReactionTotals(client, [])).toEqual(new Map());
   });
 
   it("holds a reader's submission for review and shows it to its author", async () => {

@@ -1,4 +1,4 @@
-import type { PostWithAuthor } from "@ps/contracts";
+import type { PostId, PostWithAuthor } from "@ps/contracts";
 
 import { EmptyState, Skeleton } from "@/components/ui/states";
 
@@ -14,8 +14,11 @@ export function PostList({
   showKind = true,
   emptyTitle = "Nothing here yet",
   emptyBody,
+  reactions,
 }: {
   posts: readonly PostWithAuthor[];
+  /** Thumbs up per post (E20.74); when given, each card with any shows its count. */
+  reactions?: ReadonlyMap<PostId, number>;
   compact?: boolean;
   showKind?: boolean;
   emptyTitle?: string;
@@ -29,7 +32,14 @@ export function PostList({
     <ul className="grid gap-4">
       {posts.map((post) => (
         <li key={post.id} className="relative">
-          <PostCard post={post} compact={compact} showKind={showKind} />
+          <PostCard
+            post={post}
+            compact={compact}
+            showKind={showKind}
+            {...(reactions?.has(post.id) === true
+              ? { reactions: reactions.get(post.id) ?? 0 }
+              : {})}
+          />
         </li>
       ))}
     </ul>
