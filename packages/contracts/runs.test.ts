@@ -25,6 +25,7 @@ describe("runs contracts", () => {
       name: "Planar Standard Weekly #42",
       startsAt: "2026-10-17T19:00:00.000Z",
       description: null,
+      openDecklists: false,
       formatVersionIds: ["b7c1d2e3-4f5a-4b6c-8d7e-9f0a1b2c3d4e"],
       tournamentId: null,
       organizerId: "9f8e7d6c-5b4a-4392-8170-6f5e4d3c2b1a",

@@ -84,7 +84,9 @@ export default async function RunPage({
   const mine =
     viewer === null ? null : (entrants.find((e) => e.profileId === viewer.profile.id) ?? null);
   const [decks, memberDecks] = await Promise.all([
-    viewer === null ? Promise.resolve([]) : listRunEntrantDecks(client, run.id),
+    viewer === null && !run.openDecklists
+      ? Promise.resolve([])
+      : listRunEntrantDecks(client, run.id),
     viewer === null ? Promise.resolve([]) : listMemberDecks(client, viewer.profile.id),
   ]);
   const deckOf = new Map(decks.map((d) => [d.entrantId, d]));

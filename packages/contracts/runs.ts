@@ -36,6 +36,8 @@ export interface Run extends RunStructure {
   /** Null until the organizer sets a date. */
   readonly startsAt: IsoDateTime | null;
   readonly description: string | null;
+  /** Once the run starts, everyone who can see it reads every entrant's list (E26.36). */
+  readonly openDecklists: boolean;
   /** The versions decks are checked against, in the organizer's order; the first is the default. */
   readonly formatVersionIds: readonly FormatVersionId[];
   /**

@@ -63,6 +63,7 @@ export interface RunDetails {
   readonly description: string | null;
   readonly swissRounds: number;
   readonly topCut: number;
+  readonly openDecklists: boolean;
 }
 
 /** A new draft run under the caller's name. The database chooses its seed. */
@@ -81,6 +82,7 @@ export async function createRun(
       organizer_id: organizerId,
       swiss_rounds: details.swissRounds,
       top_cut: details.topCut,
+      open_decklists: details.openDecklists,
     })
     .select("id")
     .single();
@@ -105,6 +107,7 @@ export async function updateRun(
       description: details.description,
       swiss_rounds: details.swissRounds,
       top_cut: details.topCut,
+      open_decklists: details.openDecklists,
     })
     .eq("id", runId);
   if (error !== null) fail("updateRun", error);

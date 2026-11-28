@@ -1194,7 +1194,9 @@ added after that: there is no late-entry logic. Rounds have no timer. The organi
 round when every result is in.
 
 **Decks.** An entrant picks a saved deck or pastes one, and it locks when the run starts (ADR 013,
-E18.11). Legality is checked against the run's format versions (E20.66).
+E18.11). Legality is checked against the run's format versions (E20.66). Lists are private to the
+entrant and the organizer until the event is imported, unless the organizer made it an open-decklist
+event: then everyone sees every list once it starts (E26.36).
 
 **Results.** Either player reports, and the other confirms. The organizer can enter or overrule any
 result, and every change is logged with who made it.

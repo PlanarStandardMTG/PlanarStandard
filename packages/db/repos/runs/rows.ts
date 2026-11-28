@@ -27,6 +27,7 @@ export interface RunRow {
   readonly seed: string;
   readonly swiss_rounds: number;
   readonly top_cut: number;
+  readonly open_decklists: boolean;
   readonly tournament_id: string | null;
   readonly tournament_run_formats: ReadonlyArray<{
     readonly format_version_id: string;
@@ -36,7 +37,7 @@ export interface RunRow {
 
 export const RUN_COLUMNS =
   "id, name, starts_at, description, organizer_id, state, seed, swiss_rounds, top_cut, " +
-  "tournament_id, tournament_run_formats(format_version_id, position)";
+  "open_decklists, tournament_id, tournament_run_formats(format_version_id, position)";
 
 export function toRun(row: RunRow): Run {
   return {
@@ -44,6 +45,7 @@ export function toRun(row: RunRow): Run {
     name: row.name,
     startsAt: row.starts_at,
     description: row.description,
+    openDecklists: row.open_decklists,
     formatVersionIds: [...row.tournament_run_formats]
       .sort((a, b) => a.position - b.position)
       .map((f) => f.format_version_id as FormatVersionId),

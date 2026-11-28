@@ -117,7 +117,7 @@ export function RunForm({
       </div>
 
       <fieldset>
-        <legend className="text-sm font-medium">Format versions</legend>
+        <legend className="text-sm font-medium">Format</legend>
         <div className="mt-2 space-y-1.5">
           {versions.map((version) => (
             <label key={version.id} className="flex items-center gap-2 text-sm">
@@ -133,6 +133,12 @@ export function RunForm({
           ))}
         </div>
       </fieldset>
+
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" name="openDecklists" defaultChecked={run?.openDecklists ?? false} />
+        Open decklists
+        <span className="text-xs text-ink-500">(shown to everyone once it starts)</span>
+      </label>
 
       <fieldset disabled={structureLocked} className="space-y-3">
         <legend className="text-sm font-medium">Structure</legend>

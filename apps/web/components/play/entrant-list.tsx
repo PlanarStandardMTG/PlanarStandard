@@ -42,6 +42,7 @@ export function EntrantList({
   const before = run.state === "draft" || run.state === "registration";
   const playing = run.state === "running" || run.state === "top_cut";
   const waiting = entrants.filter((e) => !e.checkedIn).map((e) => e.id);
+  const listsShown = run.openDecklists && !before && run.state !== "cancelled";
 
   return (
     <section>
@@ -115,6 +116,16 @@ export function EntrantList({
                     <input type="hidden" name="entrantId" value={entrant.id} />
                     <button className={QUIET}>Drop</button>
                   </form>
+                )}
+                {listsShown && deck !== undefined && (
+                  <details className="w-full">
+                    <summary className="cursor-pointer text-xs text-ink-500 dark:text-ink-400">
+                      Decklist
+                    </summary>
+                    <pre className="mt-1 overflow-x-auto font-mono text-xs whitespace-pre-wrap">
+                      {deck.decklistText}
+                    </pre>
+                  </details>
                 )}
               </li>
             );

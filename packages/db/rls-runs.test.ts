@@ -352,6 +352,12 @@ describe.skipIf(!online)("RLS — running events on the site", () => {
       expect(await seen(anon)).toBe(0);
       expect(await seen(as("rival"))).toBe(0);
       expect(await seen(as("organizer"))).toBe(1);
+
+      // Open decklists show nothing before the run starts (E26.36).
+      await service.from("tournament_runs").update({ open_decklists: true }).eq("id", runId);
+      expect(await seen(as("bob"))).toBe(0);
+      expect(await seen(anon)).toBe(0);
+      await service.from("tournament_runs").update({ open_decklists: false }).eq("id", runId);
     });
 
     it("does not let a member check themself in", async () => {
@@ -471,6 +477,17 @@ describe.skipIf(!online)("RLS — running events on the site", () => {
         .eq("entrant_id", entrant.get("alice") ?? "")
         .single();
       expect(data).toEqual({ decklist_text: "4 Llanowar Elves\n36 Forest\n20 Mountain" });
+    });
+
+    it("shows every list to anyone once an open-decklist run has started (E26.36)", async () => {
+      const seen = async (client: SupabaseClient) =>
+        (await client.from("run_entrant_decks").select("entrant_id")).data?.length ?? 0;
+      expect(await seen(as("bob"))).toBe(0);
+      await service.from("tournament_runs").update({ open_decklists: true }).eq("id", runId);
+      expect(await seen(as("bob"))).toBe(1);
+      expect(await seen(anon)).toBe(1);
+      await service.from("tournament_runs").update({ open_decklists: false }).eq("id", runId);
+      expect(await seen(anon)).toBe(0);
     });
 
     it("lets only the organizer pair a round, and nobody twice in it", async () => {

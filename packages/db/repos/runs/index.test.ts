@@ -102,7 +102,14 @@ describe.skipIf(!reachable)("repos/runs", () => {
     const run = await createRun(
       as("organizer"),
       profile("organizer"),
-      { name: "Scratch", startsAt: null, description: null, swissRounds: 3, topCut: 0 },
+      {
+        name: "Scratch",
+        startsAt: null,
+        description: null,
+        swissRounds: 3,
+        topCut: 0,
+        openDecklists: false,
+      },
       formatVersionId === "" ? [] : [formatVersionId],
     );
     runIds.push(run.id);
@@ -120,12 +127,14 @@ describe.skipIf(!reachable)("repos/runs", () => {
       description: "Bo3",
       swissRounds: 4,
       topCut: 4,
+      openDecklists: true,
     });
     expect(await getRun(as("organizer"), run.id)).toMatchObject({
       name: "Scratch, renamed",
       startsAt: "2026-10-17T19:00:00+00:00",
       swissRounds: 4,
       topCut: 4,
+      openDecklists: true,
     });
     expect(await getRun(anon, run.id)).toBeNull();
     expect(
@@ -141,7 +150,14 @@ describe.skipIf(!reachable)("repos/runs", () => {
     const run = await createRun(
       organizer,
       profile("organizer"),
-      { name: "Weekly", startsAt: null, description: null, swissRounds: 2, topCut: 0 },
+      {
+        name: "Weekly",
+        startsAt: null,
+        description: null,
+        swissRounds: 2,
+        topCut: 0,
+        openDecklists: false,
+      },
       [],
     );
     runIds.push(run.id);

@@ -61,6 +61,7 @@ function readDetails(form: FormData) {
     description: description === "" ? null : description,
     swissRounds: Number(form.get("swissRounds") ?? NaN),
     topCut: Number(form.get("topCut") ?? NaN),
+    openDecklists: form.get("openDecklists") === "on",
     formatVersionIds: form.getAll("formatVersionId").map(String),
   };
 }

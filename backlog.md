@@ -45,7 +45,7 @@ see the "Keeping the backlog current" section of `CLAUDE.md`.
 | E23  | Upcoming events                       | 2     | E13.1        | 🚧 17/18 |
 | E24  | Home page                             | 2     | E16.1        | 🚧 7/8   |
 | E25  | Admin: fetching and processing        | 2     | E18.24       | 🚧 6/8   |
-| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 32/33 |
+| E26  | Running events on the site            | 11    | E2, E18.11   | 🚧 33/34 |
 
 ---
 
@@ -2125,6 +2125,12 @@ round cannot be paired ends its Swiss and finishes, or plays a cut, without bein
 _Note:_ added outside the plan, from testing (2026-11-27). The ceiling is the round-robin count; a
 field can still run out of pairings below it, which ending the Swiss covers.
 
+✅ **E26.36 — Open decklists** · S · Deps: E26.17 — the organizer ticks "Open decklists" when creating
+or editing a run, at any time, mid-event included; while it is ticked and the run has started,
+anyone who can see the run reads every entrant's list on its page. _AC:_ an open run's lists stay
+private during registration; a closed run's stay private until it is imported, as before.
+_Note:_ added outside the plan (2026-11-27). The lists show as text in the entrant list.
+
 _Removed (2026-10-13):_ E26.29, scheduled jobs, because nothing in a run is timed; and E26.30, looking
 for a game, tabled until running events ships (§28). Their IDs are not reused.
 
@@ -2169,10 +2175,10 @@ can start today, in rough order of how much it unblocks.
   417 decklists, against the 3 in `fixtures/archetype-map/`.
 - E22.4, E22.6, E22.7, E15.4 — issue templates, the fifteen ADRs (`docs/adr/` holds only its README),
   linking the module-doc index, and finishing `CONTRIBUTING.md`.
-- **E26 — running events on the site** is built on the `E26` branch, 32 of 33 stories, and
+- **E26 — running events on the site** is built on the `E26` branch, 33 of 34 stories, and
   merges to main as a whole. What is left needs a person or a device rather than code: E26.31 in
   the Supabase dashboard; the _Outstanding:_ checks on E26.23, E26.24 and E26.28 on an Android
-  phone and an iPhone; production's VAPID keys in Vercel; and migrations 0048–0054, pushed to
+  phone and an iPhone; production's VAPID keys in Vercel; and migrations 0050–0057, pushed to
   production when the branch merges.
 
 **Waiting on a person, not on code**
@@ -2237,6 +2243,6 @@ The eight parallel streams from §18 are open; the backlog has stopped being a q
 |      |         |      | E23  | 18      | 17   |
 |      |         |      | E24  | 8       | 7    |
 |      |         |      | E25  | 8       | 6    |
-|      |         |      | E26  | 33      | 32   |
+|      |         |      | E26  | 34      | 33   |
 
-**289 of 361 stories done across 26 epics.**
+**290 of 362 stories done across 26 epics.**
